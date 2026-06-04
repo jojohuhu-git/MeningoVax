@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { recommend } from '../logic/recommend.js';
-import { fmtAgeMonths, ageGroup } from '../logic/format.js';
+import { analyzeHistory } from '../logic/validate.js';
+import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 
-export default function Results({ state, onReset }) {
+export default function Results({ state, onReset, onChange }) {
   const { ageMonths, riskIds, menacwyDoses, menbDoses } = state;
+  const [editingAge, setEditingAge] = useState(false);
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
@@ -22,6 +24,17 @@ export default function Results({ state, onReset }) {
   const acwyDueToday = menacwy.some(r => r.dueToday);
   const bDueToday = menb.some(r => r.dueToday);
 
+  // Inline age editor — recommendations recompute live from state.ageMonths.
+  const years = ageMonths != null ? Math.floor(ageMonths / 12) : '';
+  const months = ageMonths != null ? Math.round(ageMonths % 12) : '';
+  function setAge(y, m) {
+    const yy = parseFloat(y);
+    const mm = parseFloat(m) || 0;
+    if (isNaN(yy) || yy < 0) return;
+    const am = yy * 12 + mm;
+    onChange?.({ ageMonths: am, ageGroup: ageGroup(am) });
+  }
+
   return (
     <div>
       {/* Summary header */}
@@ -32,6 +45,16 @@ export default function Results({ state, onReset }) {
             {fmtAgeMonths(ageMonths)}
           </span>
           {group && <span className="meta-chip meta-group">{group}</span>}
+          {onChange && (
+            <button
+              type="button"
+              className="age-edit-btn"
+              onClick={() => setEditingAge(v => !v)}
+              aria-expanded={editingAge}
+            >
+              {editingAge ? 'Done' : 'Adjust age ▾'}
+            </button>
+          )}
           {riskLabels.length > 0
             ? riskLabels.map((l, i) => (
                 <span key={i} className="meta-chip meta-risk">{l}</span>
@@ -39,6 +62,27 @@ export default function Results({ state, onReset }) {
             : <span className="meta-chip meta-norisk">No risk factors</span>
           }
         </div>
+        {editingAge && (
+          <div className="age-edit-row" data-testid="age-edit-row">
+            <div className="age-field">
+              <label htmlFor="results-years">Years</label>
+              <input
+                id="results-years" type="number" min="0" max="120"
+                value={years}
+                onChange={e => setAge(e.target.value, months)}
+              />
+            </div>
+            <div className="age-field">
+              <label htmlFor="results-months">Months</label>
+              <input
+                id="results-months" type="number" min="0" max="11"
+                value={months}
+                onChange={e => setAge(years, e.target.value)}
+              />
+            </div>
+            <span className="age-edit-hint">Recommendations update as you change the age.</span>
+          </div>
+        )}
       </div>
 
       {/* Pentavalent option — show prominently when both antigens due */}
@@ -54,7 +98,7 @@ export default function Results({ state, onReset }) {
               {(pentavalent.brands || []).map((b, i) => (
                 <div key={i} className="penta-brand">
                   <span className="rec-brand-dot" />
-                  {b}
+                  {stripAntigen(b)}
                 </div>
               ))}
             </div>
@@ -69,7 +113,7 @@ export default function Results({ state, onReset }) {
                     className="citation-chip"
                     title={c.label}
                   >
-                    {c.label.length > 55 ? c.label.slice(0, 54) + '…' : c.label}
+                    {c.short || c.label}
                   </a>
                 ))}
               </div>
@@ -91,13 +135,27 @@ export default function Results({ state, onReset }) {
       {/* MenACWY recs */}
       <div className="rec-section">
         <div className="rec-section-title">MenACWY</div>
-        {menacwy.map((r, i) => <RecCard key={i} rec={r} />)}
+        {menacwy.map((r, i) => (
+          <RecCard
+            key={i}
+            rec={r}
+            doses={menacwyDoses}
+            doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
+          />
+        ))}
       </div>
 
       {/* MenB recs */}
       <div className="rec-section">
         <div className="rec-section-title">MenB</div>
-        {menb.map((r, i) => <RecCard key={i} rec={r} />)}
+        {menb.map((r, i) => (
+          <RecCard
+            key={i}
+            rec={r}
+            doses={menbDoses}
+            doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
+          />
+        ))}
       </div>
 
       <Disclaimer />

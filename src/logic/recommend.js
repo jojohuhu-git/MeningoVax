@@ -24,6 +24,7 @@ import {
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
 import { todayISO, addDays, daysBetween, intervalElapsed, DAYS } from './dateUtils.js';
+import { analyzeHistory } from './validate.js';
 
 // Age bands (months)
 const M = {
@@ -80,9 +81,12 @@ function menacwyRec(am, riskIds, doses, today) {
   const riskClass = menacwyRiskClass(riskIds);
   const refsFor = (ids) => collectRefs(riskIds, ids, ['cdcAdultMening', 'acip2020']);
 
-  // Booster cadence: high-risk children boost every 3y if dose given <7y, else 5y.
-  const lastAge = ageAtDose(last, am, today);
-  const boostDays = (lastAge != null && lastAge < M.y7) || am < M.y7
+  // Booster cadence: keyed off the age at DOSE 2 (the dose completing the
+  // primary series) — <7y at dose 2 → boost every 3y; ≥7y → every 5y. This
+  // matches the validation logic in validate.js. Defaults to 5y when dose 2's
+  // age is unknown. (Only used in the booster branch where doses[1] exists.)
+  const dose2Age = ageAtDose(doses[1] || null, am, today);
+  const boostDays = (dose2Age != null && dose2Age < M.y7)
     ? DAYS.years(3)
     : DAYS.years(5);
 
@@ -148,19 +152,55 @@ function menacwyRec(am, riskIds, doses, today) {
 
   // ── Single dose, no booster (military, college dorm, ACWY outbreak) ───────
   if (riskClass === 'single') {
-    // College-dorm: only if not vaccinated at ≥16y.
-    const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
-    if (given >= 1 && hasDoseAt16) {
+    const isCollege = riskIds.includes('college_dorm');
+
+    // College-dorm rule keys off whether a dose was given at age ≥16y.
+    if (isCollege) {
+      // Confirmed ≥16y dose → requirement satisfied.
+      const confirmedAt16 = doses.some((d) => {
+        const a = ageAtDose(d, am, today);
+        return a != null && a >= M.y16;
+      });
+      if (confirmedAt16) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete — dose given at ≥16y',
+          note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
+          refs: refsFor([]),
+        })];
+      }
+      // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
+      if (given >= 1) {
+        const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');
+        return [rec({
+          vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose (booster at ≥16y)',
+          doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
+          note: datesKnown
+            ? 'A prior MenACWY dose is recorded but was given before age 16. The college-residence requirement is met only by a dose at age ≥16 years — give one dose now.'
+            : 'A prior MenACWY dose is recorded but its age cannot be confirmed. If it was given on or after the 16th birthday, no further dose is needed; otherwise give one dose now. Confirm the date in the record.',
+          refs: refsFor([]),
+        })];
+      }
+      // No history.
+      return [rec({
+        vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose',
+        doseNum: 1, dueToday: true, brands: menacwyBrands(am),
+        note: 'First-year college student living in a residence hall: a single MenACWY dose, unless a dose was already given at age ≥16 years.',
+        refs: refsFor([]),
+      })];
+    }
+
+    // Military recruit / serogroup A/C/W/Y outbreak: a single dose satisfies.
+    if (given >= 1) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete',
-        note: 'A MenACWY dose given at age ≥16 years satisfies this indication; no additional dose needed.',
+        note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit or serogroup A/C/W/Y outbreak). Re-dose only if a separate ongoing-risk indication applies.',
         refs: refsFor([]),
       })];
     }
     return [rec({
       vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose',
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
-      note: 'First-year college students in residence halls (if not vaccinated at age ≥16y), military recruits, and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
+      note: 'Military recruits and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
       refs: refsFor([]),
     })];
   }
@@ -369,11 +409,19 @@ export function recommend(input) {
   const am = input.ageMonths ?? 0;
   const riskIds = input.riskIds ?? [];
   const today = todayISO(input.today);
-  const menacwyDoses = (input.menacwyDoses ?? []).filter(Boolean);
-  const menbDoses = (input.menbDoses ?? []).filter(Boolean);
+  const rawMenacwyDoses = (input.menacwyDoses ?? []).filter(Boolean);
+  const rawMenbDoses = (input.menbDoses ?? []).filter(Boolean);
 
-  const menacwy = menacwyRec(am, riskIds, menacwyDoses, today);
-  const menb = menbRec(am, riskIds, menbDoses, today);
+  // Phase 3: filter doses through the last-kept validation walk so that
+  // invalid doses (wrong age, interval violation, family mismatch) do NOT
+  // count toward series completion. The engine sees only the effective list.
+  // The full raw list (with per-dose display results) is available via
+  // analyzeHistory() in Results.jsx for the RECORDED panel.
+  const effectiveMenacwyDoses = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today).effective;
+  const effectiveMenbDoses    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today).effective;
+
+  const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today);
+  const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y).

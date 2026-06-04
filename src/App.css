@@ -534,17 +534,19 @@ body {
   background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh);
-  border-left: 4px solid var(--gy5);
+  border: 1px solid var(--gy5);
   overflow: hidden;
   margin-bottom: 10px;
 }
-.rec-card.status-due          { border-left-color: var(--g); }
-.rec-card.status-catchup      { border-left-color: var(--a); }
-.rec-card.status-risk-based   { border-left-color: var(--r); }
-.rec-card.status-shared-decision { border-left-color: var(--b); }
-.rec-card.status-complete     { border-left-color: var(--gy4); }
-.rec-card.status-not-indicated { border-left-color: var(--gy5); }
-.rec-card.status-deferred     { border-left-color: var(--a); }
+/* Status communicated by background shading (not a left strip). Each status
+   gets a light tint fill + a slightly stronger border of the same hue. */
+.rec-card.status-due             { background: var(--glt); border-color: var(--cmd); }
+.rec-card.status-catchup         { background: var(--alt); border-color: #f0c79a; }
+.rec-card.status-risk-based      { background: var(--rlt); border-color: #f0b0b0; }
+.rec-card.status-shared-decision { background: var(--blt); border-color: #a8cbef; }
+.rec-card.status-complete        { background: var(--gy6); border-color: var(--gy5); }
+.rec-card.status-not-indicated   { background: var(--wh); border-color: var(--gy5); }
+.rec-card.status-deferred        { background: var(--alt); border-color: #f0c79a; }
 .rec-card-inner { padding: 16px 18px; }
 .rec-card-head {
   display: flex;
@@ -583,6 +585,84 @@ body {
   color: var(--wh);
   font-size: 0.78rem;
   font-weight: 700;
+}
+/* Shared-decision is optional — not a mandatory "Due today". */
+.due-pill.due-pill-optional {
+  background: var(--blt);
+  color: var(--b);
+  border: 1px solid #a8cbef;
+}
+
+/* Series progress — recorded doses vs the dose now due */
+.rec-progress {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--gy5);
+  border-radius: var(--rads);
+  padding: 7px 10px;
+  margin-bottom: 8px;
+}
+.rec-progress-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gy3);
+}
+.rec-progress-list {
+  list-style: none;
+  margin: 3px 0 0;
+  padding: 0;
+}
+.rec-progress-list li {
+  font-size: 0.82rem;
+  color: var(--gy2);
+  padding: 1px 0;
+}
+.rec-dose-due-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c);
+}
+/* "Upcoming:" tag — used when dose is not yet due (future earliestNextDate) */
+.rec-dose-notyet-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gy3);
+}
+
+/* Inline age editor (StepAge hint + Results "Adjust age") */
+.age-precise-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gy3);
+  margin-bottom: 6px;
+}
+.age-edit-btn {
+  background: var(--clt);
+  color: var(--c);
+  border: 1px solid var(--cmd);
+  border-radius: var(--rads);
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.age-edit-btn:hover { background: #d6eef7; }
+.age-edit-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.age-edit-hint {
+  font-size: 0.78rem;
+  color: var(--gy3);
+  align-self: center;
 }
 .next-date {
   font-size: 0.82rem;
@@ -665,6 +745,79 @@ body {
   transition: background 0.1s;
 }
 .citation-chip:hover { background: var(--clt); border-color: var(--cmd); }
+
+/* ── Per-dose validation chips (Recorded: block) ───────────────── */
+/* Each recorded dose row: dose text + validation chip stacked */
+.rec-progress-dose-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--gy6);
+}
+.rec-progress-dose-row:last-child { border-bottom: none; }
+.rec-progress-dose-text {
+  font-size: 0.82rem;
+  color: var(--gy2);
+}
+/* Validation result container */
+.dose-val {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+/* Status chip */
+.dose-val-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--rads);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+.dose-val-valid   { background: var(--glt); color: var(--g); border: 1px solid #a5d6a7; }
+.dose-val-invalid { background: var(--rlt); color: var(--r); border: 1px solid #ef9a9a; }
+.dose-val-unknown { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
+/* Reasons (one per line) */
+.dose-val-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.dose-val-reason {
+  font-size: 0.78rem;
+  color: var(--gy2);
+  line-height: 1.4;
+}
+/* Dimmed technical detail line */
+.dose-val-detail {
+  font-size: 0.72rem;
+  color: var(--gy3);
+  line-height: 1.4;
+}
+/* Dropped invalid dose row — subtle strikethrough on the dose text */
+.dose-val-dropped .rec-progress-dose-text {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+/* Effective dose number badge (shown for renumbered survivors) */
+.dose-val-effective {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--rads);
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--glt);
+  color: var(--g);
+  border: 1px solid #a5d6a7;
+  flex-shrink: 0;
+}
 
 /* ── Dual-due connective banner ────────────────────────────────── */
 .dual-due-banner {

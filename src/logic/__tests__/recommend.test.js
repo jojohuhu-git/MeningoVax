@@ -58,7 +58,7 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
   });
 
   it('complement inhibitor adult, dose 1 four weeks ago → dose 2 not yet (needs 8wk)', () => {
-    const r = run({ ageMonths: 360, riskIds: ['complement_inhibitor'], menacwyDoses: [{ date: '2026-05-13' }] });
+    const r = run({ ageMonths: 360, riskIds: ['complement'], menacwyDoses: [{ date: '2026-05-13' }] });
     expect(acwy(r).doseLabel).toMatch(/Dose 2 of 2/);
     expect(acwy(r).dueToday).toBe(false);
     expect(acwy(r).earliestNextDate).toBe('2026-07-08'); // 2026-05-13 + 56d
@@ -77,7 +77,7 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
   });
 
   it('complement inhibitor cites the CDC complement-inhibitor guidance', () => {
-    const r = run({ ageMonths: 360, riskIds: ['complement_inhibitor'] });
+    const r = run({ ageMonths: 360, riskIds: ['complement'] });
     const urls = acwy(r).citations.map((c) => c.url);
     expect(urls.some((u) => u.includes('complement-inhibitor'))).toBe(true);
   });
@@ -98,6 +98,24 @@ describe('MenACWY single-dose indications', () => {
 
   it('college dorm with a dose at 16y → complete', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2023-06-03', ageMonths: 192 }] });
+    expect(acwy(r).status).toBe('complete');
+  });
+
+  it('college dorm with a prior dose given before 16y → still due (booster at ≥16y)', () => {
+    const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ ageMonths: 132 }] });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).dueToday).toBe(true);
+    expect(acwy(r).note).toMatch(/before age 16/i);
+  });
+
+  it('college dorm with a prior dose of unknown age → due, note flags unconfirmed', () => {
+    const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ brand: 'Menveo' }] });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).note).toMatch(/cannot be confirmed/i);
+  });
+
+  it('military recruit with a prior documented dose → complete (single-dose indication met)', () => {
+    const r = run({ ageMonths: 240, riskIds: ['military'], menacwyDoses: [{ date: '2025-06-03' }] });
     expect(acwy(r).status).toBe('complete');
   });
 });
@@ -177,7 +195,7 @@ describe('MenB high-risk 3-dose 0/1-2/6 + antigen family lock', () => {
   });
 
   it('4C dose 1 → dose-2 options stay in 4C family only', () => {
-    const r = run({ ageMonths: 300, riskIds: ['complement_deficiency'], menbDoses: [{ date: '2026-04-03', brand: 'Bexsero' }] });
+    const r = run({ ageMonths: 300, riskIds: ['complement'], menbDoses: [{ date: '2026-04-03', brand: 'Bexsero' }] });
     expect(menb(r).family).toBe('4C');
     const joined = menb(r).brands.join(' ');
     expect(joined).toMatch(/Bexsero/);
@@ -185,8 +203,9 @@ describe('MenB high-risk 3-dose 0/1-2/6 + antigen family lock', () => {
   });
 
   it('high-risk 3 doses complete → first booster 1 year later', () => {
+    // D1 2024-01-03, D2 2024-02-10 (38d ≥4wk), D3 2024-07-10 (188d from D1 ≥183d, 151d from D2 ≥122d)
     const r = run({ ageMonths: 300, riskIds: ['asplenia'], menbDoses: [
-      { date: '2024-01-03', brand: 'Bexsero' }, { date: '2024-02-03', brand: 'Bexsero' }, { date: '2024-07-03', brand: 'Bexsero' },
+      { date: '2024-01-03', brand: 'Bexsero' }, { date: '2024-02-10', brand: 'Bexsero' }, { date: '2024-07-10', brand: 'Bexsero' },
     ] });
     expect(menb(r).doseLabel).toMatch(/Booster/);
     expect(menb(r).minIntervalDays).toBe(365);

@@ -1,0 +1,147 @@
+# MeningoVax — Handoff
+
+Living handoff for the MeningoVax app. See `CLAUDE.md` for architecture/engine rules.
+
+> ⚠️ This folder is cloud-synced (iCloud/Downloads). Watch for file reversions: if an
+> edit "disappears," re-apply it. Commit early once the user authorizes.
+
+---
+
+## Session: 2026-06-04 — UX polish (Phase 1)
+
+Branch: `main`. **Not committed** (per user instruction — awaiting go-ahead).
+Tests: **50 passing, 2 files**. Dev server verified in-browser (no console errors).
+
+### Context: two logic questions the user raised
+1. **"I picked 11–18y and it said 14 years — how is age determined?"**
+   The group chips mapped to a hidden midpoint (`defaultM`): Infant=6mo, Child=6y,
+   Adolescent=**14y**, Adult=23y. The engine computes ONE snapshot at that age — there
+   is no range/forecast. The hidden midpoint was the confusion, and it also made MenB
+   read "not indicated" at 14y (shared-decision only opens at 16–23y).
+2. **"History but no dates?"** Dose counting works by array length without dates; dates
+   only drive interval timing and age-at-dose rules, which degrade gracefully (the
+   engine recommends rather than assuming coverage). See CLAUDE.md "History with no dates".
+
+### Decisions taken (with the user)
+- **Age input → Option 2** (keep chips, but surface & let edit the computed age). Option
+  3 (range + forecast) deferred as possible future work — low payoff for a 2-vaccine,
+  point-in-time tool.
+- **Risk factors → merge complement items + clarify college.**
+- **Dose validation (valid/invalid explanations) → Phase 2** (net-new, larger).
+
+### Changes shipped this session (Phase 1)
+
+1. **Age input no longer hides the snapshot age** (`StepAge.jsx`)
+   - `selectChip` now switches to `'precise'` mode and prefills the Years/Months fields
+     from the chip's `defaultM`, under the label "Age used for recommendations — refine
+     if needed". Chips are a starting point, not a hidden default.
+   - `Results.jsx` gained an inline **"Adjust age ▾"** editor (years/months) wired to
+     `onChange={update}` from `App.jsx`; recommendations recompute live as age changes.
+     Verified: 14y → 18y flips MenB from "Not indicated" to "Shared decision" and
+     surfaces the pentavalent card.
+
+2. **Antigen parens stripped from brand display** (`format.js`, `RecCard.jsx`, `Results.jsx`)
+   - New `stripAntigen(label)` helper removes a trailing `(MenACWY|MenB|MenABCWY)` for
+     display only. Engine strings + tests unchanged ("Menveo (MenACWY)" still asserted).
+   - Applied to rec-card brand list and the pentavalent brand list.
+
+3. **Status shading instead of left-border strip** (`App.css`)
+   - `.rec-card` now uses a per-status background tint + matching border (no `border-left`
+     strip). due=green tint, catch-up/deferred=amber, risk-based=red, shared-decision=blue,
+     complete=grey, not-indicated=white/neutral.
+
+4. **Shared-decision reads as optional, not an error** (`RecCard.jsx`, `App.css`)
+   - Status label normalized to "Shared decision". The due pill for shared-decision shows
+     **"Offer today (optional)"** with a blue `.due-pill-optional` style (vs the green
+     "Due today" for mandatory recs). Visually distinct from grey "Not indicated".
+
+5. **Series progress: done vs due** (`RecCard.jsx`, `App.css`)
+   - Cards now render a **"RECORDED:"** block listing each past dose ("D1 · Jul 3, 2025 ·
+     Bexsero", or "date unknown" / "brand unknown" when absent), and prefix the current
+     rec with a **"Now due:"** tag. `Results.jsx` passes the dose arrays to `RecCard`.
+
+6. **Risk factors** (`riskFactors.js`, `recommend.js`, `recommend.test.js`)
+   - **Merged** `complement_deficiency` + `complement_inhibitor` → single `complement`
+     item (deficiency + inhibitor in one grey sublabel; refs include
+     `cdcComplementInhibitor`). Tests updated to id `'complement'`.
+   - **asplenia** keeps "including sickle cell disease" grey sublabel (verified rendering).
+   - **college_dorm** reworded: "First-year college student living in a residence hall" +
+     sublabel "Check this regardless of history — the tool reads the record and only
+     recommends a dose if none was given at age ≥16y."
+   - **Engine `single` branch rewritten** to disambiguate:
+     - college_dorm: dose confirmed ≥16y → complete; prior dose <16y → "1 dose (booster
+       at ≥16y)" with explanatory note; prior dose of unknown age → due with a "cannot be
+       confirmed" note; no history → standard single dose.
+     - military / ACWY-outbreak: any documented dose → complete; else single dose.
+   - Added 4 regression tests (college <16y, college unknown-age, military complete, plus
+     the existing college ≥16y).
+
+### Verification
+- `npm test` → 50 passing.
+- Browser walk-through of the user's exact scenario (Adolescent → 14y → college dorm →
+  1 Menveo → no MenB): confirmed shading, brand-without-parens, RECORDED/Now-due,
+  college "cannot be confirmed" note, and live age recompute to 18y. No console errors.
+
+---
+
+## Backlog
+
+### Phase 2 — Dose validation + per-dose explanations ✅ SHIPPED 2026-06-04 (Sonnet agent; NOT committed)
+- New pure layer `src/logic/validate.js`: `validateHistory(vaccine, doses, ageMonths,
+  riskIds, today)` → array parallel to `doses`, each `{ status:'valid'|'invalid'|'unknown',
+  reasons:string[], detail? }`.
+- Rules (ACIP): MenACWY min age by brand (Menveo ≥8wk, Menactra ≥9mo, MenQuadfi ≥24mo;
+  unknown→most-permissive); MenACWY high-risk D2 ≥8wk (≥4wk infant); MenB ≥10y all brands;
+  MenB healthy D2 <6mo → valid + "rescue dose needed" (not invalid); MenB high-risk D2 ≥4wk,
+  D3 ≥6mo from D1 & ≥4mo from D2; **MenB family mismatch (4C vs FHbp) → invalid** (skipped
+  when either brand unknown); no date → 'unknown'.
+- UI: `RecCard.jsx` `DoseValidation` chip (green Valid / red Invalid / grey Unknown) +
+  reasons/detail in the RECORDED block; `Results.jsx` passes `doseValidations`. CSS
+  `.dose-val*` in `App.css`.
+- Tests: `src/logic/__tests__/validate.test.js` (+29). Suite now **79 passing, 3 files**.
+- Browser-verified: 18y healthy, MenB D1 Bexsero (Valid) + D2 Trumenba (Invalid, family
+  mismatch reason shown). No console errors.
+
+### Phase 3 — Effective-dose counting ✅ SHIPPED 2026-06-04
+Resolves the Phase 2 follow-up (invalid doses used to still count toward "complete").
+- New `analyzeHistory(vaccine, doses, ageMonths, riskIds, today)` in `validate.js` —
+  ONE chronological "last-kept" walk (ported from vaxapp `validatedHistory`) returns BOTH
+  `{ perDose }` (display, with `effectiveDoseNum`/`doesNotCount`) AND `{ effective }` (the
+  kept list the engine counts). `validateHistory()` kept as a thin wrapper.
+- `recommend()` now feeds `menacwyRec`/`menbRec` the **effective** lists. Invalid doses are
+  dropped → family-mismatch case flips MenB from "Complete" to "Dose 2 of 2 (4C) due."
+- Counting policy: invalid → dropped (does not count, "repeat this dose only"); unknown
+  (no date) → counts but not a timing anchor; MenB healthy early D2 → counts + rescue note.
+- `RecCard.jsx` shows green "Valid / Effective dose N" or red "Invalid ✕ does not count".
+
+### Validation hardening + clarity ✅ SHIPPED 2026-06-04
+- **Min ages from `brands.js`** (single source incl. Penbraya/Penmenvy = ≥10y). Fixes the
+  "Penbraya at 6mo flagged as <2 months" bug → now "<10 years (120 months)."
+- **Booster cadence** (too-soon → invalid): MenACWY high-risk 3y/5y decided by **age at
+  dose 2** (<7y → 3y, else 5y) — applied in BOTH `validate.js` AND `recommend.js`'s
+  next-booster prediction (kept in sync). MenB high-risk first booster ≥1y after series,
+  then ≥2y. Late boosters never flagged.
+- **Baseline ≥4-week interval** between any two MenACWY doses (catches duplicates for all
+  risk classes; high-risk 8wk D2 still stricter).
+- **Family lock** anchors on the first kept *known-brand* dose (handles unknown D1).
+- **"Due today" wording** only when truly due today; future → "Eligible {date}".
+- **Clinical age units** (`format.js` `fmtAgeMonths`): weeks/months/years, never "72 months".
+- **Short citation labels** (`refs.js` `short` field) in chips; full title on hover.
+- **Card wording consolidated**: badge ("Due"/"Catch-up"/…) + pill ("Today"/"Optional
+  today") + plain dose label. Removed the redundant "Now due:"/"Upcoming:" prefixes.
+- Tests: suite now **140 passing, 5 files**.
+
+### Other backlog
+
+### Possible future
+- **Age Option 3** — range + forecast across an age band (deferred; large, low payoff here).
+- **Service worker / offline** (PWA manifest exists; SW not implemented).
+- **Pending: branch protection / first deploy** — repo deploys via Actions on push to
+  `main`; nothing committed from this session yet.
+
+---
+
+## Recurring maintenance
+- Meningococcal ACIP guidance is relatively stable, but re-verify pentavalent (Penbraya
+  2023 / Penmenvy 2025) and the MenB 2-dose 0/6 interval against current CDC notes if a
+  year+ has passed. Sources are at the top of `recommend.js` and in `refs.js`.

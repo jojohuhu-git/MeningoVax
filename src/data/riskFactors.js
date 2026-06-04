@@ -23,25 +23,16 @@
 
 export const RISK_FACTORS = [
   {
-    id: 'complement_deficiency',
-    label: 'Persistent complement component deficiency',
-    sublabel: 'e.g. C5–C9, properdin, factor H, factor D',
+    id: 'complement',
+    label: 'Persistent complement deficiency or complement-inhibitor therapy',
+    sublabel: 'e.g. C5–C9, properdin, factor H/D; or eculizumab (Soliris), ravulizumab (Ultomiris)',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
-    refs: ['acip2020', 'cdcAdultMening'],
-  },
-  {
-    id: 'complement_inhibitor',
-    label: 'Complement inhibitor therapy',
-    sublabel: 'eculizumab (Soliris), ravulizumab (Ultomiris)',
-    menacwyClass: 'primary2',
-    menbClass: 'highrisk',
-    refs: ['cdcComplementInhibitor', 'acip2020'],
+    refs: ['cdcComplementInhibitor', 'acip2020', 'cdcAdultMening'],
   },
   {
     id: 'asplenia',
-    label: 'Anatomic or functional asplenia',
-    sublabel: 'including sickle cell disease',
+    label: 'Anatomic or functional asplenia/sickle cell disease',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
     refs: ['acip2020', 'cdcAdultMening'],
@@ -49,7 +40,6 @@ export const RISK_FACTORS = [
   {
     id: 'hiv',
     label: 'HIV infection',
-    sublabel: 'routine MenACWY indication (not a MenB indication)',
     menacwyClass: 'primary2',
     menbClass: undefined,
     refs: ['acip2020', 'cdcAdultMening'],
@@ -78,8 +68,7 @@ export const RISK_FACTORS = [
   },
   {
     id: 'college_dorm',
-    label: 'First-year college student in residence hall',
-    sublabel: 'if not vaccinated at age ≥16y',
+    label: 'First-year college student living in a residence hall',
     menacwyClass: 'single',
     menbClass: undefined,
     refs: ['cdcAdultMening', 'acip2020'],
@@ -101,7 +90,6 @@ export const RISK_FACTORS = [
   {
     id: 'pregnancy',
     label: 'Pregnancy',
-    sublabel: 'defer MenB unless at increased risk; MenACWY if otherwise indicated',
     menacwyClass: undefined,
     menbClass: undefined,
     deferMenB: true,

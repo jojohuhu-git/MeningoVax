@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ageGroup as deriveGroup, dobToAgeMonths } from '../logic/format.js';
+import { ageGroup as deriveGroup, dobToAgeMonths, fmtAgeMonths } from '../logic/format.js';
 
 const AGE_GROUP_CHIPS = [
   { label: 'Infant (<2y)',      minM: 0,   maxM: 23,  defaultM: 6 },
@@ -17,6 +17,12 @@ export default function StepAge({ ageMonths, ageGroup, error, onChange }) {
 
   function selectChip(chip) {
     const am = chip.defaultM;
+    // Prefill the editable Years/Months fields so the chosen age is visible and
+    // can be refined — chips are a starting point, not a hidden snapshot.
+    setMode('precise');
+    setDob('');
+    setYears(String(Math.floor(am / 12)));
+    setMonths(String(Math.round(am % 12)));
     onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
   }
 
@@ -69,7 +75,7 @@ export default function StepAge({ ageMonths, ageGroup, error, onChange }) {
           <button
             key={chip.label}
             className={`age-chip${ageGroup === chip.label ? ' selected' : ''}`}
-            onClick={() => { setMode('chip'); selectChip(chip); setYears(''); setMonths(''); setDob(''); }}
+            onClick={() => selectChip(chip)}
           >
             {chip.label}
           </button>
@@ -97,6 +103,8 @@ export default function StepAge({ ageMonths, ageGroup, error, onChange }) {
       </div>
 
       {mode === 'precise' && (
+        <>
+        <div className="age-precise-hint">Age used for recommendations — refine if needed</div>
         <div className="age-row">
           <div className="age-field">
             <label htmlFor="age-years">Years</label>
@@ -123,6 +131,7 @@ export default function StepAge({ ageMonths, ageGroup, error, onChange }) {
             />
           </div>
         </div>
+        </>
       )}
 
       {mode === 'dob' && (
@@ -142,7 +151,7 @@ export default function StepAge({ ageMonths, ageGroup, error, onChange }) {
       {derivedGroup && (
         <div style={{ marginTop: 12 }}>
           <span className="age-badge">
-            {ageMonths != null ? `${Math.round(ageMonths * 10) / 10} months` : ''}{' '}
+            {ageMonths != null ? fmtAgeMonths(ageMonths) : ''}{' '}
             · {derivedGroup}
           </span>
         </div>

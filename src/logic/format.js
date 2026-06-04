@@ -1,17 +1,48 @@
 // format.js — UI display helpers (not clinical logic)
 
 /**
- * Format ageMonths to a human-readable string.
- * e.g. 0 → "Birth", 3 → "3 months", 13 → "1 year 1 month", 24 → "2 years"
+ * Format ageMonths using clinical immunization units.
+ *
+ * Immunization resources express age as:
+ *   - "Birth" at 0
+ *   - weeks for very young infants (≤2 months / ≤~8 weeks)
+ *   - months for 2 months through 23 months
+ *   - years (+ months when not a whole year) for ≥24 months
+ *
+ * Never outputs "72 months" — that becomes "6 years".
+ * Mirrors the fmtAgeClinical thresholds in vaxapp's ageFormat.js.
+ *
+ * e.g. 0 → "Birth", 1.5 → "6 weeks", 4 → "4 months", 72 → "6 years",
+ *      78 → "6 years 6 months"
  */
 export function fmtAgeMonths(am) {
   if (am == null) return '';
-  if (am < 1) return 'Birth';
-  if (am < 12) return `${Math.round(am)} month${Math.round(am) === 1 ? '' : 's'}`;
+  if (am < 0.25) return 'Birth';               // < ~1 week → Birth
+  // Very young infants (≤ ~8 weeks / 2 months): express in weeks
+  if (am <= 2) {
+    const wks = Math.round(am * 4.348);        // 1 month ≈ 4.348 weeks
+    if (wks < 1) return 'Birth';
+    return `${wks} week${wks === 1 ? '' : 's'}`;
+  }
+  if (am < 24) {
+    const mo = Math.round(am);
+    return `${mo} month${mo === 1 ? '' : 's'}`;
+  }
   const years = Math.floor(am / 12);
   const months = Math.round(am % 12);
   if (months === 0) return `${years} year${years === 1 ? '' : 's'}`;
   return `${years} year${years === 1 ? '' : 's'} ${months} month${months === 1 ? '' : 's'}`;
+}
+
+/**
+ * Strip a trailing antigen parenthetical from a brand label for display.
+ * The rec-card section header already names the antigen, so "Menveo (MenACWY)"
+ * → "Menveo". Only removes the exact antigen tags; other parentheticals
+ * (e.g. "Menactra (MenACWY) — discontinued") keep their non-antigen text.
+ */
+export function stripAntigen(label) {
+  if (!label) return '';
+  return label.replace(/\s*\((?:MenACWY|MenB|MenABCWY)\)/g, '').trim();
 }
 
 /**
