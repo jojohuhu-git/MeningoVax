@@ -1,0 +1,26 @@
+{
+  "name": "meningovax",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Standalone clinical decision support for meningococcal vaccination (MenACWY + MenB), pediatric through adult, fully ACIP/CDC-cited.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "happy-dom": "^14.12.3",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  }
+}
