@@ -1,0 +1,725 @@
+/* ── CSS custom properties ─────────────────────────────────────── */
+:root {
+  /* Teal/indigo accent — distinct from vaxapp's mint green */
+  --c:    #1a6b8a;   /* primary teal */
+  --c2:   #1d7fa3;   /* medium teal */
+  --c3:   #22a0cc;   /* bright teal */
+  --clt:  #e8f5fb;   /* teal light bg */
+  --cmd:  #9dd4e8;   /* teal medium border */
+
+  /* Status colors */
+  --g:    #2e7d32;   /* due/complete green */
+  --glt:  #e8f5e9;
+  --a:    #e65100;   /* amber/catch-up */
+  --alt:  #fff3e0;
+  --r:    #b71c1c;   /* risk-based red */
+  --rlt:  #ffebee;
+  --b:    #1565c0;   /* shared-decision blue */
+  --blt:  #e3f2fd;
+  --gy:   #37474f;   /* darkest gray (text) */
+  --gy2:  #546e7a;
+  --gy3:  #78909c;
+  --gy4:  #b0bec5;
+  --gy5:  #cfd8dc;
+  --gy6:  #eceff1;
+  --wh:   #ffffff;
+  --bg:   #f5f7fa;
+
+  /* Shape */
+  --rad:  8px;
+  --rads: 4px;
+  --radp: 6px;
+
+  /* Shadow */
+  --sh: 0 2px 8px rgba(0,0,0,0.10);
+  --sh2: 0 4px 16px rgba(0,0,0,0.13);
+}
+
+/* ── Reset / Base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--gy);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ─────────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────────────────────── */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--wh);
+  border-bottom: 1px solid var(--gy5);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+.app-header-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app-logo-icon {
+  width: 36px;
+  height: 36px;
+}
+.app-logo-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c);
+  line-height: 1.2;
+}
+.app-logo-sub {
+  font-size: 0.7rem;
+  color: var(--gy3);
+  line-height: 1.2;
+}
+
+/* ── Stepper ───────────────────────────────────────────────────── */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+.stepper-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: calc(50% + 11px);
+  right: calc(-50% + 11px);
+  height: 2px;
+  background: var(--gy5);
+}
+.stepper-item.done:not(:last-child)::after,
+.stepper-item.active:not(:last-child)::after {
+  background: var(--cmd);
+}
+.stepper-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--gy5);
+  background: var(--wh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--gy4);
+  z-index: 1;
+  transition: all 0.2s;
+}
+.stepper-item.active .stepper-dot {
+  background: var(--c);
+  border-color: var(--c);
+  color: var(--wh);
+}
+.stepper-item.done .stepper-dot {
+  background: var(--clt);
+  border-color: var(--cmd);
+  color: var(--c);
+}
+.stepper-label {
+  font-size: 0.6rem;
+  color: var(--gy4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 52px;
+  text-align: center;
+}
+.stepper-item.active .stepper-label { color: var(--c); font-weight: 600; }
+.stepper-item.done .stepper-label   { color: var(--gy3); }
+
+/* ── Main content ──────────────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px 16px 100px;
+}
+
+/* ── Bottom nav ────────────────────────────────────────────────── */
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--wh);
+  border-top: 1px solid var(--gy5);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.07);
+  z-index: 90;
+  padding: env(safe-area-inset-bottom, 0) 0 0;
+}
+.app-nav-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: var(--rad);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn-next {
+  background: var(--c);
+  color: var(--wh);
+  box-shadow: 0 2px 6px rgba(26,107,138,0.25);
+}
+.btn-next:hover { background: var(--c2); }
+.btn-back {
+  background: var(--wh);
+  color: var(--gy2);
+  border: 1px solid var(--gy5);
+}
+.btn-back:hover { background: var(--gy6); }
+.btn-outline {
+  background: var(--wh);
+  color: var(--c);
+  border: 1.5px solid var(--c);
+}
+.btn-outline:hover { background: var(--clt); }
+.btn-danger-outline {
+  background: var(--wh);
+  color: var(--r);
+  border: 1.5px solid var(--r);
+}
+.btn-sm {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+}
+
+/* ── Step cards ────────────────────────────────────────────────── */
+.step-card {
+  background: var(--wh);
+  border-radius: var(--rad);
+  box-shadow: var(--sh);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.step-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: 4px;
+}
+.step-sub {
+  font-size: 0.88rem;
+  color: var(--gy3);
+  margin-bottom: 20px;
+}
+
+/* ── Age step ──────────────────────────────────────────────────── */
+.age-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.age-chip {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radp);
+  border: 1.5px solid var(--gy5);
+  background: var(--wh);
+  color: var(--gy2);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.age-chip:hover { border-color: var(--cmd); color: var(--c); }
+.age-chip.selected {
+  background: var(--clt);
+  border-color: var(--c);
+  color: var(--c);
+  font-weight: 600;
+}
+.age-precise {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.age-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.age-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.age-field label {
+  font-size: 0.82rem;
+  color: var(--gy3);
+  font-weight: 500;
+}
+.age-field input[type="number"],
+.age-field input[type="date"] {
+  height: 44px;
+  padding: 0 12px;
+  border: 1.5px solid var(--gy5);
+  border-radius: var(--rads);
+  font-size: 0.95rem;
+  color: var(--gy);
+  background: var(--wh);
+  width: 110px;
+}
+.age-field input:focus {
+  outline: none;
+  border-color: var(--c);
+  box-shadow: 0 0 0 3px var(--clt);
+}
+.age-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--rads);
+  background: var(--clt);
+  color: var(--c);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.age-error {
+  color: var(--r);
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+.dob-divider {
+  text-align: center;
+  color: var(--gy4);
+  font-size: 0.82rem;
+  margin: 8px 0;
+}
+
+/* ── Risk factors ──────────────────────────────────────────────── */
+.risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.risk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--rads);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.risk-item:hover { background: var(--gy6); }
+.risk-item.selected {
+  background: var(--clt);
+  border-color: var(--cmd);
+}
+.risk-checkbox {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--c);
+  cursor: pointer;
+}
+.risk-text { flex: 1; }
+.risk-label { font-size: 0.95rem; font-weight: 500; color: var(--gy); }
+.risk-sublabel { font-size: 0.8rem; color: var(--gy3); margin-top: 2px; }
+.risk-none {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: var(--rads);
+  border: 1.5px dashed var(--gy5);
+  cursor: pointer;
+  color: var(--gy3);
+  font-size: 0.9rem;
+}
+.risk-none:hover { background: var(--gy6); }
+.risk-none.selected { border-color: var(--cmd); background: var(--clt); color: var(--c); }
+
+/* ── History step ──────────────────────────────────────────────── */
+.history-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.history-toggle-btn {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--rads);
+  border: 1.5px solid var(--gy5);
+  background: var(--wh);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--gy2);
+}
+.history-toggle-btn.selected {
+  background: var(--clt);
+  border-color: var(--c);
+  color: var(--c);
+  font-weight: 600;
+}
+.dose-list { display: flex; flex-direction: column; gap: 10px; }
+.dose-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 12px;
+  background: var(--gy6);
+  border-radius: var(--rads);
+  flex-wrap: wrap;
+}
+.dose-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+.dose-field label {
+  font-size: 0.78rem;
+  color: var(--gy3);
+  font-weight: 500;
+}
+.dose-field input[type="date"],
+.dose-field select {
+  height: 40px;
+  padding: 0 10px;
+  border: 1.5px solid var(--gy5);
+  border-radius: var(--rads);
+  font-size: 0.88rem;
+  color: var(--gy);
+  background: var(--wh);
+  width: 100%;
+}
+.dose-field input:focus,
+.dose-field select:focus {
+  outline: none;
+  border-color: var(--c);
+}
+.dose-remove {
+  min-height: 40px;
+  width: 36px;
+  border: none;
+  border-radius: var(--rads);
+  background: transparent;
+  color: var(--gy4);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dose-remove:hover { background: var(--rlt); color: var(--r); }
+.add-dose-btn {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--rads);
+  border: 1.5px dashed var(--gy5);
+  background: var(--wh);
+  color: var(--gy3);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.add-dose-btn:hover { border-color: var(--c); color: var(--c); background: var(--clt); }
+.family-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: var(--rads);
+  background: var(--blt);
+  border-left: 3px solid var(--b);
+  font-size: 0.82rem;
+  color: var(--b);
+}
+
+/* ── Results ───────────────────────────────────────────────────── */
+.results-header {
+  background: var(--wh);
+  border-radius: var(--rad);
+  box-shadow: var(--sh);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.results-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: 8px;
+}
+.results-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--rads);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.meta-age { background: var(--clt); color: var(--c); }
+.meta-group { background: var(--gy6); color: var(--gy2); }
+.meta-risk { background: var(--rlt); color: var(--r); }
+.meta-norisk { background: var(--gy6); color: var(--gy3); }
+
+/* ── Rec cards ─────────────────────────────────────────────────── */
+.rec-section { margin-bottom: 16px; }
+.rec-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gy3);
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.rec-card {
+  background: var(--wh);
+  border-radius: var(--rad);
+  box-shadow: var(--sh);
+  border-left: 4px solid var(--gy5);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.rec-card.status-due          { border-left-color: var(--g); }
+.rec-card.status-catchup      { border-left-color: var(--a); }
+.rec-card.status-risk-based   { border-left-color: var(--r); }
+.rec-card.status-shared-decision { border-left-color: var(--b); }
+.rec-card.status-complete     { border-left-color: var(--gy4); }
+.rec-card.status-not-indicated { border-left-color: var(--gy5); }
+.rec-card.status-deferred     { border-left-color: var(--a); }
+.rec-card-inner { padding: 16px 18px; }
+.rec-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.rec-vaccine-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gy);
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--rads);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.status-badge.due              { background: var(--glt); color: var(--g); }
+.status-badge.catchup          { background: var(--alt); color: var(--a); }
+.status-badge.risk-based       { background: var(--rlt); color: var(--r); }
+.status-badge.shared-decision  { background: var(--blt); color: var(--b); }
+.status-badge.complete         { background: var(--gy6); color: var(--gy3); }
+.status-badge.not-indicated    { background: var(--gy6); color: var(--gy4); }
+.status-badge.deferred         { background: var(--alt); color: var(--a); }
+.due-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--rads);
+  background: var(--g);
+  color: var(--wh);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.next-date {
+  font-size: 0.82rem;
+  color: var(--gy3);
+  margin-bottom: 6px;
+}
+.rec-dose-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--gy2);
+  margin-bottom: 8px;
+}
+.rec-brands {
+  margin-bottom: 10px;
+}
+.rec-brands-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gy3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
+}
+.rec-brand-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--gy);
+  padding: 2px 0;
+}
+.rec-brand-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gy4);
+  flex-shrink: 0;
+}
+.rec-note {
+  font-size: 0.85rem;
+  color: var(--gy2);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.rec-citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gy6);
+}
+.citation-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--rads);
+  background: var(--gy6);
+  border: 1px solid var(--gy5);
+  color: var(--c);
+  font-size: 0.75rem;
+  text-decoration: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+.citation-chip:hover { background: var(--clt); border-color: var(--cmd); }
+
+/* ── Pentavalent card ──────────────────────────────────────────── */
+.penta-card {
+  background: var(--wh);
+  border-radius: var(--rad);
+  box-shadow: var(--sh2);
+  border: 2px solid var(--c);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.penta-header {
+  background: var(--clt);
+  border-bottom: 1px solid var(--cmd);
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--c);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.penta-body { padding: 16px 18px; }
+.penta-note {
+  font-size: 0.85rem;
+  color: var(--gy2);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+.penta-brands {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.penta-brand {
+  font-size: 0.88rem;
+  color: var(--gy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Disclaimer ────────────────────────────────────────────────── */
+.disclaimer {
+  background: var(--gy6);
+  border-radius: var(--rads);
+  padding: 14px 16px;
+  margin-top: 20px;
+  font-size: 0.78rem;
+  color: var(--gy3);
+  line-height: 1.5;
+  border-left: 3px solid var(--gy5);
+}
+.disclaimer strong { color: var(--gy2); }
+
+/* ── Reset button area ─────────────────────────────────────────── */
+.results-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .app-header-inner { gap: 10px; }
+  .app-logo-sub { display: none; }
+  .stepper-label { display: none; }
+  .app-main { padding: 16px 12px 100px; }
+  .step-card { padding: 16px; }
+  .age-field input[type="number"] { width: 90px; }
+}
