@@ -500,3 +500,95 @@ describe('Regression — existing valid behaviors unchanged', () => {
     expect(effective).toHaveLength(1);
   });
 });
+
+// ── MenACWY high-risk booster cadence regression (first vs subsequent) ────
+//
+// Rule (ACIP 2020 MMWR / immunize.org p2035):
+//   First booster (effectiveIdx === 2):
+//     D2 at <7y → 3-year cadence (MENACWY_BOOSTER_3Y)
+//     D2 at ≥7y or unknown → 5-year cadence (MENACWY_BOOSTER_5Y)
+//   Subsequent boosters (effectiveIdx >= 3): ALWAYS 5-year cadence.
+
+describe('MenACWY high-risk booster cadence — first vs subsequent regression', () => {
+  it('Case A: primary <7y — first booster (D3) at 2 years after D2 → invalid (needs 3y)', () => {
+    // Patient now 10y (120mo). D1 at age 4y, D2 at age 5y (both <7y).
+    // D3 given only 2 years after D2 → needs 3 years → invalid.
+    const d1 = monthsAgo(72); // ageAtDose ≈ 4y
+    const d2 = monthsAgo(60); // ageAtDose ≈ 5y
+    const d3 = monthsAgo(36); // 2y after D2 → too soon for 3y cadence
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+      { date: d3, brand: 'Menveo (MenACWY)' },
+    ], 120, ['asplenia']);
+    expect(results[0].status).toBe('valid');
+    expect(results[1].status).toBe('valid');
+    expect(results[2].status).toBe('invalid');
+    expect(results[2].reasons[0]).toMatch(/3 years/i);
+  });
+
+  it('Case A-ok: primary <7y — first booster (D3) at 4 years after D2 → valid', () => {
+    // D3 given 4 years after D2 — satisfies the 3-year cadence for primary <7y.
+    const d1 = monthsAgo(96);  // ageAtDose ≈ 4y
+    const d2 = monthsAgo(84);  // ageAtDose ≈ 5y
+    const d3 = monthsAgo(36);  // 4y after D2 → satisfies 3y cadence
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+      { date: d3, brand: 'Menveo (MenACWY)' },
+    ], 120, ['asplenia']);
+    expect(results[2].status).toBe('valid');
+  });
+
+  it('Case A-subsequent: primary <7y — second booster (D4) at 3 years after D3 → invalid (needs 5y)', () => {
+    // Even though primary was <7y, ALL subsequent boosters (D4+) need 5 years.
+    // D4 given only 3 years after D3 → invalid.
+    const d1 = monthsAgo(180); // ageAtDose ≈ 4y  (patient now 19y = 228mo)
+    const d2 = monthsAgo(168); // ageAtDose ≈ 5y
+    const d3 = monthsAgo(120); // first booster (4y after D2, ≥3y) → valid
+    const d4 = monthsAgo(84);  // 3y after D3 → needs 5y for subsequent → invalid
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+      { date: d3, brand: 'Menveo (MenACWY)' },
+      { date: d4, brand: 'Menveo (MenACWY)' },
+    ], 228, ['asplenia']);
+    expect(results[0].status).toBe('valid');
+    expect(results[1].status).toBe('valid');
+    expect(results[2].status).toBe('valid'); // first booster: 4y ≥ 3y → valid
+    expect(results[3].status).toBe('invalid'); // subsequent: 3y < 5y → invalid
+    expect(results[3].reasons[0]).toMatch(/5 years/i);
+  });
+
+  it('Case B: primary ≥7y — first booster (D3) at 3 years after D2 → invalid (needs 5y)', () => {
+    // D2 at age 10y (120mo) → ≥7y → first booster cadence is 5y.
+    // D3 given only 3 years after D2 → invalid.
+    const d1 = monthsAgo(120); // ageAtDose ≈ 10y (patient now 20y = 240mo)
+    const d2 = monthsAgo(108); // ageAtDose ≈ 11y
+    const d3 = monthsAgo(72);  // 3y after D2 → needs 5y → invalid
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+      { date: d3, brand: 'Menveo (MenACWY)' },
+    ], 240, ['asplenia']);
+    expect(results[2].status).toBe('invalid');
+    expect(results[2].reasons[0]).toMatch(/5 years/i);
+  });
+
+  it('Case B-subsequent: primary ≥7y — second booster (D4) at 3 years after D3 → invalid (needs 5y)', () => {
+    // Subsequent booster needs 5y regardless.
+    const d1 = monthsAgo(240); // ageAtDose ≈ 10y (patient now 30y = 360mo)
+    const d2 = monthsAgo(228); // ageAtDose ≈ 11y
+    const d3 = monthsAgo(168); // first booster (5y after D2) → valid
+    const d4 = monthsAgo(132); // 3y after D3 → needs 5y → invalid
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+      { date: d3, brand: 'Menveo (MenACWY)' },
+      { date: d4, brand: 'Menveo (MenACWY)' },
+    ], 360, ['asplenia']);
+    expect(results[2].status).toBe('valid'); // first booster: 5y ≥ 5y → valid
+    expect(results[3].status).toBe('invalid'); // subsequent: 3y < 5y → invalid
+    expect(results[3].reasons[0]).toMatch(/5 years/i);
+  });
+});

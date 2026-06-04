@@ -81,14 +81,20 @@ function menacwyRec(am, riskIds, doses, today) {
   const riskClass = menacwyRiskClass(riskIds);
   const refsFor = (ids) => collectRefs(riskIds, ids, ['cdcAdultMening', 'acip2020']);
 
-  // Booster cadence: keyed off the age at DOSE 2 (the dose completing the
-  // primary series) — <7y at dose 2 → boost every 3y; ≥7y → every 5y. This
-  // matches the validation logic in validate.js. Defaults to 5y when dose 2's
-  // age is unknown. (Only used in the booster branch where doses[1] exists.)
+  // Booster cadence per ACIP 2020 MMWR and immunize.org p2035:
+  //   FIRST booster (given === 2 → dose 3):
+  //     D2 completed at <7y → first booster in 3 years
+  //     D2 completed at ≥7y → first booster in 5 years
+  //     D2 age unknown → conservative 3 years (same as <7y)
+  //   ALL SUBSEQUENT boosters (given >= 3): always 5 years regardless of D2 age.
+  // (Only used in the booster branch where doses[1] exists.)
   const dose2Age = ageAtDose(doses[1] || null, am, today);
-  const boostDays = (dose2Age != null && dose2Age < M.y7)
+  const isFirstBooster = given === 2;
+  // First booster: <7y or unknown → 3y conservative; ≥7y → 5y.
+  const firstBoosterDays = (dose2Age == null || dose2Age < M.y7)
     ? DAYS.years(3)
     : DAYS.years(5);
+  const boostDays = isFirstBooster ? firstBoosterDays : DAYS.years(5);
 
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
   if (riskClass === 'primary2') {
@@ -101,7 +107,7 @@ function menacwyRec(am, riskIds, doses, today) {
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
         doseNum: 1, dueToday: true, brands: menacwyBrands(am),
-        note: 'High-risk indication (asplenia, persistent complement deficiency, complement-inhibitor therapy, or HIV): 2-dose primary series ≥8 weeks apart, then a booster 3–5 years later and every 5 years while at increased risk.',
+        note: 'High-risk indication (asplenia, persistent complement deficiency, complement-inhibitor therapy, or HIV): 2-dose primary series ≥8 weeks apart, then a first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years while at increased risk.',
         refs: refsFor([]),
       })];
     }
@@ -112,19 +118,23 @@ function menacwyRec(am, riskIds, doses, today) {
         doseNum: 2, dueToday: elapsed,
         earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(8)),
         minIntervalDays: DAYS.weeks(8), brands: menacwyBrands(am),
-        note: 'Second dose of the high-risk primary series, ≥8 weeks after dose 1. After completion, boost every 5 years (every 3 years if doses given before age 7) while at increased risk.',
+        note: 'Second dose of the high-risk primary series, ≥8 weeks after dose 1. After completion: first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years while at increased risk.',
         refs: refsFor([]),
       })];
     }
     // given >= 2: primary complete → ongoing boosters
+    // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
+    const boostLabel = isFirstBooster
+      ? `first booster, ${boostDays === DAYS.years(3) ? '3' : '5'} years after primary`
+      : 'every 5 years';
     const elapsed = intervalElapsed(lastDate, boostDays, today);
     return [rec({
       vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, every ${boostDays === DAYS.years(3) ? '3' : '5'} years)`,
+      doseLabel: `Booster (dose ${given + 1}, ${boostLabel})`,
       doseNum: given + 1, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
-      note: 'Primary series complete. Continue MenACWY boosters while the high-risk condition persists: every 5 years (every 3 years for children whose doses were given before age 7).',
+      note: 'Primary series complete. Continue MenACWY boosters while the high-risk condition persists: first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years thereafter.',
       refs: refsFor([]),
     })];
   }

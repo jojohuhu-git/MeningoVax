@@ -296,3 +296,110 @@ describe('Citations present on actionable recs', () => {
     expect(menb(r).citations.length).toBeGreaterThan(0);
   });
 });
+
+// ── MenACWY high-risk booster cadence — first vs subsequent regression ────
+//
+// Rule (ACIP 2020 MMWR / immunize.org p2035):
+//   FIRST booster (given===2): 3y if D2 <7y at time of dose, else 5y.
+//   SUBSEQUENT boosters (given>=3): ALWAYS 5y regardless of D2 age.
+
+describe('MenACWY high-risk booster cadence — recommend.js regression', () => {
+  function addDays(iso, d) {
+    const dt = new Date(iso + 'T00:00:00');
+    dt.setUTCDate(dt.getUTCDate() + d);
+    return dt.toISOString().slice(0, 10);
+  }
+  function yearsBack(y) { return addDays(TODAY, -Math.round(y * 365.25)); }
+  function monthsBack(m) { return addDays(TODAY, -Math.round(m * 30.4375)); }
+
+  it('Case A: primary <7y — first booster (given===2) → minIntervalDays 1095', () => {
+    // Patient now 10y (120mo). D1 at age 4y (monthsBack(72)), D2 at age 5y (monthsBack(60)).
+    // Both doses before age 7 → first booster cadence: 3 years.
+    const r = run({
+      ageMonths: 120, riskIds: ['asplenia'],
+      menacwyDoses: [
+        { date: monthsBack(72) },  // ageAtDose ≈ 4y
+        { date: monthsBack(60) },  // ageAtDose ≈ 5y
+      ],
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(3);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(3)); // 1095
+    expect(acwy(r).doseLabel).toMatch(/first booster.*3 year|3 year/i);
+  });
+
+  it('Case A2: primary <7y — subsequent booster (given===3) → ALWAYS minIntervalDays 1826', () => {
+    // Patient now 15y (180mo). Primary ended at 5y; first booster at 8y (3y cadence, valid).
+    // Now needs second booster (given===3) → must be 5 years.
+    const r = run({
+      ageMonths: 180, riskIds: ['asplenia'],
+      menacwyDoses: [
+        { date: monthsBack(132) }, // ageAtDose ≈ 4y
+        { date: monthsBack(120) }, // ageAtDose ≈ 5y
+        { date: monthsBack(84)  }, // first booster at age 8y (3y after D2)
+      ],
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(4);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
+    expect(acwy(r).doseLabel).toMatch(/every 5 year/i);
+  });
+
+  it('Case B: primary ≥7y — first booster (given===2) → minIntervalDays 1826', () => {
+    // Patient now 25y (300mo). D1 at age 20y, D2 at age 21y — both ≥7y.
+    // First booster cadence: 5 years.
+    const r = run({
+      ageMonths: 300, riskIds: ['complement'],
+      menacwyDoses: [
+        { date: monthsBack(60) }, // ageAtDose ≈ 20y
+        { date: monthsBack(48) }, // ageAtDose ≈ 21y
+      ],
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(3);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
+    expect(acwy(r).doseLabel).toMatch(/first booster.*5 year|5 year/i);
+  });
+
+  it('Case B2: primary ≥7y — subsequent booster (given===3) → ALWAYS minIntervalDays 1826', () => {
+    // Patient now 35y (420mo). D1/D2 at 20/21y; first booster (D3) at 26y (5y cadence, valid).
+    const r = run({
+      ageMonths: 420, riskIds: ['asplenia'],
+      menacwyDoses: [
+        { date: yearsBack(15) }, // ageAtDose ≈ 20y
+        { date: yearsBack(14) }, // ageAtDose ≈ 21y
+        { date: yearsBack(9) },  // first booster (5y after D2) → already given
+      ],
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(4);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
+    expect(acwy(r).doseLabel).toMatch(/every 5 year/i);
+  });
+
+  it('Case C: D2 age unknown — first booster conservative → minIntervalDays 1095', () => {
+    // Both doses have no date → age unknown → conservative 3-year first booster.
+    const r = run({
+      ageMonths: 144, riskIds: ['asplenia'],
+      menacwyDoses: [
+        {}, // no date → unknown
+        {}, // no date → unknown
+      ],
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(3);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(3)); // 1095 conservative
+  });
+
+  it('Case C2: D2 age unknown — subsequent booster → ALWAYS minIntervalDays 1826', () => {
+    // Three doses (first booster already given, unknown dates).
+    // Subsequent booster must be 5 years regardless.
+    const r = run({
+      ageMonths: 240, riskIds: ['asplenia'],
+      menacwyDoses: [{}, {}, {}], // no dates → unknown
+    });
+    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).doseNum).toBe(4);
+    expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
+  });
+});

@@ -232,18 +232,29 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
 
       // ── Booster cadence check: high-risk boosters (effective dose ≥3) (Task 2) ─
       // High-risk patients complete a 2-dose primary, then receive lifelong boosters.
-      // Cadence (3y vs 5y) is determined by the age at DOSE 2 — the dose that
-      // completes the primary series: <7y at dose 2 → boost every 3 years; ≥7y → 5 years.
+      // FIRST booster (effectiveIdx === 2, i.e. dose 3):
+      //   D2 age <7y or unknown → 3 years (conservative); D2 age ≥7y → 5 years.
+      // ALL SUBSEQUENT boosters (effectiveIdx >= 3): always 5 years regardless of D2 age.
       // A booster given TOO SOON does not count.
       // Only too-soon is flagged; late/overdue boosters are acceptable catch-up.
       if (riskClass && effectiveIdx >= 2) {
-        // Cadence keys off the patient's age at dose 2 (the 2nd kept dated dose).
-        const dose2 = kept.filter(d => d.date)[1] || null;
-        const dose2AgeAtDose = ageAtDoseFromDate(dose2, ageMonths, today);
-        const cadenceDays = (dose2AgeAtDose !== null && dose2AgeAtDose < AGE_7Y_MONTHS)
-          ? MENACWY_BOOSTER_3Y
-          : MENACWY_BOOSTER_5Y;
-        const cadenceLabel = cadenceDays === MENACWY_BOOSTER_3Y ? '3 years' : '5 years';
+        const isFirstBooster = effectiveIdx === 2;
+        let cadenceDays;
+        let cadenceLabel;
+        if (isFirstBooster) {
+          // First booster cadence keys off the patient's age at dose 2 (the 2nd kept dated dose).
+          const dose2 = kept.filter(d => d.date)[1] || null;
+          const dose2AgeAtDose = ageAtDoseFromDate(dose2, ageMonths, today);
+          // Conservative: unknown age treated same as <7y → 3 years.
+          cadenceDays = (dose2AgeAtDose == null || dose2AgeAtDose < AGE_7Y_MONTHS)
+            ? MENACWY_BOOSTER_3Y
+            : MENACWY_BOOSTER_5Y;
+          cadenceLabel = cadenceDays === MENACWY_BOOSTER_3Y ? '3 years' : '5 years';
+        } else {
+          // Subsequent boosters: always 5 years
+          cadenceDays = MENACWY_BOOSTER_5Y;
+          cadenceLabel = '5 years';
+        }
 
         if (interval < cadenceDays) {
           return invalidResult(

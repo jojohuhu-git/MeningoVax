@@ -7,6 +7,27 @@ Living handoff for the MeningoVax app. See `CLAUDE.md` for architecture/engine r
 
 ---
 
+## Session: 2026-06-04 (session 2) — cross-audit with vaxapp + MenACWY booster fix
+
+Branch: `main`. Shipped. Tests: **154 passing, 6 files**.
+
+MeningoVax served as the ACIP reference engine to audit the sibling vaxapp/PediVax app. Two changes
+landed here:
+
+1. **MenACWY high-risk booster cadence corrected** (`recommend.js` + `validate.js`). The old code applied
+   one interval (3y if age-at-dose-2 <7y, else 5y) to ALL boosters. Correct ACIP rule (immunize.org
+   p2035): first booster 3y after primary if completed <7y (else 5y), then **every 5 years** thereafter.
+   Now split on `isFirstBooster` (`given === 2` in recommend.js; `effectiveIdx === 2` in validate.js);
+   subsequent boosters always 5y. Unknown dose-2 age → conservative 3y first booster only. +11 tests.
+   MenB high-risk booster (1y then q2–3y) was already correct — untouched.
+
+2. **Pentavalent MenB min-age regression guard** (`__tests__/regression-pentavalent-menb-minage.test.js`,
+   +3). Locks in that the MenB component of Penbraya/Penmenvy given <10y is flagged invalid on every
+   dose. This was a real bug in vaxapp; MeningoVax was already correct (per-dose brand `minAgeM`).
+
+> Note: the booster `isFirstBooster` logic lives in BOTH recommend.js (prediction) and validate.js
+> (too-soon-booster check) and must stay in sync.
+
 ## Session: 2026-06-04 — UX polish (Phase 1)
 
 Branch: `main`. **Not committed** (per user instruction — awaiting go-ahead).
