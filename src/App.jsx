@@ -11,7 +11,6 @@ const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
   ...PENTAVALENT_BRANDS,
-  { key: 'Menactra', label: 'Menactra (MenACWY-D) — discontinued', active: false },
   { key: '', label: 'Unknown brand' },
 ];
 

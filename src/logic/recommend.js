@@ -31,8 +31,8 @@ const M = {
 };
 
 // ── brand option builders ─────────────────────────────────────────────────
-const MENACWY_STD = ['Menveo (MenACWY-CRM, ≥2mo)', 'MenQuadfi (MenACWY-TT, ≥2y)'];
-const MENACWY_INFANT = ['Menveo (MenACWY-CRM, ≥2mo — only brand licensed for infants)'];
+const MENACWY_STD = ['Menveo (MenACWY)', 'MenQuadfi (MenACWY)'];
+const MENACWY_INFANT = ['Menveo (MenACWY)'];
 
 function menacwyBrands(am) {
   if (am < M.y2) return MENACWY_INFANT;
@@ -40,24 +40,13 @@ function menacwyBrands(am) {
 }
 
 // MenB brand options given the established family (from dose 1) and dose number.
-function menbBrands(family, includePentavalentHint) {
-  if (family === '4C') {
-    const list = ['Bexsero (MenB-4C)'];
-    if (includePentavalentHint) list.push('Penmenvy (MenACWY/MenB-4C, ≥10y) — if MenACWY also due');
-    return list;
-  }
-  if (family === 'FHbp') {
-    const list = ['Trumenba (MenB-FHbp)'];
-    if (includePentavalentHint) list.push('Penbraya (MenACWY/MenB-FHbp, ≥10y) — if MenACWY also due');
-    return list;
-  }
+// Pentavalents are NOT included here — they are surfaced only via the dedicated
+// pentavalent card in the public recommend() API.
+function menbBrands(family) {
+  if (family === '4C') return ['Bexsero (MenB)'];
+  if (family === 'FHbp') return ['Trumenba (MenB)'];
   // No family established yet — both families open
-  const list = ['Bexsero (MenB-4C)', 'Trumenba (MenB-FHbp)'];
-  if (includePentavalentHint) {
-    list.push('Penmenvy (MenACWY/MenB-4C, ≥10y) — if MenACWY also due');
-    list.push('Penbraya (MenACWY/MenB-FHbp, ≥10y) — if MenACWY also due');
-  }
-  return list;
+  return ['Bexsero (MenB)', 'Trumenba (MenB)'];
 }
 
 function rec(o) {
@@ -273,13 +262,11 @@ function menbRec(am, riskIds, doses, today) {
       note: 'MenB is generally deferred during pregnancy due to limited safety data, unless the patient is at increased risk (asplenia, complement deficiency, complement-inhibitor therapy, microbiologist, or serogroup B outbreak).', refs: refs() })];
   }
 
-  const pentaHint = am >= M.y10; // pentavalent products start at ≥10y
-
   // ── High-risk: 3-dose 0/1–2/6 primary + boosters ─────────────────────────
   if (highRisk) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, dueToday: true,
-        family, brands: menbBrands(family, pentaHint),
+        family, brands: menbBrands(family),
         note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months. Pick one antigen family and stay in it — MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
         refs: refs(['cdcComplementInhibitor']) })];
     }
@@ -287,7 +274,7 @@ function menbRec(am, riskIds, doses, today) {
       const elapsed = intervalElapsed(lastDate, DAYS.weeks(4), today);
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
-        family, brands: menbBrands(family, pentaHint),
+        family, brands: menbBrands(family),
         note: 'High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.',
         refs: refs() })];
     }
@@ -295,7 +282,7 @@ function menbRec(am, riskIds, doses, today) {
       const elapsed = intervalElapsed(doses[0]?.date, DAYS.months(6), today);
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(doses[0].date, DAYS.months(6)), minIntervalDays: DAYS.months(6),
-        family, brands: menbBrands(family, pentaHint),
+        family, brands: menbBrands(family),
         note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 (and ≥4 months after dose 2). After completion, boost 1 year later, then every 2–3 years while at risk.',
         refs: refs() })];
     }
@@ -307,7 +294,7 @@ function menbRec(am, riskIds, doses, today) {
       doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? '1 year after primary' : 'every 2–3 years'})`,
       doseNum: given + 1, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, intervalDays), minIntervalDays: intervalDays,
-      family, brands: menbBrands(family, pentaHint),
+      family, brands: menbBrands(family),
       note: 'High-risk MenB booster: 1 year after completing the primary series, then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.',
       refs: refs() })];
   }
@@ -316,7 +303,7 @@ function menbRec(am, riskIds, doses, today) {
   if (am >= M.y16 && am <= M.y23) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, dueToday: true,
-        family, brands: menbBrands(family, pentaHint),
+        family, brands: menbBrands(family),
         note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba). If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
         refs: refs(['cdcChildMenB', 'pentavalentGSK2025']) })];
     }
@@ -324,7 +311,7 @@ function menbRec(am, riskIds, doses, today) {
       const elapsed = intervalElapsed(lastDate, DAYS.months(6), today);
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.months(6)), minIntervalDays: DAYS.months(6),
-        family, brands: menbBrands(family, pentaHint),
+        family, brands: menbBrands(family),
         note: 'Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2.',
         refs: refs(['cdcChildMenB', 'pentavalentGSK2025']) })];
     }
@@ -343,7 +330,7 @@ function menbRec(am, riskIds, doses, today) {
           doseNum: 3, dueToday: elapsed,
           earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
           minIntervalDays: DAYS.months(4),
-          family, brands: menbBrands(family, pentaHint),
+          family, brands: menbBrands(family),
           note: 'Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series.',
           refs: refs(['cdcChildMenB']),
         })];
@@ -401,10 +388,10 @@ export function recommend(input) {
         eligible: true,
         note: 'Both MenACWY and MenB are due today. A single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).',
         brands: bFamily === '4C'
-          ? ['Penmenvy (MenACWY-CRM/MenB-4C, ≥10y)']
+          ? ['Penmenvy (MenABCWY)']
           : bFamily === 'FHbp'
-            ? ['Penbraya (MenACWY-TT/MenB-FHbp, ≥10y)']
-            : ['Penmenvy (MenACWY-CRM/MenB-4C, ≥10y)', 'Penbraya (MenACWY-TT/MenB-FHbp, ≥10y)'],
+            ? ['Penbraya (MenABCWY)']
+            : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)'],
         citations: resolveRefs(['pentavalentGSK2025', 'pentavalentPfizer2023']),
       }
     : { eligible: false };

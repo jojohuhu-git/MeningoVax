@@ -16,7 +16,7 @@ describe('MenACWY routine adolescent', () => {
     expect(acwy(r).status).toBe('due');
     expect(acwy(r).doseNum).toBe(1);
     expect(acwy(r).dueToday).toBe(true);
-    expect(acwy(r).brands).toContain('Menveo (MenACWY-CRM, ≥2mo)');
+    expect(acwy(r).brands).toContain('Menveo (MenACWY)');
   });
 
   it('13-year-old with dose 1 → booster due at 16y, not today', () => {
@@ -220,6 +220,14 @@ describe('Pentavalent offer', () => {
     expect(r.pentavalent.eligible).toBe(true);
   });
 
+  it('asplenia adult, no history → pentavalent brands use short MenABCWY format', () => {
+    const r = run({ ageMonths: 300, riskIds: ['asplenia'] });
+    expect(r.pentavalent.eligible).toBe(true);
+    // Both families open → both pentavalents offered
+    expect(r.pentavalent.brands).toContain('Penmenvy (MenABCWY)');
+    expect(r.pentavalent.brands).toContain('Penbraya (MenABCWY)');
+  });
+
   it('FHbp MenB started → only Penbraya offered as pentavalent', () => {
     const r = run({ ageMonths: 300, riskIds: ['asplenia'],
       menacwyDoses: [], menbDoses: [{ date: '2026-04-03', brand: 'Trumenba' }] });
@@ -239,6 +247,22 @@ describe('Pentavalent offer', () => {
   it('child under 10 with both due → no pentavalent (≥10y only)', () => {
     const r = run({ ageMonths: 96, riskIds: ['asplenia'] });
     expect(r.pentavalent.eligible).toBe(false);
+  });
+});
+
+// ── Pentavalents only in pentavalent card, not in standalone MenB brands ────
+describe('Pentavalents not in standalone MenB brand list', () => {
+  it('asplenia adult, no MenB doses → standalone menb.brands has no pentavalents', () => {
+    const r = run({ ageMonths: 300, riskIds: ['asplenia'] });
+    const brands = menb(r).brands.join(' ');
+    expect(brands).not.toMatch(/Penmenvy|Penbraya/);
+    expect(brands).toMatch(/Bexsero|Trumenba/);
+  });
+
+  it('healthy 17yo, no MenB doses → standalone menb.brands has no pentavalents', () => {
+    const r = run({ ageMonths: 204, riskIds: [] });
+    const brands = menb(r).brands.join(' ');
+    expect(brands).not.toMatch(/Penmenvy|Penbraya/);
   });
 });
 

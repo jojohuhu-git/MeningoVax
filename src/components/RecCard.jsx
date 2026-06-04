@@ -43,13 +43,14 @@ export default function RecCard({ rec }) {
 
         {brands && brands.length > 0 && !isNeutral && (
           <div className="rec-brands">
-            <div className="rec-brands-title">Brand options</div>
+            <div className="rec-brands-title">Brand options — choose one</div>
             {brands.map((b, i) => (
               <div key={i} className="rec-brand-item">
                 <span className="rec-brand-dot" />
                 {b}
               </div>
             ))}
+            <div className="rec-brands-helper">Select one brand for this dose.</div>
           </div>
         )}
 

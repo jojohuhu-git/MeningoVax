@@ -24,7 +24,7 @@ export const VAX = {
 export const MENACWY_BRANDS = [
   {
     key: 'Menveo',
-    label: 'Menveo (MenACWY-CRM)',
+    label: 'Menveo (MenACWY)',
     mfr: 'GSK',
     minAgeM: 2,        // only MenACWY licensed from 2 months
     maxAgeM: 999,
@@ -32,7 +32,7 @@ export const MENACWY_BRANDS = [
   },
   {
     key: 'MenQuadfi',
-    label: 'MenQuadfi (MenACWY-TT)',
+    label: 'MenQuadfi (MenACWY)',
     mfr: 'Sanofi',
     minAgeM: 24,       // ≥2 years
     maxAgeM: 999,
@@ -40,7 +40,7 @@ export const MENACWY_BRANDS = [
   },
   {
     key: 'Menactra',
-    label: 'Menactra (MenACWY-D) — discontinued',
+    label: 'Menactra (MenACWY) — discontinued',
     mfr: 'Sanofi',
     minAgeM: 9,
     maxAgeM: 999,
@@ -52,7 +52,7 @@ export const MENACWY_BRANDS = [
 export const MENB_BRANDS = [
   {
     key: 'Bexsero',
-    label: 'Bexsero (MenB-4C)',
+    label: 'Bexsero (MenB)',
     mfr: 'GSK',
     family: '4C',
     minAgeM: 120,      // ≥10y
@@ -61,7 +61,7 @@ export const MENB_BRANDS = [
   },
   {
     key: 'Trumenba',
-    label: 'Trumenba (MenB-FHbp)',
+    label: 'Trumenba (MenB)',
     mfr: 'Pfizer',
     family: 'FHbp',
     minAgeM: 120,
@@ -74,7 +74,7 @@ export const MENB_BRANDS = [
 export const PENTAVALENT_BRANDS = [
   {
     key: 'Penbraya',
-    label: 'Penbraya (MenACWY-TT / MenB-FHbp)',
+    label: 'Penbraya (MenABCWY)',
     mfr: 'Pfizer',
     family: 'FHbp',    // its MenB component is FHbp
     covers: ['MenACWY', 'MenB'],
@@ -84,7 +84,7 @@ export const PENTAVALENT_BRANDS = [
   },
   {
     key: 'Penmenvy',
-    label: 'Penmenvy (MenACWY-CRM / MenB-4C)',
+    label: 'Penmenvy (MenABCWY)',
     mfr: 'GSK',
     family: '4C',      // its MenB component is 4C
     covers: ['MenACWY', 'MenB'],

@@ -19,6 +19,9 @@ export default function Results({ state, onReset }) {
   const group = ageGroup(ageMonths);
   const riskLabels = riskIds.map(id => RISK_FACTORS.find(r => r.id === id)?.label).filter(Boolean);
 
+  const acwyDueToday = menacwy.some(r => r.dueToday);
+  const bDueToday = menb.some(r => r.dueToday);
+
   return (
     <div>
       {/* Summary header */}
@@ -72,6 +75,16 @@ export default function Results({ state, onReset }) {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Connective banner when both vaccines are due */}
+      {acwyDueToday && bDueToday && (
+        <div className="dual-due-banner" data-testid="dual-due-banner">
+          These are two separate vaccines — both are due today. Within each, choose one brand.
+          {pentavalent.eligible && (
+            <span> (Or give the single pentavalent above instead of both.)</span>
+          )}
         </div>
       )}
 

@@ -621,6 +621,12 @@ body {
   background: var(--gy4);
   flex-shrink: 0;
 }
+.rec-brands-helper {
+  font-size: 0.78rem;
+  color: var(--gy3);
+  font-style: italic;
+  margin-top: 4px;
+}
 .rec-note {
   font-size: 0.85rem;
   color: var(--gy2);
@@ -634,6 +640,9 @@ body {
   margin-top: 8px;
   padding-top: 10px;
   border-top: 1px solid var(--gy6);
+  /* Prevent chips from spilling outside the card on narrow viewports */
+  min-width: 0;
+  overflow: hidden;
 }
 .citation-chip {
   display: inline-flex;
@@ -645,13 +654,29 @@ body {
   color: var(--c);
   font-size: 0.75rem;
   text-decoration: none;
+  /* Mobile-safe: chip never overflows the card */
+  min-width: 0;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Ensure the flex child can shrink below its intrinsic width */
+  flex-shrink: 1;
   transition: background 0.1s;
 }
 .citation-chip:hover { background: var(--clt); border-color: var(--cmd); }
+
+/* ── Dual-due connective banner ────────────────────────────────── */
+.dual-due-banner {
+  background: var(--clt);
+  border: 1px solid var(--cmd);
+  border-radius: var(--rads);
+  padding: 10px 14px;
+  font-size: 0.83rem;
+  color: var(--c);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
 .penta-card {
