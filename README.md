@@ -54,17 +54,15 @@ All rules are verified against ACIP guidance, not FDA package inserts (ACIP ofte
 
 ## Deployment
 
-A GitHub Actions workflow (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`. The workflow is inert until the repo has a GitHub remote and Pages is enabled.
+A GitHub Actions workflow (`.github/workflows/deploy.yml`) builds and deploys to GitHub Pages on every push to `main`.
 
-### Deploying for the first time
+The site deploys to **https://jojohuhu-git.github.io/MeningoVax/**. `vite.config.js` sets `base: '/MeningoVax/'` to match the repo name (GitHub Pages paths are case-sensitive). If the repo is ever renamed, update `base` to `/<new-repo-name>/`.
 
-1. **Set the base path.** `vite.config.js` currently sets `base: '/meningovax/'`. GitHub Pages serves your project site at `https://<user>.github.io/<repo-name>/`, so `base` must equal `/<repo-name>/`. If your repo name is not `meningovax`, update `vite.config.js`:
-   ```js
-   base: '/your-repo-name/',
-   ```
-2. **Push to GitHub.** Create a GitHub repo, add it as a remote, and push `main`.
-3. **Enable Pages.** In the repo → Settings → Pages → Build and deployment → Source, select **GitHub Actions**.
-4. The workflow will run automatically on the next push to `main` and publish `dist/` to your Pages URL.
+### Re-deploying / forking
+
+1. **Match the base path** to your repo name in `vite.config.js` (`base: '/<repo-name>/'`).
+2. **Push to `main`.**
+3. **Enable Pages.** Repo → Settings → Pages → Build and deployment → Source → **GitHub Actions**.
 
 ## Not a Substitute for Clinical Judgment
 
