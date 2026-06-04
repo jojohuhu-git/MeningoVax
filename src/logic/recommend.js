@@ -317,19 +317,46 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, dueToday: true,
         family, brands: menbBrands(family, pentaHint),
-        note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making. Healthy schedule is 2 doses at 0 and 6 months (per 2025 ACIP, the healthy MenB-4C interval is ≥6 months — not ≥1 month). Complete the series in one antigen family.',
-        refs: refs(['pentavalentGSK2025']) })];
+        note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba). If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        refs: refs(['cdcChildMenB', 'pentavalentGSK2025']) })];
     }
     if (given === 1) {
       const elapsed = intervalElapsed(lastDate, DAYS.months(6), today);
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.months(6)), minIntervalDays: DAYS.months(6),
         family, brands: menbBrands(family, pentaHint),
-        note: 'Healthy 2-dose schedule: dose 2 is given ≥6 months after dose 1. Continue in the same antigen family as dose 1. Series complete after 2 doses.',
-        refs: refs(['pentavalentGSK2025']) })];
+        note: 'Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2.',
+        refs: refs(['cdcChildMenB', 'pentavalentGSK2025']) })];
     }
-    return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete', family,
-      note: 'Healthy 2-dose MenB series complete. No booster is recommended unless the patient develops a high-risk indication.', refs: refs() })];
+    if (given === 2) {
+      const dose1date = doses[0]?.date;
+      const dose2date = doses[1]?.date;
+      const d1d2Days = (dose1date && dose2date)
+        ? daysBetween(dose1date, dose2date)
+        : null;
+      const needsRescue = d1d2Days !== null && d1d2Days < DAYS.months(6);
+      if (needsRescue) {
+        const elapsed = intervalElapsed(dose2date, DAYS.months(4), today);
+        return [rec({
+          vaccine: 'MenB', status: 'shared-decision',
+          doseLabel: 'Dose 3 of 3 (rescue — dose 2 given early)',
+          doseNum: 3, dueToday: elapsed,
+          earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
+          minIntervalDays: DAYS.months(4),
+          family, brands: menbBrands(family, pentaHint),
+          note: 'Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series.',
+          refs: refs(['cdcChildMenB']),
+        })];
+      }
+      return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family,
+        note: 'Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.',
+        refs: refs(['cdcChildMenB']) })];
+    }
+    if (given >= 3) {
+      return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (accelerated 3-dose series)', family,
+        note: 'Healthy 3-dose accelerated MenB series complete. No booster recommended unless a high-risk indication develops.',
+        refs: refs(['cdcChildMenB']) })];
+    }
   }
 
   // Healthy outside 16–23y → not routinely indicated

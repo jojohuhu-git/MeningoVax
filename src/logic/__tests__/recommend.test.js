@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { DAYS } from '../../logic/dateUtils.js';
 
 const TODAY = '2026-06-03';
 function run(input) {
@@ -126,6 +127,37 @@ describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
   it('healthy 25-year-old → MenB not routinely indicated', () => {
     const r = run({ ageMonths: 300, riskIds: [] });
     expect(menb(r).status).toBe('not-indicated');
+  });
+
+  it('dose 2 given early (3 months) → rescue dose 3 due ≥4 months after dose 2', () => {
+    const r = run({ ageMonths: 216, riskIds: [], menbDoses: [
+      { date: '2025-09-03', brand: 'Bexsero' },
+      { date: '2025-12-03', brand: 'Bexsero' }, // 91 days after dose 1 — early
+    ] });
+    expect(menb(r).status).toBe('shared-decision');
+    expect(menb(r).doseLabel).toMatch(/rescue/i);
+    expect(menb(r).doseNum).toBe(3);
+    expect(menb(r).minIntervalDays).toBe(DAYS.months(4));
+  });
+
+  it('dose 2 given early, <4 months after dose 2 → rescue dose not yet due', () => {
+    const r = run({ ageMonths: 216, riskIds: [], menbDoses: [
+      { date: '2026-01-03', brand: 'Trumenba' },
+      { date: '2026-03-03', brand: 'Trumenba' }, // 59 days — early
+    ] });
+    // today = 2026-06-03, only 3 months after dose 2
+    expect(menb(r).dueToday).toBe(false);
+    expect(menb(r).earliestNextDate).toBeDefined();
+  });
+
+  it('accelerated 3-dose series complete → status complete', () => {
+    const r = run({ ageMonths: 216, riskIds: [], menbDoses: [
+      { date: '2025-01-03', brand: 'Bexsero' },
+      { date: '2025-02-03', brand: 'Bexsero' },
+      { date: '2025-07-03', brand: 'Bexsero' },
+    ] });
+    expect(menb(r).status).toBe('complete');
+    expect(menb(r).doseLabel).toMatch(/accelerated/);
   });
 });
 
