@@ -21,12 +21,22 @@ export const VAX = {
 };
 
 // MenACWY standalone products
+// D7: Menveo has two formulations — 2-vial (≥2 months) and 1-vial (≥10 years).
+// Both are valid per ACIP/CDC when indicated; the 1-vial is convenient for older patients.
 export const MENACWY_BRANDS = [
   {
-    key: 'Menveo',
-    label: 'Menveo (MenACWY)',
+    key: 'Menveo 2-vial',
+    label: 'Menveo 2-vial (MenACWY)',
     mfr: 'GSK',
-    minAgeM: 2,        // only MenACWY licensed from 2 months
+    minAgeM: 2,        // 2-vial is the only Menveo formulation licensed from 2 months
+    maxAgeM: 999,
+    active: true,
+  },
+  {
+    key: 'Menveo 1-vial',
+    label: 'Menveo 1-vial (≥10y) (MenACWY)',
+    mfr: 'GSK',
+    minAgeM: 120,      // 1-vial approved ≥10 years
     maxAgeM: 999,
     active: true,
   },
@@ -45,6 +55,16 @@ export const MENACWY_BRANDS = [
     minAgeM: 9,
     maxAgeM: 999,
     active: false,     // discontinued 2022; selectable only for recording past doses
+  },
+  {
+    // Legacy: brand recorded as plain 'Menveo' (before the 1-vial/2-vial split).
+    // Treat as 2-vial (≥2 months) for validation purposes.
+    key: 'Menveo',
+    label: 'Menveo (MenACWY)',
+    mfr: 'GSK',
+    minAgeM: 2,
+    maxAgeM: 999,
+    active: false,     // legacy label only — new entries use 'Menveo 2-vial' or 'Menveo 1-vial'
   },
 ];
 

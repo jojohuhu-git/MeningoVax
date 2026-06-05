@@ -16,7 +16,7 @@ describe('MenACWY routine adolescent', () => {
     expect(acwy(r).status).toBe('due');
     expect(acwy(r).doseNum).toBe(1);
     expect(acwy(r).dueToday).toBe(true);
-    expect(acwy(r).brands).toContain('Menveo (MenACWY)');
+    expect(acwy(r).brands).toContain('Menveo 2-vial (MenACWY)');
   });
 
   it('13-year-old with dose 1 → booster due at 16y, not today', () => {

@@ -166,3 +166,17 @@ Resolves the Phase 2 follow-up (invalid doses used to still count toward "comple
 - Meningococcal ACIP guidance is relatively stable, but re-verify pentavalent (Penbraya
   2023 / Penmenvy 2025) and the MenB 2-dose 0/6 interval against current CDC notes if a
   year+ has passed. Sources are at the top of `recommend.js` and in `refs.js`.
+
+---
+
+## Session: 2026-06-05 — Meningococcal job-aid cross-check (shipped)
+
+Cross-checked against the clinician "Meningococcal Vaccine Job Aid" (.docx) alongside vaxapp. Tests
+**154 → 175**. See CLAUDE.md "Changes shipped (2026-06-05)" for detail.
+
+Items landed here: D2 (extend `menacwyRoutine` 17–21y no-≥16y-dose → catch-up Dose 1 of 1, college note;
+≥22y still not-indicated), D5 (7–23mo HR Dose 2 8wk→12wk + ≥12mo floor; fixed the 4wk continuing-series
+note/code mismatch), D6 (3-dose shortcut for 2–6m starters with D2 ≥7m), D7 (Menveo 2-vial vs 1-vial in
+`brands.js` + age-banded `menacwyBrands`). D1/D3/D9 were already correct here; D4/D8 ignored.
+
+New test file: `src/logic/__tests__/regression-d2-d5-d6-d7.test.js`.

@@ -212,3 +212,25 @@ Test suite: 143 → **154 passing**.
 
 ## Not a substitute for clinical judgment
 Decision support only. Verify against current ACIP/CDC guidance before administering.
+
+## Changes shipped (2026-06-05) — Meningococcal job-aid cross-check
+
+MeningoVax was cross-checked (alongside vaxapp) against the clinician "Meningococcal Vaccine Job Aid"
+(.docx, user-confirmed vs ACIP/CDC). Tests: **154 → 175**.
+
+- **D2** — `menacwyRoutine` extended: 17–21y (`am <= 252`) with no dose on/after the 16th birthday
+  (`!hasDoseAt16`) now returns `catchup` "Dose 1 of 1" (no booster), with a college residence-hall note.
+  ≥22y remains `not-indicated`. (Previously ≥19y healthy returned `not-indicated`.)
+- **D5** — High-risk infant MenACWY: 7–11m and 12–23m **Dose 2 interval 8wk → `DAYS.weeks(12)`**, and the
+  7–11m Dose 2 also enforces the **≥12-month age floor** (`dueToday` requires both the 12-wk interval and
+  ≥12mo of age). Fixed the "continuing infant series" branch that enforced only 4 weeks while its note
+  said 8 — now consistent with the job aid. `validate.js` kept in sync.
+- **D6** — `menacwyInfantHighRisk` now takes `doses`; a high-risk infant who started at 2–6m with
+  **Dose 2 at ≥7m** completes in **3 doses** (`on3DosePath`): Dose 3 ≥12 weeks after D2 AND ≥12 months
+  of age, no 4th dose. Unknown dose ages → conservative 4-dose path.
+- **D7** — `brands.js` splits Menveo into **Menveo 2-vial** (`minAgeM 2`) and **Menveo 1-vial**
+  (`minAgeM 120`); `menacwyBrands(am)` returns `MENACWY_INFANT` (<24m), `MENACWY_CHILD` (24–119m), or
+  `MENACWY_STD` (≥120m, includes 1-vial). A legacy `Menveo` entry remains for backward compat.
+
+Regression tests: `src/logic/__tests__/regression-d2-d5-d6-d7.test.js`. D1/D3/D9 were already correct in
+MeningoVax (they were vaxapp-only defects). D4/D8 ignored per clinician.

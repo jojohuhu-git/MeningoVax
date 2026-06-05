@@ -32,12 +32,17 @@ const M = {
 };
 
 // ── brand option builders ─────────────────────────────────────────────────
-const MENACWY_STD = ['Menveo (MenACWY)', 'MenQuadfi (MenACWY)'];
-const MENACWY_INFANT = ['Menveo (MenACWY)'];
+// D7: Menveo 2-vial (≥2 months) vs Menveo 1-vial (≥10 years) — distinct formulations.
+// Both are valid per ACIP at ≥10y; only the 2-vial is licensed below 10y.
+// MenQuadfi is licensed ≥2 years.
+const MENACWY_INFANT = ['Menveo 2-vial (MenACWY)'];   // <2y: 2-vial only
+const MENACWY_CHILD  = ['Menveo 2-vial (MenACWY)', 'MenQuadfi (MenACWY)'];  // 2–9y
+const MENACWY_STD    = ['Menveo 2-vial (MenACWY)', 'Menveo 1-vial (≥10y) (MenACWY)', 'MenQuadfi (MenACWY)'];  // ≥10y
 
 function menacwyBrands(am) {
-  if (am < M.y2) return MENACWY_INFANT;
-  return MENACWY_STD;
+  if (am < M.y2) return MENACWY_INFANT;         // <24m: 2-vial only
+  if (am < M.y10) return MENACWY_CHILD;         // 24–119m: 2-vial + MenQuadfi
+  return MENACWY_STD;                           // ≥120m: 2-vial + 1-vial + MenQuadfi
 }
 
 // MenB brand options given the established family (from dose 1) and dose number.
@@ -100,7 +105,7 @@ function menacwyRec(am, riskIds, doses, today) {
   if (riskClass === 'primary2') {
     // Infant pathways (high risk, <2y)
     if (am < M.y2) {
-      return [menacwyInfantHighRisk(am, given, last, today, riskIds)];
+      return [menacwyInfantHighRisk(am, given, doses, last, today, riskIds)];
     }
     // ≥2y: 2-dose primary ≥8 weeks apart, then boosters.
     if (given === 0) {
@@ -219,7 +224,7 @@ function menacwyRec(am, riskIds, doses, today) {
   return menacwyRoutine(am, given, doses, last, today);
 }
 
-function menacwyInfantHighRisk(am, given, last, today, riskIds) {
+function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   const refs = collectRefs(riskIds, [], ['cdcChildMenACWY', 'acip2020']);
   const lastDate = last?.date || null;
   if (am < M.y2 && given === 0 && am >= 2) {
@@ -230,21 +235,59 @@ function menacwyInfantHighRisk(am, given, last, today, riskIds) {
         note: 'High-risk infants 2–6 months: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses). Only Menveo is licensed for infants ≥2 months.', refs });
     }
     if (am <= 11) {
+      // D5: D2 must be ≥12 weeks after D1 AND not before 12 months of age.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 + booster (infant high-risk 7–11mo)', doseNum: 1, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(8),
-        note: 'High-risk infants 7–11 months: 2-dose primary (≥8 weeks apart) with Menveo, then a booster at 12–23 months (≥8 weeks after the primary series).', refs });
+        brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
+        note: 'High-risk infants 7–11 months: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age. Then a booster at 12–23 months (≥12 weeks after the primary series).', refs });
     }
-    // 12-23m unvaccinated
+    // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk 12–23mo)', doseNum: 1, dueToday: true,
-      brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(8),
-      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥8 weeks apart, then boost every 3–5 years while at risk.', refs });
+      brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
+      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then boost every 3–5 years while at risk.', refs });
   }
-  // continuing an infant series
-  const elapsed = intervalElapsed(lastDate, DAYS.weeks(4), today);
+
+  // ── Continuing an infant series ──────────────────────────────────────────
+  // D6: "3-dose shortcut" — if D1 was 3–6m (standard 4-dose series) AND D2 was given at ≥7m,
+  // the final dose given at ≥12m AND ≥12 weeks after the previous dose completes the series
+  // (3 doses total, no 4th dose needed). Otherwise the standard 4-dose path applies.
+  // When D1/D2 ages are unknown, fall back conservatively to the standard 4-dose series.
+  const d1AgeM = given >= 1 ? ageAtDose(doses[0], am, today) : null;
+  const d2AgeM = given >= 2 ? ageAtDose(doses[1], am, today) : null;
+  const d1WasEarly = d1AgeM != null && d1AgeM >= 2 && d1AgeM <= 6; // started at 2–6m
+  const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;             // D2 at ≥7m
+  const on3DosePath = d1WasEarly && d2WasAt7Plus;
+  // D5 fix: detect whether D1 was in the 7–11m band (D2 needs ≥12-week + ≥12m floor)
+  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 12;
+
+  // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
+  if (on3DosePath && given === 2) {
+    const elapsed = intervalElapsed(lastDate, DAYS.weeks(12), today);
+    const ageFloor = am >= 12;
+    return rec({ vaccine: 'MenACWY', status: 'risk-based',
+      doseLabel: 'Dose 3 of 3 (infant high-risk, 3-dose shortcut)',
+      doseNum: 3,
+      dueToday: elapsed && ageFloor,
+      earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
+      minIntervalDays: DAYS.weeks(12),
+      brands: MENACWY_INFANT,
+      note: 'D6: Dose 2 was given at ≥7 months — the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, boost every 3–5 years while at risk.',
+      refs });
+  }
+
+  // Standard continuation for 2–6m start series (D2/D3 primary) or 7–11m start (D2)
+  const nextIntervalDays = d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4);
+  const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
+  // For 7–11m D1, also enforce ≥12m age floor on D2
+  const ageFloorMetActual = !d1WasInfant7to11 || am >= 12;
   return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (infant high-risk series)`, doseNum: given + 1,
-    dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
+    dueToday: elapsed && ageFloorMetActual,
+    earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
+    minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
-    note: 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then boost every 3–5 years while at risk.', refs });
+    note: d1WasInfant7to11
+      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then boost every 3–5 years while at risk.'
+      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then boost every 3–5 years while at risk.',
+    refs });
 }
 
 function menacwyRoutine(am, given, doses, last, today) {
@@ -281,9 +324,25 @@ function menacwyRoutine(am, given, doses, last, today) {
         ? 'Unvaccinated adolescent ≥16 years: a single MenACWY dose; because it is given at ≥16y, no booster is required.'
         : 'Routine 16-year booster (the dose given at 11–12y does not count as the booster).', refs })];
   }
-  // ≥19y healthy, no risk
+  // 19–21y: catch-up if no dose at ≥16y; otherwise not indicated
+  // D2: Job aid rule — all patients 17–21y with no MenACWY on/after the 16th birthday
+  // should receive catch-up Dose 1 of 1. No booster needed when given at ≥16y.
+  // Especially important for first-year college students living in residence halls.
+  if (am <= 252) { // ≤21y (252m = 21 years)
+    if (!hasDoseAt16) {
+      return [rec({ vaccine: 'MenACWY', status: 'catchup',
+        doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up — no dose at ≥16y)',
+        doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
+        note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended — when given at ≥16 years, no booster is needed. Especially recommended for first-year college students living in residence halls.',
+        refs })];
+    }
+    // Has a dose at ≥16y → complete
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete',
+      note: 'A MenACWY dose given at age ≥16 years satisfies the adolescent schedule; no further routine doses are needed.', refs })];
+  }
+  // ≥22y healthy, no risk
   return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not routinely indicated',
-    note: 'Healthy adults ≥19 years without a risk factor are not routinely recommended to receive MenACWY. Vaccinate only if a risk indication applies (asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist, travel, military, or outbreak).', refs })];
+    note: 'Healthy adults ≥22 years without a risk factor are not routinely recommended to receive MenACWY. Vaccinate only if a risk indication applies (asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist, travel, military, or outbreak).', refs })];
 }
 
 // ── MenB ─────────────────────────────────────────────────────────────────
