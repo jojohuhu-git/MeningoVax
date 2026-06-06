@@ -234,3 +234,53 @@ MeningoVax was cross-checked (alongside vaxapp) against the clinician "Meningoco
 
 Regression tests: `src/logic/__tests__/regression-d2-d5-d6-d7.test.js`. D1/D3/D9 were already correct in
 MeningoVax (they were vaxapp-only defects). D4/D8 ignored per clinician.
+
+## Changes shipped (2026-06-05, session 2) — Dateless min-age + result-card color grouping
+
+Tests: **175 → 186**.
+
+### Dateless dose min-age validation (`src/logic/validate.js`)
+
+Previously any dose with no date returned `unknown` ("cannot verify age") and was COUNTED —
+even when the patient's current age made the recorded brand impossible (the reported bug: a
+2-year-old recorded with Penbraya, min age 10y, was not flagged).
+
+**Key insight:** a past dose can never have been given later than today, so the patient's
+**current age is an upper bound on the age at administration**. If a KNOWN brand's `minAgeM`
+exceeds the current age, the dose could not have been valid at any point in the patient's
+life → `invalid` (dropped, does not count).
+
+Applied in both `validateOneMenACWY` and `validateOneMenB`, replacing the early `!dose.date`
+bailout:
+
+| Dateless dose | Result |
+|---|---|
+| Known brand, `currentAge < brandMin` (Penbraya/2yo, MenQuadfi/12mo) | **invalid — does not count** |
+| Known brand, `currentAge ≥ brandMin` (Penbraya/30yo) | counts (`unknown`) + "must have been given at ≥X to be valid" note |
+| Unknown brand, MenACWY | counts — no brand-specific flag (ACIP: any brand acceptable when prior history unknown). Permissive fallback = 2 months. |
+| Unknown brand, MenB, `currentAge < 10y` | **invalid** — the ≥10y floor is a vaccine-category floor (every MenB product is ≥10y), not a brand penalty. Permissive fallback = 120 months. |
+
+Interval-from-prior-dose checks remain unverifiable for dateless doses (no anchor) and are
+NOT flagged. This mirrors vaxapp's existing `min_age_impossible` logic in `validation.js`
+(lines 46–85) — both apps now behave the same. Invalid dateless doses drop from the
+effective series with the standard "repeat this dose only, do not restart" messaging.
+
+Regression test: `src/logic/__tests__/regression-dateless-minage.test.js` (11 tests).
+
+### Result-card color grouping (`src/components/Results.jsx`, `src/App.css`)
+
+When a ≥10y patient has BOTH MenACWY and MenB due the same day, three boxes render: the
+pentavalent (combo) option, and the two separate-vaccine cards. They were previously shaded
+similar colors, making the two separate cards look like part of the combo. Fixes:
+
+- **Pentavalent card** → amber/gold token set (`--penta`/`--pentalt`/`--pentamd`/`--pentahdr`)
+  — reads as one standalone "either/or" option.
+- **Two separate vaccines (MenACWY + MenB)** → wrapped in a new `.separate-vaccines-group`
+  container (blue-light `--blt` bg, `--bmd` blue border), applied only when
+  `acwyDueToday && bDueToday && pentavalent.eligible`. The shared blue box groups the pair
+  visually and distinguishes them from the combo card.
+- **No red for "due":** `.rec-card.status-due` border changed from teal `--cmd` to green
+  `--gmd`. Red is reserved for genuine errors/invalid states only. New tokens `--gmd`/`--bmd`
+  added to `:root`.
+
+Visual change only — no logic in `src/logic/` touched.

@@ -176,10 +176,26 @@ function invalidResult(reasons, detail) {
 // what enables correct re-evaluation when an earlier dose is dropped.
 
 function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
-  // No date → cannot check age-at-dose or interval; dose counting still works.
+  // No date → interval cannot be checked, but a min-age conflict may still be
+  // decidable: a past dose can never have been given later than today, so the
+  // patient's CURRENT age is an upper bound on the age at administration.
+  // If a KNOWN brand's minimum age exceeds the current age, the dose could not
+  // have been valid at any point in the patient's life → invalid (does not count).
+  // Unknown brand → permissive fallback (Menveo 2-vial, 2 months) → does not
+  // flag, per ACIP (any brand may be used when prior history/brand is unknown).
   if (!dose.date) {
+    const brand = dose.brand || '';
+    const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
+    if (knownBrandMin !== null && ageMonths < knownBrandMin) {
+      const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
+      return invalidResult(
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
+        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandMin)}.`
+      );
+    }
+    const minAgeM = knownBrandMin ?? MIN_AGE_MENACWY_PERMISSIVE_MONTHS;
     return unknownResult([
-      'No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series.'
+      `No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
     ]);
   }
 
@@ -282,10 +298,27 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
 }
 
 function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
-  // No date → cannot check age-at-dose or interval.
+  // No date → interval cannot be checked, but a min-age conflict may still be
+  // decidable using current age as an upper bound on age-at-administration
+  // (see validateOneMenACWY). For MenB the permissive fallback is 120 months
+  // because EVERY MenB product (Bexsero, Trumenba, Penbraya, Penmenvy) is
+  // licensed only from age 10 — this is a vaccine-category floor, not a
+  // brand-specific restriction, so it applies even when the brand is unknown.
   if (!dose.date) {
+    const brand = dose.brand || '';
+    const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
+    const minAgeM = knownBrandMin ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
+    if (ageMonths < minAgeM) {
+      const brandLabel = brand
+        ? brand.replace(/\s*\(Men(?:B|ACWY|ABCWY)\).*/, '')
+        : 'MenB';
+      return invalidResult(
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. This dose does not count.`],
+        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`
+      );
+    }
     return unknownResult([
-      'No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series.'
+      `No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
     ]);
   }
 

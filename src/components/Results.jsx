@@ -122,40 +122,42 @@ export default function Results({ state, onReset, onChange }) {
         </div>
       )}
 
-      {/* Connective banner when both vaccines are due */}
-      {acwyDueToday && bDueToday && (
-        <div className="dual-due-banner" data-testid="dual-due-banner">
-          These are two separate vaccines — both are due today. Within each, choose one brand.
-          {pentavalent.eligible && (
-            <span> (Or give the single pentavalent above instead of both.)</span>
-          )}
+      {/* Two separate vaccines — grouped visually when both are due */}
+      <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
+        {acwyDueToday && bDueToday && (
+          <div className="dual-due-banner" data-testid="dual-due-banner">
+            These are two separate vaccines — both are due today. Within each, choose one brand.
+            {pentavalent.eligible && (
+              <span> (Or give the single pentavalent above instead of both.)</span>
+            )}
+          </div>
+        )}
+
+        {/* MenACWY recs */}
+        <div className="rec-section">
+          <div className="rec-section-title">MenACWY</div>
+          {menacwy.map((r, i) => (
+            <RecCard
+              key={i}
+              rec={r}
+              doses={menacwyDoses}
+              doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
+            />
+          ))}
         </div>
-      )}
 
-      {/* MenACWY recs */}
-      <div className="rec-section">
-        <div className="rec-section-title">MenACWY</div>
-        {menacwy.map((r, i) => (
-          <RecCard
-            key={i}
-            rec={r}
-            doses={menacwyDoses}
-            doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
-          />
-        ))}
-      </div>
-
-      {/* MenB recs */}
-      <div className="rec-section">
-        <div className="rec-section-title">MenB</div>
-        {menb.map((r, i) => (
-          <RecCard
-            key={i}
-            rec={r}
-            doses={menbDoses}
-            doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
-          />
-        ))}
+        {/* MenB recs */}
+        <div className="rec-section">
+          <div className="rec-section-title">MenB</div>
+          {menb.map((r, i) => (
+            <RecCard
+              key={i}
+              rec={r}
+              doses={menbDoses}
+              doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
+            />
+          ))}
+        </div>
       </div>
 
       <Disclaimer />

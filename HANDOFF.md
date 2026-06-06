@@ -180,3 +180,22 @@ note/code mismatch), D6 (3-dose shortcut for 2–6m starters with D2 ≥7m), D7 
 `brands.js` + age-banded `menacwyBrands`). D1/D3/D9 were already correct here; D4/D8 ignored.
 
 New test file: `src/logic/__tests__/regression-d2-d5-d6-d7.test.js`.
+
+---
+
+## Session: 2026-06-05 (session 2) — Dateless min-age + result-card colors (shipped)
+
+Tests **175 → 186**. See CLAUDE.md "Changes shipped (2026-06-05, session 2)" for detail.
+
+- **Dateless min-age fix** (`src/logic/validate.js`) — a dose with no date is now flagged
+  `invalid` when the patient's CURRENT age (an upper bound on age-at-administration) is below
+  the recorded KNOWN brand's `minAgeM`. Fixes the reported bug: a 2-year-old recorded with
+  Penbraya was previously "cannot verify" and counted; now it's invalid and dropped. Unknown
+  brand is not flagged for MenACWY (ACIP: any brand acceptable when history unknown); MenB
+  unknown brand still flags <10y (vaccine-category floor). Mirrors vaxapp's existing
+  `min_age_impossible` behavior. New test: `regression-dateless-minage.test.js` (11).
+- **Result-card color grouping** (`Results.jsx`, `App.css`) — pentavalent card now amber/gold;
+  the two separate MenACWY+MenB cards wrapped in a blue `.separate-vaccines-group` so the
+  "either combo OR two separate" grouping is visually unambiguous. "Due" state border changed
+  from teal to green — red is reserved for errors only. New `:root` tokens `--gmd`/`--bmd`
+  plus the `--penta*` set.
