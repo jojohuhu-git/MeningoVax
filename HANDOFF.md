@@ -199,3 +199,21 @@ Tests **175 → 186**. See CLAUDE.md "Changes shipped (2026-06-05, session 2)" f
   "either combo OR two separate" grouping is visually unambiguous. "Due" state border changed
   from teal to green — red is reserved for errors only. New `:root` tokens `--gmd`/`--bmd`
   plus the `--penta*` set.
+
+---
+
+## Session: 2026-06-07 — editable Results history + auto-add fix
+
+Branch: `main`. Shipped. Tests: **186 passing, 8 files**.
+
+- **StepHistory auto-add bug fixed** (same class of bug found in PneumoVax): clicking
+  "Yes, record doses" no longer pre-populates a blank unknown-brand dose row that the
+  engine would count. The list now starts empty with an explicit "+ Add dose" button.
+- **Results: "Recorded doses ▾" panel** added — inline editing of MenACWY/MenB doses
+  (date/brand/remove + Add) without restarting the wizard. One panel open at a time
+  (age and doses panels are mutually exclusive).
+- **Results: "← Edit history" back button** added — returns to step 3 (MenB history).
+- **CSS** — advisory banner + history-edit panel styles added to `App.css`.
+
+Files changed: `src/App.css`, `src/App.jsx`, `src/components/Results.jsx`,
+`src/components/StepHistory.jsx`, plus `CLAUDE.md` / `HANDOFF.md`.

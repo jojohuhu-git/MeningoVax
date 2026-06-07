@@ -931,3 +931,47 @@ body {
   .step-card { padding: 16px; }
   .age-field input[type="number"] { width: 90px; }
 }
+
+/* Advisory alert banners */
+.advisory-banner {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.advisory-banner-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.advisory-banner-flag {
+  font-size: 0.82rem;
+  color: var(--gy2);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.advisory-dose-line {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.advisory-note {
+  font-size: 0.82rem;
+  color: var(--gy2);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+/* Dose history edit panel */
+.history-edit-summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--gy2);
+  padding: 6px 0;
+  user-select: none;
+}
+.history-edit-section-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gy2);
+  margin: 10px 0 4px;
+}

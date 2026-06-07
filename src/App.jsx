@@ -107,7 +107,8 @@ export default function App() {
           />
         )}
         {state.step === 4 && (
-          <Results state={state} onReset={reset} onChange={update} />
+          <Results state={state} onReset={reset} onChange={update}
+            onBack={() => update({ step: 3 })} />
         )}
       </main>
 

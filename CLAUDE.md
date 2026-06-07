@@ -284,3 +284,23 @@ similar colors, making the two separate cards look like part of the combo. Fixes
   added to `:root`.
 
 Visual change only — no logic in `src/logic/` touched.
+
+## Session changes (2026-06-07) — editable Results history + auto-add fix
+
+1. **StepHistory: removed auto-add** (`StepHistory.jsx`). `handleYes()` no longer calls
+   `addDose()` automatically. Previously clicking "Yes, record doses" pre-populated one
+   blank dose row with unknown brand, which the engine then counted. Now clicking Yes
+   shows the dose list + "+ Add dose" button with no pre-populated rows.
+
+2. **Results: "Recorded doses ▾" button** (`Results.jsx`). In the header chip bar next
+   to "Adjust age ▾". Expands an inline editing panel showing MenACWY and MenB doses
+   with date/brand/remove controls and + Add buttons. Count shown in the button label.
+   One panel at a time (age and doses panels close each other).
+
+3. **Results: "← Edit history" back button** (`Results.jsx`). At the bottom of Results;
+   calls `onBack()` to return to step 3 (MenB history, the last history step). Wired in
+   `App.jsx`.
+
+4. **CSS** (`App.css`) — advisory banner and history-edit panel styles added.
+
+Tests: **186 passing**.

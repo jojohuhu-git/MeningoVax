@@ -19,7 +19,6 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
 
   function handleYes() {
     setHasHistory(true);
-    if (doses.length === 0) addDose();
   }
 
   function handleNo() {

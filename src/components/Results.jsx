@@ -3,12 +3,26 @@ import { recommend } from '../logic/recommend.js';
 import { analyzeHistory } from '../logic/validate.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
+import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 
-export default function Results({ state, onReset, onChange }) {
+const MENACWY_HISTORY_BRANDS = [
+  ...MENACWY_BRANDS,
+  ...PENTAVALENT_BRANDS,
+  { key: '', label: 'Unknown brand' },
+];
+
+const MENB_HISTORY_BRANDS = [
+  ...MENB_BRANDS,
+  ...PENTAVALENT_BRANDS,
+  { key: '', label: 'Unknown brand' },
+];
+
+export default function Results({ state, onReset, onChange, onBack }) {
   const { ageMonths, riskIds, menacwyDoses, menbDoses } = state;
   const [editingAge, setEditingAge] = useState(false);
+  const [editingDoses, setEditingDoses] = useState(false);
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
@@ -35,6 +49,28 @@ export default function Results({ state, onReset, onChange }) {
     onChange?.({ ageMonths: am, ageGroup: ageGroup(am) });
   }
 
+  // ── Recorded-dose editors (live re-render via onChange) ──
+  function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, { date: '', brand: '' }] }); }
+  function removeAcwy(i) { onChange?.({ menacwyDoses: menacwyDoses.filter((_, idx) => idx !== i) }); }
+  function updateAcwy(i, field, val) {
+    onChange?.({ menacwyDoses: menacwyDoses.map((d, idx) => idx === i ? { ...d, [field]: val } : d) });
+  }
+  function addB() { onChange?.({ menbDoses: [...menbDoses, { date: '', brand: '' }] }); }
+  function removeB(i) { onChange?.({ menbDoses: menbDoses.filter((_, idx) => idx !== i) }); }
+  function updateB(i, field, val) {
+    onChange?.({ menbDoses: menbDoses.map((d, idx) => idx === i ? { ...d, [field]: val } : d) });
+  }
+  function brandSelect(brandOptions, dose, onSet) {
+    return (
+      <select value={dose.brand || ''} onChange={e => onSet(e.target.value)}>
+        <option value="">Unknown brand</option>
+        {brandOptions
+          .filter(b => b.key !== undefined && b.key !== '')
+          .map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
+      </select>
+    );
+  }
+
   return (
     <div>
       {/* Summary header */}
@@ -49,10 +85,21 @@ export default function Results({ state, onReset, onChange }) {
             <button
               type="button"
               className="age-edit-btn"
-              onClick={() => setEditingAge(v => !v)}
+              onClick={() => { setEditingAge(v => !v); setEditingDoses(false); }}
               aria-expanded={editingAge}
             >
               {editingAge ? 'Done' : 'Adjust age ▾'}
+            </button>
+          )}
+          {onChange && (
+            <button
+              type="button"
+              className="age-edit-btn"
+              onClick={() => { setEditingDoses(v => !v); setEditingAge(false); }}
+              aria-expanded={editingDoses}
+            >
+              {editingDoses ? 'Done'
+                : `Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''} ▾`}
             </button>
           )}
           {riskLabels.length > 0
@@ -81,6 +128,67 @@ export default function Results({ state, onReset, onChange }) {
               />
             </div>
             <span className="age-edit-hint">Recommendations update as you change the age.</span>
+          </div>
+        )}
+        {editingDoses && (
+          <div className="age-edit-row" data-testid="recorded-doses-panel"
+            style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+
+            {/* MenACWY doses */}
+            <div style={{ width: '100%' }}>
+              <div className="history-edit-section-title">MenACWY doses</div>
+              {menacwyDoses.length === 0 && (
+                <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
+                  No MenACWY doses recorded.
+                </div>
+              )}
+              {menacwyDoses.map((dose, i) => (
+                <div key={i} className="dose-row" style={{ marginBottom: 4 }}>
+                  <div className="dose-field">
+                    <label>Date (optional)</label>
+                    <input type="date" value={dose.date || ''}
+                      max={new Date().toISOString().slice(0, 10)}
+                      onChange={e => updateAcwy(i, 'date', e.target.value)} />
+                  </div>
+                  <div className="dose-field">
+                    <label>Brand (optional)</label>
+                    {brandSelect(MENACWY_HISTORY_BRANDS, dose, v => updateAcwy(i, 'brand', v))}
+                  </div>
+                  <button className="dose-remove" onClick={() => removeAcwy(i)}
+                    aria-label={`Remove MenACWY dose ${i + 1}`}>×</button>
+                </div>
+              ))}
+              <button className="add-dose-btn" onClick={addAcwy}>+ Add MenACWY dose</button>
+            </div>
+
+            {/* MenB doses */}
+            <div style={{ width: '100%' }}>
+              <div className="history-edit-section-title">MenB doses</div>
+              {menbDoses.length === 0 && (
+                <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
+                  No MenB doses recorded.
+                </div>
+              )}
+              {menbDoses.map((dose, i) => (
+                <div key={i} className="dose-row" style={{ marginBottom: 4 }}>
+                  <div className="dose-field">
+                    <label>Date (optional)</label>
+                    <input type="date" value={dose.date || ''}
+                      max={new Date().toISOString().slice(0, 10)}
+                      onChange={e => updateB(i, 'date', e.target.value)} />
+                  </div>
+                  <div className="dose-field">
+                    <label>Brand (optional)</label>
+                    {brandSelect(MENB_HISTORY_BRANDS, dose, v => updateB(i, 'brand', v))}
+                  </div>
+                  <button className="dose-remove" onClick={() => removeB(i)}
+                    aria-label={`Remove MenB dose ${i + 1}`}>×</button>
+                </div>
+              ))}
+              <button className="add-dose-btn" onClick={addB}>+ Add MenB dose</button>
+            </div>
+
+            <span className="age-edit-hint">Changes update recommendations immediately.</span>
           </div>
         )}
       </div>
@@ -163,6 +271,9 @@ export default function Results({ state, onReset, onChange }) {
       <Disclaimer />
 
       <div className="results-actions">
+        {onBack && (
+          <button className="btn btn-outline" onClick={onBack}>← Edit history</button>
+        )}
         <button className="btn btn-outline" onClick={onReset}>
           Start Over
         </button>
