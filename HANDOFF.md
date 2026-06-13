@@ -217,3 +217,23 @@ Branch: `main`. Shipped. Tests: **186 passing, 8 files**.
 
 Files changed: `src/App.css`, `src/App.jsx`, `src/components/Results.jsx`,
 `src/components/StepHistory.jsx`, plus `CLAUDE.md` / `HANDOFF.md`.
+
+---
+
+## Session: 2026-06-13 — code-review findings (C1/H1/M1–M5) + P3 cleanup
+
+Branch: shipped via PR. Tests: **186 → 221 passing (10 files)**.
+
+Implemented `REVIEW_FINDINGS.md` (PR #1). See CLAUDE.md "Changes shipped (2026-06-13)" for the full per-finding detail. Summary:
+
+- **C1 (critical)** — MenB high-risk D3 now gates on ≥6mo-from-D1 AND ≥4mo-from-D2 (engine matched to validator).
+- **H1** — infant high-risk MenACWY series gets a completion guard + booster transition.
+- **M1 / M2** — MenACWY 21y and MenB 23y boundaries extended to the 22nd / 24th birthday (`M.y22`, `M.y24`).
+- **M3** — MenB family lock anchors on the first known-brand dose.
+- **M4** — validator reads `menacwyRiskClass()` from data, not a hardcoded list.
+- **M5** — `dateUtils.js` arithmetic moved to UTC (mirror-synced with PneumoVax).
+- **P3** — ageGroup 10yo "Child" fix + contiguous age chips; MenB-below-16 wording; pentavalent MMWR comment URLs reconciled (volume re-verify deferred — memory `deferred-mmwr-volume-check`); unused `immMenACWY`/`immMenB` removed.
+
+New tests: `regression-c1-h1-m1-m2-m3-m4-m5.test.js` (28), `format-ageGroup.test.js` (7).
+
+> Cross-app note: this review also drove the parallel meningococcal fixes in vaxapp/PediVax (vaxapp PR #49). vaxapp holds the MeningoVax↔vaxapp agreement fixtures (`cross-app-meningococcal-agreement.test.js`).

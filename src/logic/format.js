@@ -62,8 +62,8 @@ export function fmtDate(iso) {
 export function ageGroup(am) {
   if (am == null) return null;
   if (am < 24) return 'Infant (<2y)';
-  if (am < 120) return 'Child (2–10y)';
-  if (am < 228) return 'Adolescent (11–18y)';
+  if (am < 132) return 'Child (2–10y)';   // 132m = 11y; a 10-year-old (120–131m) is Child
+  if (am < 228) return 'Adolescent (11–18y)';  // 228m = 19y; 18-year-old (216–227m) is Adolescent
   return 'Adult (19+)';
 }
 
