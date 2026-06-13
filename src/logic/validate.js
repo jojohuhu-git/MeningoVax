@@ -44,12 +44,12 @@
 //       https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b
 //   • immunize.org Ask the Experts:
 //       https://www.immunize.org/ask-experts/meningococcal-vaccines/
-//   • Penmenvy MMWR 2025: https://www.cdc.gov/mmwr/volumes/74/wr/mm7401e1.htm
-//   • Penbraya MMWR 2023: https://www.cdc.gov/mmwr/volumes/72/wr/mm7237e2.htm
+//   • Penmenvy MMWR 2025: https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm
+//   • Penbraya MMWR 2023: https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm
 // ─────────────────────────────────────────────────────────────────────────
 
 import { daysBetween, DAYS } from './dateUtils.js';
-import { hasMenbRisk } from '../data/riskFactors.js';
+import { hasMenbRisk, menacwyRiskClass } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
@@ -220,9 +220,10 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
   }
 
   // ── Interval checks ───────────────────────────────────────────────────
-  const riskClass = riskIds.some(id =>
-    ['asplenia', 'complement', 'hiv'].includes(id)
-  );
+  // M4: Use menacwyRiskClass() from riskFactors.js instead of hardcoding the risk IDs.
+  // This keeps the validator in sync with the engine's riskClass computation.
+  // primary2 class = strict interval checks apply.
+  const riskClass = menacwyRiskClass(riskIds) === 'primary2';
   const isInfant = ageAtDose !== null && ageAtDose < 24;
 
   if (effectiveIdx > 0) {

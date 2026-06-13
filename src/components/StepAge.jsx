@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ageGroup as deriveGroup, dobToAgeMonths, fmtAgeMonths } from '../logic/format.js';
 
 const AGE_GROUP_CHIPS = [
-  { label: 'Infant (<2y)',      minM: 0,   maxM: 23,  defaultM: 6 },
-  { label: 'Child (2–10y)',     minM: 24,  maxM: 119, defaultM: 72 },
-  { label: 'Adolescent (11–18y)', minM: 132, maxM: 215, defaultM: 168 },
-  { label: 'Adult (19+)',       minM: 228, maxM: null, defaultM: 276 },
+  { label: 'Infant (<2y)',        minM: 0,   maxM: 23,  defaultM: 6 },
+  { label: 'Child (2–10y)',       minM: 24,  maxM: 131, defaultM: 72 },   // 132m = 11y
+  { label: 'Adolescent (11–18y)', minM: 132, maxM: 227, defaultM: 168 },  // 228m = 19y
+  { label: 'Adult (19+)',         minM: 228, maxM: null, defaultM: 276 },
 ];
 
 export default function StepAge({ ageMonths, ageGroup, error, onChange }) {

@@ -63,16 +63,8 @@ export const REFS = {
   },
 
   // immunize.org ----------------------------------------------------------
-  immMenACWY: {
-    url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
-    label: 'immunize.org — MenACWY Ask the Experts',
-    short: 'immunize.org Ask the Experts',
-  },
-  immMenB: {
-    url: 'https://www.immunize.org/ask-experts/topic/menb/',
-    label: 'immunize.org — MenB Ask the Experts',
-    short: 'immunize.org Ask the Experts',
-  },
+  // immMenACWY and immMenB were removed — no citation in any rec or validate call.
+  // If needed in future, re-add as keys here and wire into collectRefs().
 };
 
 // Resolve an array of ref keys to {url, label, short} objects, dropping unknown keys.

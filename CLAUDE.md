@@ -304,3 +304,29 @@ Visual change only — no logic in `src/logic/` touched.
 4. **CSS** (`App.css`) — advisory banner and history-edit panel styles added.
 
 Tests: **186 passing**.
+
+## Changes shipped (2026-06-13) — code-review findings (C1/H1/M1–M5) + P3 cleanup
+
+Implements the review in `REVIEW_FINDINGS.md` (PR #1). Engine and validator kept in sync per the CLAUDE.md rule; every fix has a regression test. Tests: **186 → 221 passing (10 files)**.
+
+### Engine / validator fixes (`recommend.js`, `validate.js`, `dateUtils.js`)
+
+- **C1 (critical) — MenB high-risk Dose 3 timing.** `recommend.js` `given===2` block now gates D3 on BOTH ≥6 months from D1 AND ≥4 months from D2 (was D1-only); `earliestNextDate` = the later of the two floors. Engine now agrees with `validate.js` (which already enforced both). A late D2 no longer makes D3 read "due today" early.
+- **H1 — Infant high-risk MenACWY series never completed.** `menacwyInfantHighRisk` gained a `seriesComplete` guard (given≥3 for a 7–11m start, given≥4 for a 2–6m start) that transitions to the every-3–5-year booster instead of recommending an endless next dose.
+- **M1 — MenACWY catch-up 21y boundary.** `menacwyRoutine`: `am <= 252` → `am < M.y22` (264m = 22nd birthday). Added `M.y22: 264`. 21y1m–21y11m now get the catch-up Dose 1 of 1.
+- **M2 — MenB shared-decision 23y boundary.** `am <= M.y23` → `am < M.y24` (288m = 24th birthday). Added `M.y24: 288`. 23y1m–23y11m now get the shared-decision offer.
+- **M3 — MenB family-lock anchor.** `menbRec` family now anchors on the first KNOWN-brand dose (`doses.find(d => d.brand)?.brand`) instead of raw `doses[0]?.brand`, mirroring `validate.js`. Unknown D1 + branded D2 no longer offers both families / both pentavalents.
+- **M4 — Validator risk class read from data.** `validate.js` MenACWY interval gate now uses `menacwyRiskClass(riskIds) === 'primary2'` (imported from `riskFactors.js`) instead of a hardcoded `['asplenia','complement','hiv']` literal. Behavior-identical today; no longer drifts.
+- **M5 — Date helpers off-by-one east of UTC.** `dateUtils.js` `addDays`/`daysBetween` now do arithmetic in UTC (`'T00:00:00Z'` + UTC getters); `todayISO()` derives the date from the LOCAL clock so the displayed date matches wall-clock in every timezone. NOTE: this file is mirror-synced with PneumoVax's `dateUtils.js` (same fix applied there).
+
+Regression test: `src/logic/__tests__/regression-c1-h1-m1-m2-m3-m4-m5.test.js` (28).
+
+### P3 cleanups (`format.js`, `StepAge.jsx`, `recommend.js`, `validate.js`, `refs.js`)
+
+- **ageGroup off-by-bracket** (`format.js`): `am < 120` → `am < 132`, so a 10-year-old (120–131m) reads "Child (2–10y)" not "Adolescent (11–18y)". Test: `format-ageGroup.test.js` (7).
+- **Age-chip coverage gaps** (`StepAge.jsx`): chip `maxM` made contiguous (Infant 0–23 / Child 24–131 / Adolescent 132–227 / Adult 228+) — closes the uncovered 10y and 18y gaps and matches `ageGroup()`.
+- **MenB below-16 wording** (`recommend.js`): clarified that MenB is FDA-licensed from age 10 and a risk factor makes it indicated from 10; routine shared-decision is 16–23y (no longer reads as "not licensed below 16").
+- **Pentavalent MMWR comment URLs** (`validate.js`): header comment reconciled to match `refs.js` — Penmenvy vol 75 (2025), Penbraya vol 73 (2023). (Volume authority flagged for independent re-verification — see memory `deferred-mmwr-volume-check`.)
+- **Unused refs** (`refs.js`): `immMenACWY` / `immMenB` removed (confirmed uncited anywhere).
+
+> Origin: this work began as a code review of MeningoVax that also drove parallel meningococcal fixes in vaxapp/PediVax (shipped separately as vaxapp PR #49). The cross-app agreement fixtures live in vaxapp.

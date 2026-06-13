@@ -28,7 +28,7 @@ import { analyzeHistory } from './validate.js';
 
 // Age bands (months)
 const M = {
-  y2: 24, y7: 84, y10: 120, y11: 132, y16: 192, y18: 216, y19: 228, y23: 276,
+  y2: 24, y7: 84, y10: 120, y11: 132, y16: 192, y18: 216, y19: 228, y22: 264, y23: 276, y24: 288,
 };
 
 // ── brand option builders ─────────────────────────────────────────────────
@@ -274,6 +274,28 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       refs });
   }
 
+  // H1: Completion guards — detect when the infant series is done and transition to boosters.
+  // 7–11m start (2-dose primary + 1 booster = 3 total): complete at given >= 3.
+  // 2–6m start standard path (4-dose: primary at 2/4/6m + booster at 12m): complete at given >= 4.
+  // (The 3-dose shortcut path is handled above at given === 2.)
+  const seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4;
+  if (seriesComplete) {
+    // Transition to recurring boosters (every 3–5 years while at risk).
+    // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
+    // Since these are infants, D2 age is always <7y → first booster cadence is 3y.
+    const boostDays = DAYS.years(3); // infant D2 always <7y, conservative 3y
+    const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
+    return rec({ vaccine: 'MenACWY', status: 'risk-based',
+      doseLabel: `Booster (dose ${given + 1}, every 3–5 years)`,
+      doseNum: given + 1,
+      dueToday: elapsedBoost,
+      earliestNextDate: elapsedBoost ? null : addDays(lastDate, boostDays),
+      minIntervalDays: boostDays,
+      brands: menacwyBrands(am),
+      note: 'Infant high-risk primary series complete. Continue MenACWY boosters every 3–5 years while the high-risk condition persists.',
+      refs });
+  }
+
   // Standard continuation for 2–6m start series (D2/D3 primary) or 7–11m start (D2)
   const nextIntervalDays = d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4);
   const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
@@ -328,7 +350,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // D2: Job aid rule — all patients 17–21y with no MenACWY on/after the 16th birthday
   // should receive catch-up Dose 1 of 1. No booster needed when given at ≥16y.
   // Especially important for first-year college students living in residence halls.
-  if (am <= 252) { // ≤21y (252m = 21 years)
+  if (am < M.y22) { // <22y — through 21st birthday (264m = 22y); 'through 21 years' is inclusive to 22nd birthday
     if (!hasDoseAt16) {
       return [rec({ vaccine: 'MenACWY', status: 'catchup',
         doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up — no dose at ≥16y)',
@@ -350,8 +372,9 @@ function menbRec(am, riskIds, doses, today) {
   const given = doses.length;
   const last = doses[given - 1] || null;
   const lastDate = last?.date || null;
-  const firstBrand = doses[0]?.brand || '';
-  const family = menbFamily(firstBrand); // null until a branded dose 1 exists
+  // M3: anchor family on the first KEPT dose with a known brand (mirrors validate.js)
+  // Do not use doses[0]?.brand — D1 may be unknown while a later dose establishes the family.
+  const family = menbFamily((doses.find(d => d.brand)?.brand) || '');
   const highRisk = hasMenbRisk(riskIds);
   const refs = (extra = []) => collectRefs(riskIds, extra, highRisk ? ['acip2020', 'cdcAdultMening'] : ['cdcChildMenB']);
 
@@ -362,7 +385,7 @@ function menbRec(am, riskIds, doses, today) {
         note: 'MenB vaccines are licensed from age 10 years. This high-risk patient becomes MenB-eligible at age 10; track for the 3-dose high-risk series then.', refs: refs() })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
-      note: 'MenB is licensed from age 10 years and is not routinely indicated below age 16 without a risk factor.', refs: refs() })];
+      note: 'MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age 10 years. Without a high-risk indication, routine shared-decision-making for MenB applies from age 16 through 23 years. At 10–15 years, MenB is indicated only for patients with a qualifying risk factor (asplenia, complement deficiency, complement-inhibitor therapy, or microbiologist exposure).', refs: refs() })];
   }
 
   // Pregnancy deferral (unless an overriding high-risk indication applies).
@@ -388,11 +411,27 @@ function menbRec(am, riskIds, doses, today) {
         refs: refs() })];
     }
     if (given === 2) {
-      const elapsed = intervalElapsed(doses[0]?.date, DAYS.months(6), today);
+      // C1: D3 requires BOTH ≥6 months from D1 AND ≥4 months from D2.
+      // The earlier check (engine vs validator disagreement) only used D1.
+      // Now gate on both; earliestNextDate = later of the two floors.
+      const d1Date = doses[0]?.date ?? null;
+      const d2Date = doses[1]?.date ?? null;
+      const fromD1 = d1Date ? intervalElapsed(d1Date, DAYS.months(6), today) : true;
+      const fromD2 = d2Date ? intervalElapsed(d2Date, DAYS.months(4), today) : true;
+      const elapsed = fromD1 && fromD2;
+      // Compute the later of the two earliest dates (whichever constraint binds).
+      let earliestNextDate = null;
+      if (!elapsed) {
+        const e1 = d1Date ? addDays(d1Date, DAYS.months(6)) : null;
+        const e2 = d2Date ? addDays(d2Date, DAYS.months(4)) : null;
+        if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
+        else earliestNextDate = e1 ?? e2;
+      }
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3,
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(doses[0].date, DAYS.months(6)), minIntervalDays: DAYS.months(6),
+        dueToday: elapsed, earliestNextDate,
+        minIntervalDays: DAYS.months(4), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
-        note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 (and ≥4 months after dose 2). After completion, boost 1 year later, then every 2–3 years while at risk.',
+        note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule). After completion, boost 1 year later, then every 2–3 years while at risk.',
         refs: refs() })];
     }
     // given >= 3: primary complete → boosters
@@ -409,7 +448,7 @@ function menbRec(am, riskIds, doses, today) {
   }
 
   // ── Healthy 16–23y shared clinical decision-making: 2-dose 0/6 ───────────
-  if (am >= M.y16 && am <= M.y23) {
+  if (am >= M.y16 && am < M.y24) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, dueToday: true,
         family, brands: menbBrands(family),
@@ -458,8 +497,8 @@ function menbRec(am, riskIds, doses, today) {
   // Healthy outside 16–23y → not routinely indicated
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: am < M.y16
-      ? 'MenB shared clinical decision-making applies to ages 16–23 years (preferably 16–18). Not routinely indicated yet at this age without a risk factor.'
-      : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window. Vaccinate only for a high-risk indication.',
+      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years (preferably 16–18). Not routinely indicated yet at this age without a risk factor.'
+      : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday). Vaccinate only for a high-risk indication.',
     family, refs: refs() })];
 }
 
