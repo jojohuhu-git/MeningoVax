@@ -579,9 +579,30 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
  */
 export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
   const ref = today || new Date().toISOString().slice(0, 10);
-  const filtered = (doses ?? []).filter(Boolean);
+  // Sort chronologically before the last-kept walk. The walk and the engine both assume
+  // ascending order (dose numbering, interval anchoring, MenB family lock on the first
+  // kept dose), so doses entered out of order must be re-sorted. Dated doses ascending;
+  // undated doses sort FIRST (they count but are never a timing anchor, and an undated
+  // historical dose is assumed to be the earlier dose — matching existing convention).
+  const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
   if (filtered.length === 0) return { perDose: [], effective: [] };
   return runWalk(vaccine, filtered, ageMonths, riskIds, ref);
+}
+
+// Chronological, stable sort. ISO date strings compare lexicographically. Undated doses
+// sort before all dated doses, preserving their relative input order.
+function sortDosesChronologically(doses) {
+  return doses
+    .map((d, i) => ({ d, i }))
+    .sort((a, b) => {
+      const da = a.d?.date || '';
+      const db = b.d?.date || '';
+      if (da && db) return da < db ? -1 : da > db ? 1 : a.i - b.i;
+      if (!da && db) return -1; // undated sorts before dated
+      if (da && !db) return 1;
+      return a.i - b.i;         // both undated → stable input order
+    })
+    .map((x) => x.d);
 }
 
 /**
