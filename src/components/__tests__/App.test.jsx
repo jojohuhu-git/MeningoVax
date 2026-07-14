@@ -171,6 +171,30 @@ describe('App wizard', () => {
     expect(screen.getByTestId('penta-card').textContent).toMatch(/replaces both shots/i);
   });
 
+  // B4: card fill communicates timing (due=green, catch-up=amber, neither
+  // urgent=neutral), never the clinical reason. Risk-based is a badge color
+  // (purple), not a full red card fill — red stays reserved for invalid doses.
+  it('gives a risk-based due-today card a green (timing) fill and a purple (reason) badge, not red', () => {
+    render(<App />);
+    enterAgeYears(23);
+    fireEvent.click(getNextBtn());
+    const asplenia = screen.getByLabelText(/anatomic or functional asplenia/i, { exact: false });
+    fireEvent.click(asplenia);
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    const cards = screen.getAllByTestId('rec-card');
+    const menacwyCard = cards.find(c => c.textContent.includes('MenACWY'));
+    expect(menacwyCard.className).toMatch(/timing-due/);
+    expect(menacwyCard.className).not.toMatch(/status-risk-based/);
+
+    const badge = menacwyCard.querySelector('.status-badge.risk-based');
+    expect(badge).not.toBeNull();
+  });
+
   it('renders MenB not-indicated for young child without risk', () => {
     render(<App />);
     enterAgeYears(5);

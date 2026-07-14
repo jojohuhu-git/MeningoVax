@@ -57,6 +57,16 @@ function DoseValidation({ result }) {
   );
 }
 
+// B4: the big card's fill color communicates TIMING ONLY (is this due today,
+// does it need catch-up, or is neither urgent) — never the clinical REASON.
+// Reason (risk-based, shared-decision, etc.) is conveyed only by the small
+// status badge/icon, not by filling the whole card red/purple/blue.
+function timingClass(status, dueToday) {
+  if (status === 'catchup') return 'timing-catchup';
+  if (dueToday) return 'timing-due';
+  return 'timing-neutral';
+}
+
 export default function RecCard({ rec, doses = [], doseValidations = [] }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
@@ -64,7 +74,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
   const given = doses.length;
 
   return (
-    <div className={`rec-card status-${status}`} data-testid="rec-card">
+    <div className={`rec-card ${timingClass(status, dueToday)}`} data-testid="rec-card">
       <div className="rec-card-inner">
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>

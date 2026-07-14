@@ -18,6 +18,9 @@
   --b:    #1565c0;   /* shared-decision blue */
   --blt:  #e3f2fd;
   --bmd:  #90caf9;   /* blue medium border */
+  --p:    #6a1b9a;   /* risk-based purple — a reason icon color, never a full-card fill */
+  --plt:  #f3e5f5;
+  --pmd:  #ce93d8;   /* purple medium border */
   /* Pentavalent option — amber/gold to signal "alternative route" */
   --penta:    #b45309;   /* amber text/icon */
   --pentalt:  #fffbeb;   /* amber lightest bg */
@@ -545,17 +548,17 @@ body {
   overflow: hidden;
   margin-bottom: 10px;
 }
-/* Status communicated by background shading (not a left strip). Each status
-   gets a light tint fill + a slightly stronger border of the same hue.
-   NOTE: status-due uses green border (--gmd), NOT teal (--cmd), so due cards
+/* B4: the card's fill communicates TIMING only — is this due today, does it
+   need catch-up, or is neither urgent right now. The clinical REASON (routine,
+   risk-based, shared-decision, etc.) is a small badge/icon color instead (see
+   .status-badge below), never a full-card fill. Red is reserved strictly for
+   invalid/error states elsewhere (dose validation, compliance audit) and is
+   never used here.
+   NOTE: timing-due uses green border (--gmd), NOT teal (--cmd), so due cards
    don't visually merge with the teal pentavalent card. */
-.rec-card.status-due             { background: var(--glt); border-color: var(--gmd); }
-.rec-card.status-catchup         { background: var(--alt); border-color: #f0c79a; }
-.rec-card.status-risk-based      { background: var(--rlt); border-color: #f0b0b0; }
-.rec-card.status-shared-decision { background: var(--blt); border-color: #a8cbef; }
-.rec-card.status-complete        { background: var(--gy6); border-color: var(--gy5); }
-.rec-card.status-not-indicated   { background: var(--wh); border-color: var(--gy5); }
-.rec-card.status-deferred        { background: var(--alt); border-color: #f0c79a; }
+.rec-card.timing-due     { background: var(--glt); border-color: var(--gmd); }
+.rec-card.timing-catchup { background: var(--alt); border-color: #f0c79a; }
+.rec-card.timing-neutral { background: var(--gy6); border-color: var(--gy5); }
 .rec-card-inner { padding: 16px 18px; }
 .rec-card-head {
   display: flex;
@@ -578,9 +581,12 @@ body {
   font-weight: 700;
   letter-spacing: 0.03em;
 }
+/* B4: the badge is the REASON icon — its own small color, distinct from
+   red (reserved for invalid/error states). Risk-based was red; that read as
+   an error when the card itself was also color-coded. Now purple. */
 .status-badge.due              { background: var(--glt); color: var(--g); }
 .status-badge.catchup          { background: var(--alt); color: var(--a); }
-.status-badge.risk-based       { background: var(--rlt); color: var(--r); }
+.status-badge.risk-based       { background: var(--plt); color: var(--p); }
 .status-badge.shared-decision  { background: var(--blt); color: var(--b); }
 .status-badge.complete         { background: var(--gy6); color: var(--gy3); }
 .status-badge.not-indicated    { background: var(--gy6); color: var(--gy4); }
