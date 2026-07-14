@@ -243,15 +243,16 @@ export default function Results({ state, onReset, onChange, onBack }) {
         </div>
       </div>
 
-      {/* Option 2 (alternative): single pentavalent injection — replaces both shots above */}
+      {/* Option 2 (alternative): single pentavalent injection — replaces both shots above.
+          E4: one consolidated title (previously repeated "pentavalent (MenABCWY)"
+          in both the option label and the card header). */}
       {pentavalent.eligible && (
         <div className="penta-card" data-testid="penta-card">
           <div className="dose-option-label" data-testid="option-penta-label">
-            Option 2 (alternative): single pentavalent injection (MenABCWY)
+            Option 2 (alternative): Pentavalent (MenABCWY)
           </div>
           <div className="penta-header">
-            <span>Pentavalent (MenABCWY)</span>
-            <span style={{ fontWeight: 400, fontSize: '0.8rem' }}>Replaces both shots above — do not give both</span>
+            <span>Replaces both shots above — do not give both</span>
           </div>
           <div className="penta-body">
             <div className="penta-note">{pentavalent.note}</div>

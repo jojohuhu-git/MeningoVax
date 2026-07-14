@@ -57,11 +57,12 @@ function DoseValidation({ result }) {
   );
 }
 
-// B4: the big card's fill color communicates TIMING ONLY (is this due today,
-// does it need catch-up, or is neither urgent) — never the clinical REASON.
-// Reason (risk-based, shared-decision, etc.) is conveyed only by the small
-// status badge/icon, not by filling the whole card red/purple/blue.
+// B4/E3: the big card's fill color communicates TIMING — due today (green),
+// needs catch-up (yellow), shared decision (blue), or neither urgent (gray).
+// Shared-decision gets its own permanent color (not just "green when due
+// today") since it's a distinct kind of "now" — optional, not mandatory.
 function timingClass(status, dueToday) {
+  if (status === 'shared-decision') return 'timing-shared';
   if (status === 'catchup') return 'timing-catchup';
   if (dueToday) return 'timing-due';
   return 'timing-neutral';
@@ -70,7 +71,6 @@ function timingClass(status, dueToday) {
 export default function RecCard({ rec, doses = [], doseValidations = [] }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
-  const isShared = status === 'shared-decision';
   const given = doses.length;
 
   return (
@@ -79,11 +79,6 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>
           <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
-          {dueToday && !isNeutral && (
-            <span className={`due-pill${isShared ? ' due-pill-optional' : ''}`}>
-              {isShared ? 'Optional today' : 'Today'}
-            </span>
-          )}
         </div>
 
         {/* Series progress — what's recorded vs what's due */}

@@ -161,7 +161,7 @@ describe('App wizard', () => {
     const separateLabel = screen.getByTestId('option-separate-label');
     const pentaLabel = screen.getByTestId('option-penta-label');
     expect(separateLabel.textContent).toMatch(/option 1.*primary.*two separate injections/i);
-    expect(pentaLabel.textContent).toMatch(/option 2.*alternative.*single pentavalent injection/i);
+    expect(pentaLabel.textContent).toMatch(/option 2.*alternative.*pentavalent/i);
 
     // DOM order: separate-injections option comes before the pentavalent card.
     const position = separateLabel.compareDocumentPosition(pentaLabel);

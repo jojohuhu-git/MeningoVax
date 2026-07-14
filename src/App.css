@@ -558,6 +558,7 @@ body {
    don't visually merge with the teal pentavalent card. */
 .rec-card.timing-due     { background: var(--glt); border-color: var(--gmd); }
 .rec-card.timing-catchup { background: var(--alt); border-color: #f0c79a; }
+.rec-card.timing-shared  { background: var(--blt); border-color: var(--bmd); }
 .rec-card.timing-neutral { background: var(--gy6); border-color: var(--gy5); }
 .rec-card-inner { padding: 16px 18px; }
 .rec-card-head {
@@ -591,23 +592,6 @@ body {
 .status-badge.complete         { background: var(--gy6); color: var(--gy3); }
 .status-badge.not-indicated    { background: var(--gy6); color: var(--gy4); }
 .status-badge.deferred         { background: var(--alt); color: var(--a); }
-.due-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: var(--rads);
-  background: var(--g);
-  color: var(--wh);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-/* Shared-decision is optional — not a mandatory "Due today". */
-.due-pill.due-pill-optional {
-  background: var(--blt);
-  color: var(--b);
-  border: 1px solid #a8cbef;
-}
-
 /* Series progress — recorded doses vs the dose now due */
 .rec-progress {
   background: rgba(255, 255, 255, 0.65);
@@ -880,44 +864,44 @@ body {
 
 /* ── Two-separate-vaccines grouping container ──────────────────── */
 /* When both MenACWY and MenB are due AND a pentavalent option exists, wrap
-   the dual-due banner + both rec-sections in a blue-tinted container so they
-   read as a single visual group ("the alternative path"), clearly distinct
-   from the amber pentavalent card above. */
+   the dual-due banner + both rec-sections in a container so they read as a
+   single visual group ("Option 1"). White body (not a full blue fill) with a
+   blue border/left-accent so it still reads as its own option, distinct from
+   Option 2's amber accent below. */
 .separate-vaccines-group {
-  background: var(--blt);
+  background: var(--wh);
   border: 1.5px solid var(--bmd);
+  border-left: 4px solid var(--b);
   border-radius: var(--rad);
   padding: 14px 14px 4px;
   margin-bottom: 16px;
 }
-/* Lift rec-cards inside the group slightly so their white backgrounds pop */
-.separate-vaccines-group .rec-card {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
-/* Amber/gold theme — signals "alternative combined option", clearly distinct
-   from the blue-grouped two-separate-vaccines section below. */
+/* White body (not a full amber fill) with an amber border/left-accent —
+   signals "alternative combined option" without a colored background,
+   clearly distinct from Option 1's blue accent above. */
 .penta-card {
-  background: var(--pentalt);
+  background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh2);
-  border: 2px solid var(--pentamd);
+  border: 1.5px solid var(--pentamd);
+  border-left: 4px solid var(--penta);
   margin-bottom: 16px;
   overflow: hidden;
 }
 .penta-header {
-  background: var(--pentahdr);
-  border-bottom: 1px solid var(--pentamd);
+  background: var(--wh);
+  border-bottom: 1px solid var(--gy5);
   padding: 10px 18px;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.85rem;
   color: var(--penta);
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.penta-body { padding: 16px 18px; }
+.penta-body { padding: 16px 20px 20px; }
 .penta-note {
   font-size: 0.85rem;
   color: var(--gy2);
