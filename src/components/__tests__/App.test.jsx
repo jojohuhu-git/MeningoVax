@@ -204,7 +204,7 @@ describe('App wizard', () => {
     fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
 
     fireEvent.click(screen.getByText('Yes, record doses'));
-    fireEvent.click(screen.getByText('+ Add dose'));
+    fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
     const doseDateInput = document.querySelector('input[type="date"]');
     fireEvent.change(doseDateInput, { target: { value: '2025-06-01' } });
     fireEvent.click(getNextBtn()); // → MenB history
@@ -256,7 +256,7 @@ describe('App wizard', () => {
       fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
 
       fireEvent.click(screen.getByText('Yes, record doses'));
-      fireEvent.click(screen.getByText('+ Add dose'));
+      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
       const dateInputs = screen.getAllByDisplayValue('');
       // First empty date input is the new dose row's date field.
       const doseDateInput = document.querySelector('input[type="date"]:not(#dob-input)');
@@ -268,6 +268,56 @@ describe('App wizard', () => {
       const cards = screen.getAllByTestId('rec-card');
       const menacwyCard = cards.map(c => c.textContent).find(t => t.includes('MenACWY'));
       expect(menacwyCard).toMatch(/complete/i);
+    });
+  });
+
+  // B7: keyboard shortcuts — Ctrl/Cmd+A adds a dose row, Enter advances the
+  // stepper (without submitting a partial form or destructive action).
+  describe('B7: keyboard shortcuts', () => {
+    it('Ctrl+A adds a dose row while recording MenACWY history', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('Yes, record doses'));
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(0);
+      fireEvent.keyDown(document, { key: 'a', ctrlKey: true });
+      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+    });
+
+    it('Cmd+A (metaKey) also adds a dose row', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('Yes, record doses'));
+
+      fireEvent.keyDown(document, { key: 'a', metaKey: true });
+      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+    });
+
+    it('Enter advances from the Age step to Risks', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.keyDown(document, { key: 'Enter' });
+      expect(screen.getByText('Risk Factors')).toBeDefined();
+    });
+
+    it('Enter does not advance past the Results step (no crash, no reset)', () => {
+      render(<App />);
+      enterAgeYears(23);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+      fireEvent.keyDown(document, { key: 'Enter' });
+      // Still on Results — did not reset or error.
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
     });
   });
 });

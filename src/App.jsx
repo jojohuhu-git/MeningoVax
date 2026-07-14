@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Stepper from './components/Stepper.jsx';
 import StepAge from './components/StepAge.jsx';
 import StepRisks from './components/StepRisks.jsx';
@@ -56,6 +56,26 @@ export default function App() {
     setState(INITIAL_STATE);
     setAgeError('');
   }
+
+  // B7: Enter advances to the next step, without submitting a partial form or
+  // triggering a destructive action. Guarded against firing while focus is in
+  // a free-text field where the user may still be typing (this app has no
+  // free-text inputs today — only date/select/checkbox/button — but the guard
+  // future-proofs against one being added).
+  useEffect(() => {
+    if (state.step >= 4) return; // no Next button on Results
+    function handleKeydown(e) {
+      if (e.key !== 'Enter') return;
+      const tag = document.activeElement?.tagName;
+      const type = document.activeElement?.type;
+      if (tag === 'TEXTAREA' || (tag === 'INPUT' && type === 'text')) return;
+      e.preventDefault();
+      goNext();
+    }
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.step, state.ageMonths]);
 
   return (
     <div className="app-shell">

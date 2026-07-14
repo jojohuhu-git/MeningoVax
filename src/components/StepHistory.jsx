@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { menbFamily } from '../data/brands.js';
 
 export default function StepHistory({ vaccine, doses, onChange, brandOptions }) {
@@ -7,6 +7,21 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
   function addDose() {
     onChange([...doses, { date: '', brand: '' }]);
   }
+
+  // B7: Ctrl+A (Cmd+A on Mac) adds a dose row, overriding the browser's
+  // default "select all" while this step is recording history.
+  useEffect(() => {
+    if (hasHistory !== true) return;
+    function handleKeydown(e) {
+      const isAddDoseShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
+      if (isAddDoseShortcut) {
+        e.preventDefault();
+        onChange([...doses, { date: '', brand: '' }]);
+      }
+    }
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [hasHistory, doses, onChange]);
 
   function removeDose(idx) {
     onChange(doses.filter((_, i) => i !== idx));
@@ -111,8 +126,8 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
             </div>
           )}
 
-          <button className="add-dose-btn" onClick={addDose}>
-            + Add dose
+          <button className="add-dose-btn" onClick={addDose} accessKey="a" title="Add dose (Ctrl/Cmd+A)">
+            + <u>A</u>dd dose
           </button>
         </>
       )}
