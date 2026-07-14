@@ -108,7 +108,9 @@ const AGE_7Y_MONTHS = 84;
 
 // Age in months at a past dose, from its date + current patient age + today.
 // Returns null when the date is absent (caller handles unknown-date doses).
-function ageAtDoseFromDate(dose, ageMonths, today) {
+// Exported for display surfaces (e.g. the compliance audit table) that need
+// to show "age at administration" without re-deriving the date math.
+export function ageAtDoseFromDate(dose, ageMonths, today) {
   if (!dose?.date) return null;
   return ageMonths - daysBetween(dose.date, today) / 30.4375;
 }
