@@ -684,6 +684,20 @@ body {
   color: var(--gy3);
   margin-bottom: 6px;
 }
+/* B6: a "complete" status with a booster still coming — call it out, don't
+   let it read as a quiet, fully-done state. Amber like catch-up (something
+   will need to happen), but text-only (no full-card fill change). */
+.booster-due-banner {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--a);
+  background: var(--alt);
+  border: 1px solid #f0c79a;
+  border-radius: var(--rads);
+  padding: 4px 10px;
+  margin-bottom: 8px;
+}
 .rec-dose-label {
   font-size: 0.88rem;
   font-weight: 600;

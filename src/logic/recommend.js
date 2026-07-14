@@ -68,6 +68,10 @@ function rec(o) {
     family: o.family ?? null,
     note: o.note,
     citations: resolveRefs(o.refs ?? []),
+    // B6: set when a "complete" status still has a future booster coming
+    // (an approximate ISO date), so the UI can show it prominently instead
+    // of reading as a quiet, fully-done state.
+    boosterDueDate: o.boosterDueDate ?? null,
   };
 }
 
@@ -339,9 +343,15 @@ function menacwyRoutine(am, given, doses, last, today) {
         note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.', refs })];
     }
     // already has dose 1 → booster due at 16y (future)
+    // B6: this isn't a quiet "done" state — a booster is still coming. Compute
+    // an approximate due date (the patient's 16th birthday) so it's not just
+    // "complete" with no further information.
+    const monthsUntil16 = M.y16 - am;
+    const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y',
       earliestNextDate: null,
-      note: 'Routine dose 1 recorded. The routine booster is due at age 16 years.', refs })];
+      boosterDueDate,
+      note: 'Routine dose 1 recorded. The routine booster is due at age 16 years (see the approximate date above).', refs })];
   }
   // 16–18y
   if (am < M.y19) {

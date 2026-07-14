@@ -195,6 +195,26 @@ describe('App wizard', () => {
     expect(badge).not.toBeNull();
   });
 
+  // B6: a "complete" status with a booster still due later must show a
+  // prominent banner with an approximate date, not read as fully done.
+  it('shows a prominent booster-due banner for a 12y with dose 1 recorded (booster due at 16y)', () => {
+    render(<App />);
+    enterAgeYears(12);
+    fireEvent.click(getNextBtn()); // → Risks
+    fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
+
+    fireEvent.click(screen.getByText('Yes, record doses'));
+    fireEvent.click(screen.getByText('+ Add dose'));
+    const doseDateInput = document.querySelector('input[type="date"]');
+    fireEvent.change(doseDateInput, { target: { value: '2025-06-01' } });
+    fireEvent.click(getNextBtn()); // → MenB history
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    const banner = screen.getByTestId('booster-due-banner');
+    expect(banner.textContent).toMatch(/booster still due.*approximately/i);
+  });
+
   it('renders MenB not-indicated for young child without risk', () => {
     render(<App />);
     enterAgeYears(5);

@@ -68,7 +68,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [] }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, brands, note, citations } = rec;
+  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   const isShared = status === 'shared-decision';
   const given = doses.length;
@@ -102,6 +102,14 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
         )}
 
         <div className="rec-dose-label">{doseLabel}</div>
+
+        {/* B6: a "complete" status with a booster still coming is NOT a quiet
+            done state — call it out with its own emphasized line and date. */}
+        {boosterDueDate && (
+          <div className="booster-due-banner" data-testid="booster-due-banner">
+            Booster still due — approximately {fmtDate(boosterDueDate)}
+          </div>
+        )}
 
         {!dueToday && earliestNextDate && (
           <div className="next-date">
