@@ -997,6 +997,45 @@ body {
   margin: 10px 0 4px;
 }
 
+/* ── E6: color + shortcut-key legend ─────────────────────────────── */
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--gy2);
+  padding: 3px 0;
+}
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--rads);
+  flex-shrink: 0;
+  border: 1px solid var(--gy5);
+}
+.legend-swatch-due        { background: var(--glt); border-color: var(--gmd); }
+.legend-swatch-catchup    { background: var(--alt); border-color: #f0c79a; }
+.legend-swatch-shared     { background: var(--blt); border-color: var(--bmd); }
+.legend-swatch-neutral    { background: var(--gy6); border-color: var(--gy5); }
+.legend-swatch-valid      { background: var(--glt); border-color: #a5d6a7; }
+.legend-swatch-offwindow  { background: var(--alt); border-color: #f0c79a; }
+.legend-swatch-invalid    { background: var(--rlt); border-color: #ef9a9a; }
+.legend-swatch-unknown    { background: var(--gy6); border-color: var(--gy5); }
+.legend-panel kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--rads);
+  border: 1px solid var(--gy5);
+  background: var(--gy6);
+  color: var(--gy);
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  min-width: 84px;
+  justify-content: center;
+}
+
 /* ── Compliance audit table (B1) ──────────────────────────────────── */
 .audit-card {
   background: var(--wh);

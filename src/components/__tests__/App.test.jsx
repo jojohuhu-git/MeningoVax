@@ -105,6 +105,34 @@ describe('App wizard', () => {
     expect(links.length).toBeGreaterThan(0);
   });
 
+  // E6: a legend explaining the box colors and keyboard shortcuts, toggled
+  // the same way as "Adjust age" / "Recorded doses".
+  it('toggles a legend explaining box colors and keyboard shortcuts', () => {
+    render(<App />);
+    enterAgeYears(23);
+    fireEvent.click(getNextBtn());
+    fireEvent.click(getNextBtn()); // no risks
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    expect(screen.queryByTestId('legend-panel')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /legend & shortcuts/i }));
+    const panel = screen.getByTestId('legend-panel');
+    expect(panel.textContent).toMatch(/due today/i);
+    expect(panel.textContent).toMatch(/catch-up/i);
+    expect(panel.textContent).toMatch(/shared decision/i);
+    expect(panel.textContent).toMatch(/on time/i);
+    expect(panel.textContent).toMatch(/off-window/i);
+    expect(panel.textContent).toMatch(/invalid/i);
+    expect(panel.textContent).toMatch(/ctrl\/cmd \+ a/i);
+    expect(panel.textContent).toMatch(/enter/i);
+
+    fireEvent.click(screen.getByRole('button', { name: /done/i }));
+    expect(screen.queryByTestId('legend-panel')).toBeNull();
+  });
+
   it('shows "Start Over" button on Results and resets to Age step', () => {
     render(<App />);
 

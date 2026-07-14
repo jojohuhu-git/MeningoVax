@@ -23,6 +23,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
   const { ageMonths, riskIds, menacwyDoses, menbDoses } = state;
   const [editingAge, setEditingAge] = useState(false);
   const [editingDoses, setEditingDoses] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
@@ -85,7 +86,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <button
               type="button"
               className="age-edit-btn"
-              onClick={() => { setEditingAge(v => !v); setEditingDoses(false); }}
+              onClick={() => { setEditingAge(v => !v); setEditingDoses(false); setShowLegend(false); }}
               aria-expanded={editingAge}
             >
               {editingAge ? 'Done' : 'Adjust age ▾'}
@@ -95,13 +96,21 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <button
               type="button"
               className="age-edit-btn"
-              onClick={() => { setEditingDoses(v => !v); setEditingAge(false); }}
+              onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); }}
               aria-expanded={editingDoses}
             >
               {editingDoses ? 'Done'
                 : `Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''} ▾`}
             </button>
           )}
+          <button
+            type="button"
+            className="age-edit-btn"
+            onClick={() => { setShowLegend(v => !v); setEditingAge(false); setEditingDoses(false); }}
+            aria-expanded={showLegend}
+          >
+            {showLegend ? 'Done' : 'Legend & shortcuts ▾'}
+          </button>
           {riskLabels.length > 0
             ? riskLabels.map((l, i) => (
                 <span key={i} className="meta-chip meta-risk">{l}</span>
@@ -189,6 +198,31 @@ export default function Results({ state, onReset, onChange, onBack }) {
             </div>
 
             <span className="age-edit-hint">Changes update recommendations immediately.</span>
+          </div>
+        )}
+        {/* E6: what the colors and keyboard shortcuts used throughout this page mean. */}
+        {showLegend && (
+          <div className="age-edit-row legend-panel" data-testid="legend-panel"
+            style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ width: '100%' }}>
+              <div className="history-edit-section-title">Vaccine box colors</div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Shared decision (optional)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-neutral" /><span>Not currently due (complete, not indicated, or deferred)</span></div>
+            </div>
+            <div style={{ width: '100%' }}>
+              <div className="history-edit-section-title">Recorded-dose validity colors</div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>On time</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid — off-window (counted, but outside the routine timing)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
+            </div>
+            <div style={{ width: '100%' }}>
+              <div className="history-edit-section-title">Keyboard shortcuts</div>
+              <div className="legend-row"><kbd>Ctrl/Cmd + A</kbd><span>Add a dose row</span></div>
+              <div className="legend-row"><kbd>Enter</kbd><span>Advance to the next step</span></div>
+            </div>
           </div>
         )}
       </div>
