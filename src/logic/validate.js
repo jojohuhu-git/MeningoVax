@@ -219,6 +219,24 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
     );
   }
 
+  // ── A3: pre-age-10 doses don't count toward the routine adolescent series ─
+  // ACIP/immunize.org: "doses given before age 10 years should not be counted"
+  // toward the routine 11-12y + 16y adolescent schedule. This is NOT a min-age
+  // "invalid" flag — the dose was validly given (above its product's licensed
+  // minimum age) — it simply doesn't advance the adolescent series. Only
+  // applies when the patient has no CURRENT high-risk indication; the
+  // high-risk infant series (given at riskClass === 'primary2') appropriately
+  // starts before age 10 and must keep counting those doses.
+  // Source: https://www.immunize.org/ask-experts/topic/menacwy/vaccine-recommendations-menacwy/
+  const AGE_10Y_MONTHS = 120;
+  if (menacwyRiskClass(riskIds) !== 'primary2' && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+    return {
+      status: 'valid',
+      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}) — does not count toward the adolescent MenACWY series.`],
+      notAdolescentCount: true,
+    };
+  }
+
   // ── Interval checks ───────────────────────────────────────────────────
   // M4: Use menacwyRiskClass() from riskFactors.js instead of hardcoding the risk IDs.
   // This keeps the validator in sync with the engine's riskClass computation.
@@ -531,6 +549,15 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
         ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
+    } else if (result.notAdolescentCount) {
+      // A3: a valid dose given before age 10 — does not advance the
+      // adolescent series count, but it is NOT invalid and does NOT need to
+      // be repeated. Excluded from `kept` (like invalid) but display-distinct.
+      perDose.push({
+        ...result,
+        effectiveDoseNum: null,
+      });
+      // Do NOT add to kept; do NOT increment effectiveCount.
     } else {
       // Valid or unknown → keep.
       effectiveCount++;
@@ -539,7 +566,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
       // If raw index > effective index, this dose was renumbered upward.
       const wasRenumbered = rawIdx > effectiveCount - 1;
       const renumberNote = wasRenumbered
-        ? `After excluding the invalid dose(s) above, this counts as effective dose ${effectiveDoseNum}.`
+        ? `After excluding the dose(s) above that don't count, this counts as effective dose ${effectiveDoseNum}.`
         : null;
 
       const augmentedReasons = renumberNote

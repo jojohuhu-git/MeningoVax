@@ -20,10 +20,11 @@ function describeDose(dose, idx) {
 }
 
 // Render a small status chip + reasons for a single recorded dose.
-// result now optionally carries effectiveDoseNum and doesNotCount from analyzeHistory.
+// result now optionally carries effectiveDoseNum, doesNotCount, and
+// notAdolescentCount (A3) from analyzeHistory.
 function DoseValidation({ result }) {
   if (!result) return null;
-  const { status, reasons, detail, effectiveDoseNum, doesNotCount } = result;
+  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount } = result;
 
   const chipClass = status === 'valid'
     ? 'dose-val-chip dose-val-valid'
@@ -31,7 +32,9 @@ function DoseValidation({ result }) {
       ? 'dose-val-chip dose-val-invalid'
       : 'dose-val-chip dose-val-unknown';
 
-  const chipLabel = status === 'valid' ? 'Valid' : status === 'invalid' ? 'Invalid ✕ does not count' : 'Unknown';
+  const chipLabel = notAdolescentCount
+    ? 'Valid — not counted (given before age 10)'
+    : status === 'valid' ? 'Valid' : status === 'invalid' ? 'Invalid ✕ does not count' : 'Unknown';
 
   // Only show reasons when non-empty AND not a bare 'valid' with no notes.
   const showReasons = reasons && reasons.length > 0;

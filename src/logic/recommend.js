@@ -312,6 +312,11 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     refs });
 }
 
+// A3: doses given before age 10 do not count toward the routine adolescent series
+// (ACIP/immunize.org). The `doses` array passed in here is already the
+// analyzeHistory()-filtered "effective" list, which excludes those doses when
+// the patient has no current high-risk indication — see validate.js. This
+// function only needs the ordinary routine schedule logic.
 function menacwyRoutine(am, given, doses, last, today) {
   const refs = ['cdcChildMenACWY', 'acip2020'];
   const lastDate = last?.date || null;
@@ -363,6 +368,12 @@ function menacwyRoutine(am, given, doses, last, today) {
       note: 'A MenACWY dose given at age ≥16 years satisfies the adolescent schedule; no further routine doses are needed.', refs })];
   }
   // ≥22y healthy, no risk
+  // A1: a dose given at ≥16y completes the adolescent schedule regardless of
+  // current age — this branch must check hasDoseAt16 like every earlier band.
+  if (hasDoseAt16) {
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete',
+      note: 'A MenACWY dose given at age ≥16 years completed the adolescent schedule; no further routine doses are needed.', refs })];
+  }
   return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: 'Healthy adults ≥22 years without a risk factor are not routinely recommended to receive MenACWY. Vaccinate only if a risk indication applies (asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist, travel, military, or outbreak).', refs })];
 }
