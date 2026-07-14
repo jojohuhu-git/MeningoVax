@@ -129,8 +129,9 @@ function menacwyRec(am, riskIds, doses, today) {
     }
     // given >= 2: primary complete → ongoing boosters
     // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
+    const boostYears = boostDays === DAYS.years(3) ? '3' : '5';
     const boostLabel = isFirstBooster
-      ? `first booster, ${boostDays === DAYS.years(3) ? '3' : '5'} years after primary`
+      ? `first booster, ${boostYears} years after primary`
       : 'every 5 years';
     const elapsed = intervalElapsed(lastDate, boostDays, today);
     return [rec({
@@ -139,7 +140,9 @@ function menacwyRec(am, riskIds, doses, today) {
       doseNum: given + 1, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
-      note: 'Primary series complete. Continue MenACWY boosters while the high-risk condition persists: first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years thereafter.',
+      note: isFirstBooster
+        ? `Primary series complete. This first booster is due ${boostYears} years after the primary series${boostYears === '3' ? ' (completed before age 7)' : ' (primary completed at age 7 or older)'}, then every 5 years while the high-risk condition persists.`
+        : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
       refs: refsFor([]),
     })];
   }
@@ -243,7 +246,7 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk 12–23mo)', doseNum: 1, dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
-      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then boost every 3–5 years while at risk.', refs });
+      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.', refs });
   }
 
   // ── Continuing an infant series ──────────────────────────────────────────
@@ -270,7 +273,7 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
       minIntervalDays: DAYS.weeks(12),
       brands: MENACWY_INFANT,
-      note: 'D6: Dose 2 was given at ≥7 months — the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, boost every 3–5 years while at risk.',
+      note: 'D6: Dose 2 was given at ≥7 months — the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
       refs });
   }
 
@@ -280,19 +283,21 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   // (The 3-dose shortcut path is handled above at given === 2.)
   const seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4;
   if (seriesComplete) {
-    // Transition to recurring boosters (every 3–5 years while at risk).
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
-    // Since these are infants, D2 age is always <7y → first booster cadence is 3y.
-    const boostDays = DAYS.years(3); // infant D2 always <7y, conservative 3y
+    // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
+    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 3 : 4);
+    const boostDays = isFirstInfantBooster ? DAYS.years(3) : DAYS.years(5);
     const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, every 3–5 years)`,
+      doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? 'first booster, 3 years after primary' : 'every 5 years'})`,
       doseNum: given + 1,
       dueToday: elapsedBoost,
       earliestNextDate: elapsedBoost ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays,
       brands: menacwyBrands(am),
-      note: 'Infant high-risk primary series complete. Continue MenACWY boosters every 3–5 years while the high-risk condition persists.',
+      note: isFirstInfantBooster
+        ? 'Infant high-risk primary series complete. First booster is due 3 years after the primary series (completed before age 7), then every 5 years while the high-risk condition persists.'
+        : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
       refs });
   }
 
@@ -307,8 +312,8 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
     note: d1WasInfant7to11
-      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then boost every 3–5 years while at risk.'
-      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then boost every 3–5 years while at risk.',
+      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.'
+      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
     refs });
 }
 

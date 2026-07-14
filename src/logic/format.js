@@ -28,8 +28,11 @@ export function fmtAgeMonths(am) {
     const mo = Math.round(am);
     return `${mo} month${mo === 1 ? '' : 's'}`;
   }
-  const years = Math.floor(am / 12);
-  const months = Math.round(am % 12);
+  let years = Math.floor(am / 12);
+  let months = Math.round(am % 12);
+  // Rounding months independently of years can carry over (e.g. 59.88 -> 4y
+  // + round(11.88)=12mo) — normalize so it never displays "X years 12 months".
+  if (months === 12) { years += 1; months = 0; }
   if (months === 0) return `${years} year${years === 1 ? '' : 's'}`;
   return `${years} year${years === 1 ? '' : 's'} ${months} month${months === 1 ? '' : 's'}`;
 }
