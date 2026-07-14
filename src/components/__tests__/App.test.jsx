@@ -144,6 +144,33 @@ describe('App wizard', () => {
     expect(pentaCard).not.toBeNull();
   });
 
+  // B2/B3: separate injections are the primary/first option; the single
+  // pentavalent shot is the alternative/second option, with explicit labels.
+  it('orders separate injections before the pentavalent option, with explicit primary/alternative labels', () => {
+    render(<App />);
+    enterAgeYears(23);
+    fireEvent.click(getNextBtn());
+    const asplenia = screen.getByLabelText(/anatomic or functional asplenia/i, { exact: false });
+    fireEvent.click(asplenia);
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    const separateLabel = screen.getByTestId('option-separate-label');
+    const pentaLabel = screen.getByTestId('option-penta-label');
+    expect(separateLabel.textContent).toMatch(/option 1.*primary.*two separate injections/i);
+    expect(pentaLabel.textContent).toMatch(/option 2.*alternative.*single pentavalent injection/i);
+
+    // DOM order: separate-injections option comes before the pentavalent card.
+    const position = separateLabel.compareDocumentPosition(pentaLabel);
+    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    // The pentavalent card makes clear it replaces both shots, not an extra one.
+    expect(screen.getByTestId('penta-card').textContent).toMatch(/replaces both shots/i);
+  });
+
   it('renders MenB not-indicated for young child without risk', () => {
     render(<App />);
     enterAgeYears(5);

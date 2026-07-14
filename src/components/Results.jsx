@@ -194,12 +194,64 @@ export default function Results({ state, onReset, onChange, onBack }) {
         )}
       </div>
 
-      {/* Pentavalent option — show prominently when both antigens due */}
+      {/* B2/B3: when a pentavalent is eligible, present the two ways to give MenACWY +
+          MenB today as an explicit choice — separate injections (primary/default) first,
+          the single pentavalent shot (alternative that REPLACES both) second. */}
+      {pentavalent.eligible && (
+        <div className="dose-options-header" data-testid="dose-options-header">
+          Both MenACWY and MenB are due today — two ways to give them:
+        </div>
+      )}
+
+      {/* Option 1 (primary): two separate injections — grouped visually when both are due */}
+      <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
+        {pentavalent.eligible && (
+          <div className="dose-option-label" data-testid="option-separate-label">
+            Option 1 (primary): MenACWY + MenB — two separate injections
+          </div>
+        )}
+        {acwyDueToday && bDueToday && !pentavalent.eligible && (
+          <div className="dual-due-banner" data-testid="dual-due-banner">
+            These are two separate vaccines — both are due today. Within each, choose one brand.
+          </div>
+        )}
+
+        {/* MenACWY recs */}
+        <div className="rec-section">
+          <div className="rec-section-title">MenACWY</div>
+          {menacwy.map((r, i) => (
+            <RecCard
+              key={i}
+              rec={r}
+              doses={menacwyDoses}
+              doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
+            />
+          ))}
+        </div>
+
+        {/* MenB recs */}
+        <div className="rec-section">
+          <div className="rec-section-title">MenB</div>
+          {menb.map((r, i) => (
+            <RecCard
+              key={i}
+              rec={r}
+              doses={menbDoses}
+              doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Option 2 (alternative): single pentavalent injection — replaces both shots above */}
       {pentavalent.eligible && (
         <div className="penta-card" data-testid="penta-card">
+          <div className="dose-option-label" data-testid="option-penta-label">
+            Option 2 (alternative): single pentavalent injection (MenABCWY)
+          </div>
           <div className="penta-header">
-            <span>Pentavalent Option (MenABCWY)</span>
-            <span style={{ fontWeight: 400, fontSize: '0.8rem' }}>One injection instead of two</span>
+            <span>Pentavalent (MenABCWY)</span>
+            <span style={{ fontWeight: 400, fontSize: '0.8rem' }}>Replaces both shots above — do not give both</span>
           </div>
           <div className="penta-body">
             <div className="penta-note">{pentavalent.note}</div>
@@ -230,44 +282,6 @@ export default function Results({ state, onReset, onChange, onBack }) {
           </div>
         </div>
       )}
-
-      {/* Two separate vaccines — grouped visually when both are due */}
-      <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
-        {acwyDueToday && bDueToday && (
-          <div className="dual-due-banner" data-testid="dual-due-banner">
-            These are two separate vaccines — both are due today. Within each, choose one brand.
-            {pentavalent.eligible && (
-              <span> (Or give the single pentavalent above instead of both.)</span>
-            )}
-          </div>
-        )}
-
-        {/* MenACWY recs */}
-        <div className="rec-section">
-          <div className="rec-section-title">MenACWY</div>
-          {menacwy.map((r, i) => (
-            <RecCard
-              key={i}
-              rec={r}
-              doses={menacwyDoses}
-              doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
-            />
-          ))}
-        </div>
-
-        {/* MenB recs */}
-        <div className="rec-section">
-          <div className="rec-section-title">MenB</div>
-          {menb.map((r, i) => (
-            <RecCard
-              key={i}
-              rec={r}
-              doses={menbDoses}
-              doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
-            />
-          ))}
-        </div>
-      </div>
 
       <ComplianceAudit
         ageMonths={ageMonths ?? 0}

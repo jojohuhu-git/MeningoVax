@@ -828,6 +828,22 @@ body {
   flex-shrink: 0;
 }
 
+/* ── B2/B3: two-options header + per-option labels ───────────────── */
+.dose-options-header {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: 10px;
+}
+.dose-option-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gy3);
+  margin-bottom: 8px;
+}
+
 /* ── Dual-due connective banner ────────────────────────────────── */
 /* Uses blue to group visually with the two-separate-vaccines section below,
    distinct from the amber pentavalent card above. */
