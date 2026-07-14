@@ -1,5 +1,7 @@
 // format.js — UI display helpers (not clinical logic)
 
+import { todayISO, calendarMonthsBetween } from './dateUtils.js';
+
 /**
  * Format ageMonths using clinical immunization units.
  *
@@ -76,9 +78,7 @@ export function ageGroup(am) {
  */
 export function dobToAgeMonths(dobISO, refISO) {
   if (!dobISO) return null;
-  const ref = refISO ? new Date(refISO + 'T00:00:00') : new Date();
-  const dob = new Date(dobISO + 'T00:00:00');
-  const diffMs = ref - dob;
-  if (diffMs < 0) return null;
-  return diffMs / (1000 * 60 * 60 * 24 * 30.4375);
+  const ref = refISO || todayISO();
+  if (dobISO > ref) return null;
+  return calendarMonthsBetween(dobISO, ref);
 }

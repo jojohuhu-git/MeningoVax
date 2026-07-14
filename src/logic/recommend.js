@@ -23,7 +23,7 @@ import {
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
-import { todayISO, addDays, daysBetween, intervalElapsed, DAYS } from './dateUtils.js';
+import { todayISO, addDays, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
 
 // Age bands (months)
@@ -78,7 +78,11 @@ function rec(o) {
 // Compute age (months) at a past dose from its date and current age.
 function ageAtDose(dose, am, today) {
   if (typeof dose?.ageMonths === 'number') return dose.ageMonths;
-  if (dose?.date) return am - daysBetween(dose.date, today) / 30.4375;
+  // calendarMonthsBetween, not an averaged days/month divisor — see the
+  // matching ageAtDoseFromDate in validate.js for why. Rounded to 6 decimal
+  // places to avoid floating-point noise from subtracting two large
+  // nearly-equal values (see ageAtDoseFromDate's comment).
+  if (dose?.date) return Math.round((am - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
   return null;
 }
 

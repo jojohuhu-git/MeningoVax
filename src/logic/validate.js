@@ -48,7 +48,7 @@
 //   • Penbraya MMWR 2023: https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm
 // ─────────────────────────────────────────────────────────────────────────
 
-import { daysBetween, DAYS } from './dateUtils.js';
+import { daysBetween, calendarMonthsBetween, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 
@@ -112,7 +112,16 @@ const AGE_7Y_MONTHS = 84;
 // to show "age at administration" without re-deriving the date math.
 export function ageAtDoseFromDate(dose, ageMonths, today) {
   if (!dose?.date) return null;
-  return ageMonths - daysBetween(dose.date, today) / 30.4375;
+  // calendarMonthsBetween(dose.date, today), not daysBetween(...)/30.4375 — the
+  // averaged divisor drifts off whole months depending on how many leap days a
+  // span happens to contain, which can wrongly place a dose given exactly on a
+  // birthday on the wrong side of a whole-year threshold (e.g. the age-10 cutoff
+  // below). See calendarMonthsBetween's own comment for the concrete example.
+  // Rounded to 6 decimal places: subtracting two large nearly-equal floats
+  // (both ~months since a distant birthday) leaves binary floating-point noise
+  // (e.g. 119.99999999999999 instead of 120) that would otherwise still trip a
+  // "< 120" threshold check by less than a microsecond's worth of "age".
+  return Math.round((ageMonths - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
 }
 
 // Human-readable rendering of a day count for error messages.
@@ -607,7 +616,11 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
  * }}
  */
 export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
-  const ref = today || new Date().toISOString().slice(0, 10);
+  // todayISO(), not new Date().toISOString() — the latter is UTC and can be a
+  // day ahead of the caller's local date (e.g. any evening in a UTC-behind
+  // timezone), which breaks the exact cancellation ageAtDoseFromDate relies on
+  // when the caller's ageMonths was itself derived from a local "today".
+  const ref = today || todayISO();
   // Sort chronologically before the last-kept walk. The walk and the engine both assume
   // ascending order (dose numbering, interval anchoring, MenB family lock on the first
   // kept dose), so doses entered out of order must be re-sorted. Dated doses ascending;

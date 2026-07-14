@@ -1,13 +1,14 @@
 import React from 'react';
 import { analyzeHistory, ageAtDoseFromDate } from '../logic/validate.js';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
+import { todayISO } from '../logic/dateUtils.js';
 
 // B1: a consolidated compliance-audit table — every recorded dose (both
 // vaccines) with dose number, date, age at administration, and validity +
 // reason, in one place. Reuses analyzeHistory()'s output; does not
 // recompute validity.
 function auditRows(vaccine, doses, ageMonths, riskIds, today) {
-  const ref = today || new Date().toISOString().slice(0, 10);
+  const ref = today || todayISO();
   // analyzeHistory() sorts doses chronologically before validating (undated
   // doses first) — perDose is parallel to that SORTED order, not the raw
   // input order, so re-sort the same way here to keep dose objects aligned
