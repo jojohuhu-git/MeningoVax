@@ -12,11 +12,21 @@ function getBackBtn() {
   return screen.queryByRole('button', { name: /back/i });
 }
 
+// A2: chips were removed — DOB is now the primary entry, Years/Months the
+// fallback. Tests use the Years/Months fallback (no calendar picker needed)
+// via the "Years / Months (if DOB unknown)" toggle, already the case for a
+// fresh Age step only when a prior mode was selected; the Age step defaults
+// to DOB mode, so switch to Years/Months explicitly.
+function enterAgeYears(years) {
+  fireEvent.click(screen.getByText(/years \/ months/i));
+  fireEvent.change(screen.getByLabelText('Years'), { target: { value: String(years) } });
+}
+
 describe('App wizard', () => {
   it('renders the Age step on initial load', () => {
     render(<App />);
     expect(screen.getByText('Patient Age')).toBeDefined();
-    expect(screen.getByText(/select an age group/i)).toBeDefined();
+    expect(screen.getByText(/date of birth is recommended/i)).toBeDefined();
   });
 
   it('shows stepper with 5 steps', () => {
@@ -40,17 +50,16 @@ describe('App wizard', () => {
     expect(getBackBtn()).toBeNull();
   });
 
-  it('advances to Risks step after selecting an age chip', () => {
+  it('advances to Risks step after entering an age', () => {
     render(<App />);
-    // Click "Adolescent" chip (sets ageMonths to 168)
-    fireEvent.click(screen.getByText('Adolescent (11–18y)'));
+    enterAgeYears(14);
     fireEvent.click(getNextBtn());
     expect(screen.getByText('Risk Factors')).toBeDefined();
   });
 
   it('can go back from Risks to Age', () => {
     render(<App />);
-    fireEvent.click(screen.getByText('Adolescent (11–18y)'));
+    enterAgeYears(14);
     fireEvent.click(getNextBtn());
     expect(screen.getByText('Risk Factors')).toBeDefined();
     fireEvent.click(getBackBtn());
@@ -60,8 +69,8 @@ describe('App wizard', () => {
   it('drives through the full wizard and renders MenACWY rec card at Results', () => {
     render(<App />);
 
-    // Step 0: Age — select Adult
-    fireEvent.click(screen.getByText('Adult (19+)'));
+    // Step 0: Age — enter an adult age
+    enterAgeYears(23);
     fireEvent.click(getNextBtn());
 
     // Step 1: Risks — select asplenia
@@ -99,7 +108,7 @@ describe('App wizard', () => {
   it('shows "Start Over" button on Results and resets to Age step', () => {
     render(<App />);
 
-    fireEvent.click(screen.getByText('Adult (19+)'));
+    enterAgeYears(23);
     fireEvent.click(getNextBtn());
     fireEvent.click(getNextBtn()); // risks
     fireEvent.click(getNextBtn()); // menacwy history
@@ -114,8 +123,8 @@ describe('App wizard', () => {
   it('shows pentavalent card when both antigens are due (adult + asplenia, no history)', () => {
     render(<App />);
 
-    // Adult (276m default) + asplenia → MenACWY D1 due today + MenB D1 due today → pentavalent eligible
-    fireEvent.click(screen.getByText('Adult (19+)'));
+    // Adult (23y) + asplenia → MenACWY D1 due today + MenB D1 due today → pentavalent eligible
+    enterAgeYears(23);
     fireEvent.click(getNextBtn()); // → Risks
 
     const asplenia = screen.getByLabelText(/anatomic or functional asplenia/i, { exact: false });
@@ -137,7 +146,7 @@ describe('App wizard', () => {
 
   it('renders MenB not-indicated for young child without risk', () => {
     render(<App />);
-    fireEvent.click(screen.getByText('Child (2–10y)'));
+    enterAgeYears(5);
     fireEvent.click(getNextBtn());
     fireEvent.click(getNextBtn()); // risks
     fireEvent.click(getNextBtn()); // menacwy
@@ -149,5 +158,45 @@ describe('App wizard', () => {
     const menbCard = texts.find(t => t.includes('MenB'));
     expect(menbCard).toBeDefined();
     expect(menbCard).toMatch(/not indicated|not routinely/i);
+  });
+
+  // A2: DOB is now the default/primary Age entry; there is no separate coarse
+  // age-band question that could contradict a dose date entered later.
+  describe('A2: date of birth is the default entry, no separate age-band chips', () => {
+    it('Age step defaults to the Date of Birth field, not an age-band picker', () => {
+      render(<App />);
+      expect(screen.getByLabelText('Date of Birth')).toBeDefined();
+      // The old coarse age-band buttons no longer exist.
+      expect(screen.queryByText('Adolescent (11–18y)')).toBeNull();
+      expect(screen.queryByText('Adult (19+)')).toBeNull();
+    });
+
+    it('entering a DOB derives the age band automatically (no separate question)', () => {
+      render(<App />);
+      fireEvent.change(screen.getByLabelText('Date of Birth'), { target: { value: '2003-03-28' } });
+      // Age badge shows the derived years/months and band together.
+      expect(screen.getByText(/23 years.*Adult/i)).toBeDefined();
+    });
+
+    it('DOB-derived age lets a ≥16y-dosed adult resolve to complete, matching the A1 case', () => {
+      render(<App />);
+      fireEvent.change(screen.getByLabelText('Date of Birth'), { target: { value: '2003-03-28' } });
+      fireEvent.click(getNextBtn()); // → Risks
+      fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
+
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByText('+ Add dose'));
+      const dateInputs = screen.getAllByDisplayValue('');
+      // First empty date input is the new dose row's date field.
+      const doseDateInput = document.querySelector('input[type="date"]:not(#dob-input)');
+      fireEvent.change(doseDateInput, { target: { value: '2019-07-08' } });
+      fireEvent.click(getNextBtn()); // → MenB history
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      const cards = screen.getAllByTestId('rec-card');
+      const menacwyCard = cards.map(c => c.textContent).find(t => t.includes('MenACWY'));
+      expect(menacwyCard).toMatch(/complete/i);
+    });
   });
 });
