@@ -791,9 +791,10 @@ body {
   letter-spacing: 0.03em;
   flex-shrink: 0;
 }
-.dose-val-valid   { background: var(--glt); color: var(--g); border: 1px solid #a5d6a7; }
-.dose-val-invalid { background: var(--rlt); color: var(--r); border: 1px solid #ef9a9a; }
-.dose-val-unknown { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
+.dose-val-valid     { background: var(--glt); color: var(--g); border: 1px solid #a5d6a7; }
+.dose-val-offwindow { background: var(--alt); color: var(--a); border: 1px solid #f0c79a; }
+.dose-val-invalid   { background: var(--rlt); color: var(--r); border: 1px solid #ef9a9a; }
+.dose-val-unknown   { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
 /* Reasons (one per line) */
 .dose-val-reasons {
   display: flex;

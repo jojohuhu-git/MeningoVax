@@ -22,19 +22,25 @@ function describeDose(dose, idx) {
 // Render a small status chip + reasons for a single recorded dose.
 // result now optionally carries effectiveDoseNum, doesNotCount, and
 // notAdolescentCount (A3) from analyzeHistory.
+//
+// E5: labels/colors match vaxapp's compliance-audit language — on time
+// (green), valid but off-window (amber), invalid (red), unknown (gray) —
+// so a clinician who uses both apps reads the same vocabulary in both.
 function DoseValidation({ result }) {
   if (!result) return null;
   const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount } = result;
 
-  const chipClass = status === 'valid'
-    ? 'dose-val-chip dose-val-valid'
-    : status === 'invalid'
-      ? 'dose-val-chip dose-val-invalid'
-      : 'dose-val-chip dose-val-unknown';
+  const chipClass = notAdolescentCount
+    ? 'dose-val-chip dose-val-offwindow'
+    : status === 'valid'
+      ? 'dose-val-chip dose-val-valid'
+      : status === 'invalid'
+        ? 'dose-val-chip dose-val-invalid'
+        : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
-    ? 'Valid — not counted (given before age 10)'
-    : status === 'valid' ? 'Valid' : status === 'invalid' ? 'Invalid ✕ does not count' : 'Unknown';
+    ? 'Valid — off-window'
+    : status === 'valid' ? 'On time' : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   // Only show reasons when non-empty AND not a bare 'valid' with no notes.
   const showReasons = reasons && reasons.length > 0;

@@ -5,7 +5,6 @@ import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard from './RecCard.jsx';
-import ComplianceAudit from './ComplianceAudit.jsx';
 import Disclaimer from './Disclaimer.jsx';
 
 const MENACWY_HISTORY_BRANDS = [
@@ -283,13 +282,6 @@ export default function Results({ state, onReset, onChange, onBack }) {
           </div>
         </div>
       )}
-
-      <ComplianceAudit
-        ageMonths={ageMonths ?? 0}
-        riskIds={riskIds}
-        menacwyDoses={menacwyDoses}
-        menbDoses={menbDoses}
-      />
 
       <Disclaimer />
 
