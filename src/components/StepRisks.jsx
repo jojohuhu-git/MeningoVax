@@ -55,7 +55,12 @@ export default function StepRisks({ riskIds, onChange }) {
         tabIndex={0}
         onKeyDown={e => e.key === 'Enter' && clearAll()}
       >
-        <span style={{ fontSize: '1.1rem' }}>○</span>
+        <input
+          type="checkbox"
+          className="risk-checkbox"
+          checked={noneSelected}
+          onChange={clearAll}
+        />
         <span>None of these risk factors apply</span>
       </label>
     </div>

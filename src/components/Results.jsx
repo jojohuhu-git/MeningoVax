@@ -6,6 +6,7 @@ import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
+import { Chevron } from './icons.jsx';
 
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
@@ -89,7 +90,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               onClick={() => { setEditingAge(v => !v); setEditingDoses(false); setShowLegend(false); }}
               aria-expanded={editingAge}
             >
-              {editingAge ? 'Done' : 'Adjust age ▾'}
+              {editingAge ? 'Done' : <>Adjust age<Chevron open={editingAge} /></>}
             </button>
           )}
           {onChange && (
@@ -100,7 +101,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               aria-expanded={editingDoses}
             >
               {editingDoses ? 'Done'
-                : `Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''} ▾`}
+                : <>{`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} /></>}
             </button>
           )}
           <button
@@ -109,7 +110,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
             onClick={() => { setShowLegend(v => !v); setEditingAge(false); setEditingDoses(false); }}
             aria-expanded={showLegend}
           >
-            {showLegend ? 'Done' : 'Legend & shortcuts ▾'}
+            {showLegend ? 'Done' : <>Legend & shortcuts<Chevron open={showLegend} /></>}
           </button>
           {riskLabels.length > 0
             ? riskLabels.map((l, i) => (
@@ -327,7 +328,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
       <div className="results-actions">
         {onBack && (
-          <button className="btn btn-outline" onClick={onBack}>← Edit history</button>
+          <button className="btn btn-outline" onClick={onBack}>Edit history</button>
         )}
         <button className="btn btn-outline" onClick={onReset}>
           Start Over
