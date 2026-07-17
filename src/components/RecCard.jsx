@@ -1,5 +1,8 @@
-import React from 'react';
-import { fmtDate, stripAntigen } from '../logic/format.js';
+import React, { useState } from 'react';
+import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
+import { ageAtDoseFromDate } from '../logic/validate.js';
+import { todayISO } from '../logic/dateUtils.js';
+import { Chevron } from './icons.jsx';
 
 const STATUS_LABELS = {
   'due':              'Due',
@@ -11,27 +14,40 @@ const STATUS_LABELS = {
   'deferred':         'Deferred',
 };
 
-// One recorded past dose → "D1 · Jul 3, 2025 · Bexsero"
-function describeDose(dose, idx) {
+// One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
+// D3: age at administration lets a clinician compare a recorded dose's timing
+// against the recommendation, not just its date.
+function describeDose(dose, idx, ageMonths, today) {
   const parts = [`D${idx + 1}`];
   parts.push(dose?.date ? fmtDate(dose.date) : 'date unknown');
+  const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today) : null;
+  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose)}` : 'age unknown');
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   return parts.join(' · ');
 }
 
 // Render a small status chip + reasons for a single recorded dose.
-// result now optionally carries effectiveDoseNum and doesNotCount from analyzeHistory.
+// result now optionally carries effectiveDoseNum, doesNotCount, and
+// notAdolescentCount (A3) from analyzeHistory.
+//
+// E5: labels/colors match vaxapp's compliance-audit language — on time
+// (green), valid but off-window (amber), invalid (red), unknown (gray) —
+// so a clinician who uses both apps reads the same vocabulary in both.
 function DoseValidation({ result }) {
   if (!result) return null;
-  const { status, reasons, detail, effectiveDoseNum, doesNotCount } = result;
+  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount } = result;
 
-  const chipClass = status === 'valid'
-    ? 'dose-val-chip dose-val-valid'
-    : status === 'invalid'
-      ? 'dose-val-chip dose-val-invalid'
-      : 'dose-val-chip dose-val-unknown';
+  const chipClass = notAdolescentCount
+    ? 'dose-val-chip dose-val-offwindow'
+    : status === 'valid'
+      ? 'dose-val-chip dose-val-valid'
+      : status === 'invalid'
+        ? 'dose-val-chip dose-val-invalid'
+        : 'dose-val-chip dose-val-unknown';
 
-  const chipLabel = status === 'valid' ? 'Valid' : status === 'invalid' ? 'Invalid ✕ does not count' : 'Unknown';
+  const chipLabel = notAdolescentCount
+    ? 'Valid (off-window)'
+    : status === 'valid' ? 'On time' : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   // Only show reasons when non-empty AND not a bare 'valid' with no notes.
   const showReasons = reasons && reasons.length > 0;
@@ -54,24 +70,89 @@ function DoseValidation({ result }) {
   );
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [] }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, brands, note, citations } = rec;
+// B4/E3: the big card's fill color communicates TIMING — due today (green),
+// needs catch-up (yellow), shared decision (blue), or neither urgent (gray).
+// Shared-decision gets its own permanent color (not just "green when due
+// today") since it's a distinct kind of "now" — optional, not mandatory.
+function timingClass(status, dueToday) {
+  if (status === 'shared-decision') return 'timing-shared';
+  if (status === 'catchup') return 'timing-catchup';
+  if (dueToday) return 'timing-due';
+  return 'timing-neutral';
+}
+
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0 }) {
+  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
-  const isShared = status === 'shared-decision';
+  // D5: neutral cards (nothing to do) collapse to a compact row so due items
+  // dominate the screen. B6 exception: a "complete" status with a booster
+  // still due later must stay expanded — that's not a quiet done state.
+  const collapsible = isNeutral && !boosterDueDate;
+  const [expanded, setExpanded] = useState(!collapsible);
   const given = doses.length;
+  const today = todayISO();
 
   return (
-    <div className={`rec-card status-${status}`} data-testid="rec-card">
-      <div className="rec-card-inner">
+    <div
+      className={`rec-card ${timingClass(status, dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
+      data-testid="rec-card"
+    >
+      {collapsible ? (
+        <button
+          type="button"
+          className="rec-card-head rec-card-head-toggle"
+          onClick={() => setExpanded(e => !e)}
+          aria-expanded={expanded}
+        >
+          <span className="rec-vaccine-name">{vaccine}</span>
+          {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
+          <span className="rec-card-head-trailing">
+            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            <Chevron open={expanded} />
+          </span>
+        </button>
+      ) : (
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>
-          <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
-          {dueToday && !isNeutral && (
-            <span className={`due-pill${isShared ? ' due-pill-optional' : ''}`}>
-              {isShared ? 'Optional today' : 'Today'}
-            </span>
-          )}
+          <span className="rec-card-head-trailing">
+            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+          </span>
         </div>
+      )}
+
+      {expanded && (
+      <div className="rec-card-inner">
+        {/* D4: today's action first — dose due + brands, then booster/next-date,
+            then recorded history (history supports the decision, it doesn't
+            sit above it), then note, then citations. */}
+        <div className="rec-dose-label">{doseLabel}</div>
+
+        {brands && brands.length > 0 && !isNeutral && (
+          <div className="rec-brands">
+            <div className="rec-brands-title">Brand options: choose one</div>
+            {brands.map((b, i) => (
+              <div key={i} className="rec-brand-item">
+                <span className="rec-brand-dot" />
+                {stripAntigen(b)}
+              </div>
+            ))}
+            <div className="rec-brands-helper">Select one brand for this dose.</div>
+          </div>
+        )}
+
+        {/* B6: a "complete" status with a booster still coming is NOT a quiet
+            done state — call it out with its own emphasized line and date. */}
+        {boosterDueDate && (
+          <div className="booster-due-banner" data-testid="booster-due-banner">
+            Booster still due: approximately {fmtDate(boosterDueDate)}
+          </div>
+        )}
+
+        {!dueToday && earliestNextDate && (
+          <div className="next-date">
+            Eligible {fmtDate(earliestNextDate)}
+          </div>
+        )}
 
         {/* Series progress — what's recorded vs what's due */}
         {given > 0 && (
@@ -80,32 +161,11 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
             <ul className="rec-progress-list">
               {doses.map((d, i) => (
                 <li key={i} className="rec-progress-dose-row">
-                  <span className="rec-progress-dose-text">{describeDose(d, i)}</span>
+                  <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
                   <DoseValidation result={doseValidations[i]} />
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-
-        <div className="rec-dose-label">{doseLabel}</div>
-
-        {!dueToday && earliestNextDate && (
-          <div className="next-date">
-            Eligible {fmtDate(earliestNextDate)}
-          </div>
-        )}
-
-        {brands && brands.length > 0 && !isNeutral && (
-          <div className="rec-brands">
-            <div className="rec-brands-title">Brand options — choose one</div>
-            {brands.map((b, i) => (
-              <div key={i} className="rec-brand-item">
-                <span className="rec-brand-dot" />
-                {stripAntigen(b)}
-              </div>
-            ))}
-            <div className="rec-brands-helper">Select one brand for this dose.</div>
           </div>
         )}
 
@@ -128,6 +188,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

@@ -37,6 +37,22 @@ export function intervalElapsed(sinceISO, intervalDays, refISO) {
   return daysBetween(sinceISO, refISO) >= intervalDays;
 }
 
+// Exact calendar months from startISO to endISO, using year/month/day components
+// (not an averaged days-per-month constant). A fixed 30.4375-day divisor drifts
+// away from whole months depending on how many leap days the span happens to
+// contain — e.g. a calendar-exact 10-year gap (2016-01-01 to 2026-01-01) has
+// only 3 leap days where the 365.25-day/year average assumes ~2.5, so dividing
+// by days/30.4375 lands at ~119.98 months instead of 120.00. That's enough to
+// wrongly trip a "< 120 months" age threshold on a dose given exactly on a
+// patient's birthday. This function counts whole calendar months directly, so
+// same-day-of-month spans (e.g. birthday to birthday) land on an exact integer.
+export function calendarMonthsBetween(startISO, endISO) {
+  const [sy, sm, sd] = startISO.split('-').map(Number);
+  const [ey, em, ed] = endISO.split('-').map(Number);
+  const daysInEndMonth = new Date(Date.UTC(ey, em, 0)).getUTCDate();
+  return (ey - sy) * 12 + (em - sm) + (ed - sd) / daysInEndMonth;
+}
+
 export const DAYS = {
   weeks: (w) => w * 7,
   months: (m) => Math.round(m * 30.4375),

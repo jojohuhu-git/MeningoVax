@@ -19,17 +19,17 @@ export const REFS = {
   // CDC schedule notes ----------------------------------------------------
   cdcChildMenACWY: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
-    label: 'CDC Child/Adolescent Schedule — Meningococcal ACWY notes',
+    label: 'CDC Child/Adolescent Schedule: Meningococcal ACWY notes',
     short: 'CDC Child/Adolescent Notes',
   },
   cdcChildMenB: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
-    label: 'CDC Child/Adolescent Schedule — Meningococcal B notes',
+    label: 'CDC Child/Adolescent Schedule: Meningococcal B notes',
     short: 'CDC MenB Notes',
   },
   cdcAdultMening: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
-    label: 'CDC Adult Immunization Schedule — Meningococcal notes',
+    label: 'CDC Adult Immunization Schedule: Meningococcal notes',
     short: 'CDC Adult Notes',
   },
 
@@ -41,24 +41,24 @@ export const REFS = {
   },
   pentavalentGSK2025: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
-    label: 'ACIP 2025 — GSK pentavalent MenACWY-CRM/MenB-4C (Penmenvy), persons ≥10y (MMWR 2025)',
+    label: 'ACIP 2025: GSK pentavalent MenACWY-CRM/MenB-4C (Penmenvy), persons ≥10y (MMWR 2025)',
     short: 'Penmenvy MMWR 2025',
   },
   pentavalentPfizer2023: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm',
-    label: 'ACIP 2023 — Pfizer pentavalent MenACWY-TT/MenB-FHbp (Penbraya), persons ≥10y (MMWR 2024;73)',
+    label: 'ACIP 2023: Pfizer pentavalent MenACWY-TT/MenB-FHbp (Penbraya), persons ≥10y (MMWR 2024;73)',
     short: 'Penbraya MMWR 2023',
   },
 
   // CDC clinician guidance ------------------------------------------------
   cdcRecommendations: {
     url: 'https://www.cdc.gov/vaccines/vpd/mening/hcp/recommendations.html',
-    label: 'CDC — Meningococcal Vaccine Recommendations (HCP)',
+    label: 'CDC: Meningococcal Vaccine Recommendations (HCP)',
     short: 'CDC Meningococcal Recommendations',
   },
   cdcComplementInhibitor: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
-    label: 'CDC — Managing Meningococcal Risk in Patients on Complement Inhibitor Therapy',
+    label: 'CDC: Managing Meningococcal Risk in Patients on Complement Inhibitor Therapy',
     short: 'CDC Complement-Inhibitor Guidance',
   },
 

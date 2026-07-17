@@ -23,7 +23,7 @@ import {
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
-import { todayISO, addDays, daysBetween, intervalElapsed, DAYS } from './dateUtils.js';
+import { todayISO, addDays, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
 
 // Age bands (months)
@@ -68,13 +68,21 @@ function rec(o) {
     family: o.family ?? null,
     note: o.note,
     citations: resolveRefs(o.refs ?? []),
+    // B6: set when a "complete" status still has a future booster coming
+    // (an approximate ISO date), so the UI can show it prominently instead
+    // of reading as a quiet, fully-done state.
+    boosterDueDate: o.boosterDueDate ?? null,
   };
 }
 
 // Compute age (months) at a past dose from its date and current age.
 function ageAtDose(dose, am, today) {
   if (typeof dose?.ageMonths === 'number') return dose.ageMonths;
-  if (dose?.date) return am - daysBetween(dose.date, today) / 30.4375;
+  // calendarMonthsBetween, not an averaged days/month divisor — see the
+  // matching ageAtDoseFromDate in validate.js for why. Rounded to 6 decimal
+  // places to avoid floating-point noise from subtracting two large
+  // nearly-equal values (see ageAtDoseFromDate's comment).
+  if (dose?.date) return Math.round((am - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
   return null;
 }
 
@@ -129,8 +137,9 @@ function menacwyRec(am, riskIds, doses, today) {
     }
     // given >= 2: primary complete → ongoing boosters
     // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
+    const boostYears = boostDays === DAYS.years(3) ? '3' : '5';
     const boostLabel = isFirstBooster
-      ? `first booster, ${boostDays === DAYS.years(3) ? '3' : '5'} years after primary`
+      ? `first booster, ${boostYears} years after primary`
       : 'every 5 years';
     const elapsed = intervalElapsed(lastDate, boostDays, today);
     return [rec({
@@ -139,7 +148,9 @@ function menacwyRec(am, riskIds, doses, today) {
       doseNum: given + 1, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
-      note: 'Primary series complete. Continue MenACWY boosters while the high-risk condition persists: first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years thereafter.',
+      note: isFirstBooster
+        ? `Primary series complete. This first booster is due ${boostYears} years after the primary series${boostYears === '3' ? ' (completed before age 7)' : ' (primary completed at age 7 or older)'}, then every 5 years while the high-risk condition persists.`
+        : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
       refs: refsFor([]),
     })];
   }
@@ -178,7 +189,7 @@ function menacwyRec(am, riskIds, doses, today) {
       });
       if (confirmedAt16) {
         return [rec({
-          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete — dose given at ≥16y',
+          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)',
           note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
           refs: refsFor([]),
         })];
@@ -190,7 +201,7 @@ function menacwyRec(am, riskIds, doses, today) {
           vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose (booster at ≥16y)',
           doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
           note: datesKnown
-            ? 'A prior MenACWY dose is recorded but was given before age 16. The college-residence requirement is met only by a dose at age ≥16 years — give one dose now.'
+            ? 'A prior MenACWY dose is recorded but was given before age 16. The college-residence requirement is met only by a dose at age ≥16 years: give one dose now.'
             : 'A prior MenACWY dose is recorded but its age cannot be confirmed. If it was given on or after the 16th birthday, no further dose is needed; otherwise give one dose now. Confirm the date in the record.',
           refs: refsFor([]),
         })];
@@ -243,7 +254,7 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk 12–23mo)', doseNum: 1, dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
-      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then boost every 3–5 years while at risk.', refs });
+      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.', refs });
   }
 
   // ── Continuing an infant series ──────────────────────────────────────────
@@ -270,7 +281,7 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
       minIntervalDays: DAYS.weeks(12),
       brands: MENACWY_INFANT,
-      note: 'D6: Dose 2 was given at ≥7 months — the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, boost every 3–5 years while at risk.',
+      note: 'D6: Dose 2 was given at ≥7 months, so the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
       refs });
   }
 
@@ -280,19 +291,21 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   // (The 3-dose shortcut path is handled above at given === 2.)
   const seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4;
   if (seriesComplete) {
-    // Transition to recurring boosters (every 3–5 years while at risk).
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
-    // Since these are infants, D2 age is always <7y → first booster cadence is 3y.
-    const boostDays = DAYS.years(3); // infant D2 always <7y, conservative 3y
+    // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
+    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 3 : 4);
+    const boostDays = isFirstInfantBooster ? DAYS.years(3) : DAYS.years(5);
     const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, every 3–5 years)`,
+      doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? 'first booster, 3 years after primary' : 'every 5 years'})`,
       doseNum: given + 1,
       dueToday: elapsedBoost,
       earliestNextDate: elapsedBoost ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays,
       brands: menacwyBrands(am),
-      note: 'Infant high-risk primary series complete. Continue MenACWY boosters every 3–5 years while the high-risk condition persists.',
+      note: isFirstInfantBooster
+        ? 'Infant high-risk primary series complete. First booster is due 3 years after the primary series (completed before age 7), then every 5 years while the high-risk condition persists.'
+        : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
       refs });
   }
 
@@ -307,11 +320,16 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
     note: d1WasInfant7to11
-      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then boost every 3–5 years while at risk.'
-      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then boost every 3–5 years while at risk.',
+      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.'
+      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
     refs });
 }
 
+// A3: doses given before age 10 do not count toward the routine adolescent series
+// (ACIP/immunize.org). The `doses` array passed in here is already the
+// analyzeHistory()-filtered "effective" list, which excludes those doses when
+// the patient has no current high-risk indication — see validate.js. This
+// function only needs the ordinary routine schedule logic.
 function menacwyRoutine(am, given, doses, last, today) {
   const refs = ['cdcChildMenACWY', 'acip2020'];
   const lastDate = last?.date || null;
@@ -329,9 +347,15 @@ function menacwyRoutine(am, given, doses, last, today) {
         note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.', refs })];
     }
     // already has dose 1 → booster due at 16y (future)
+    // B6: this isn't a quiet "done" state — a booster is still coming. Compute
+    // an approximate due date (the patient's 16th birthday) so it's not just
+    // "complete" with no further information.
+    const monthsUntil16 = M.y16 - am;
+    const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y',
       earliestNextDate: null,
-      note: 'Routine dose 1 recorded. The routine booster is due at age 16 years.', refs })];
+      boosterDueDate,
+      note: 'Routine dose 1 recorded. The routine booster is due at age 16 years (see the approximate date above).', refs })];
   }
   // 16–18y
   if (am < M.y19) {
@@ -340,7 +364,7 @@ function menacwyRoutine(am, given, doses, last, today) {
         note: 'A MenACWY dose given at age ≥16 years completes the routine adolescent schedule; no further routine doses are needed.', refs })];
     }
     return [rec({ vaccine: 'MenACWY', status: given === 0 ? 'catchup' : 'due',
-      doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y — no booster needed)' : 'Booster (16y)',
+      doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : 'Booster (16y)',
       doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
       note: given === 0
         ? 'Unvaccinated adolescent ≥16 years: a single MenACWY dose; because it is given at ≥16y, no booster is required.'
@@ -353,9 +377,9 @@ function menacwyRoutine(am, given, doses, last, today) {
   if (am < M.y22) { // <22y — through 21st birthday (264m = 22y); 'through 21 years' is inclusive to 22nd birthday
     if (!hasDoseAt16) {
       return [rec({ vaccine: 'MenACWY', status: 'catchup',
-        doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up — no dose at ≥16y)',
+        doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up, no dose at ≥16y)',
         doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
-        note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended — when given at ≥16 years, no booster is needed. Especially recommended for first-year college students living in residence halls.',
+        note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended: when given at ≥16 years, no booster is needed. Especially recommended for first-year college students living in residence halls.',
         refs })];
     }
     // Has a dose at ≥16y → complete
@@ -363,6 +387,12 @@ function menacwyRoutine(am, given, doses, last, today) {
       note: 'A MenACWY dose given at age ≥16 years satisfies the adolescent schedule; no further routine doses are needed.', refs })];
   }
   // ≥22y healthy, no risk
+  // A1: a dose given at ≥16y completes the adolescent schedule regardless of
+  // current age — this branch must check hasDoseAt16 like every earlier band.
+  if (hasDoseAt16) {
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete',
+      note: 'A MenACWY dose given at age ≥16 years completed the adolescent schedule; no further routine doses are needed.', refs })];
+  }
   return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: 'Healthy adults ≥22 years without a risk factor are not routinely recommended to receive MenACWY. Vaccinate only if a risk indication applies (asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist, travel, military, or outbreak).', refs })];
 }
@@ -399,7 +429,7 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, dueToday: true,
         family, brands: menbBrands(family),
-        note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months. Pick one antigen family and stay in it — MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
+        note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
         refs: refs(['cdcComplementInhibitor']) })];
     }
     if (given === 1) {
@@ -474,7 +504,7 @@ function menbRec(am, riskIds, doses, today) {
         const elapsed = intervalElapsed(dose2date, DAYS.months(4), today);
         return [rec({
           vaccine: 'MenB', status: 'shared-decision',
-          doseLabel: 'Dose 3 of 3 (rescue — dose 2 given early)',
+          doseLabel: 'Dose 3 of 3 (rescue: dose 2 given early)',
           doseNum: 3, dueToday: elapsed,
           earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
           minIntervalDays: DAYS.months(4),

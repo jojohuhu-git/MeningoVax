@@ -13,16 +13,27 @@
   --gmd:  #a5d6a7;   /* green medium border (for due-state rec card borders) */
   --a:    #e65100;   /* amber/catch-up */
   --alt:  #fff3e0;
+  --amd:  #f0c79a;   /* amber medium border */
   --r:    #b71c1c;   /* risk-based red — errors/invalid only, never for "due" */
   --rlt:  #ffebee;
+  --rmd:  #ef9a9a;   /* red medium border (invalid dose only) */
   --b:    #1565c0;   /* shared-decision blue */
   --blt:  #e3f2fd;
   --bmd:  #90caf9;   /* blue medium border */
-  /* Pentavalent option — amber/gold to signal "alternative route" */
-  --penta:    #b45309;   /* amber text/icon */
-  --pentalt:  #fffbeb;   /* amber lightest bg */
-  --pentamd:  #fcd34d;   /* amber medium border */
-  --pentahdr: #fef3c7;   /* amber header bg */
+  --p:    #6a1b9a;   /* risk-based purple — a reason icon color, never a full-card fill */
+  --plt:  #f3e5f5;
+  --pmd:  #ce93d8;   /* purple medium border */
+  /* D16: pentavalent option re-derived from the app's teal UI accent, not
+     the catch-up amber family — Option 2 is a structural choice, not a
+     clinical-timing signal, so it shouldn't read as "catch-up" (the legend
+     already claims that amber). Kept as its own named token so intent
+     ("this is the pentavalent option") stays legible even though the
+     values now match the teal accent used for buttons/chips. */
+  --penta:    var(--c);
+  --pentalt:  var(--clt);
+  --pentamd:  var(--cmd);
+  --pentahdr: var(--clt);
+  --c-hover: #d6eef7; /* teal hover bg (age-edit button) */
   --gy:   #37474f;   /* darkest gray (text) */
   --gy2:  #546e7a;
   --gy3:  #78909c;
@@ -40,6 +51,30 @@
   /* Shadow */
   --sh: 0 2px 8px rgba(0,0,0,0.10);
   --sh2: 0 4px 16px rgba(0,0,0,0.13);
+
+  /* D12: type scale — ~18 ad-hoc font sizes consolidated to these 7 steps.
+     Each existing size was mapped to its nearest step; a handful of pairs
+     that were only 0.02-0.03rem apart (e.g. 0.85/0.88, 0.9/0.95) now share
+     one step since the difference wasn't carrying any real meaning. */
+  --fs-2xs:  0.65rem;
+  --fs-xs:   0.72rem;
+  --fs-sm:   0.78rem;
+  --fs-base: 0.85rem;
+  --fs-md:   0.92rem;
+  --fs-lg:   1.05rem;
+  --fs-xl:   1.2rem;
+
+  /* D15: 4px-base spacing scale — consolidates ad-hoc margin/gap/padding
+     values (2-24px) onto 5 steps. Sub-4px vertical paddings on tiny chips/
+     badges (dose-val-chip, dose-val-effective, kbd, meta-chip, age-edit-btn,
+     risk-checkbox) are intentionally left off this scale -- they're optical
+     alignment/height-matching values tuned in earlier D-items, not rhythm
+     spacing, and rounding them up would break those alignments. */
+  --sp-4:  4px;
+  --sp-8:  8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
 }
 
 /* ── Reset / Base ──────────────────────────────────────────────── */
@@ -72,15 +107,15 @@ body {
 .app-header-inner {
   max-width: 680px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: var(--sp-12) var(--sp-16);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--sp-16);
 }
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12);
   flex-shrink: 0;
 }
 .app-logo-icon {
@@ -88,13 +123,13 @@ body {
   height: 36px;
 }
 .app-logo-title {
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--c);
   line-height: 1.2;
 }
 .app-logo-sub {
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   color: var(--gy3);
   line-height: 1.2;
 }
@@ -112,7 +147,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: var(--sp-4);
   flex: 1;
   position: relative;
   min-width: 0;
@@ -139,7 +174,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: var(--fs-2xs);
   font-weight: 700;
   color: var(--gy4);
   z-index: 1;
@@ -156,12 +191,15 @@ body {
   color: var(--c);
 }
 .stepper-label {
-  font-size: 0.6rem;
+  font-size: var(--fs-2xs);
   color: var(--gy4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 52px;
+  /* D12: 56px, not 52px — the type-scale sweep bumped this label from a
+     one-off 0.6rem to the shared --fs-2xs (0.65rem), which was just wide
+     enough to clip "MenACWY" into "MenAC…". */
+  max-width: 56px;
   text-align: center;
 }
 .stepper-item.active .stepper-label { color: var(--c); font-weight: 600; }
@@ -173,7 +211,7 @@ body {
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
-  padding: 24px 16px 100px;
+  padding: var(--sp-24) var(--sp-16) 100px;
 }
 
 /* ── Bottom nav ────────────────────────────────────────────────── */
@@ -191,10 +229,15 @@ body {
 .app-nav-inner {
   max-width: 640px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: var(--sp-12) var(--sp-16);
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.app-nav-next {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-12);
 }
 
 /* ── Buttons ───────────────────────────────────────────────────── */
@@ -203,9 +246,9 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 0 22px;
+  padding: 0 var(--sp-24);
   border-radius: var(--rad);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   border: none;
@@ -236,8 +279,8 @@ body {
 }
 .btn-sm {
   min-height: 34px;
-  padding: 0 14px;
-  font-size: 0.85rem;
+  padding: 0 var(--sp-16);
+  font-size: var(--fs-base);
 }
 
 /* ── Step cards ────────────────────────────────────────────────── */
@@ -245,36 +288,36 @@ body {
   background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh);
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: var(--sp-24);
+  margin-bottom: var(--sp-16);
 }
 .step-title {
-  font-size: 1.2rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-4);
 }
 .step-sub {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
-  margin-bottom: 20px;
+  margin-bottom: var(--sp-24);
 }
 
 /* ── Age step ──────────────────────────────────────────────────── */
 .age-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--sp-8);
+  margin-bottom: var(--sp-24);
 }
 .age-chip {
   min-height: 44px;
-  padding: 0 16px;
+  padding: 0 var(--sp-16);
   border-radius: var(--radp);
   border: 1.5px solid var(--gy5);
   background: var(--wh);
   color: var(--gy2);
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -288,31 +331,31 @@ body {
 .age-precise {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-12);
 }
 .age-row {
   display: flex;
-  gap: 10px;
+  gap: var(--sp-12);
   align-items: flex-end;
   flex-wrap: wrap;
 }
 .age-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-4);
 }
 .age-field label {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
   font-weight: 500;
 }
 .age-field input[type="number"],
 .age-field input[type="date"] {
   height: 44px;
-  padding: 0 12px;
+  padding: 0 var(--sp-12);
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   color: var(--gy);
   background: var(--wh);
   width: 110px;
@@ -325,37 +368,37 @@ body {
 .age-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: var(--sp-4) var(--sp-12);
   border-radius: var(--rads);
   background: var(--clt);
   color: var(--c);
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: var(--sp-4);
 }
 .age-error {
   color: var(--r);
-  font-size: 0.85rem;
-  margin-top: 8px;
+  font-size: var(--fs-base);
+  margin-top: var(--sp-8);
 }
 .dob-divider {
   text-align: center;
   color: var(--gy4);
-  font-size: 0.82rem;
-  margin: 8px 0;
+  font-size: var(--fs-base);
+  margin: var(--sp-8) 0;
 }
 
 /* ── Risk factors ──────────────────────────────────────────────── */
 .risk-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-4);
 }
 .risk-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--sp-12);
+  padding: var(--sp-12);
   border-radius: var(--rads);
   border: 1.5px solid transparent;
   cursor: pointer;
@@ -375,19 +418,19 @@ body {
   cursor: pointer;
 }
 .risk-text { flex: 1; }
-.risk-label { font-size: 0.95rem; font-weight: 500; color: var(--gy); }
-.risk-sublabel { font-size: 0.8rem; color: var(--gy3); margin-top: 2px; }
+.risk-label { font-size: var(--fs-md); font-weight: 500; color: var(--gy); }
+.risk-sublabel { font-size: var(--fs-sm); color: var(--gy3); margin-top: var(--sp-4); }
 .risk-none {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-top: 8px;
+  gap: var(--sp-12);
+  padding: var(--sp-12);
+  margin-top: var(--sp-8);
   border-radius: var(--rads);
   border: 1.5px dashed var(--gy5);
   cursor: pointer;
   color: var(--gy3);
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
 }
 .risk-none:hover { background: var(--gy6); }
 .risk-none.selected { border-color: var(--cmd); background: var(--clt); color: var(--c); }
@@ -395,8 +438,8 @@ body {
 /* ── History step ──────────────────────────────────────────────── */
 .history-toggle {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--sp-12);
+  margin-bottom: var(--sp-16);
 }
 .history-toggle-btn {
   flex: 1;
@@ -404,7 +447,7 @@ body {
   border-radius: var(--rads);
   border: 1.5px solid var(--gy5);
   background: var(--wh);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
   color: var(--gy2);
@@ -415,12 +458,12 @@ body {
   color: var(--c);
   font-weight: 600;
 }
-.dose-list { display: flex; flex-direction: column; gap: 10px; }
+.dose-list { display: flex; flex-direction: column; gap: var(--sp-12); }
 .dose-row {
   display: flex;
-  gap: 10px;
+  gap: var(--sp-12);
   align-items: flex-end;
-  padding: 12px;
+  padding: var(--sp-12);
   background: var(--gy6);
   border-radius: var(--rads);
   flex-wrap: wrap;
@@ -428,22 +471,22 @@ body {
 .dose-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-4);
   flex: 1;
   min-width: 130px;
 }
 .dose-field label {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   font-weight: 500;
 }
 .dose-field input[type="date"],
 .dose-field select {
   height: 40px;
-  padding: 0 10px;
+  padding: 0 var(--sp-12);
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy);
   background: var(--wh);
   width: 100%;
@@ -460,7 +503,7 @@ body {
   border-radius: var(--rads);
   background: transparent;
   color: var(--gy4);
-  font-size: 1.2rem;
+  font-size: var(--fs-xl);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -468,57 +511,73 @@ body {
   flex-shrink: 0;
 }
 .dose-remove:hover { background: var(--rlt); color: var(--r); }
-.add-dose-btn {
-  margin-top: 8px;
+.add-dose-row {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
+}
+.add-dose-btn {
+  margin-top: var(--sp-8);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-8);
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--sp-16);
   border-radius: var(--rads);
   border: 1.5px dashed var(--gy5);
   background: var(--wh);
   color: var(--gy3);
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 .add-dose-btn:hover { border-color: var(--c); color: var(--c); background: var(--clt); }
 .family-note {
-  margin-top: 10px;
-  padding: 8px 12px;
+  margin-top: var(--sp-12);
+  padding: var(--sp-8) var(--sp-12);
   border-radius: var(--rads);
   background: var(--blt);
   border-left: 3px solid var(--b);
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--b);
 }
 
 /* ── Results ───────────────────────────────────────────────────── */
+.results-summary-line {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: var(--sp-12);
+}
 .results-header {
   background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh);
-  padding: 20px 24px;
-  margin-bottom: 16px;
+  padding: var(--sp-24);
+  margin-bottom: var(--sp-16);
 }
 .results-title {
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 .results-meta {
   display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+.meta-chips, .meta-actions {
+  display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-8);
   align-items: center;
 }
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 3px var(--sp-12);
   border-radius: var(--rads);
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 500;
 }
 .meta-age { background: var(--clt); color: var(--c); }
@@ -526,16 +585,30 @@ body {
 .meta-risk { background: var(--rlt); color: var(--r); }
 .meta-norisk { background: var(--gy6); color: var(--gy3); }
 
+/* D12: shared base for the app's all-caps letterspaced micro-labels —
+   replaces five near-duplicate rules with one aggregate plus a per-label
+   override for whichever single property actually varies (size, weight, or
+   color). .rec-dose-due-tag/.rec-dose-notyet-tag are currently unused in
+   JSX but kept composing this base for when they are wired up. */
+.micro-label,
+.rec-section-title,
+.rec-progress-label,
+.rec-dose-due-tag,
+.rec-dose-notyet-tag,
+.rec-brands-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gy3);
+}
+
 /* ── Rec cards ─────────────────────────────────────────────────── */
 .rec-section { margin-bottom: 16px; }
 .rec-section-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--gy3);
+  font-size: var(--fs-sm);
   margin-bottom: 8px;
-  padding: 0 4px;
+  padding: 0 var(--sp-4);
 }
 .rec-card {
   background: var(--wh);
@@ -543,165 +616,186 @@ body {
   box-shadow: var(--sh);
   border: 1px solid var(--gy5);
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
-/* Status communicated by background shading (not a left strip). Each status
-   gets a light tint fill + a slightly stronger border of the same hue.
-   NOTE: status-due uses green border (--gmd), NOT teal (--cmd), so due cards
-   don't visually merge with the teal pentavalent card. */
-.rec-card.status-due             { background: var(--glt); border-color: var(--gmd); }
-.rec-card.status-catchup         { background: var(--alt); border-color: #f0c79a; }
-.rec-card.status-risk-based      { background: var(--rlt); border-color: #f0b0b0; }
-.rec-card.status-shared-decision { background: var(--blt); border-color: #a8cbef; }
-.rec-card.status-complete        { background: var(--gy6); border-color: var(--gy5); }
-.rec-card.status-not-indicated   { background: var(--wh); border-color: var(--gy5); }
-.rec-card.status-deferred        { background: var(--alt); border-color: #f0c79a; }
-.rec-card-inner { padding: 16px 18px; }
+/* D9/B4: the card head is a full-width bar tinted by TIMING only — is this
+   due today, does it need catch-up, is it a shared (optional) decision, or
+   neither urgent right now. The body below stays plain white. The clinical
+   REASON (routine, risk-based, shared-decision, etc.) is a small colored TEXT
+   label in the bar instead (see .status-badge below) — no pill background, no
+   card fill of its own. Red is reserved strictly for invalid/error states
+   elsewhere (dose validation) and is never used here.
+   NOTE: timing-due uses green (--glt), NOT teal, so due cards don't visually
+   merge with the teal pentavalent card. */
 .rec-card-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12);
   flex-wrap: wrap;
-  margin-bottom: 8px;
+  padding: var(--sp-12) var(--sp-16);
+  border-bottom: 1px solid var(--gy5);
+  background: var(--gy6);
 }
+.rec-card.timing-due     .rec-card-head { background: var(--glt); }
+.rec-card.timing-catchup .rec-card-head { background: var(--alt); }
+.rec-card.timing-shared  .rec-card-head { background: var(--blt); }
+.rec-card.timing-neutral .rec-card-head { background: var(--gy6); }
+.rec-card-inner { padding: var(--sp-16); }
 .rec-vaccine-name {
-  font-size: 1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
 }
+.rec-card-head-trailing {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+/* D9: reason label is plain colored text, no pill — the header bar's tint
+   already carries the timing color, so a second colored background here
+   would compete with it. Colors match the pre-D9 status-badge palette
+   (risk-based purple/--p, due/routine green/--g, etc.) so a clinician who
+   used the app before still reads the same reason vocabulary. */
 .status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 9px;
-  border-radius: var(--rads);
-  font-size: 0.75rem;
+  font-size: var(--fs-sm);
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
-.status-badge.due              { background: var(--glt); color: var(--g); }
-.status-badge.catchup          { background: var(--alt); color: var(--a); }
-.status-badge.risk-based       { background: var(--rlt); color: var(--r); }
-.status-badge.shared-decision  { background: var(--blt); color: var(--b); }
-.status-badge.complete         { background: var(--gy6); color: var(--gy3); }
-.status-badge.not-indicated    { background: var(--gy6); color: var(--gy4); }
-.status-badge.deferred         { background: var(--alt); color: var(--a); }
-.due-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: var(--rads);
-  background: var(--g);
-  color: var(--wh);
-  font-size: 0.78rem;
-  font-weight: 700;
+.status-badge.due              { color: var(--g); }
+.status-badge.catchup          { color: var(--a); }
+.status-badge.risk-based       { color: var(--p); }
+.status-badge.shared-decision  { color: var(--b); }
+.status-badge.complete         { color: var(--gy3); }
+.status-badge.not-indicated    { color: var(--gy4); }
+.status-badge.deferred         { color: var(--a); }
+/* D5: neutral cards (complete/not-indicated/deferred) collapse to this
+   compact clickable row so due items visually dominate the screen. */
+.rec-card-head-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
 }
-/* Shared-decision is optional — not a mandatory "Due today". */
-.due-pill.due-pill-optional {
-  background: var(--blt);
-  color: var(--b);
-  border: 1px solid #a8cbef;
+.rec-card-collapsed .rec-card-head { border-bottom: none; }
+.rec-card-collapsed-reason {
+  font-size: var(--fs-base);
+  color: var(--gy3);
 }
-
 /* Series progress — recorded doses vs the dose now due */
 .rec-progress {
   background: rgba(255, 255, 255, 0.65);
   border: 1px solid var(--gy5);
   border-radius: var(--rads);
-  padding: 7px 10px;
-  margin-bottom: 8px;
-}
-.rec-progress-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--gy3);
+  padding: var(--sp-8) var(--sp-12);
+  margin-bottom: var(--sp-8);
 }
 .rec-progress-list {
   list-style: none;
-  margin: 3px 0 0;
+  margin: var(--sp-4) 0 0;
   padding: 0;
 }
 .rec-progress-list li {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   padding: 1px 0;
 }
-.rec-dose-due-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--c);
-}
+.rec-dose-due-tag { color: var(--c); }
 /* "Upcoming:" tag — used when dose is not yet due (future earliestNextDate) */
-.rec-dose-notyet-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--gy3);
-}
 
 /* Inline age editor (StepAge hint + Results "Adjust age") */
 .age-precise-hint {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--gy3);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 .age-edit-btn {
   background: var(--clt);
   color: var(--c);
   border: 1px solid var(--cmd);
   border-radius: var(--rads);
-  padding: 3px 10px;
-  font-size: 0.78rem;
+  /* D14: 2px vertical padding (not the chips' 3px) so this button's 1px
+     border doesn't push it 2px taller than the borderless .meta-chip
+     it wraps alongside — both measure 21px tall. */
+  padding: 2px var(--sp-12);
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
 }
-.age-edit-btn:hover { background: #d6eef7; }
+.age-edit-btn:hover { background: var(--c-hover); }
 .age-edit-row {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  margin-top: 10px;
+  gap: var(--sp-12);
+  margin-top: var(--sp-12);
   flex-wrap: wrap;
 }
+/* D13b: recorded-doses editor and color-key panels stack their sections
+   full-width instead of the base row layout above. */
+.dose-history-panel {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.dose-history-block {
+  width: 100%;
+}
+.dose-history-empty {
+  font-size: var(--fs-base);
+  color: var(--gy4);
+  margin-bottom: var(--sp-4);
+}
+.dose-history-row {
+  margin-bottom: var(--sp-4);
+}
 .age-edit-hint {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   align-self: center;
 }
 .next-date {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
+}
+/* B6: a "complete" status with a booster still coming — call it out, don't
+   let it read as a quiet, fully-done state. Amber like catch-up (something
+   will need to happen), but text-only (no full-card fill change). */
+.booster-due-banner {
+  display: inline-block;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--a);
+  background: var(--alt);
+  border: 1px solid var(--amd);
+  border-radius: var(--rads);
+  padding: var(--sp-4) var(--sp-12);
+  margin-bottom: var(--sp-8);
 }
 .rec-dose-label {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 .rec-brands {
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .rec-brands-title {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--gy3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 5px;
+  margin-bottom: var(--sp-4);
 }
 .rec-brand-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: var(--sp-8);
+  font-size: var(--fs-base);
   color: var(--gy);
-  padding: 2px 0;
+  padding: var(--sp-4) 0;
 }
 .rec-brand-dot {
   width: 5px;
@@ -711,23 +805,23 @@ body {
   flex-shrink: 0;
 }
 .rec-brands-helper {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   font-style: italic;
-  margin-top: 4px;
+  margin-top: var(--sp-4);
 }
 .rec-note {
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .rec-citations {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-  padding-top: 10px;
+  gap: var(--sp-8);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-12);
   border-top: 1px solid var(--gy6);
   /* Prevent chips from spilling outside the card on narrow viewports */
   min-width: 0;
@@ -736,12 +830,12 @@ body {
 .citation-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: var(--sp-4) var(--sp-12);
   border-radius: var(--rads);
   background: var(--gy6);
   border: 1px solid var(--gy5);
   color: var(--c);
-  font-size: 0.75rem;
+  font-size: var(--fs-sm);
   text-decoration: none;
   /* Mobile-safe: chip never overflows the card */
   min-width: 0;
@@ -757,55 +851,63 @@ body {
 
 /* ── Per-dose validation chips (Recorded: block) ───────────────── */
 /* Each recorded dose row: dose text + validation chip stacked */
+/* D3: dose descriptor (left) and validity chip (right) share one scannable
+   line; reasons/detail (part of .dose-val) wrap to full width below it. */
 .rec-progress-dose-row {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 3px 0;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-4);
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--gy6);
 }
 .rec-progress-dose-row:last-child { border-bottom: none; }
 .rec-progress-dose-text {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 /* Validation result container */
 .dose-val {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: center;
+  gap: var(--sp-8);
   flex-wrap: wrap;
 }
 /* Status chip */
 .dose-val-chip {
   display: inline-flex;
   align-items: center;
-  padding: 1px 7px;
+  padding: 1px var(--sp-8);
   border-radius: var(--rads);
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   flex-shrink: 0;
 }
-.dose-val-valid   { background: var(--glt); color: var(--g); border: 1px solid #a5d6a7; }
-.dose-val-invalid { background: var(--rlt); color: var(--r); border: 1px solid #ef9a9a; }
-.dose-val-unknown { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
+.dose-val-valid     { background: var(--glt); color: var(--g); border: 1px solid var(--gmd); }
+.dose-val-offwindow { background: var(--alt); color: var(--a); border: 1px solid var(--amd); }
+.dose-val-invalid   { background: var(--rlt); color: var(--r); border: 1px solid var(--rmd); }
+.dose-val-unknown   { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
 /* Reasons (one per line) */
 .dose-val-reasons {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-4);
   flex: 1;
   min-width: 0;
 }
 .dose-val-reason {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy2);
   line-height: 1.4;
 }
 /* Dimmed technical detail line */
 .dose-val-detail {
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   color: var(--gy3);
   line-height: 1.4;
 }
@@ -818,97 +920,130 @@ body {
 .dose-val-effective {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 1px var(--sp-8);
   border-radius: var(--rads);
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   font-weight: 600;
   background: var(--glt);
   color: var(--g);
-  border: 1px solid #a5d6a7;
+  border: 1px solid var(--gmd);
   flex-shrink: 0;
 }
 
+/* ── B2/B3: two-options header + per-option labels ───────────────── */
+.dose-options-header {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: var(--sp-12);
+}
+/* D16: "Option N: ..." now renders as the box's own header bar (matches the
+   rec-cards' header-bar language) instead of a label floating above the box.
+   Both Option 1 and Option 2 use the app's teal UI accent (not blue/amber) —
+   those two colors are already claimed by the legend for shared-decision and
+   catch-up timing states, and the option boxes are a structural choice, not
+   a clinical-timing signal. */
+.dose-option-label {
+  font-weight: 700;
+  font-size: var(--fs-base);
+  padding: var(--sp-12) var(--sp-16);
+}
+.separate-vaccines-group .dose-option-label { background: var(--clt); color: var(--c); }
+
 /* ── Dual-due connective banner ────────────────────────────────── */
-/* Uses blue to group visually with the two-separate-vaccines section below,
-   distinct from the amber pentavalent card above. */
+/* Teal to group visually with the two-separate-vaccines section below,
+   matching Option 2's teal pentavalent card. */
 .dual-due-banner {
-  background: var(--blt);
-  border: 1px solid var(--bmd);
+  background: var(--clt);
+  border: 1px solid var(--cmd);
   border-radius: var(--rads);
-  padding: 10px 14px;
-  font-size: 0.83rem;
-  color: var(--b);
-  margin-bottom: 14px;
+  padding: var(--sp-12) var(--sp-16);
+  font-size: var(--fs-base);
+  color: var(--c);
+  margin-bottom: var(--sp-16);
   line-height: 1.5;
 }
 
 /* ── Two-separate-vaccines grouping container ──────────────────── */
 /* When both MenACWY and MenB are due AND a pentavalent option exists, wrap
-   the dual-due banner + both rec-sections in a blue-tinted container so they
-   read as a single visual group ("the alternative path"), clearly distinct
-   from the amber pentavalent card above. */
+   the dual-due banner + both rec-sections in a container so they read as a
+   single visual group ("Option 1"). White body with a teal header bar (the
+   box's own "Option 1: ..." title) — matches Option 2's teal header bar. */
 .separate-vaccines-group {
-  background: var(--blt);
-  border: 1.5px solid var(--bmd);
+  background: var(--wh);
+  border: 1px solid var(--cmd);
   border-radius: var(--rad);
-  padding: 14px 14px 4px;
-  margin-bottom: 16px;
+  overflow: hidden;
+  margin-bottom: var(--sp-16);
 }
-/* Lift rec-cards inside the group slightly so their white backgrounds pop */
-.separate-vaccines-group .rec-card {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+.separate-vaccines-group-body { padding: var(--sp-16); }
+/* D14: even padding on all sides — the last .rec-section's own
+   margin-bottom (16px, meant for spacing between sibling sections) would
+   otherwise stack on top of this container's bottom padding. */
+.separate-vaccines-group-body .rec-section:last-child {
+  margin-bottom: 0;
+}
+/* D11: rec-cards nested inside the option-1 group are an inner box within an
+   outer bordered box — dropping their own shadow and stepping their radius
+   down from the outer 8px to the inner 4px keeps the nesting from stacking
+   two "raised card" treatments on top of each other. */
+.separate-vaccines-group-body .rec-card {
+  box-shadow: none;
+  border-radius: var(--rads);
 }
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
-/* Amber/gold theme — signals "alternative combined option", clearly distinct
-   from the blue-grouped two-separate-vaccines section below. */
+/* White body with a teal header bar (the box's own "Option 2: ..." title) —
+   matches Option 1's teal header bar above. */
 .penta-card {
-  background: var(--pentalt);
+  background: var(--wh);
   border-radius: var(--rad);
-  box-shadow: var(--sh2);
-  border: 2px solid var(--pentamd);
-  margin-bottom: 16px;
+  box-shadow: var(--sh);
+  border: 1px solid var(--pentamd);
+  margin-bottom: var(--sp-16);
   overflow: hidden;
 }
 .penta-header {
   background: var(--pentahdr);
-  border-bottom: 1px solid var(--pentamd);
-  padding: 10px 18px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   color: var(--penta);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  padding: var(--sp-12) var(--sp-16);
 }
-.penta-body { padding: 16px 18px; }
+.penta-body { padding: var(--sp-16) var(--sp-24) var(--sp-24); }
+.penta-replaces {
+  font-weight: 700;
+  font-size: var(--fs-base);
+  color: var(--penta);
+  margin-bottom: var(--sp-12);
+}
 .penta-note {
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .penta-brands {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-12);
 }
 .penta-brand {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
 }
 
 /* ── Disclaimer ────────────────────────────────────────────────── */
 .disclaimer {
   background: var(--gy6);
   border-radius: var(--rads);
-  padding: 14px 16px;
-  margin-top: 20px;
-  font-size: 0.78rem;
+  padding: var(--sp-16);
+  margin-top: var(--sp-24);
+  font-size: var(--fs-sm);
   color: var(--gy3);
   line-height: 1.5;
   border-left: 3px solid var(--gy5);
@@ -917,61 +1052,110 @@ body {
 
 /* ── Reset button area ─────────────────────────────────────────── */
 .results-actions {
-  margin-top: 20px;
+  margin-top: var(--sp-24);
   display: flex;
   justify-content: center;
+  gap: var(--sp-12);
 }
 
 /* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .app-header-inner { gap: 10px; }
+  .app-header-inner { gap: var(--sp-12); }
   .app-logo-sub { display: none; }
   .stepper-label { display: none; }
-  .app-main { padding: 16px 12px 100px; }
-  .step-card { padding: 16px; }
+  .app-main { padding: var(--sp-16) var(--sp-12) 100px; }
+  .step-card { padding: var(--sp-16); }
   .age-field input[type="number"] { width: 90px; }
 }
 
 /* Advisory alert banners */
 .advisory-banner {
   border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: var(--sp-16);
+  margin-bottom: var(--sp-16);
 }
 .advisory-banner-title {
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 .advisory-banner-flag {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
   font-style: italic;
 }
 .advisory-dose-line {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-4);
 }
 .advisory-note {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.5;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 /* Dose history edit panel */
 .history-edit-summary {
   cursor: pointer;
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  padding: 6px 0;
+  padding: var(--sp-8) 0;
   user-select: none;
 }
 .history-edit-section-title {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  margin: 10px 0 4px;
+  margin: var(--sp-12) 0 var(--sp-4);
+}
+
+/* ── E6: color + shortcut-key legend ─────────────────────────────── */
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  font-size: var(--fs-base);
+  color: var(--gy2);
+  padding: var(--sp-4) 0;
+}
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--rads);
+  flex-shrink: 0;
+  border: 1px solid var(--gy5);
+}
+/* D9: rec-card timing swatches match the rec-cards' own header-bar tint.
+   Dose-validation swatches below (valid/offwindow/invalid/unknown) are a
+   different component (small filled chips) and are unchanged. */
+.legend-swatch-due        { background: var(--glt); border-color: var(--gmd); }
+.legend-swatch-catchup    { background: var(--alt); border-color: var(--amd); }
+.legend-swatch-shared     { background: var(--blt); border-color: var(--bmd); }
+.legend-swatch-neutral    { background: var(--gy6); border-color: var(--gy5); }
+.legend-swatch-valid      { background: var(--glt); border-color: var(--gmd); }
+.legend-swatch-offwindow  { background: var(--alt); border-color: var(--amd); }
+.legend-swatch-invalid    { background: var(--rlt); border-color: var(--rmd); }
+.legend-swatch-unknown    { background: var(--gy6); border-color: var(--gy5); }
+kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--sp-8);
+  border-radius: var(--rads);
+  border: 1px solid var(--gy5);
+  background: var(--gy6);
+  color: var(--gy);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  justify-content: center;
+}
+.shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-8);
+  font-size: var(--fs-sm);
+  color: var(--gy3);
 }
