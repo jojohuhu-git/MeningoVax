@@ -645,7 +645,10 @@ body {
   color: var(--c);
   border: 1px solid var(--cmd);
   border-radius: var(--rads);
-  padding: 3px 10px;
+  /* D14: 2px vertical padding (not the chips' 3px) so this button's 1px
+     border doesn't push it 2px taller than the borderless .meta-chip
+     it wraps alongside — both measure 21px tall. */
+  padding: 2px 10px;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -881,8 +884,14 @@ body {
   border: 1.5px solid var(--bmd);
   border-left: 4px solid var(--b);
   border-radius: var(--rad);
-  padding: 14px 14px 4px;
+  padding: 14px;
   margin-bottom: 16px;
+}
+/* D14: even padding on all sides — the last .rec-section's own
+   margin-bottom (16px, meant for spacing between sibling sections) would
+   otherwise stack on top of this container's bottom padding. */
+.separate-vaccines-group .rec-section:last-child {
+  margin-bottom: 0;
 }
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
@@ -948,6 +957,7 @@ body {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+  gap: 12px;
 }
 
 /* ── Responsive ────────────────────────────────────────────────── */
