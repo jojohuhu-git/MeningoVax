@@ -948,6 +948,14 @@ body {
 .separate-vaccines-group-body .rec-section:last-child {
   margin-bottom: 0;
 }
+/* D11: rec-cards nested inside the option-1 group are an inner box within an
+   outer bordered box — dropping their own shadow and stepping their radius
+   down from the outer 8px to the inner 4px keeps the nesting from stacking
+   two "raised card" treatments on top of each other. */
+.separate-vaccines-group-body .rec-card {
+  box-shadow: none;
+  border-radius: var(--rads);
+}
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
 /* White body with a teal header bar (the box's own "Option 2: ..." title) —
@@ -955,7 +963,7 @@ body {
 .penta-card {
   background: var(--wh);
   border-radius: var(--rad);
-  box-shadow: var(--sh2);
+  box-shadow: var(--sh);
   border: 1px solid var(--pentamd);
   margin-bottom: 16px;
   overflow: hidden;
