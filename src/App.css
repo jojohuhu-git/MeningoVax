@@ -606,6 +606,25 @@ body {
 /* B4: the badge is the REASON icon — its own small color, distinct from
    red (reserved for invalid/error states). Risk-based was red; that read as
    an error when the card itself was also color-coded. Now purple. */
+/* D5: neutral cards (complete/not-indicated/deferred) collapse to this
+   compact clickable row so due items visually dominate the screen. */
+.rec-card-head-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 8px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+.rec-card-collapsed .rec-card-head-toggle { margin-bottom: 0; }
+.rec-card-collapsed-reason {
+  font-size: 0.85rem;
+  color: var(--gy3);
+  flex: 1;
+}
 .status-badge.due              { background: var(--glt); color: var(--g); }
 .status-badge.catchup          { background: var(--alt); color: var(--a); }
 .status-badge.risk-based       { background: var(--plt); color: var(--p); }

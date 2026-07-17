@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
+import { Chevron } from './icons.jsx';
 
 const STATUS_LABELS = {
   'due':              'Due',
@@ -83,17 +84,41 @@ function timingClass(status, dueToday) {
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0 }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
+  // D5: neutral cards (nothing to do) collapse to a compact row so due items
+  // dominate the screen. B6 exception: a "complete" status with a booster
+  // still due later must stay expanded — that's not a quiet done state.
+  const collapsible = isNeutral && !boosterDueDate;
+  const [expanded, setExpanded] = useState(!collapsible);
   const given = doses.length;
   const today = todayISO();
 
   return (
-    <div className={`rec-card ${timingClass(status, dueToday)}`} data-testid="rec-card">
+    <div
+      className={`rec-card ${timingClass(status, dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
+      data-testid="rec-card"
+    >
       <div className="rec-card-inner">
-        <div className="rec-card-head">
-          <span className="rec-vaccine-name">{vaccine}</span>
-          <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
-        </div>
+        {collapsible ? (
+          <button
+            type="button"
+            className="rec-card-head rec-card-head-toggle"
+            onClick={() => setExpanded(e => !e)}
+            aria-expanded={expanded}
+          >
+            <span className="rec-vaccine-name">{vaccine}</span>
+            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
+            <Chevron open={expanded} />
+          </button>
+        ) : (
+          <div className="rec-card-head">
+            <span className="rec-vaccine-name">{vaccine}</span>
+            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+          </div>
+        )}
 
+      {expanded && (
+      <>
         {/* D4: today's action first — dose due + brands, then booster/next-date,
             then recorded history (history supports the decision, it doesn't
             sit above it), then note, then citations. */}
@@ -159,6 +184,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             ))}
           </div>
         )}
+      </>
+      )}
       </div>
     </div>
   );
