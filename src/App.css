@@ -63,6 +63,18 @@
   --fs-md:   0.92rem;
   --fs-lg:   1.05rem;
   --fs-xl:   1.2rem;
+
+  /* D15: 4px-base spacing scale — consolidates ad-hoc margin/gap/padding
+     values (2-24px) onto 5 steps. Sub-4px vertical paddings on tiny chips/
+     badges (dose-val-chip, dose-val-effective, kbd, meta-chip, age-edit-btn,
+     risk-checkbox) are intentionally left off this scale -- they're optical
+     alignment/height-matching values tuned in earlier D-items, not rhythm
+     spacing, and rounding them up would break those alignments. */
+  --sp-4:  4px;
+  --sp-8:  8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
 }
 
 /* ── Reset / Base ──────────────────────────────────────────────── */
@@ -95,15 +107,15 @@ body {
 .app-header-inner {
   max-width: 680px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: var(--sp-12) var(--sp-16);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--sp-16);
 }
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12);
   flex-shrink: 0;
 }
 .app-logo-icon {
@@ -135,7 +147,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: var(--sp-4);
   flex: 1;
   position: relative;
   min-width: 0;
@@ -199,7 +211,7 @@ body {
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
-  padding: 24px 16px 100px;
+  padding: var(--sp-24) var(--sp-16) 100px;
 }
 
 /* ── Bottom nav ────────────────────────────────────────────────── */
@@ -217,7 +229,7 @@ body {
 .app-nav-inner {
   max-width: 640px;
   margin: 0 auto;
-  padding: 12px 16px;
+  padding: var(--sp-12) var(--sp-16);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -225,7 +237,7 @@ body {
 .app-nav-next {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12);
 }
 
 /* ── Buttons ───────────────────────────────────────────────────── */
@@ -234,7 +246,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 0 22px;
+  padding: 0 var(--sp-24);
   border-radius: var(--rad);
   font-size: var(--fs-md);
   font-weight: 600;
@@ -267,7 +279,7 @@ body {
 }
 .btn-sm {
   min-height: 34px;
-  padding: 0 14px;
+  padding: 0 var(--sp-16);
   font-size: var(--fs-base);
 }
 
@@ -276,31 +288,31 @@ body {
   background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh);
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: var(--sp-24);
+  margin-bottom: var(--sp-16);
 }
 .step-title {
   font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-4);
 }
 .step-sub {
   font-size: var(--fs-base);
   color: var(--gy3);
-  margin-bottom: 20px;
+  margin-bottom: var(--sp-24);
 }
 
 /* ── Age step ──────────────────────────────────────────────────── */
 .age-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--sp-8);
+  margin-bottom: var(--sp-24);
 }
 .age-chip {
   min-height: 44px;
-  padding: 0 16px;
+  padding: 0 var(--sp-16);
   border-radius: var(--radp);
   border: 1.5px solid var(--gy5);
   background: var(--wh);
@@ -319,18 +331,18 @@ body {
 .age-precise {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--sp-12);
 }
 .age-row {
   display: flex;
-  gap: 10px;
+  gap: var(--sp-12);
   align-items: flex-end;
   flex-wrap: wrap;
 }
 .age-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-4);
 }
 .age-field label {
   font-size: var(--fs-base);
@@ -340,7 +352,7 @@ body {
 .age-field input[type="number"],
 .age-field input[type="date"] {
   height: 44px;
-  padding: 0 12px;
+  padding: 0 var(--sp-12);
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
   font-size: var(--fs-md);
@@ -356,37 +368,37 @@ body {
 .age-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: var(--sp-4) var(--sp-12);
   border-radius: var(--rads);
   background: var(--clt);
   color: var(--c);
   font-size: var(--fs-base);
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: var(--sp-4);
 }
 .age-error {
   color: var(--r);
   font-size: var(--fs-base);
-  margin-top: 8px;
+  margin-top: var(--sp-8);
 }
 .dob-divider {
   text-align: center;
   color: var(--gy4);
   font-size: var(--fs-base);
-  margin: 8px 0;
+  margin: var(--sp-8) 0;
 }
 
 /* ── Risk factors ──────────────────────────────────────────────── */
 .risk-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-4);
 }
 .risk-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--sp-12);
+  padding: var(--sp-12);
   border-radius: var(--rads);
   border: 1.5px solid transparent;
   cursor: pointer;
@@ -407,13 +419,13 @@ body {
 }
 .risk-text { flex: 1; }
 .risk-label { font-size: var(--fs-md); font-weight: 500; color: var(--gy); }
-.risk-sublabel { font-size: var(--fs-sm); color: var(--gy3); margin-top: 2px; }
+.risk-sublabel { font-size: var(--fs-sm); color: var(--gy3); margin-top: var(--sp-4); }
 .risk-none {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-top: 8px;
+  gap: var(--sp-12);
+  padding: var(--sp-12);
+  margin-top: var(--sp-8);
   border-radius: var(--rads);
   border: 1.5px dashed var(--gy5);
   cursor: pointer;
@@ -426,8 +438,8 @@ body {
 /* ── History step ──────────────────────────────────────────────── */
 .history-toggle {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--sp-12);
+  margin-bottom: var(--sp-16);
 }
 .history-toggle-btn {
   flex: 1;
@@ -446,12 +458,12 @@ body {
   color: var(--c);
   font-weight: 600;
 }
-.dose-list { display: flex; flex-direction: column; gap: 10px; }
+.dose-list { display: flex; flex-direction: column; gap: var(--sp-12); }
 .dose-row {
   display: flex;
-  gap: 10px;
+  gap: var(--sp-12);
   align-items: flex-end;
-  padding: 12px;
+  padding: var(--sp-12);
   background: var(--gy6);
   border-radius: var(--rads);
   flex-wrap: wrap;
@@ -459,7 +471,7 @@ body {
 .dose-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-4);
   flex: 1;
   min-width: 130px;
 }
@@ -471,7 +483,7 @@ body {
 .dose-field input[type="date"],
 .dose-field select {
   height: 40px;
-  padding: 0 10px;
+  padding: 0 var(--sp-12);
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
   font-size: var(--fs-base);
@@ -502,15 +514,15 @@ body {
 .add-dose-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-8);
 }
 .add-dose-btn {
-  margin-top: 8px;
+  margin-top: var(--sp-8);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--sp-16);
   border-radius: var(--rads);
   border: 1.5px dashed var(--gy5);
   background: var(--wh);
@@ -520,8 +532,8 @@ body {
 }
 .add-dose-btn:hover { border-color: var(--c); color: var(--c); background: var(--clt); }
 .family-note {
-  margin-top: 10px;
-  padding: 8px 12px;
+  margin-top: var(--sp-12);
+  padding: var(--sp-8) var(--sp-12);
   border-radius: var(--rads);
   background: var(--blt);
   border-left: 3px solid var(--b);
@@ -534,36 +546,36 @@ body {
   font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-12);
 }
 .results-header {
   background: var(--wh);
   border-radius: var(--rad);
   box-shadow: var(--sh);
-  padding: 20px 24px;
-  margin-bottom: 16px;
+  padding: var(--sp-24);
+  margin-bottom: var(--sp-16);
 }
 .results-title {
   font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 .results-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sp-8);
 }
 .meta-chips, .meta-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-8);
   align-items: center;
 }
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 3px var(--sp-12);
   border-radius: var(--rads);
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -596,7 +608,7 @@ body {
 .rec-section-title {
   font-size: var(--fs-sm);
   margin-bottom: 8px;
-  padding: 0 4px;
+  padding: 0 var(--sp-4);
 }
 .rec-card {
   background: var(--wh);
@@ -604,7 +616,7 @@ body {
   box-shadow: var(--sh);
   border: 1px solid var(--gy5);
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 /* D9/B4: the card head is a full-width bar tinted by TIMING only — is this
    due today, does it need catch-up, is it a shared (optional) decision, or
@@ -618,9 +630,9 @@ body {
 .rec-card-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-12);
   flex-wrap: wrap;
-  padding: 10px 16px;
+  padding: var(--sp-12) var(--sp-16);
   border-bottom: 1px solid var(--gy5);
   background: var(--gy6);
 }
@@ -628,7 +640,7 @@ body {
 .rec-card.timing-catchup .rec-card-head { background: var(--alt); }
 .rec-card.timing-shared  .rec-card-head { background: var(--blt); }
 .rec-card.timing-neutral .rec-card-head { background: var(--gy6); }
-.rec-card-inner { padding: 16px 18px; }
+.rec-card-inner { padding: var(--sp-16); }
 .rec-vaccine-name {
   font-size: var(--fs-lg);
   font-weight: 700;
@@ -638,7 +650,7 @@ body {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
 }
 /* D9: reason label is plain colored text, no pill — the header bar's tint
    already carries the timing color, so a second colored background here
@@ -678,12 +690,12 @@ body {
   background: rgba(255, 255, 255, 0.65);
   border: 1px solid var(--gy5);
   border-radius: var(--rads);
-  padding: 7px 10px;
-  margin-bottom: 8px;
+  padding: var(--sp-8) var(--sp-12);
+  margin-bottom: var(--sp-8);
 }
 .rec-progress-list {
   list-style: none;
-  margin: 3px 0 0;
+  margin: var(--sp-4) 0 0;
   padding: 0;
 }
 .rec-progress-list li {
@@ -699,7 +711,7 @@ body {
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--gy3);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 .age-edit-btn {
   background: var(--clt);
@@ -709,7 +721,7 @@ body {
   /* D14: 2px vertical padding (not the chips' 3px) so this button's 1px
      border doesn't push it 2px taller than the borderless .meta-chip
      it wraps alongside — both measure 21px tall. */
-  padding: 2px 10px;
+  padding: 2px var(--sp-12);
   font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
@@ -718,8 +730,8 @@ body {
 .age-edit-row {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  margin-top: 10px;
+  gap: var(--sp-12);
+  margin-top: var(--sp-12);
   flex-wrap: wrap;
 }
 .age-edit-hint {
@@ -730,7 +742,7 @@ body {
 .next-date {
   font-size: var(--fs-base);
   color: var(--gy3);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 /* B6: a "complete" status with a booster still coming — call it out, don't
    let it read as a quiet, fully-done state. Amber like catch-up (something
@@ -743,30 +755,30 @@ body {
   background: var(--alt);
   border: 1px solid var(--amd);
   border-radius: var(--rads);
-  padding: 4px 10px;
-  margin-bottom: 8px;
+  padding: var(--sp-4) var(--sp-12);
+  margin-bottom: var(--sp-8);
 }
 .rec-dose-label {
   font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 .rec-brands {
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .rec-brands-title {
   font-size: var(--fs-sm);
   font-weight: 600;
-  margin-bottom: 5px;
+  margin-bottom: var(--sp-4);
 }
 .rec-brand-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
   font-size: var(--fs-base);
   color: var(--gy);
-  padding: 2px 0;
+  padding: var(--sp-4) 0;
 }
 .rec-brand-dot {
   width: 5px;
@@ -779,20 +791,20 @@ body {
   font-size: var(--fs-sm);
   color: var(--gy3);
   font-style: italic;
-  margin-top: 4px;
+  margin-top: var(--sp-4);
 }
 .rec-note {
   font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .rec-citations {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-  padding-top: 10px;
+  gap: var(--sp-8);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-12);
   border-top: 1px solid var(--gy6);
   /* Prevent chips from spilling outside the card on narrow viewports */
   min-width: 0;
@@ -801,7 +813,7 @@ body {
 .citation-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: var(--sp-4) var(--sp-12);
   border-radius: var(--rads);
   background: var(--gy6);
   border: 1px solid var(--gy5);
@@ -829,9 +841,9 @@ body {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  column-gap: 10px;
-  row-gap: 2px;
-  padding: 3px 0;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-4);
+  padding: var(--sp-4) 0;
   border-bottom: 1px solid var(--gy6);
 }
 .rec-progress-dose-row:last-child { border-bottom: none; }
@@ -845,14 +857,14 @@ body {
 .dose-val {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
   flex-wrap: wrap;
 }
 /* Status chip */
 .dose-val-chip {
   display: inline-flex;
   align-items: center;
-  padding: 1px 7px;
+  padding: 1px var(--sp-8);
   border-radius: var(--rads);
   font-size: var(--fs-xs);
   font-weight: 700;
@@ -867,7 +879,7 @@ body {
 .dose-val-reasons {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-4);
   flex: 1;
   min-width: 0;
 }
@@ -891,7 +903,7 @@ body {
 .dose-val-effective {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 1px var(--sp-8);
   border-radius: var(--rads);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -906,7 +918,7 @@ body {
   font-size: var(--fs-md);
   font-weight: 700;
   color: var(--gy);
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 /* D16: "Option N: ..." now renders as the box's own header bar (matches the
    rec-cards' header-bar language) instead of a label floating above the box.
@@ -917,7 +929,7 @@ body {
 .dose-option-label {
   font-weight: 700;
   font-size: var(--fs-base);
-  padding: 10px 16px;
+  padding: var(--sp-12) var(--sp-16);
 }
 .separate-vaccines-group .dose-option-label { background: var(--clt); color: var(--c); }
 
@@ -928,10 +940,10 @@ body {
   background: var(--clt);
   border: 1px solid var(--cmd);
   border-radius: var(--rads);
-  padding: 10px 14px;
+  padding: var(--sp-12) var(--sp-16);
   font-size: var(--fs-base);
   color: var(--c);
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-16);
   line-height: 1.5;
 }
 
@@ -945,9 +957,9 @@ body {
   border: 1px solid var(--cmd);
   border-radius: var(--rad);
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-16);
 }
-.separate-vaccines-group-body { padding: 14px; }
+.separate-vaccines-group-body { padding: var(--sp-16); }
 /* D14: even padding on all sides — the last .rec-section's own
    margin-bottom (16px, meant for spacing between sibling sections) would
    otherwise stack on top of this container's bottom padding. */
@@ -971,7 +983,7 @@ body {
   border-radius: var(--rad);
   box-shadow: var(--sh);
   border: 1px solid var(--pentamd);
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-16);
   overflow: hidden;
 }
 .penta-header {
@@ -979,41 +991,41 @@ body {
   font-weight: 700;
   font-size: var(--fs-base);
   color: var(--penta);
-  padding: 10px 16px;
+  padding: var(--sp-12) var(--sp-16);
 }
-.penta-body { padding: 16px 20px 20px; }
+.penta-body { padding: var(--sp-16) var(--sp-24) var(--sp-24); }
 .penta-replaces {
   font-weight: 700;
   font-size: var(--fs-base);
   color: var(--penta);
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .penta-note {
   font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
 }
 .penta-brands {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-12);
 }
 .penta-brand {
   font-size: var(--fs-base);
   color: var(--gy);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
 }
 
 /* ── Disclaimer ────────────────────────────────────────────────── */
 .disclaimer {
   background: var(--gy6);
   border-radius: var(--rads);
-  padding: 14px 16px;
-  margin-top: 20px;
+  padding: var(--sp-16);
+  margin-top: var(--sp-24);
   font-size: var(--fs-sm);
   color: var(--gy3);
   line-height: 1.5;
@@ -1023,49 +1035,49 @@ body {
 
 /* ── Reset button area ─────────────────────────────────────────── */
 .results-actions {
-  margin-top: 20px;
+  margin-top: var(--sp-24);
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: var(--sp-12);
 }
 
 /* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .app-header-inner { gap: 10px; }
+  .app-header-inner { gap: var(--sp-12); }
   .app-logo-sub { display: none; }
   .stepper-label { display: none; }
-  .app-main { padding: 16px 12px 100px; }
-  .step-card { padding: 16px; }
+  .app-main { padding: var(--sp-16) var(--sp-12) 100px; }
+  .step-card { padding: var(--sp-16); }
   .age-field input[type="number"] { width: 90px; }
 }
 
 /* Advisory alert banners */
 .advisory-banner {
   border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: var(--sp-16);
+  margin-bottom: var(--sp-16);
 }
 .advisory-banner-title {
   font-size: var(--fs-md);
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 .advisory-banner-flag {
   font-size: var(--fs-base);
   color: var(--gy2);
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-12);
   font-style: italic;
 }
 .advisory-dose-line {
   font-size: var(--fs-base);
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-4);
 }
 .advisory-note {
   font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.5;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-8);
 }
 /* Dose history edit panel */
 .history-edit-summary {
@@ -1073,24 +1085,24 @@ body {
   font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  padding: 6px 0;
+  padding: var(--sp-8) 0;
   user-select: none;
 }
 .history-edit-section-title {
   font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
-  margin: 10px 0 4px;
+  margin: var(--sp-12) 0 var(--sp-4);
 }
 
 /* ── E6: color + shortcut-key legend ─────────────────────────────── */
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-8);
   font-size: var(--fs-base);
   color: var(--gy2);
-  padding: 3px 0;
+  padding: var(--sp-4) 0;
 }
 .legend-swatch {
   width: 14px;
@@ -1113,7 +1125,7 @@ body {
 kbd {
   display: inline-flex;
   align-items: center;
-  padding: 2px 7px;
+  padding: 2px var(--sp-8);
   border-radius: var(--rads);
   border: 1px solid var(--gy5);
   background: var(--gy6);
@@ -1126,7 +1138,7 @@ kbd {
 .shortcut-hint {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--sp-8);
   font-size: var(--fs-sm);
   color: var(--gy3);
 }
