@@ -734,6 +734,23 @@ body {
   margin-top: var(--sp-12);
   flex-wrap: wrap;
 }
+/* D13b: recorded-doses editor and color-key panels stack their sections
+   full-width instead of the base row layout above. */
+.dose-history-panel {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.dose-history-block {
+  width: 100%;
+}
+.dose-history-empty {
+  font-size: var(--fs-base);
+  color: var(--gy4);
+  margin-bottom: var(--sp-4);
+}
+.dose-history-row {
+  margin-bottom: var(--sp-4);
+}
 .age-edit-hint {
   font-size: var(--fs-sm);
   color: var(--gy3);

@@ -184,19 +184,18 @@ export default function Results({ state, onReset, onChange, onBack }) {
           </div>
         )}
         {editingDoses && (
-          <div className="age-edit-row" data-testid="recorded-doses-panel"
-            style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+          <div className="age-edit-row dose-history-panel" data-testid="recorded-doses-panel">
 
             {/* MenACWY doses */}
-            <div style={{ width: '100%' }} onFocusCapture={() => setActiveDoseSection('acwy')}>
+            <div className="dose-history-block" onFocusCapture={() => setActiveDoseSection('acwy')}>
               <div className="history-edit-section-title">MenACWY doses</div>
               {menacwyDoses.length === 0 && (
-                <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
+                <div className="dose-history-empty">
                   No MenACWY doses recorded.
                 </div>
               )}
               {menacwyDoses.map((dose, i) => (
-                <div key={i} className="dose-row" style={{ marginBottom: 4 }}>
+                <div key={i} className="dose-row dose-history-row">
                   <div className="dose-field">
                     <label>Date (optional)</label>
                     <input type="date" value={dose.date || ''}
@@ -218,15 +217,15 @@ export default function Results({ state, onReset, onChange, onBack }) {
             </div>
 
             {/* MenB doses */}
-            <div style={{ width: '100%' }} onFocusCapture={() => setActiveDoseSection('menb')}>
+            <div className="dose-history-block" onFocusCapture={() => setActiveDoseSection('menb')}>
               <div className="history-edit-section-title">MenB doses</div>
               {menbDoses.length === 0 && (
-                <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
+                <div className="dose-history-empty">
                   No MenB doses recorded.
                 </div>
               )}
               {menbDoses.map((dose, i) => (
-                <div key={i} className="dose-row" style={{ marginBottom: 4 }}>
+                <div key={i} className="dose-row dose-history-row">
                   <div className="dose-field">
                     <label>Date (optional)</label>
                     <input type="date" value={dose.date || ''}
@@ -253,16 +252,15 @@ export default function Results({ state, onReset, onChange, onBack }) {
         {/* E6/D6: what the colors used throughout this page mean (colors only;
             keyboard-shortcut hints live at the controls they act on, see D6b). */}
         {showLegend && (
-          <div className="age-edit-row legend-panel" data-testid="legend-panel"
-            style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-            <div style={{ width: '100%' }}>
+          <div className="age-edit-row legend-panel dose-history-panel" data-testid="legend-panel">
+            <div className="dose-history-block">
               <div className="history-edit-section-title">Vaccine box colors</div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today: on schedule, expected now</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up: behind the routine schedule, needed now to catch up</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Shared decision: optional, patient and provider decide together</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-neutral" /><span>Not currently due (complete, not indicated, or deferred)</span></div>
             </div>
-            <div style={{ width: '100%' }}>
+            <div className="dose-history-block">
               <div className="history-edit-section-title">Recorded-dose validity colors</div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>On time</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid (off-window): counted, but outside the routine timing</span></div>
