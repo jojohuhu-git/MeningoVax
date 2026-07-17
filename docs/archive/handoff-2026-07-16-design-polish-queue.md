@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after design-review planning (2026-07-16)
 
+> **Superseded** — P0 (D2, D3, D14, D13a) from this queue is now done and pushed. See
+> [handoff-2026-07-16-design-polish-p0-done.md](handoff-2026-07-16-design-polish-p0-done.md)
+> for current state and the remaining P1/P2 queue.
+
 Branch: `fix/2026-07-13-audit-queue`, off `main`. Pushed (matches origin, working tree
 clean). This branch already contains commits A1–A2, B1–B7, E1–E6 (see `git log --oneline
 main..HEAD`) and has an **open, unmerged PR**: https://github.com/jojohuhu-git/MeningoVax/pull/4
