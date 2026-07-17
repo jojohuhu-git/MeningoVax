@@ -105,9 +105,10 @@ describe('App wizard', () => {
     expect(links.length).toBeGreaterThan(0);
   });
 
-  // E6: a legend explaining the box colors and keyboard shortcuts, toggled
-  // the same way as "Adjust age" / "Recorded doses".
-  it('toggles a legend explaining box colors and keyboard shortcuts', () => {
+  // E6/D6: a color key explaining the box colors, toggled the same way as
+  // "Adjust age" / "Recorded doses". Keyboard-shortcut hints live at the
+  // controls they act on (D6b), not in this panel.
+  it('toggles a color key explaining box colors', () => {
     render(<App />);
     enterAgeYears(23);
     fireEvent.click(getNextBtn());
@@ -118,7 +119,8 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
     expect(screen.queryByTestId('legend-panel')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /legend & shortcuts/i }));
+    const colorKeyBtn = screen.getByRole('button', { name: /color key/i });
+    fireEvent.click(colorKeyBtn);
     const panel = screen.getByTestId('legend-panel');
     expect(panel.textContent).toMatch(/due today/i);
     expect(panel.textContent).toMatch(/catch-up/i);
@@ -126,10 +128,8 @@ describe('App wizard', () => {
     expect(panel.textContent).toMatch(/on time/i);
     expect(panel.textContent).toMatch(/off-window/i);
     expect(panel.textContent).toMatch(/invalid/i);
-    expect(panel.textContent).toMatch(/ctrl\/cmd \+ a/i);
-    expect(panel.textContent).toMatch(/enter/i);
 
-    fireEvent.click(screen.getByRole('button', { name: /done/i }));
+    fireEvent.click(colorKeyBtn);
     expect(screen.queryByTestId('legend-panel')).toBeNull();
   });
 

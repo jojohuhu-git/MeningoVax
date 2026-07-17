@@ -79,45 +79,48 @@ export default function Results({ state, onReset, onChange, onBack }) {
       <div className="results-header">
         <div className="results-title">Vaccine Recommendation</div>
         <div className="results-meta">
-          <span className="meta-chip meta-age">
-            {fmtAgeMonths(ageMonths)}
-          </span>
-          {group && <span className="meta-chip meta-group">{group}</span>}
-          {onChange && (
+          <div className="meta-chips">
+            <span className="meta-chip meta-age">
+              {fmtAgeMonths(ageMonths)}
+            </span>
+            {group && <span className="meta-chip meta-group">{group}</span>}
+            {riskLabels.length > 0
+              ? riskLabels.map((l, i) => (
+                  <span key={i} className="meta-chip meta-risk">{l}</span>
+                ))
+              : <span className="meta-chip meta-norisk">No risk factors</span>
+            }
+          </div>
+          <div className="meta-actions">
+            {onChange && (
+              <button
+                type="button"
+                className="age-edit-btn"
+                onClick={() => { setEditingAge(v => !v); setEditingDoses(false); setShowLegend(false); }}
+                aria-expanded={editingAge}
+              >
+                Adjust age<Chevron open={editingAge} />
+              </button>
+            )}
+            {onChange && (
+              <button
+                type="button"
+                className="age-edit-btn"
+                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); }}
+                aria-expanded={editingDoses}
+              >
+                {`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} />
+              </button>
+            )}
             <button
               type="button"
               className="age-edit-btn"
-              onClick={() => { setEditingAge(v => !v); setEditingDoses(false); setShowLegend(false); }}
-              aria-expanded={editingAge}
+              onClick={() => { setShowLegend(v => !v); setEditingAge(false); setEditingDoses(false); }}
+              aria-expanded={showLegend}
             >
-              {editingAge ? 'Done' : <>Adjust age<Chevron open={editingAge} /></>}
+              Color key<Chevron open={showLegend} />
             </button>
-          )}
-          {onChange && (
-            <button
-              type="button"
-              className="age-edit-btn"
-              onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); }}
-              aria-expanded={editingDoses}
-            >
-              {editingDoses ? 'Done'
-                : <>{`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} /></>}
-            </button>
-          )}
-          <button
-            type="button"
-            className="age-edit-btn"
-            onClick={() => { setShowLegend(v => !v); setEditingAge(false); setEditingDoses(false); }}
-            aria-expanded={showLegend}
-          >
-            {showLegend ? 'Done' : <>Legend & shortcuts<Chevron open={showLegend} /></>}
-          </button>
-          {riskLabels.length > 0
-            ? riskLabels.map((l, i) => (
-                <span key={i} className="meta-chip meta-risk">{l}</span>
-              ))
-            : <span className="meta-chip meta-norisk">No risk factors</span>
-          }
+          </div>
         </div>
         {editingAge && (
           <div className="age-edit-row" data-testid="age-edit-row">
@@ -201,7 +204,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <span className="age-edit-hint">Changes update recommendations immediately.</span>
           </div>
         )}
-        {/* E6: what the colors and keyboard shortcuts used throughout this page mean. */}
+        {/* E6/D6: what the colors used throughout this page mean (colors only;
+            keyboard-shortcut hints live at the controls they act on, see D6b). */}
         {showLegend && (
           <div className="age-edit-row legend-panel" data-testid="legend-panel"
             style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
@@ -218,11 +222,6 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid (off-window): counted, but outside the routine timing</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
-            </div>
-            <div style={{ width: '100%' }}>
-              <div className="history-edit-section-title">Keyboard shortcuts</div>
-              <div className="legend-row"><kbd>Ctrl/Cmd + A</kbd><span>Add a dose row</span></div>
-              <div className="legend-row"><kbd>Enter</kbd><span>Advance to the next step</span></div>
             </div>
           </div>
         )}
