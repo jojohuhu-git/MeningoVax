@@ -41,6 +41,21 @@ export default function Results({ state, onReset, onChange, onBack }) {
   const acwyDueToday = menacwy.some(r => r.dueToday);
   const bDueToday = menb.some(r => r.dueToday);
 
+  // D1: answer-first summary line, composed from the same dueToday/pentavalent
+  // flags that already drive the option cards below -- no new logic.
+  let summaryLine;
+  if (acwyDueToday && bDueToday) {
+    summaryLine = pentavalent.eligible
+      ? 'Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.'
+      : 'Due today: MenACWY and MenB.';
+  } else if (acwyDueToday) {
+    summaryLine = 'Due today: MenACWY.';
+  } else if (bDueToday) {
+    summaryLine = 'Due today: MenB.';
+  } else {
+    summaryLine = 'No MenACWY or MenB doses due today.';
+  }
+
   // Inline age editor — recommendations recompute live from state.ageMonths.
   const years = ageMonths != null ? Math.floor(ageMonths / 12) : '';
   const months = ageMonths != null ? Math.round(ageMonths % 12) : '';
@@ -95,6 +110,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
   return (
     <div>
+      {/* D1: answer-first verdict, before any detail. */}
+      <div className="results-summary-line" data-testid="results-summary-line">
+        {summaryLine}
+      </div>
+
       {/* Summary header */}
       <div className="results-header">
         <div className="results-title">Vaccine Recommendation</div>

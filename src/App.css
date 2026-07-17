@@ -507,6 +507,12 @@ body {
 }
 
 /* ── Results ───────────────────────────────────────────────────── */
+.results-summary-line {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gy);
+  margin-bottom: 12px;
+}
 .results-header {
   background: var(--wh);
   border-radius: var(--rad);
