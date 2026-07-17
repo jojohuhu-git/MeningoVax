@@ -23,15 +23,16 @@
   --p:    #6a1b9a;   /* risk-based purple — a reason icon color, never a full-card fill */
   --plt:  #f3e5f5;
   --pmd:  #ce93d8;   /* purple medium border */
-  /* D10: pentavalent option re-derived from the catch-up amber family — one
-     amber, not two clashing ones (was Tailwind stock #b45309/#fffbeb/#fcd34d
-     next to catch-up's Material #e65100/#fff3e0). Kept as its own named
-     token so intent ("this is the pentavalent option") stays legible even
-     though the values now match catch-up exactly. */
-  --penta:    var(--a);
-  --pentalt:  var(--alt);
-  --pentamd:  var(--amd);
-  --pentahdr: var(--alt);
+  /* D16: pentavalent option re-derived from the app's teal UI accent, not
+     the catch-up amber family — Option 2 is a structural choice, not a
+     clinical-timing signal, so it shouldn't read as "catch-up" (the legend
+     already claims that amber). Kept as its own named token so intent
+     ("this is the pentavalent option") stays legible even though the
+     values now match the teal accent used for buttons/chips. */
+  --penta:    var(--c);
+  --pentalt:  var(--clt);
+  --pentamd:  var(--cmd);
+  --pentahdr: var(--clt);
   --c-hover: #d6eef7; /* teal hover bg (age-edit button) */
   --gy:   #37474f;   /* darkest gray (text) */
   --gy2:  #546e7a;
@@ -901,26 +902,29 @@ body {
   color: var(--gy);
   margin-bottom: 10px;
 }
-/* D9: "Option N: ..." now renders as the box's own header bar (matches the
+/* D16: "Option N: ..." now renders as the box's own header bar (matches the
    rec-cards' header-bar language) instead of a label floating above the box.
-   Option 1 uses blue (matches its blue-tinted box), Option 2 uses amber. */
+   Both Option 1 and Option 2 use the app's teal UI accent (not blue/amber) —
+   those two colors are already claimed by the legend for shared-decision and
+   catch-up timing states, and the option boxes are a structural choice, not
+   a clinical-timing signal. */
 .dose-option-label {
   font-weight: 700;
   font-size: 0.85rem;
   padding: 10px 16px;
 }
-.separate-vaccines-group .dose-option-label { background: var(--blt); color: var(--b); }
+.separate-vaccines-group .dose-option-label { background: var(--clt); color: var(--c); }
 
 /* ── Dual-due connective banner ────────────────────────────────── */
-/* Uses blue to group visually with the two-separate-vaccines section below,
-   distinct from the amber pentavalent card above. */
+/* Teal to group visually with the two-separate-vaccines section below,
+   matching Option 2's teal pentavalent card. */
 .dual-due-banner {
-  background: var(--blt);
-  border: 1px solid var(--bmd);
+  background: var(--clt);
+  border: 1px solid var(--cmd);
   border-radius: var(--rads);
   padding: 10px 14px;
   font-size: 0.83rem;
-  color: var(--b);
+  color: var(--c);
   margin-bottom: 14px;
   line-height: 1.5;
 }
@@ -928,11 +932,11 @@ body {
 /* ── Two-separate-vaccines grouping container ──────────────────── */
 /* When both MenACWY and MenB are due AND a pentavalent option exists, wrap
    the dual-due banner + both rec-sections in a container so they read as a
-   single visual group ("Option 1"). White body with a blue header bar (the
-   box's own "Option 1: ..." title) — matches Option 2's amber header bar. */
+   single visual group ("Option 1"). White body with a teal header bar (the
+   box's own "Option 1: ..." title) — matches Option 2's teal header bar. */
 .separate-vaccines-group {
   background: var(--wh);
-  border: 1px solid var(--bmd);
+  border: 1px solid var(--cmd);
   border-radius: var(--rad);
   overflow: hidden;
   margin-bottom: 16px;
@@ -946,8 +950,8 @@ body {
 }
 
 /* ── Pentavalent card ──────────────────────────────────────────── */
-/* White body with an amber header bar (the box's own "Option 2: ..." title) —
-   matches Option 1's blue header bar above. */
+/* White body with a teal header bar (the box's own "Option 2: ..." title) —
+   matches Option 1's teal header bar above. */
 .penta-card {
   background: var(--wh);
   border-radius: var(--rad);
