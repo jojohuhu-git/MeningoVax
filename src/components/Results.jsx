@@ -258,6 +258,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               rec={r}
               doses={menacwyDoses}
               doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
+              ageMonths={ageMonths ?? 0}
             />
           ))}
         </div>
@@ -271,6 +272,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               rec={r}
               doses={menbDoses}
               doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
+              ageMonths={ageMonths ?? 0}
             />
           ))}
         </div>

@@ -1,5 +1,7 @@
 import React from 'react';
-import { fmtDate, stripAntigen } from '../logic/format.js';
+import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
+import { ageAtDoseFromDate } from '../logic/validate.js';
+import { todayISO } from '../logic/dateUtils.js';
 
 const STATUS_LABELS = {
   'due':              'Due',
@@ -11,10 +13,14 @@ const STATUS_LABELS = {
   'deferred':         'Deferred',
 };
 
-// One recorded past dose → "D1 · Jul 3, 2025 · Bexsero"
-function describeDose(dose, idx) {
+// One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
+// D3: age at administration lets a clinician compare a recorded dose's timing
+// against the recommendation, not just its date.
+function describeDose(dose, idx, ageMonths, today) {
   const parts = [`D${idx + 1}`];
   parts.push(dose?.date ? fmtDate(dose.date) : 'date unknown');
+  const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today) : null;
+  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose)}` : 'age unknown');
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   return parts.join(' · ');
 }
@@ -74,10 +80,11 @@ function timingClass(status, dueToday) {
   return 'timing-neutral';
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [] }) {
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0 }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   const given = doses.length;
+  const today = todayISO();
 
   return (
     <div className={`rec-card ${timingClass(status, dueToday)}`} data-testid="rec-card">
@@ -94,7 +101,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [] }) {
             <ul className="rec-progress-list">
               {doses.map((d, i) => (
                 <li key={i} className="rec-progress-dose-row">
-                  <span className="rec-progress-dose-text">{describeDose(d, i)}</span>
+                  <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
                   <DoseValidation result={doseValidations[i]} />
                 </li>
               ))}

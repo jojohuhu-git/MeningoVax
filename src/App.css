@@ -761,10 +761,15 @@ body {
 
 /* ── Per-dose validation chips (Recorded: block) ───────────────── */
 /* Each recorded dose row: dose text + validation chip stacked */
+/* D3: dose descriptor (left) and validity chip (right) share one scannable
+   line; reasons/detail (part of .dose-val) wrap to full width below it. */
 .rec-progress-dose-row {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: 10px;
+  row-gap: 2px;
   padding: 3px 0;
   border-bottom: 1px solid var(--gy6);
 }
@@ -772,11 +777,13 @@ body {
 .rec-progress-dose-text {
   font-size: 0.82rem;
   color: var(--gy2);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 /* Validation result container */
 .dose-val {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }

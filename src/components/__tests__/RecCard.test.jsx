@@ -73,3 +73,31 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     expect(chip.className).toMatch(/dose-val-unknown/);
   });
 });
+
+// D3: recorded doses show the age at which each was given, so a clinician
+// can compare recommended timing against actual administration age.
+describe('RecCard recorded-dose age at administration (D3)', () => {
+  it('shows age at administration for a dated dose', () => {
+    render(
+      <RecCard
+        rec={baseRec}
+        doses={[{ date: '2020-06-01', brand: '' }]}
+        doseValidations={[{ status: 'valid', reasons: [] }]}
+        ageMonths={132}
+      />
+    );
+    expect(screen.getByText(/age \d+ years?( \d+ months?)?/)).toBeTruthy();
+  });
+
+  it('shows "age unknown" for a dose with no date', () => {
+    render(
+      <RecCard
+        rec={baseRec}
+        doses={[{ date: '', brand: '' }]}
+        doseValidations={[{ status: 'unknown', reasons: ['No date recorded.'] }]}
+        ageMonths={132}
+      />
+    );
+    expect(screen.getByText(/age unknown/)).toBeTruthy();
+  });
+});
