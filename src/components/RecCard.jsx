@@ -97,28 +97,31 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
       className={`rec-card ${timingClass(status, dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
       data-testid="rec-card"
     >
-      <div className="rec-card-inner">
-        {collapsible ? (
-          <button
-            type="button"
-            className="rec-card-head rec-card-head-toggle"
-            onClick={() => setExpanded(e => !e)}
-            aria-expanded={expanded}
-          >
-            <span className="rec-vaccine-name">{vaccine}</span>
+      {collapsible ? (
+        <button
+          type="button"
+          className="rec-card-head rec-card-head-toggle"
+          onClick={() => setExpanded(e => !e)}
+          aria-expanded={expanded}
+        >
+          <span className="rec-vaccine-name">{vaccine}</span>
+          {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
+          <span className="rec-card-head-trailing">
             <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
-            {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
             <Chevron open={expanded} />
-          </button>
-        ) : (
-          <div className="rec-card-head">
-            <span className="rec-vaccine-name">{vaccine}</span>
+          </span>
+        </button>
+      ) : (
+        <div className="rec-card-head">
+          <span className="rec-vaccine-name">{vaccine}</span>
+          <span className="rec-card-head-trailing">
             <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
-          </div>
-        )}
+          </span>
+        </div>
+      )}
 
       {expanded && (
-      <>
+      <div className="rec-card-inner">
         {/* D4: today's action first — dose due + brands, then booster/next-date,
             then recorded history (history supports the decision, it doesn't
             sit above it), then note, then citations. */}
@@ -184,9 +187,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             ))}
           </div>
         )}
-      </>
-      )}
       </div>
+      )}
     </div>
   );
 }

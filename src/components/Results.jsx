@@ -257,9 +257,9 @@ export default function Results({ state, onReset, onChange, onBack }) {
             style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
             <div style={{ width: '100%' }}>
               <div className="history-edit-section-title">Vaccine box colors</div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Shared decision (optional)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today: on schedule, expected now</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up: behind the routine schedule, needed now to catch up</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Shared decision: optional, patient and provider decide together</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-neutral" /><span>Not currently due (complete, not indicated, or deferred)</span></div>
             </div>
             <div style={{ width: '100%' }}>
@@ -282,13 +282,16 @@ export default function Results({ state, onReset, onChange, onBack }) {
         </div>
       )}
 
-      {/* Option 1: two separate injections — grouped visually when both are due */}
+      {/* Option 1: two separate injections — grouped visually when both are due.
+          D9: header bar sits INSIDE the box (matches Option 2's own header-bar
+          treatment below) instead of as a label floating above it. */}
       <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
         {pentavalent.eligible && (
           <div className="dose-option-label" data-testid="option-separate-label">
             Option 1: Two separate injections (MenACWY + MenB)
           </div>
         )}
+        <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group-body' : undefined}>
         {acwyDueToday && bDueToday && !pentavalent.eligible && (
           <div className="dual-due-banner" data-testid="dual-due-banner">
             These are two separate vaccines. Both are due today. Within each, choose one brand.
@@ -322,23 +325,21 @@ export default function Results({ state, onReset, onChange, onBack }) {
             />
           ))}
         </div>
+        </div>
       </div>
 
       {/* Option 2: single pentavalent injection — replaces both shots above.
-          E4: one consolidated title (previously repeated "pentavalent (MenABCWY)"
-          in both the option label and the card header). D2: label moved outside
-          .penta-card — the card has overflow:hidden with no padding of its own,
-          so a label rendered inside it clipped against the rounded corner. */}
+          D9: the "Option 2: ..." label is now the card's own header bar
+          (matches Option 1's header-bar treatment above), and the "replaces
+          both shots" caution moved into the body as its lead line. */}
       {pentavalent.eligible && (
         <>
-          <div className="dose-option-label" data-testid="option-penta-label">
-            Option 2: One combined injection (pentavalent, MenABCWY)
-          </div>
           <div className="penta-card" data-testid="penta-card">
-            <div className="penta-header">
-              <span>Replaces both shots above: do not give both</span>
+            <div className="penta-header" data-testid="option-penta-label">
+              Option 2: One combined injection (pentavalent, MenABCWY)
             </div>
             <div className="penta-body">
+              <div className="penta-replaces">Replaces both shots above: do not give both.</div>
               <div className="penta-note">{pentavalent.note}</div>
               <div className="penta-brands">
                 {(pentavalent.brands || []).map((b, i) => (
