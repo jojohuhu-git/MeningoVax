@@ -94,22 +94,23 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
         </div>
 
-        {/* Series progress — what's recorded vs what's due */}
-        {given > 0 && (
-          <div className="rec-progress" data-testid="rec-progress">
-            <span className="rec-progress-label">Recorded:</span>
-            <ul className="rec-progress-list">
-              {doses.map((d, i) => (
-                <li key={i} className="rec-progress-dose-row">
-                  <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
-                  <DoseValidation result={doseValidations[i]} />
-                </li>
-              ))}
-            </ul>
+        {/* D4: today's action first — dose due + brands, then booster/next-date,
+            then recorded history (history supports the decision, it doesn't
+            sit above it), then note, then citations. */}
+        <div className="rec-dose-label">{doseLabel}</div>
+
+        {brands && brands.length > 0 && !isNeutral && (
+          <div className="rec-brands">
+            <div className="rec-brands-title">Brand options: choose one</div>
+            {brands.map((b, i) => (
+              <div key={i} className="rec-brand-item">
+                <span className="rec-brand-dot" />
+                {stripAntigen(b)}
+              </div>
+            ))}
+            <div className="rec-brands-helper">Select one brand for this dose.</div>
           </div>
         )}
-
-        <div className="rec-dose-label">{doseLabel}</div>
 
         {/* B6: a "complete" status with a booster still coming is NOT a quiet
             done state — call it out with its own emphasized line and date. */}
@@ -125,16 +126,18 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {brands && brands.length > 0 && !isNeutral && (
-          <div className="rec-brands">
-            <div className="rec-brands-title">Brand options: choose one</div>
-            {brands.map((b, i) => (
-              <div key={i} className="rec-brand-item">
-                <span className="rec-brand-dot" />
-                {stripAntigen(b)}
-              </div>
-            ))}
-            <div className="rec-brands-helper">Select one brand for this dose.</div>
+        {/* Series progress — what's recorded vs what's due */}
+        {given > 0 && (
+          <div className="rec-progress" data-testid="rec-progress">
+            <span className="rec-progress-label">Recorded:</span>
+            <ul className="rec-progress-list">
+              {doses.map((d, i) => (
+                <li key={i} className="rec-progress-dose-row">
+                  <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
+                  <DoseValidation result={doseValidations[i]} />
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
