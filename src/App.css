@@ -13,19 +13,26 @@
   --gmd:  #a5d6a7;   /* green medium border (for due-state rec card borders) */
   --a:    #e65100;   /* amber/catch-up */
   --alt:  #fff3e0;
+  --amd:  #f0c79a;   /* amber medium border */
   --r:    #b71c1c;   /* risk-based red — errors/invalid only, never for "due" */
   --rlt:  #ffebee;
+  --rmd:  #ef9a9a;   /* red medium border (invalid dose only) */
   --b:    #1565c0;   /* shared-decision blue */
   --blt:  #e3f2fd;
   --bmd:  #90caf9;   /* blue medium border */
   --p:    #6a1b9a;   /* risk-based purple — a reason icon color, never a full-card fill */
   --plt:  #f3e5f5;
   --pmd:  #ce93d8;   /* purple medium border */
-  /* Pentavalent option — amber/gold to signal "alternative route" */
-  --penta:    #b45309;   /* amber text/icon */
-  --pentalt:  #fffbeb;   /* amber lightest bg */
-  --pentamd:  #fcd34d;   /* amber medium border */
-  --pentahdr: #fef3c7;   /* amber header bg */
+  /* D10: pentavalent option re-derived from the catch-up amber family — one
+     amber, not two clashing ones (was Tailwind stock #b45309/#fffbeb/#fcd34d
+     next to catch-up's Material #e65100/#fff3e0). Kept as its own named
+     token so intent ("this is the pentavalent option") stays legible even
+     though the values now match catch-up exactly. */
+  --penta:    var(--a);
+  --pentalt:  var(--alt);
+  --pentamd:  var(--amd);
+  --pentahdr: var(--alt);
+  --c-hover: #d6eef7; /* teal hover bg (age-edit button) */
   --gy:   #37474f;   /* darkest gray (text) */
   --gy2:  #546e7a;
   --gy3:  #78909c;
@@ -697,7 +704,7 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
-.age-edit-btn:hover { background: #d6eef7; }
+.age-edit-btn:hover { background: var(--c-hover); }
 .age-edit-row {
   display: flex;
   align-items: flex-end;
@@ -724,7 +731,7 @@ body {
   font-weight: 700;
   color: var(--a);
   background: var(--alt);
-  border: 1px solid #f0c79a;
+  border: 1px solid var(--amd);
   border-radius: var(--rads);
   padding: 4px 10px;
   margin-bottom: 8px;
@@ -845,9 +852,9 @@ body {
   letter-spacing: 0.03em;
   flex-shrink: 0;
 }
-.dose-val-valid     { background: var(--glt); color: var(--g); border: 1px solid #a5d6a7; }
-.dose-val-offwindow { background: var(--alt); color: var(--a); border: 1px solid #f0c79a; }
-.dose-val-invalid   { background: var(--rlt); color: var(--r); border: 1px solid #ef9a9a; }
+.dose-val-valid     { background: var(--glt); color: var(--g); border: 1px solid var(--gmd); }
+.dose-val-offwindow { background: var(--alt); color: var(--a); border: 1px solid var(--amd); }
+.dose-val-invalid   { background: var(--rlt); color: var(--r); border: 1px solid var(--rmd); }
 .dose-val-unknown   { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
 /* Reasons (one per line) */
 .dose-val-reasons {
@@ -883,7 +890,7 @@ body {
   font-weight: 600;
   background: var(--glt);
   color: var(--g);
-  border: 1px solid #a5d6a7;
+  border: 1px solid var(--gmd);
   flex-shrink: 0;
 }
 
@@ -1078,12 +1085,12 @@ body {
    Dose-validation swatches below (valid/offwindow/invalid/unknown) are a
    different component (small filled chips) and are unchanged. */
 .legend-swatch-due        { background: var(--glt); border-color: var(--gmd); }
-.legend-swatch-catchup    { background: var(--alt); border-color: #f0c79a; }
+.legend-swatch-catchup    { background: var(--alt); border-color: var(--amd); }
 .legend-swatch-shared     { background: var(--blt); border-color: var(--bmd); }
 .legend-swatch-neutral    { background: var(--gy6); border-color: var(--gy5); }
-.legend-swatch-valid      { background: var(--glt); border-color: #a5d6a7; }
-.legend-swatch-offwindow  { background: var(--alt); border-color: #f0c79a; }
-.legend-swatch-invalid    { background: var(--rlt); border-color: #ef9a9a; }
+.legend-swatch-valid      { background: var(--glt); border-color: var(--gmd); }
+.legend-swatch-offwindow  { background: var(--alt); border-color: var(--amd); }
+.legend-swatch-invalid    { background: var(--rlt); border-color: var(--rmd); }
 .legend-swatch-unknown    { background: var(--gy6); border-color: var(--gy5); }
 kbd {
   display: inline-flex;
