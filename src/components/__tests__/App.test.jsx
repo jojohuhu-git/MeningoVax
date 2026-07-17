@@ -172,9 +172,10 @@ describe('App wizard', () => {
     expect(pentaCard).not.toBeNull();
   });
 
-  // B2/B3: separate injections are the primary/first option; the single
-  // pentavalent shot is the alternative/second option, with explicit labels.
-  it('orders separate injections before the pentavalent option, with explicit primary/alternative labels', () => {
+  // B2/B3: separate injections are the first option; the single pentavalent
+  // shot is the second option, with explicit labels (D2: no "primary"/
+  // "alternative" qualifiers).
+  it('orders separate injections before the pentavalent option, with explicit labels', () => {
     render(<App />);
     enterAgeYears(23);
     fireEvent.click(getNextBtn());
@@ -188,8 +189,8 @@ describe('App wizard', () => {
 
     const separateLabel = screen.getByTestId('option-separate-label');
     const pentaLabel = screen.getByTestId('option-penta-label');
-    expect(separateLabel.textContent).toMatch(/option 1.*primary.*two separate injections/i);
-    expect(pentaLabel.textContent).toMatch(/option 2.*alternative.*pentavalent/i);
+    expect(separateLabel.textContent).toMatch(/option 1.*two separate injections/i);
+    expect(pentaLabel.textContent).toMatch(/option 2.*pentavalent/i);
 
     // DOM order: separate-injections option comes before the pentavalent card.
     const position = separateLabel.compareDocumentPosition(pentaLabel);

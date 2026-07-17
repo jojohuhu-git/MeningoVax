@@ -236,11 +236,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
         </div>
       )}
 
-      {/* Option 1 (primary): two separate injections — grouped visually when both are due */}
+      {/* Option 1: two separate injections — grouped visually when both are due */}
       <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
         {pentavalent.eligible && (
           <div className="dose-option-label" data-testid="option-separate-label">
-            Option 1 (primary): MenACWY + MenB — two separate injections
+            Option 1: Two separate injections (MenACWY + MenB)
           </div>
         )}
         {acwyDueToday && bDueToday && !pentavalent.eligible && (
@@ -251,7 +251,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
         {/* MenACWY recs */}
         <div className="rec-section">
-          <div className="rec-section-title">MenACWY</div>
+          {!pentavalent.eligible && <div className="rec-section-title">MenACWY</div>}
           {menacwy.map((r, i) => (
             <RecCard
               key={i}
@@ -264,7 +264,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
         {/* MenB recs */}
         <div className="rec-section">
-          <div className="rec-section-title">MenB</div>
+          {!pentavalent.eligible && <div className="rec-section-title">MenB</div>}
           {menb.map((r, i) => (
             <RecCard
               key={i}
@@ -276,45 +276,49 @@ export default function Results({ state, onReset, onChange, onBack }) {
         </div>
       </div>
 
-      {/* Option 2 (alternative): single pentavalent injection — replaces both shots above.
+      {/* Option 2: single pentavalent injection — replaces both shots above.
           E4: one consolidated title (previously repeated "pentavalent (MenABCWY)"
-          in both the option label and the card header). */}
+          in both the option label and the card header). D2: label moved outside
+          .penta-card — the card has overflow:hidden with no padding of its own,
+          so a label rendered inside it clipped against the rounded corner. */}
       {pentavalent.eligible && (
-        <div className="penta-card" data-testid="penta-card">
+        <>
           <div className="dose-option-label" data-testid="option-penta-label">
-            Option 2 (alternative): Pentavalent (MenABCWY)
+            Option 2: One combined injection (pentavalent, MenABCWY)
           </div>
-          <div className="penta-header">
-            <span>Replaces both shots above — do not give both</span>
-          </div>
-          <div className="penta-body">
-            <div className="penta-note">{pentavalent.note}</div>
-            <div className="penta-brands">
-              {(pentavalent.brands || []).map((b, i) => (
-                <div key={i} className="penta-brand">
-                  <span className="rec-brand-dot" />
-                  {stripAntigen(b)}
-                </div>
-              ))}
+          <div className="penta-card" data-testid="penta-card">
+            <div className="penta-header">
+              <span>Replaces both shots above — do not give both</span>
             </div>
-            {pentavalent.citations && pentavalent.citations.length > 0 && (
-              <div className="rec-citations">
-                {pentavalent.citations.map((c, i) => (
-                  <a
-                    key={i}
-                    href={c.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="citation-chip"
-                    title={c.label}
-                  >
-                    {c.short || c.label}
-                  </a>
+            <div className="penta-body">
+              <div className="penta-note">{pentavalent.note}</div>
+              <div className="penta-brands">
+                {(pentavalent.brands || []).map((b, i) => (
+                  <div key={i} className="penta-brand">
+                    <span className="rec-brand-dot" />
+                    {stripAntigen(b)}
+                  </div>
                 ))}
               </div>
-            )}
+              {pentavalent.citations && pentavalent.citations.length > 0 && (
+                <div className="rec-citations">
+                  {pentavalent.citations.map((c, i) => (
+                    <a
+                      key={i}
+                      href={c.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="citation-chip"
+                      title={c.label}
+                    >
+                      {c.short || c.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <Disclaimer />
