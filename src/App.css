@@ -51,6 +51,18 @@
   /* Shadow */
   --sh: 0 2px 8px rgba(0,0,0,0.10);
   --sh2: 0 4px 16px rgba(0,0,0,0.13);
+
+  /* D12: type scale — ~18 ad-hoc font sizes consolidated to these 7 steps.
+     Each existing size was mapped to its nearest step; a handful of pairs
+     that were only 0.02-0.03rem apart (e.g. 0.85/0.88, 0.9/0.95) now share
+     one step since the difference wasn't carrying any real meaning. */
+  --fs-2xs:  0.65rem;
+  --fs-xs:   0.72rem;
+  --fs-sm:   0.78rem;
+  --fs-base: 0.85rem;
+  --fs-md:   0.92rem;
+  --fs-lg:   1.05rem;
+  --fs-xl:   1.2rem;
 }
 
 /* ── Reset / Base ──────────────────────────────────────────────── */
@@ -99,13 +111,13 @@ body {
   height: 36px;
 }
 .app-logo-title {
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--c);
   line-height: 1.2;
 }
 .app-logo-sub {
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   color: var(--gy3);
   line-height: 1.2;
 }
@@ -150,7 +162,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: var(--fs-2xs);
   font-weight: 700;
   color: var(--gy4);
   z-index: 1;
@@ -167,12 +179,15 @@ body {
   color: var(--c);
 }
 .stepper-label {
-  font-size: 0.6rem;
+  font-size: var(--fs-2xs);
   color: var(--gy4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 52px;
+  /* D12: 56px, not 52px — the type-scale sweep bumped this label from a
+     one-off 0.6rem to the shared --fs-2xs (0.65rem), which was just wide
+     enough to clip "MenACWY" into "MenAC…". */
+  max-width: 56px;
   text-align: center;
 }
 .stepper-item.active .stepper-label { color: var(--c); font-weight: 600; }
@@ -221,7 +236,7 @@ body {
   min-height: 44px;
   padding: 0 22px;
   border-radius: var(--rad);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   border: none;
@@ -253,7 +268,7 @@ body {
 .btn-sm {
   min-height: 34px;
   padding: 0 14px;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
 }
 
 /* ── Step cards ────────────────────────────────────────────────── */
@@ -265,13 +280,13 @@ body {
   margin-bottom: 16px;
 }
 .step-title {
-  font-size: 1.2rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--gy);
   margin-bottom: 4px;
 }
 .step-sub {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
   margin-bottom: 20px;
 }
@@ -290,7 +305,7 @@ body {
   border: 1.5px solid var(--gy5);
   background: var(--wh);
   color: var(--gy2);
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -318,7 +333,7 @@ body {
   gap: 4px;
 }
 .age-field label {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
   font-weight: 500;
 }
@@ -328,7 +343,7 @@ body {
   padding: 0 12px;
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   color: var(--gy);
   background: var(--wh);
   width: 110px;
@@ -345,19 +360,19 @@ body {
   border-radius: var(--rads);
   background: var(--clt);
   color: var(--c);
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   margin-top: 4px;
 }
 .age-error {
   color: var(--r);
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   margin-top: 8px;
 }
 .dob-divider {
   text-align: center;
   color: var(--gy4);
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   margin: 8px 0;
 }
 
@@ -391,8 +406,8 @@ body {
   cursor: pointer;
 }
 .risk-text { flex: 1; }
-.risk-label { font-size: 0.95rem; font-weight: 500; color: var(--gy); }
-.risk-sublabel { font-size: 0.8rem; color: var(--gy3); margin-top: 2px; }
+.risk-label { font-size: var(--fs-md); font-weight: 500; color: var(--gy); }
+.risk-sublabel { font-size: var(--fs-sm); color: var(--gy3); margin-top: 2px; }
 .risk-none {
   display: flex;
   align-items: center;
@@ -403,7 +418,7 @@ body {
   border: 1.5px dashed var(--gy5);
   cursor: pointer;
   color: var(--gy3);
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
 }
 .risk-none:hover { background: var(--gy6); }
 .risk-none.selected { border-color: var(--cmd); background: var(--clt); color: var(--c); }
@@ -420,7 +435,7 @@ body {
   border-radius: var(--rads);
   border: 1.5px solid var(--gy5);
   background: var(--wh);
-  font-size: 0.95rem;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
   color: var(--gy2);
@@ -449,7 +464,7 @@ body {
   min-width: 130px;
 }
 .dose-field label {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   font-weight: 500;
 }
@@ -459,7 +474,7 @@ body {
   padding: 0 10px;
   border: 1.5px solid var(--gy5);
   border-radius: var(--rads);
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy);
   background: var(--wh);
   width: 100%;
@@ -476,7 +491,7 @@ body {
   border-radius: var(--rads);
   background: transparent;
   color: var(--gy4);
-  font-size: 1.2rem;
+  font-size: var(--fs-xl);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -500,7 +515,7 @@ body {
   border: 1.5px dashed var(--gy5);
   background: var(--wh);
   color: var(--gy3);
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 .add-dose-btn:hover { border-color: var(--c); color: var(--c); background: var(--clt); }
@@ -510,13 +525,13 @@ body {
   border-radius: var(--rads);
   background: var(--blt);
   border-left: 3px solid var(--b);
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--b);
 }
 
 /* ── Results ───────────────────────────────────────────────────── */
 .results-summary-line {
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
   margin-bottom: 12px;
@@ -529,7 +544,7 @@ body {
   margin-bottom: 16px;
 }
 .results-title {
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
   margin-bottom: 8px;
@@ -550,7 +565,7 @@ body {
   align-items: center;
   padding: 3px 10px;
   border-radius: var(--rads);
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 500;
 }
 .meta-age { background: var(--clt); color: var(--c); }
@@ -558,14 +573,28 @@ body {
 .meta-risk { background: var(--rlt); color: var(--r); }
 .meta-norisk { background: var(--gy6); color: var(--gy3); }
 
+/* D12: shared base for the app's all-caps letterspaced micro-labels —
+   replaces five near-duplicate rules with one aggregate plus a per-label
+   override for whichever single property actually varies (size, weight, or
+   color). .rec-dose-due-tag/.rec-dose-notyet-tag are currently unused in
+   JSX but kept composing this base for when they are wired up. */
+.micro-label,
+.rec-section-title,
+.rec-progress-label,
+.rec-dose-due-tag,
+.rec-dose-notyet-tag,
+.rec-brands-title {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gy3);
+}
+
 /* ── Rec cards ─────────────────────────────────────────────────── */
 .rec-section { margin-bottom: 16px; }
 .rec-section-title {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--gy3);
+  font-size: var(--fs-sm);
   margin-bottom: 8px;
   padding: 0 4px;
 }
@@ -601,7 +630,7 @@ body {
 .rec-card.timing-neutral .rec-card-head { background: var(--gy6); }
 .rec-card-inner { padding: 16px 18px; }
 .rec-vaccine-name {
-  font-size: 1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--gy);
 }
@@ -617,7 +646,7 @@ body {
    (risk-based purple/--p, due/routine green/--g, etc.) so a clinician who
    used the app before still reads the same reason vocabulary. */
 .status-badge {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
@@ -641,7 +670,7 @@ body {
 }
 .rec-card-collapsed .rec-card-head { border-bottom: none; }
 .rec-card-collapsed-reason {
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
 }
 /* Series progress — recorded doses vs the dose now due */
@@ -652,42 +681,22 @@ body {
   padding: 7px 10px;
   margin-bottom: 8px;
 }
-.rec-progress-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--gy3);
-}
 .rec-progress-list {
   list-style: none;
   margin: 3px 0 0;
   padding: 0;
 }
 .rec-progress-list li {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   padding: 1px 0;
 }
-.rec-dose-due-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--c);
-}
+.rec-dose-due-tag { color: var(--c); }
 /* "Upcoming:" tag — used when dose is not yet due (future earliestNextDate) */
-.rec-dose-notyet-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--gy3);
-}
 
 /* Inline age editor (StepAge hint + Results "Adjust age") */
 .age-precise-hint {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--gy3);
   margin-bottom: 6px;
@@ -701,7 +710,7 @@ body {
      border doesn't push it 2px taller than the borderless .meta-chip
      it wraps alongside — both measure 21px tall. */
   padding: 2px 10px;
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
 }
@@ -714,12 +723,12 @@ body {
   flex-wrap: wrap;
 }
 .age-edit-hint {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   align-self: center;
 }
 .next-date {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy3);
   margin-bottom: 6px;
 }
@@ -728,7 +737,7 @@ body {
    will need to happen), but text-only (no full-card fill change). */
 .booster-due-banner {
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--a);
   background: var(--alt);
@@ -738,7 +747,7 @@ body {
   margin-bottom: 8px;
 }
 .rec-dose-label {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
   margin-bottom: 8px;
@@ -747,18 +756,15 @@ body {
   margin-bottom: 10px;
 }
 .rec-brands-title {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--gy3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   margin-bottom: 5px;
 }
 .rec-brand-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy);
   padding: 2px 0;
 }
@@ -770,13 +776,13 @@ body {
   flex-shrink: 0;
 }
 .rec-brands-helper {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   font-style: italic;
   margin-top: 4px;
 }
 .rec-note {
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
   margin-bottom: 10px;
@@ -800,7 +806,7 @@ body {
   background: var(--gy6);
   border: 1px solid var(--gy5);
   color: var(--c);
-  font-size: 0.75rem;
+  font-size: var(--fs-sm);
   text-decoration: none;
   /* Mobile-safe: chip never overflows the card */
   min-width: 0;
@@ -830,7 +836,7 @@ body {
 }
 .rec-progress-dose-row:last-child { border-bottom: none; }
 .rec-progress-dose-text {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   flex: 1 1 auto;
   min-width: 0;
@@ -848,7 +854,7 @@ body {
   align-items: center;
   padding: 1px 7px;
   border-radius: var(--rads);
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   flex-shrink: 0;
@@ -866,13 +872,13 @@ body {
   min-width: 0;
 }
 .dose-val-reason {
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy2);
   line-height: 1.4;
 }
 /* Dimmed technical detail line */
 .dose-val-detail {
-  font-size: 0.72rem;
+  font-size: var(--fs-xs);
   color: var(--gy3);
   line-height: 1.4;
 }
@@ -887,7 +893,7 @@ body {
   align-items: center;
   padding: 1px 6px;
   border-radius: var(--rads);
-  font-size: 0.7rem;
+  font-size: var(--fs-xs);
   font-weight: 600;
   background: var(--glt);
   color: var(--g);
@@ -897,7 +903,7 @@ body {
 
 /* ── B2/B3: two-options header + per-option labels ───────────────── */
 .dose-options-header {
-  font-size: 0.92rem;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--gy);
   margin-bottom: 10px;
@@ -910,7 +916,7 @@ body {
    a clinical-timing signal. */
 .dose-option-label {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   padding: 10px 16px;
 }
 .separate-vaccines-group .dose-option-label { background: var(--clt); color: var(--c); }
@@ -923,7 +929,7 @@ body {
   border: 1px solid var(--cmd);
   border-radius: var(--rads);
   padding: 10px 14px;
-  font-size: 0.83rem;
+  font-size: var(--fs-base);
   color: var(--c);
   margin-bottom: 14px;
   line-height: 1.5;
@@ -971,19 +977,19 @@ body {
 .penta-header {
   background: var(--pentahdr);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--penta);
   padding: 10px 16px;
 }
 .penta-body { padding: 16px 20px 20px; }
 .penta-replaces {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--penta);
   margin-bottom: 10px;
 }
 .penta-note {
-  font-size: 0.85rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.55;
   margin-bottom: 10px;
@@ -995,7 +1001,7 @@ body {
   margin-bottom: 12px;
 }
 .penta-brand {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   color: var(--gy);
   display: flex;
   align-items: center;
@@ -1008,7 +1014,7 @@ body {
   border-radius: var(--rads);
   padding: 14px 16px;
   margin-top: 20px;
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
   line-height: 1.5;
   border-left: 3px solid var(--gy5);
@@ -1040,23 +1046,23 @@ body {
   margin-bottom: 16px;
 }
 .advisory-banner-title {
-  font-size: 0.9rem;
+  font-size: var(--fs-md);
   font-weight: 700;
   margin-bottom: 6px;
 }
 .advisory-banner-flag {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   margin-bottom: 10px;
   font-style: italic;
 }
 .advisory-dose-line {
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   margin-bottom: 4px;
 }
 .advisory-note {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   line-height: 1.5;
   margin-bottom: 8px;
@@ -1064,14 +1070,14 @@ body {
 /* Dose history edit panel */
 .history-edit-summary {
   cursor: pointer;
-  font-size: 0.88rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
   padding: 6px 0;
   user-select: none;
 }
 .history-edit-section-title {
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--gy2);
   margin: 10px 0 4px;
@@ -1082,7 +1088,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
+  font-size: var(--fs-base);
   color: var(--gy2);
   padding: 3px 0;
 }
@@ -1113,7 +1119,7 @@ kbd {
   background: var(--gy6);
   color: var(--gy);
   font-family: inherit;
-  font-size: 0.76rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   justify-content: center;
 }
@@ -1121,6 +1127,6 @@ kbd {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.78rem;
+  font-size: var(--fs-sm);
   color: var(--gy3);
 }
