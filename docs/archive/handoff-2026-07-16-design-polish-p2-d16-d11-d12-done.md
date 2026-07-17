@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after P2 design-polish, D16+D11+D12 done (2026-07-16)
 
+**SUPERSEDED** by [handoff-2026-07-16-design-polish-p2-complete.md](handoff-2026-07-16-design-polish-p2-complete.md)
+— D15 and D13b (this file's "not done" queue) are now both done too, and P2 is fully
+wrapped. Read the newer file for the current state.
+
 **Supersedes** [handoff-2026-07-16-design-polish-p2-partial.md](handoff-2026-07-16-design-polish-p2-partial.md)
 — that file's "what's done" (D4/D5/D9/D10) is still accurate background, but its "not done"
 queue is stale: D11 and D12 are now done too. Read this file for the current state.
