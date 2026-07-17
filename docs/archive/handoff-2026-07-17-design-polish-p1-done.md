@@ -1,5 +1,11 @@
 # MeningoVax — Handoff after design-polish P1 (2026-07-17)
 
+> **STATUS: superseded for P2.** P1 (below) is still accurate as history. For P2 progress
+> (D4/D5/D9/D10 done, D11–D13b remaining) and the resume map, see
+> [handoff-2026-07-16-design-polish-p2-partial.md](handoff-2026-07-16-design-polish-p2-partial.md).
+> Note in particular: D9 shipped as a colored **header bar**, not the left-edge accent this
+> file's linked plan originally specified — the owner rejected the left-edge design live.
+
 Branch: `fix/2026-07-13-audit-queue`, off `main`. **Pushed** — matches
 `origin/fix/2026-07-13-audit-queue` exactly, joins the existing **open, unmerged PR**:
 https://github.com/jojohuhu-git/MeningoVax/pull/4 (MeningoVax's `main` isn't
