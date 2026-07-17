@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { recommend } from '../logic/recommend.js';
 import { analyzeHistory } from '../logic/validate.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
@@ -25,6 +25,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
   const [editingAge, setEditingAge] = useState(false);
   const [editingDoses, setEditingDoses] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
+  const [activeDoseSection, setActiveDoseSection] = useState('acwy');
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
@@ -73,6 +74,25 @@ export default function Results({ state, onReset, onChange, onBack }) {
     );
   }
 
+  // D6b: Ctrl+A (Cmd+A on Mac) adds a dose row in the Recorded-doses editor,
+  // matching StepHistory's shortcut. Two dose lists share the panel, so the
+  // shortcut targets whichever section (MenACWY or MenB) the user last
+  // interacted with (activeDoseSection, tracked via onFocusCapture below --
+  // document.activeElement isn't reliable here since focus can be lost when
+  // a row is added and the list re-renders).
+  useEffect(() => {
+    if (!editingDoses) return;
+    function handleKeydown(e) {
+      const isAddDoseShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
+      if (!isAddDoseShortcut) return;
+      e.preventDefault();
+      if (activeDoseSection === 'menb') addB(); else addAcwy();
+    }
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingDoses, activeDoseSection, menacwyDoses, menbDoses]);
+
   return (
     <div>
       {/* Summary header */}
@@ -106,7 +126,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <button
                 type="button"
                 className="age-edit-btn"
-                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); }}
+                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); setActiveDoseSection('acwy'); }}
                 aria-expanded={editingDoses}
               >
                 {`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} />
@@ -148,7 +168,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
             style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
 
             {/* MenACWY doses */}
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%' }} onFocusCapture={() => setActiveDoseSection('acwy')}>
               <div className="history-edit-section-title">MenACWY doses</div>
               {menacwyDoses.length === 0 && (
                 <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
@@ -171,11 +191,14 @@ export default function Results({ state, onReset, onChange, onBack }) {
                     aria-label={`Remove MenACWY dose ${i + 1}`}>×</button>
                 </div>
               ))}
-              <button className="add-dose-btn" onClick={addAcwy}>+ Add MenACWY dose</button>
+              <div className="add-dose-row">
+                <button className="add-dose-btn" onClick={addAcwy}>+ Add MenACWY dose</button>
+                <kbd>Ctrl/Cmd + A</kbd>
+              </div>
             </div>
 
             {/* MenB doses */}
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%' }} onFocusCapture={() => setActiveDoseSection('menb')}>
               <div className="history-edit-section-title">MenB doses</div>
               {menbDoses.length === 0 && (
                 <div style={{ fontSize: '0.82rem', color: 'var(--gy4)', marginBottom: 4 }}>
@@ -198,7 +221,10 @@ export default function Results({ state, onReset, onChange, onBack }) {
                     aria-label={`Remove MenB dose ${i + 1}`}>×</button>
                 </div>
               ))}
-              <button className="add-dose-btn" onClick={addB}>+ Add MenB dose</button>
+              <div className="add-dose-row">
+                <button className="add-dose-btn" onClick={addB}>+ Add MenB dose</button>
+                <kbd>Ctrl/Cmd + A</kbd>
+              </div>
             </div>
 
             <span className="age-edit-hint">Changes update recommendations immediately.</span>

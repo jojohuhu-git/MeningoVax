@@ -140,9 +140,12 @@ export default function App() {
             ) : (
               <span />
             )}
-            <button className="btn btn-next" onClick={goNext}>
-              {state.step === 3 ? 'View Results' : 'Next'}
-            </button>
+            <span className="app-nav-next">
+              <button className="btn btn-next" onClick={goNext}>
+                {state.step === 3 ? 'View Results' : 'Next'}
+              </button>
+              <span className="shortcut-hint">or press Enter</span>
+            </span>
           </div>
         </div>
       )}

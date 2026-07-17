@@ -126,13 +126,16 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
             </div>
           )}
 
-          <button className="add-dose-btn" onClick={addDose} accessKey="a" title="Add dose (Ctrl/Cmd+A)">
-            {/* E7: one child span, not three sibling nodes — the button is
-                display:flex with a gap, which was inserting extra space
-                between every child, including the anonymous text nodes
-                around <u>, visually splitting "Add" into "A" + gap + "dd". */}
-            <span>+ <u>A</u>dd dose</span>
-          </button>
+          <div className="add-dose-row">
+            <button className="add-dose-btn" onClick={addDose} accessKey="a" title="Add dose (Ctrl/Cmd+A)">
+              {/* E7: one child span, not three sibling nodes — the button is
+                  display:flex with a gap, which was inserting extra space
+                  between every child, including the anonymous text nodes
+                  around <u>, visually splitting "Add" into "A" + gap + "dd". */}
+              <span>+ <u>A</u>dd dose</span>
+            </button>
+            <kbd>Ctrl/Cmd + A</kbd>
+          </div>
         </>
       )}
 
