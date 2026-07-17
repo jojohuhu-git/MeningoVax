@@ -214,7 +214,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <div style={{ width: '100%' }}>
               <div className="history-edit-section-title">Recorded-dose validity colors</div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>On time</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid — off-window (counted, but outside the routine timing)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid (off-window): counted, but outside the routine timing</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
             </div>
@@ -232,7 +232,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
           the single pentavalent shot (alternative that REPLACES both) second. */}
       {pentavalent.eligible && (
         <div className="dose-options-header" data-testid="dose-options-header">
-          Both MenACWY and MenB are due today — two ways to give them:
+          Both MenACWY and MenB are due today: two ways to give them:
         </div>
       )}
 
@@ -245,7 +245,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
         )}
         {acwyDueToday && bDueToday && !pentavalent.eligible && (
           <div className="dual-due-banner" data-testid="dual-due-banner">
-            These are two separate vaccines — both are due today. Within each, choose one brand.
+            These are two separate vaccines. Both are due today. Within each, choose one brand.
           </div>
         )}
 
@@ -290,7 +290,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
           </div>
           <div className="penta-card" data-testid="penta-card">
             <div className="penta-header">
-              <span>Replaces both shots above — do not give both</span>
+              <span>Replaces both shots above: do not give both</span>
             </div>
             <div className="penta-body">
               <div className="penta-note">{pentavalent.note}</div>

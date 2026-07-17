@@ -45,7 +45,7 @@ function DoseValidation({ result }) {
         : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
-    ? 'Valid — off-window'
+    ? 'Valid (off-window)'
     : status === 'valid' ? 'On time' : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   // Only show reasons when non-empty AND not a bare 'valid' with no notes.
@@ -115,7 +115,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             done state — call it out with its own emphasized line and date. */}
         {boosterDueDate && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            Booster still due — approximately {fmtDate(boosterDueDate)}
+            Booster still due: approximately {fmtDate(boosterDueDate)}
           </div>
         )}
 
@@ -127,7 +127,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
 
         {brands && brands.length > 0 && !isNeutral && (
           <div className="rec-brands">
-            <div className="rec-brands-title">Brand options — choose one</div>
+            <div className="rec-brands-title">Brand options: choose one</div>
             {brands.map((b, i) => (
               <div key={i} className="rec-brand-item">
                 <span className="rec-brand-dot" />

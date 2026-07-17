@@ -200,13 +200,13 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
     if (knownBrandMin !== null && ageMonths < knownBrandMin) {
       const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
         `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandMin)}.`
       );
     }
     const minAgeM = knownBrandMin ?? MIN_AGE_MENACWY_PERMISSIVE_MONTHS;
     return unknownResult([
-      `No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
+      `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
     ]);
   }
 
@@ -225,7 +225,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
       ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
       : 'this brand';
     return invalidResult(
-      [`Given at ~${fmtAgeMClinical(ageAtDose)} — below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}.`],
+      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}.`],
       `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum for ${brandLabel}: ${fmtMinAge(minAgeM)}.`
     );
   }
@@ -243,7 +243,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
   if (menacwyRiskClass(riskIds) !== 'primary2' && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
-      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}) — does not count toward the adolescent MenACWY series.`],
+      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
       notAdolescentCount: true,
     };
   }
@@ -270,7 +270,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
         const minLabel = isInfant ? '4 weeks (infant high-risk series)' : '8 weeks (high-risk primary series)';
         if (interval < minInterval) {
           return invalidResult(
-            [`Given only ${fmtDays(interval)} after the previous dose — minimum interval is ${minLabel}.`],
+            [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval is ${minLabel}.`],
             `Actual interval: ${interval} days. Minimum: ${minInterval} days.`
           );
         }
@@ -304,7 +304,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
 
         if (interval < cadenceDays) {
           return invalidResult(
-            [`Booster given only ${fmtDays(interval)} after the previous dose — high-risk MenACWY boosters must be spaced ≥${cadenceLabel} (${cadenceDays} days). This dose is too soon and does not count.`],
+            [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel} (${cadenceDays} days). This dose is too soon and does not count.`],
             `Actual interval: ${interval} days. Required cadence: ${cadenceDays} days (${cadenceLabel}).`
           );
         }
@@ -317,7 +317,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
       // NOTE: position-based logic (routine 11-12y vs 16y booster) stays in the engine.
       if (interval < MENACWY_BASELINE_MIN_INTERVAL) {
         return invalidResult(
-          [`Given only ${fmtDays(interval)} after the previous dose — minimum interval between any two MenACWY doses is 4 weeks (28 days).`],
+          [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks (28 days).`],
           `Actual interval: ${interval} days. Minimum: ${MENACWY_BASELINE_MIN_INTERVAL} days.`
         );
       }
@@ -343,12 +343,12 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
         ? brand.replace(/\s*\(Men(?:B|ACWY|ABCWY)\).*/, '')
         : 'MenB';
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. This dose does not count.`],
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. This dose does not count.`],
         `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`
       );
     }
     return unknownResult([
-      `No date recorded — cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
+      `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
     ]);
   }
 
@@ -368,7 +368,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
 
   if (ageAtDose !== null && ageAtDose < minAgeM) {
     return invalidResult(
-      [`Given at ~${fmtAgeMClinical(ageAtDose)} — below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.`],
+      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.`],
       `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`
     );
   }
@@ -391,9 +391,9 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       if (d1Family && thisFamily && d1Family !== thisFamily) {
         return invalidResult(
           [
-            `MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are not interchangeable — this dose must match the established antigen family (${d1Family}), but was given as ${thisFamily}.`,
+            `MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are not interchangeable: this dose must match the established antigen family (${d1Family}), but was given as ${thisFamily}.`,
           ],
-          `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${brand} (family: ${thisFamily}). Does not count — give the correct dose in the ${d1Family} family.`
+          `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${brand} (family: ${thisFamily}). Does not count: give the correct dose in the ${d1Family} family.`
         );
       }
     }
@@ -412,7 +412,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       const interval = daysBetween(prevKeptDated.date, dose.date);
       if (interval < MENB_HR_D2_MIN_INTERVAL) {
         return invalidResult(
-          [`Given only ${fmtDays(interval)} after dose 1 — high-risk schedule requires ≥4 weeks (28 days) between D1 and D2.`],
+          [`Given only ${fmtDays(interval)} after dose 1. High-risk schedule requires ≥4 weeks (28 days) between D1 and D2.`],
           `Actual interval: ${interval} days. Minimum: ${MENB_HR_D2_MIN_INTERVAL} days.`
         );
       }
@@ -430,14 +430,14 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       if (d1Date) {
         const fromD1 = daysBetween(d1Date, dose.date);
         if (fromD1 < MENB_HR_D3_MIN_FROM_D1) {
-          reasons.push(`Given only ${fmtDays(fromD1)} after dose 1 — high-risk D3 requires ≥6 months (~${MENB_HR_D3_MIN_FROM_D1} days) from D1.`);
+          reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months (~${MENB_HR_D3_MIN_FROM_D1} days) from D1.`);
           detail += `D1→D3: ${fromD1} days (min ${MENB_HR_D3_MIN_FROM_D1}). `;
         }
       }
       if (d2Date) {
         const fromD2 = daysBetween(d2Date, dose.date);
         if (fromD2 < MENB_HR_D3_MIN_FROM_D2) {
-          reasons.push(`Given only ${fmtDays(fromD2)} after dose 2 — high-risk D3 requires ≥4 months (~${MENB_HR_D3_MIN_FROM_D2} days) from D2.`);
+          reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months (~${MENB_HR_D3_MIN_FROM_D2} days) from D2.`);
           detail += `D2→D3: ${fromD2} days (min ${MENB_HR_D3_MIN_FROM_D2}).`;
         }
       }
@@ -465,7 +465,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
 
         if (interval < minInterval) {
           return invalidResult(
-            [`MenB booster given only ${fmtDays(interval)} after the previous dose — minimum is ${minLabel}. This dose does not count.`],
+            [`MenB booster given only ${fmtDays(interval)} after the previous dose. Minimum is ${minLabel}. This dose does not count.`],
             `Actual interval: ${interval} days. Minimum: ${minInterval} days.`
           );
         }
@@ -487,7 +487,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       const interval = daysBetween(prevKeptDated.date, dose.date);
       if (interval < MENB_HEALTHY_D2_MIN_INTERVAL) {
         return validResult([
-          `Dose 2 was given ${fmtDays(interval)} after dose 1 — less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
+          `Dose 2 was given ${fmtDays(interval)} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
         ]);
       }
     }
@@ -506,7 +506,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
         const fromD2 = daysBetween(d2Date, dose.date);
         if (fromD2 < MENB_RESCUE_D3_MIN_FROM_D2) {
           return invalidResult(
-            [`Rescue dose given only ${fmtDays(fromD2)} after dose 2 — must be ≥4 months (~${MENB_RESCUE_D3_MIN_FROM_D2} days) after the early dose 2.`],
+            [`Rescue dose given only ${fmtDays(fromD2)} after dose 2. Must be ≥4 months (~${MENB_RESCUE_D3_MIN_FROM_D2} days) after the early dose 2.`],
             `D2→D3: ${fromD2} days (min ${MENB_RESCUE_D3_MIN_FROM_D2}).`
           );
         }
@@ -556,7 +556,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
         doesNotCount: true,
         reasons: [
           ...result.reasons,
-          'This dose does not count toward the series — repeat this dose only (do not restart the series).',
+          'This dose does not count toward the series: repeat this dose only (do not restart the series).',
         ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.

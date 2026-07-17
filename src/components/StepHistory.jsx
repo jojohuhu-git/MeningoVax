@@ -46,9 +46,9 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
   const lockedFamily = vaccine === 'MenB' ? menbFamily(firstBrand) : null;
 
   const familyLabel = lockedFamily === '4C'
-    ? 'Family locked: MenB-4C — continue with Bexsero or Penmenvy'
+    ? 'Family locked: MenB-4C (continue with Bexsero or Penmenvy)'
     : lockedFamily === 'FHbp'
-    ? 'Family locked: MenB-FHbp — continue with Trumenba or Penbraya'
+    ? 'Family locked: MenB-FHbp (continue with Trumenba or Penbraya)'
     : null;
 
   return (
@@ -122,7 +122,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
 
           {vaccine === 'MenB' && doses.length > 0 && !lockedFamily && doses[0]?.brand === '' && (
             <div className="family-note" style={{ borderLeftColor: 'var(--gy4)', background: 'var(--gy6)', color: 'var(--gy3)' }}>
-              Brand unknown — both MenB families remain open. Once a brand is selected for dose 1, the engine will lock the series to that antigen family.
+              Brand unknown: both MenB families remain open. Once a brand is selected for dose 1, the engine will lock the series to that antigen family.
             </div>
           )}
 

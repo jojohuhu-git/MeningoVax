@@ -31,7 +31,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     expect(chip.className).toMatch(/dose-val-valid/);
   });
 
-  it('labels a pre-age-10 dose "Valid — off-window" (amber), never "Invalid"', () => {
+  it('labels a pre-age-10 dose "Valid (off-window)" (amber), never "Invalid"', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -40,11 +40,11 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
           status: 'valid',
           notAdolescentCount: true,
           effectiveDoseNum: null,
-          reasons: ['Given before age 10 (~9 years) — does not count toward the adolescent MenACWY series.'],
+          reasons: ['Given before age 10 (~9 years): does not count toward the adolescent MenACWY series.'],
         }]}
       />
     );
-    const chip = screen.getByText('Valid — off-window');
+    const chip = screen.getByText('Valid (off-window)');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     expect(screen.queryByText('Invalid')).toBeNull();
   });
@@ -54,7 +54,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
       <RecCard
         rec={baseRec}
         doses={[{ date: '2024-01-01', brand: '' }]}
-        doseValidations={[{ status: 'invalid', reasons: ['Given too soon after the prior dose — does not count.'] }]}
+        doseValidations={[{ status: 'invalid', reasons: ['Given too soon after the prior dose: does not count.'] }]}
       />
     );
     const chip = screen.getByText('Invalid');

@@ -54,7 +54,7 @@ export default function StepAge({ ageMonths, error, onChange }) {
   return (
     <div className="step-card">
       <div className="step-title">Patient Age</div>
-      <div className="step-sub">Date of birth is recommended — it lets dose dates be checked precisely (e.g. against the 16th birthday)</div>
+      <div className="step-sub">Date of birth is recommended: it lets dose dates be checked precisely (e.g. against the 16th birthday)</div>
 
       {/* Entry mode tabs — DOB first/default; Years/Months is the fallback for when DOB is genuinely unknown */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
@@ -91,7 +91,7 @@ export default function StepAge({ ageMonths, error, onChange }) {
       {mode === 'precise' && (
         <>
         <div className="age-precise-hint">
-          Approximate age only — without a date of birth, the app can't verify whether a
+          Approximate age only. Without a date of birth, the app can't verify whether a
           recorded dose was given on/after a specific birthday (e.g. the 16-year MenACWY
           booster). Enter the date of birth above when it's available.
         </div>

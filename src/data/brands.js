@@ -50,7 +50,7 @@ export const MENACWY_BRANDS = [
   },
   {
     key: 'Menactra',
-    label: 'Menactra (MenACWY) — discontinued',
+    label: 'Menactra (MenACWY, discontinued)',
     mfr: 'Sanofi',
     minAgeM: 9,
     maxAgeM: 999,
