@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after design-polish P0 (2026-07-16)
 
+> **Superseded** — P1 (D7, D8, D6, D6b, D1) from this queue is now done and pushed. See
+> [handoff-2026-07-17-design-polish-p1-done.md](handoff-2026-07-17-design-polish-p1-done.md)
+> for current state and the remaining P2 queue.
+
 Branch: `fix/2026-07-13-audit-queue`, off `main`. **Pushed** — matches
 `origin/fix/2026-07-13-audit-queue` exactly, joins the existing **open, unmerged PR**:
 https://github.com/jojohuhu-git/MeningoVax/pull/4 (MeningoVax's `main` isn't
