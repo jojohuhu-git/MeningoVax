@@ -24,8 +24,8 @@ function weeksAgo(w)  { return addDays(TODAY, -(w * 7)); }
 function daysAgo(d)   { return addDays(TODAY, -d); }
 function yearsAgo(y)  { return addDays(TODAY, -Math.round(y * 365.25)); }
 
-function validate(vaccine, doses, ageMonths, riskIds = []) {
-  return validateHistory(vaccine, doses, ageMonths, riskIds, TODAY);
+function validate(vaccine, doses, ageMonths, riskIds = [], riskAtDoseAnswers) {
+  return validateHistory(vaccine, doses, ageMonths, riskIds, TODAY, riskAtDoseAnswers);
 }
 
 function analyze(vaccine, doses, ageMonths, riskIds = []) {
@@ -127,12 +127,15 @@ describe('Task 2a — MenACWY high-risk booster given too soon → invalid', () 
     // D3 (booster) only 2 years after D2 → invalid.
     const d1 = monthsAgo(96); // ageAtDose ≈ 2y
     const d2 = monthsAgo(84); // ageAtDose ≈ 3y (≥8wk after D1)
-    const d3 = monthsAgo(60); // 2y after D2 → below 3-year cadence
+    const d3 = monthsAgo(60); // 2y after D2 → below 3-year cadence; ageAtDose ≈ 5y
+    // All three doses are before age 10 to a high-risk-now patient — ambiguous
+    // (2026-07-23 handoff §2-§3); answered 'yes' to preserve this test's
+    // "already high-risk" intent so the cadence violation is still reachable.
     const results = validate('MenACWY', [
       { date: d1, brand: 'Menveo (MenACWY)' },
       { date: d2, brand: 'Menveo (MenACWY)' },
       { date: d3, brand: 'Menveo (MenACWY)' },
-    ], 120, ['asplenia']);
+    ], 120, ['asplenia'], { 0: 'yes', 1: 'yes', 2: 'yes' });
     expect(results[2].status).toBe('invalid');
     expect(results[2].reasons[0]).toMatch(/3 years/i);
   });
@@ -519,11 +522,13 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     const d1 = monthsAgo(72); // ageAtDose ≈ 4y
     const d2 = monthsAgo(60); // ageAtDose ≈ 5y
     const d3 = monthsAgo(36); // 2y after D2 → too soon for 3y cadence
+    // All three doses are before age 10 to a high-risk-now patient —
+    // ambiguous (2026-07-23 handoff §2-§3); answered 'yes' throughout.
     const results = validate('MenACWY', [
       { date: d1, brand: 'Menveo (MenACWY)' },
       { date: d2, brand: 'Menveo (MenACWY)' },
       { date: d3, brand: 'Menveo (MenACWY)' },
-    ], 120, ['asplenia']);
+    ], 120, ['asplenia'], { 0: 'yes', 1: 'yes', 2: 'yes' });
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('valid');
     expect(results[2].status).toBe('invalid');
@@ -535,11 +540,13 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     const d1 = monthsAgo(96);  // ageAtDose ≈ 4y
     const d2 = monthsAgo(84);  // ageAtDose ≈ 5y
     const d3 = monthsAgo(36);  // 4y after D2 → satisfies 3y cadence
+    // All three doses are before age 10 to a high-risk-now patient —
+    // ambiguous (2026-07-23 handoff §2-§3); answered 'yes' throughout.
     const results = validate('MenACWY', [
       { date: d1, brand: 'Menveo (MenACWY)' },
       { date: d2, brand: 'Menveo (MenACWY)' },
       { date: d3, brand: 'Menveo (MenACWY)' },
-    ], 120, ['asplenia']);
+    ], 120, ['asplenia'], { 0: 'yes', 1: 'yes', 2: 'yes' });
     expect(results[2].status).toBe('valid');
   });
 
@@ -548,14 +555,16 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     // D4 given only 3 years after D3 → invalid.
     const d1 = monthsAgo(180); // ageAtDose ≈ 4y  (patient now 19y = 228mo)
     const d2 = monthsAgo(168); // ageAtDose ≈ 5y
-    const d3 = monthsAgo(120); // first booster (4y after D2, ≥3y) → valid
-    const d4 = monthsAgo(84);  // 3y after D3 → needs 5y for subsequent → invalid
+    const d3 = monthsAgo(120); // first booster (4y after D2, ≥3y) → valid; ageAtDose ≈ 9y
+    const d4 = monthsAgo(84);  // 3y after D3 → needs 5y for subsequent → invalid; ageAtDose ≈ 12y (not ambiguous)
+    // D1-D3 are before age 10 to a high-risk-now patient — ambiguous
+    // (2026-07-23 handoff §2-§3); answered 'yes'. D4 is past the threshold.
     const results = validate('MenACWY', [
       { date: d1, brand: 'Menveo (MenACWY)' },
       { date: d2, brand: 'Menveo (MenACWY)' },
       { date: d3, brand: 'Menveo (MenACWY)' },
       { date: d4, brand: 'Menveo (MenACWY)' },
-    ], 228, ['asplenia']);
+    ], 228, ['asplenia'], { 0: 'yes', 1: 'yes', 2: 'yes' });
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('valid');
     expect(results[2].status).toBe('valid'); // first booster: 4y ≥ 3y → valid
@@ -569,11 +578,15 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     const d1 = monthsAgo(120); // ageAtDose ≈ 10y (patient now 20y = 240mo)
     const d2 = monthsAgo(108); // ageAtDose ≈ 11y
     const d3 = monthsAgo(72);  // 3y after D2 → needs 5y → invalid
+    // D1's age-at-dose lands right at the 10y boundary — monthsAgo()'s
+    // day-based approximation can land it fractionally under 120 months,
+    // which triggers the ambiguity prompt (2026-07-23 handoff §2-§3).
+    // Answered 'yes' to preserve this test's "already high-risk" intent.
     const results = validate('MenACWY', [
       { date: d1, brand: 'Menveo (MenACWY)' },
       { date: d2, brand: 'Menveo (MenACWY)' },
       { date: d3, brand: 'Menveo (MenACWY)' },
-    ], 240, ['asplenia']);
+    ], 240, ['asplenia'], { 0: 'yes' });
     expect(results[2].status).toBe('invalid');
     expect(results[2].reasons[0]).toMatch(/5 years/i);
   });

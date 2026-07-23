@@ -315,12 +315,16 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
   it('Case A: primary <7y — first booster (given===2) → minIntervalDays 1095', () => {
     // Patient now 10y (120mo). D1 at age 4y (monthsBack(72)), D2 at age 5y (monthsBack(60)).
     // Both doses before age 7 → first booster cadence: 3 years.
+    // Both doses are before age 10 to a high-risk-now patient — ambiguous
+    // (risk-at-dose prompt, 2026-07-23 handoff §2-§3), answered 'yes' to
+    // preserve this test's "already high-risk" intent.
     const r = run({
       ageMonths: 120, riskIds: ['asplenia'],
       menacwyDoses: [
         { date: monthsBack(72) },  // ageAtDose ≈ 4y
         { date: monthsBack(60) },  // ageAtDose ≈ 5y
       ],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseNum).toBe(3);
@@ -331,6 +335,8 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
   it('Case A2: primary <7y — subsequent booster (given===3) → ALWAYS minIntervalDays 1826', () => {
     // Patient now 15y (180mo). Primary ended at 5y; first booster at 8y (3y cadence, valid).
     // Now needs second booster (given===3) → must be 5 years.
+    // All three doses (4y, 5y, 8y) are before age 10 — ambiguous, all
+    // answered 'yes' (2026-07-23 handoff §2-§3).
     const r = run({
       ageMonths: 180, riskIds: ['asplenia'],
       menacwyDoses: [
@@ -338,6 +344,7 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
         { date: monthsBack(120) }, // ageAtDose ≈ 5y
         { date: monthsBack(84)  }, // first booster at age 8y (3y after D2)
       ],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes', 2: 'yes' } },
     });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseNum).toBe(4);

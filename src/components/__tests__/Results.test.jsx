@@ -162,3 +162,45 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     expect(summary.textContent).not.toMatch(/optional/i);
   });
 });
+
+// §2-3 (2026-07-23 handoff): answering the risk-at-dose "Needs input" prompt
+// updates state.riskAtDoseAnswers and the recommendation re-renders live --
+// same onChange -> state -> re-render cycle as every other editable field.
+describe('Risk-at-dose "Needs input" prompt updates live', () => {
+  it('answering "Yes" on an ambiguous high-risk dose resolves the chip to "Counts" and updates the dose count', () => {
+    render(
+      <Harness
+        initial={baseState({
+          ageMonths: 120, // 10y, high-risk (asplenia)
+          menacwyDoses: [{ date: '2020-01-15', brand: 'Menveo (MenACWY)' }], // given ~4y
+        })}
+      />
+    );
+
+    expect(screen.getByText('Needs input')).toBeTruthy();
+    expect(screen.queryByText('Counts')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(screen.queryByText('Needs input')).toBeNull();
+    expect(screen.getByText('Counts')).toBeTruthy();
+    expect(screen.getByText('Effective dose 1')).toBeTruthy();
+  });
+
+  it('answering "No" resolves the chip to "Off-window — repeat" and the dose still does not count', () => {
+    render(
+      <Harness
+        initial={baseState({
+          ageMonths: 120,
+          menacwyDoses: [{ date: '2020-01-15', brand: 'Menveo (MenACWY)' }],
+        })}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'No' }));
+
+    expect(screen.queryByText('Needs input')).toBeNull();
+    expect(screen.getByText('Off-window — repeat')).toBeTruthy();
+    expect(screen.queryByText('Effective dose 1')).toBeNull();
+  });
+});

@@ -38,9 +38,31 @@ function describeDose(dose, idx, ageMonths, today) {
 //   Invalid (red) — a true error: below the product floor, incompatible
 //     MenB antigen family, or a spacing violation. Disregard the dose.
 //   Unknown (gray) — no date; can't verify.
-function DoseValidation({ result }) {
+//   Needs input (gray, interactive) — a PENDING state on doses where whether
+//     the patient was high-risk on that date is unknown and decisive. The
+//     provider's answer resolves it live to Counts/Off-window.
+function DoseValidation({ result, onAnswer }) {
   if (!result) return null;
-  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount } = result;
+  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate } = result;
+
+  if (status === 'pending') {
+    return (
+      <div className="dose-val dose-val-pending" data-testid="dose-val-pending">
+        <span className="dose-val-chip dose-val-needs-input">Needs input</span>
+        {showReasonsBlock(reasons, null)}
+        <div className="risk-at-dose-prompt" data-testid="risk-at-dose-prompt">
+          <div className="risk-at-dose-question">
+            Was this patient at high risk for meningococcal disease when this dose was given ({fmtDate(promptDate)})?
+          </div>
+          <div className="risk-at-dose-actions">
+            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('yes')}>Yes</button>
+            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('no')}>No</button>
+            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('unsure')}>Not sure</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const chipClass = notAdolescentCount
     ? 'dose-val-chip dose-val-offwindow'
@@ -54,23 +76,26 @@ function DoseValidation({ result }) {
     ? 'Off-window — repeat'
     : status === 'valid' ? 'Counts' : status === 'invalid' ? 'Invalid' : 'Unknown';
 
-  // Only show reasons when non-empty AND not a bare 'valid' with no notes.
-  const showReasons = reasons && reasons.length > 0;
-
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>
       <span className={chipClass}>{chipLabel}</span>
       {effectiveDoseNum != null && status !== 'invalid' && (
         <span className="dose-val-effective">Effective dose {effectiveDoseNum}</span>
       )}
-      {showReasons && (
-        <div className="dose-val-reasons">
-          {reasons.map((r, i) => (
-            <span key={i} className="dose-val-reason">{r}</span>
-          ))}
-          {detail && <span className="dose-val-detail">{detail}</span>}
-        </div>
-      )}
+      {showReasonsBlock(reasons, detail)}
+    </div>
+  );
+}
+
+// Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
+function showReasonsBlock(reasons, detail) {
+  if (!reasons || reasons.length === 0) return null;
+  return (
+    <div className="dose-val-reasons">
+      {reasons.map((r, i) => (
+        <span key={i} className="dose-val-reason">{r}</span>
+      ))}
+      {detail && <span className="dose-val-detail">{detail}</span>}
     </div>
   );
 }
@@ -86,7 +111,7 @@ function timingClass(status, dueToday) {
   return 'timing-neutral';
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0 }) {
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
@@ -170,7 +195,10 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
               {doses.map((d, i) => (
                 <li key={i} className="rec-progress-dose-row">
                   <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
-                  <DoseValidation result={doseValidations[i]} />
+                  <DoseValidation
+                    result={doseValidations[i]}
+                    onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, i, answer)}
+                  />
                 </li>
               ))}
             </ul>

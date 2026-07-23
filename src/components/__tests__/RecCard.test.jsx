@@ -7,8 +7,8 @@
 // as a bare "Invalid" (it was validly administered; it just doesn't count
 // toward the routine adolescent series).
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import RecCard from '../RecCard.jsx';
 
 const baseRec = {
@@ -71,6 +71,65 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     );
     const chip = screen.getByText('Unknown');
     expect(chip.className).toMatch(/dose-val-unknown/);
+  });
+});
+
+// §2-3 (2026-07-23 handoff): the "Needs input" prompt on a pending dose.
+describe('RecCard "Needs input" chip and risk-at-dose prompt (§2-3)', () => {
+  it('renders the "Needs input" chip and the prompt question with the dose date', () => {
+    render(
+      <RecCard
+        rec={baseRec}
+        doses={[{ date: '2020-01-15', brand: '' }]}
+        doseValidations={[{
+          status: 'pending',
+          needsInput: true,
+          promptDate: '2020-01-15',
+          reasons: ['Given at ~6 years, before age 10.'],
+        }]}
+      />
+    );
+    const chip = screen.getByText('Needs input');
+    expect(chip.className).toMatch(/dose-val-needs-input/);
+    expect(screen.getByTestId('risk-at-dose-prompt').textContent).toMatch(/Jan 15, 2020/);
+    expect(screen.getByRole('button', { name: 'Yes' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'No' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Not sure' })).toBeTruthy();
+  });
+
+  it('clicking "Yes" calls onRiskAtDoseAnswer with the vaccine, dose index, and answer', () => {
+    const onRiskAtDoseAnswer = vi.fn();
+    render(
+      <RecCard
+        rec={baseRec}
+        doses={[{ date: '2020-01-15', brand: '' }]}
+        doseValidations={[{ status: 'pending', needsInput: true, promptDate: '2020-01-15', reasons: [] }]}
+        onRiskAtDoseAnswer={onRiskAtDoseAnswer}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    expect(onRiskAtDoseAnswer).toHaveBeenCalledWith('MenACWY', 0, 'yes');
+  });
+
+  it('clicking "No" and "Not sure" pass the right answer', () => {
+    const onRiskAtDoseAnswer = vi.fn();
+    render(
+      <RecCard
+        rec={baseRec}
+        doses={[{ date: '2020-01-15', brand: '' }, { date: '2021-01-15', brand: '' }]}
+        doseValidations={[
+          { status: 'pending', needsInput: true, promptDate: '2020-01-15', reasons: [] },
+          { status: 'pending', needsInput: true, promptDate: '2021-01-15', reasons: [] },
+        ]}
+        onRiskAtDoseAnswer={onRiskAtDoseAnswer}
+      />
+    );
+    const noButtons = screen.getAllByRole('button', { name: 'No' });
+    const unsureButtons = screen.getAllByRole('button', { name: 'Not sure' });
+    fireEvent.click(noButtons[0]);
+    fireEvent.click(unsureButtons[1]);
+    expect(onRiskAtDoseAnswer).toHaveBeenCalledWith('MenACWY', 0, 'no');
+    expect(onRiskAtDoseAnswer).toHaveBeenCalledWith('MenACWY', 1, 'unsure');
   });
 });
 

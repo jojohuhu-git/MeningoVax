@@ -549,14 +549,20 @@ export function recommend(input) {
   const today = todayISO(input.today);
   const rawMenacwyDoses = (input.menacwyDoses ?? []).filter(Boolean);
   const rawMenbDoses = (input.menbDoses ?? []).filter(Boolean);
+  // Risk-at-dose "Needs input" prompt answers (2026-07-23 handoff §2-§3),
+  // keyed by vaccine then by the dose's post-sort index — same shape Results.jsx
+  // threads to its own display-only analyzeHistory() calls, so a 'yes' answer
+  // changes the effective dose count here too and the recommendation updates live.
+  const acwyRiskAnswers = input.riskAtDoseAnswers?.MenACWY;
+  const bRiskAnswers = input.riskAtDoseAnswers?.MenB;
 
   // Phase 3: filter doses through the last-kept validation walk so that
   // invalid doses (wrong age, interval violation, family mismatch) do NOT
   // count toward series completion. The engine sees only the effective list.
   // The full raw list (with per-dose display results) is available via
   // analyzeHistory() in Results.jsx for the RECORDED panel.
-  const effectiveMenacwyDoses = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today).effective;
-  const effectiveMenbDoses    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today).effective;
+  const effectiveMenacwyDoses = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers).effective;
+  const effectiveMenbDoses    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers).effective;
 
   const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today);
   const menb = menbRec(am, riskIds, effectiveMenbDoses, today);

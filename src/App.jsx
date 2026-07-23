@@ -27,6 +27,11 @@ const INITIAL_STATE = {
   riskIds: [],
   menacwyDoses: [],
   menbDoses: [],
+  // Provider answers to the risk-at-dose "Needs input" prompt (2026-07-23
+  // handoff §2-§3), keyed by vaccine then by the dose's post-sort index.
+  // Memory-only by design — this app has no URL/link serialization at all,
+  // so nothing extra is needed to keep a clinical judgment out of a shared link.
+  riskAtDoseAnswers: { MenACWY: {}, MenB: {} },
 };
 
 export default function App() {

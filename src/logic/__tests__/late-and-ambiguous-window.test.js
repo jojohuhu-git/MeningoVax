@@ -31,8 +31,12 @@ describe('Ambiguous window — MenACWY high-risk first dose at ≥24 months (p20
   });
 
   it('30 months, asplenia, 1 dose → Dose 2 of 2 ≥8 weeks after dose 1', () => {
+    // Dose given before age 10 to a high-risk-now patient is ambiguous
+    // (risk-at-dose prompt, 2026-07-23 handoff §2-§3) — answer 'yes' to
+    // preserve this test's "already high-risk" intent.
     const r = run({ ageMonths: 30, riskIds: ['asplenia'],
-      menacwyDoses: [{ date: '2026-05-01' }] });
+      menacwyDoses: [{ date: '2026-05-01' }],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes' } } });
     expect(menacwy(r).doseLabel).toMatch(/2 of 2/i);
     expect(menacwy(r).minIntervalDays).toBe(DAYS.weeks(8));
   });
@@ -40,11 +44,13 @@ describe('Ambiguous window — MenACWY high-risk first dose at ≥24 months (p20
 
 describe('ACIP 3y/5y booster nuance (high-risk MenACWY)', () => {
   it('primary completed BEFORE age 7 → first booster at 3 years', () => {
-    // Two doses at ~5y and ~5y2m (both <7y). Patient now 10y.
+    // Two doses at ~5y and ~5y2m (both <7y, both before the age-10 ambiguity
+    // threshold). Patient now 10y. Both answered 'yes' to preserve the
+    // "already high-risk" intent (2026-07-23 handoff §2-§3).
     const r = run({ ageMonths: 120, riskIds: ['asplenia'], menacwyDoses: [
       { date: '2021-07-09' }, // age 5y
       { date: '2021-11-09' }, // age ~5y4m
-    ] });
+    ], riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } } });
     expect(menacwy(r).doseLabel).toMatch(/booster/i);
     expect(menacwy(r).minIntervalDays).toBe(DAYS.years(3));
   });
@@ -54,7 +60,7 @@ describe('ACIP 3y/5y booster nuance (high-risk MenACWY)', () => {
     const r = run({ ageMonths: 156, riskIds: ['asplenia'], menacwyDoses: [
       { date: '2021-07-09' }, // age 8y
       { date: '2021-10-09' }, // age ~8y3m
-    ] });
+    ], riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } } });
     expect(menacwy(r).doseLabel).toMatch(/booster/i);
     expect(menacwy(r).minIntervalDays).toBe(DAYS.years(5));
   });
@@ -62,17 +68,22 @@ describe('ACIP 3y/5y booster nuance (high-risk MenACWY)', () => {
 
 describe('Late doses (valid — minimum interval only)', () => {
   it('high-risk dose 2 given 2.5 years after dose 1 still counts (not restarted)', () => {
+    // Both doses given before age 10 to a high-risk-now patient — ambiguous,
+    // answered 'yes' (2026-07-23 handoff §2-§3).
     const { perDose, effective } = analyzeHistory(
       'MenACWY',
       [PATIENT_MENACWY[0], PATIENT_MENACWY[1]],
-      225, ['asplenia'], TODAY,
+      225, ['asplenia'], TODAY, { 0: 'yes', 1: 'yes' },
     );
     expect(effective).toHaveLength(2);
     expect(perDose.every((d) => d.status !== 'invalid')).toBe(true);
   });
 
   it('patient case (3 doses, last 2017) → booster overdue and due now, not a restart', () => {
-    const r = run({ ageMonths: 225, riskIds: ['asplenia'], menacwyDoses: PATIENT_MENACWY });
+    // Doses 0 and 1 (2y0m, 4y7m) are before age 10 — ambiguous, answered
+    // 'yes'. Dose 2 (10y2m) is past the threshold, no prompt needed.
+    const r = run({ ageMonths: 225, riskIds: ['asplenia'], menacwyDoses: PATIENT_MENACWY,
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } } });
     expect(menacwy(r).status).toBe('risk-based');
     expect(menacwy(r).doseLabel).toMatch(/booster/i);
     expect(menacwy(r).dueToday).toBe(true);
@@ -81,16 +92,24 @@ describe('Late doses (valid — minimum interval only)', () => {
 
 describe('Stream 1 — out-of-order MenACWY entry is re-sorted chronologically', () => {
   it('shuffled dose order yields the same effective series and recommendation', () => {
-    const inOrder = run({ ageMonths: 225, riskIds: ['asplenia'], menacwyDoses: PATIENT_MENACWY });
+    // riskAtDoseAnswers is keyed by POST-SORT index, which is the same
+    // regardless of input order (both inputs sort to the same chronological
+    // list) — confirms the shuffle doesn't change which answer applies to
+    // which dose.
+    const answers = { MenACWY: { 0: 'yes', 1: 'yes' } };
+    const inOrder = run({ ageMonths: 225, riskIds: ['asplenia'], menacwyDoses: PATIENT_MENACWY,
+      riskAtDoseAnswers: answers });
     const shuffled = run({ ageMonths: 225, riskIds: ['asplenia'],
-      menacwyDoses: [PATIENT_MENACWY[2], PATIENT_MENACWY[0], PATIENT_MENACWY[1]] });
+      menacwyDoses: [PATIENT_MENACWY[2], PATIENT_MENACWY[0], PATIENT_MENACWY[1]],
+      riskAtDoseAnswers: answers });
     expect(menacwy(shuffled).doseLabel).toBe(menacwy(inOrder).doseLabel);
     expect(menacwy(shuffled).minIntervalDays).toBe(menacwy(inOrder).minIntervalDays);
   });
 
   it('effective list is chronological regardless of input order', () => {
     const { effective } = analyzeHistory('MenACWY',
-      [PATIENT_MENACWY[2], PATIENT_MENACWY[0], PATIENT_MENACWY[1]], 225, ['asplenia'], TODAY);
+      [PATIENT_MENACWY[2], PATIENT_MENACWY[0], PATIENT_MENACWY[1]], 225, ['asplenia'], TODAY,
+      { 0: 'yes', 1: 'yes' });
     const dates = effective.map((d) => d.date);
     expect(dates).toEqual([...dates].sort());
   });

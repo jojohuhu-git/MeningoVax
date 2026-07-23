@@ -31,6 +31,9 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
         { date: '2023-01-01', ageMonths: 60 }, // 5y
         { date: '2023-03-01', ageMonths: 62 }, // 5y2m — primary complete <7y
       ],
+      // Both doses before age 10 to a high-risk-now patient are ambiguous
+      // (2026-07-23 handoff §2-§3); answered 'yes' to preserve intent.
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 3 years after primary/);
     expect(acwy(r).note).toMatch(/first booster is due 3 years/i);
@@ -47,6 +50,9 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
         { date: '2023-01-01', ageMonths: 96 }, // 8y
         { date: '2023-03-01', ageMonths: 98 }, // 8y2m — primary complete >=7y
       ],
+      // Both doses before age 10 to a high-risk-now patient are ambiguous
+      // (2026-07-23 handoff §2-§3); answered 'yes' to preserve intent.
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 5 years after primary/);
     expect(acwy(r).note).toMatch(/first booster is due 5 years/i);
@@ -64,6 +70,9 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
         { date: '2023-03-01', ageMonths: 62 },
         { date: '2026-03-01', ageMonths: 98 }, // first booster, 3y after D2
       ],
+      // All three doses are before age 10 — ambiguous, all answered 'yes'
+      // (2026-07-23 handoff §2-§3).
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes', 2: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/every 5 years/);
     expect(acwy(r).note).toMatch(/every 5 years/);

@@ -22,7 +22,9 @@ const MENB_HISTORY_BRANDS = [
 ];
 
 export default function Results({ state, onReset, onChange, onBack }) {
-  const { ageMonths, riskIds, menacwyDoses, menbDoses } = state;
+  const { ageMonths, riskIds, menacwyDoses, menbDoses, riskAtDoseAnswers } = state;
+  const acwyRiskAnswers = riskAtDoseAnswers?.MenACWY ?? {};
+  const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
   const [editingDoses, setEditingDoses] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -33,6 +35,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
     riskIds,
     menacwyDoses,
     menbDoses,
+    riskAtDoseAnswers,
   });
 
   const { menacwy, menb, pentavalent } = result;
@@ -40,8 +43,22 @@ export default function Results({ state, onReset, onChange, onBack }) {
   // by array index. analyzeHistory() sorts its perDose chronologically, so
   // the doses prop must come from the same sorted call, not raw entry order
   // (menacwyDoses/menbDoses), or the two arrays drift out of alignment.
-  const menacwyHistory = analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds);
-  const menbHistory = analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds);
+  const menacwyHistory = analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds, undefined, acwyRiskAnswers);
+  const menbHistory = analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds, undefined, bRiskAnswers);
+
+  // Provider answered the risk-at-dose "Needs input" prompt on a specific
+  // dose. Recompute happens live via the normal onChange -> state -> re-render
+  // cycle, same as every other editable field on this screen.
+  function handleRiskAtDoseAnswer(vaccine, sortedIndex, answer) {
+    const key = vaccine === 'MenB' ? 'MenB' : 'MenACWY';
+    const prevForVaccine = riskAtDoseAnswers?.[key] ?? {};
+    onChange?.({
+      riskAtDoseAnswers: {
+        ...riskAtDoseAnswers,
+        [key]: { ...prevForVaccine, [sortedIndex]: answer },
+      },
+    });
+  }
   const group = ageGroup(ageMonths);
   const riskLabels = riskIds.map(id => RISK_FACTORS.find(r => r.id === id)?.label).filter(Boolean);
 
@@ -248,6 +265,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Off-window — repeat: safely given, but doesn't advance this series</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-needs-input" /><span>Needs input: whether this dose counts depends on the patient's risk status on that date — answer the prompt to resolve it</span></div>
             </div>
           </div>
         )}
@@ -292,6 +310,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               doses={menacwyHistory.sortedDoses}
               doseValidations={menacwyHistory.perDose}
               ageMonths={ageMonths ?? 0}
+              onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
             />
           ))}
         </div>
@@ -306,6 +325,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               doses={menbHistory.sortedDoses}
               doseValidations={menbHistory.perDose}
               ageMonths={ageMonths ?? 0}
+              onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
             />
           ))}
         </div>

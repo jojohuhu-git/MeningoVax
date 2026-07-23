@@ -193,7 +193,7 @@ function invalidResult(reasons, detail) {
 // `kept` is the array of doses kept so far (NOT the full raw list). This is
 // what enables correct re-evaluation when an earlier dose is dropped.
 
-function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
+function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable: a past dose can never have been given later than today, so the
   // patient's CURRENT age is an upper bound on the age at administration.
@@ -247,7 +247,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
   // starts before age 10 and must keep counting those doses.
   // Source: https://www.immunize.org/ask-experts/topic/menacwy/vaccine-recommendations-menacwy/
   const AGE_10Y_MONTHS = 120;
-  if (menacwyRiskClass(riskIds) !== 'primary2' && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  const isHighRiskNow = menacwyRiskClass(riskIds) === 'primary2';
+  if (!isHighRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
@@ -255,11 +256,41 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
     };
   }
 
+  // ── Risk-at-dose ambiguity: high-risk-NOW patient, dose given before age 10 ─
+  // Whether this dose counted toward the high-risk primary series depends on
+  // whether the patient was ALREADY high-risk on the date it was given — a
+  // fact this app's data model doesn't capture (only CURRENT risk checkboxes
+  // are recorded). Permanence ≠ always-been-present (e.g. asplenia acquired
+  // at 13 doesn't retroactively cover an age-8 dose), so this fires for every
+  // high-risk-now patient with an ambiguous dated dose, not just "temporary"
+  // risk types. Owner-confirmed design, 2026-07-23 handoff.
+  let answeredYesNote = null;
+  if (isHighRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+    if (riskAnswer === undefined) {
+      return {
+        status: 'pending',
+        needsInput: true,
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Whether this dose counts toward the high-risk series depends on whether the patient was already high-risk on that date — not recorded.`],
+        promptDate: dose.date,
+      };
+    }
+    if (riskAnswer === 'no' || riskAnswer === 'unsure') {
+      return {
+        status: 'valid',
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series.`],
+        notAdolescentCount: true,
+      };
+    }
+    // riskAnswer === 'yes' → falls through to the high-risk interval checks
+    // below as an effective primary-series dose.
+    answeredYesNote = `Counted toward the high-risk series: confirmed the patient was already high-risk on ~${fmtAgeMClinical(ageAtDose)} (this dose's date), in response to the risk-timing question.`;
+  }
+
   // ── Interval checks ───────────────────────────────────────────────────
   // M4: Use menacwyRiskClass() from riskFactors.js instead of hardcoding the risk IDs.
   // This keeps the validator in sync with the engine's riskClass computation.
   // primary2 class = strict interval checks apply.
-  const riskClass = menacwyRiskClass(riskIds) === 'primary2';
+  const riskClass = isHighRiskNow;
   const isInfant = ageAtDose !== null && ageAtDose < 24;
 
   if (effectiveIdx > 0) {
@@ -331,10 +362,10 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today)
     }
   }
 
-  return validResult();
+  return validResult(answeredYesNote ? [answeredYesNote] : []);
 }
 
-function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
+function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable using current age as an upper bound on age-at-administration
   // (see validateOneMenACWY). For MenB the permissive fallback is 120 months
@@ -405,6 +436,36 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       reasons: [`Given before age 16 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
       notAdolescentCount: true,
     };
+  }
+
+  // ── Risk-at-dose ambiguity: high-risk-NOW patient, dose given before age 16 ─
+  // A high-risk patient's MenB series legitimately starts at age 10, but whether
+  // THIS dose (given between the 10y product floor and 16y) counted toward the
+  // high-risk series depends on whether the patient was already high-risk on
+  // that date — not recorded. Permanence ≠ always-been-present (e.g. asplenia
+  // acquired at 13 doesn't retroactively cover an age-12 dose), so this fires
+  // for every high-risk-now patient with an ambiguous dated dose. Owner-
+  // confirmed design, 2026-07-23 handoff.
+  let answeredYesNote = null;
+  if (hasMenbRisk(riskIds) && ageAtDose !== null && ageAtDose < MENB_HEALTHY_MIN_AGE_MONTHS) {
+    if (riskAnswer === undefined) {
+      return {
+        status: 'pending',
+        needsInput: true,
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 16. Whether this dose counts toward the high-risk MenB series depends on whether the patient was already high-risk on that date — not recorded.`],
+        promptDate: dose.date,
+      };
+    }
+    if (riskAnswer === 'no' || riskAnswer === 'unsure') {
+      return {
+        status: 'valid',
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 16. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the high-risk series.`],
+        notAdolescentCount: true,
+      };
+    }
+    // riskAnswer === 'yes' → falls through to the family-lock and high-risk
+    // interval checks below as an effective high-risk-series dose.
+    answeredYesNote = `Counted toward the high-risk MenB series: confirmed the patient was already high-risk on ~${fmtAgeMClinical(ageAtDose)} (this dose's date), in response to the risk-timing question.`;
   }
 
   // ── MenB antigen-family mismatch (Task 4 — family lock anchor fix) ────
@@ -506,7 +567,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       }
     }
 
-    return validResult();
+    return validResult(answeredYesNote ? [answeredYesNote] : []);
   }
 
   // ── Healthy 2-dose: D2 given early is VALID (not invalid) but triggers rescue ─
@@ -564,25 +625,33 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
 // The effective count advances ONLY on kept doses, so a dose that follows a
 // dropped one is re-evaluated at the correct effective position.
 //
-function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
+function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers) {
   const kept = [];           // doses kept so far (the "effective" list being built)
   const perDose = [];        // one entry per raw dose (display results)
   let effectiveCount = 0;    // number of kept doses so far (including unknown)
 
   for (let rawIdx = 0; rawIdx < rawDoses.length; rawIdx++) {
     const dose = rawDoses[rawIdx];
+    const riskAnswer = riskAtDoseAnswers?.[rawIdx];
 
     // Validate this dose against the current kept list.
     let result;
     if (vaccine === 'MenACWY') {
-      result = validateOneMenACWY(dose, effectiveCount, kept, ageMonths, riskIds, today);
+      result = validateOneMenACWY(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
     } else if (vaccine === 'MenB') {
-      result = validateOneMenB(dose, effectiveCount, kept, ageMonths, riskIds, today);
+      result = validateOneMenB(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
     } else {
       result = unknownResult([`Unknown vaccine: ${vaccine}`]);
     }
 
-    if (result.status === 'invalid') {
+    if (result.status === 'pending') {
+      // Awaiting a risk-at-dose answer from the provider. Conservative default
+      // while pending: not added to kept, does not advance the effective count.
+      perDose.push({
+        ...result,
+        effectiveDoseNum: null,
+      });
+    } else if (result.status === 'invalid') {
       // Dropped. Record as doesNotCount with advice to repeat only this dose.
       perDose.push({
         ...result,
@@ -643,14 +712,18 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
  * @param {number} ageMonths  — current patient age in months
  * @param {string[]} riskIds  — selected risk-factor IDs
  * @param {string} [today]    — ISO date string; defaults to today's date
+ * @param {Object.<number, 'yes'|'no'|'unsure'>} [riskAtDoseAnswers] — provider
+ *   answers to the risk-at-dose prompt, keyed by the dose's index in the
+ *   chronologically-sorted (post-sort) list — the same index used by
+ *   `sortedDoses`/`perDose`.
  *
  * @returns {{
- *   perDose: Array<{status, effectiveDoseNum, reasons, detail?, doesNotCount?}>,
+ *   perDose: Array<{status, effectiveDoseNum, reasons, detail?, doesNotCount?, needsInput?, promptDate?}>,
  *   effective: Array<{date?, brand?}>,
  *   sortedDoses: Array<{date?, brand?}>
  * }}
  */
-export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
+export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers) {
   // todayISO(), not new Date().toISOString() — the latter is UTC and can be a
   // day ahead of the caller's local date (e.g. any evening in a UTC-behind
   // timezone), which breaks the exact cancellation ageAtDoseFromDate relies on
@@ -663,7 +736,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
   // historical dose is assumed to be the earlier dose — matching existing convention).
   const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [] };
-  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref), sortedDoses: filtered };
+  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers), sortedDoses: filtered };
 }
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses
@@ -697,6 +770,6 @@ function sortDosesChronologically(doses) {
  *
  * @returns {Array<{status: 'valid'|'invalid'|'unknown', reasons: string[], detail?: string}>}
  */
-export function validateHistory(vaccine, doses, ageMonths, riskIds = [], today) {
-  return analyzeHistory(vaccine, doses, ageMonths, riskIds, today).perDose;
+export function validateHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers) {
+  return analyzeHistory(vaccine, doses, ageMonths, riskIds, today, riskAtDoseAnswers).perDose;
 }

@@ -77,12 +77,18 @@ describe('P0-1: healthy MenB dose before age 16 does not count toward the health
   });
 
   // ── Guards against over-fix ────────────────────────────────────────────────
-  it('guard: high-risk (asplenia) 16yo with a dose at age 10 → still counts (Dose 2 of 3)', () => {
+  it('guard: high-risk (asplenia) 16yo with a dose at age 10, confirmed high-risk at dose time → still counts (Dose 2 of 3)', () => {
+    // This dose (age 10, before the 16y healthy threshold) to a high-risk-now
+    // patient is exactly the risk-at-dose ambiguity the "Needs input" prompt
+    // exists for (2026-07-23 handoff §2-§3) — without an answer it's now
+    // 'pending', not silently assumed. Answered 'yes' to preserve this
+    // guard's original "already high-risk" intent.
     const r = recommend({
       today: '2026-07-23',
       ageMonths: 192,
       riskIds: ['asplenia'],
       menbDoses: [{ date: '2020-07-23', brand: 'Bexsero (MenB)' }],
+      riskAtDoseAnswers: { MenB: { 0: 'yes' } },
     });
     expect(r.menb[0].doseLabel).toMatch(/Dose 2 of 3/);
 
@@ -91,10 +97,39 @@ describe('P0-1: healthy MenB dose before age 16 does not count toward the health
       [{ date: '2020-07-23', brand: 'Bexsero (MenB)' }],
       192,
       ['asplenia'],
-      '2026-07-23'
+      '2026-07-23',
+      { 0: 'yes' }
     ).perDose;
     expect(perDose[0].notAdolescentCount).toBeFalsy();
     expect(perDose[0].effectiveDoseNum).toBe(1);
+  });
+
+  it('guard: high-risk (asplenia) 16yo with a dose at age 10, NO answer → pending, does not count yet', () => {
+    const perDose = analyzeHistory(
+      'MenB',
+      [{ date: '2020-07-23', brand: 'Bexsero (MenB)' }],
+      192,
+      ['asplenia'],
+      '2026-07-23'
+    ).perDose;
+    expect(perDose[0].status).toBe('pending');
+    expect(perDose[0].needsInput).toBe(true);
+    expect(perDose[0].effectiveDoseNum).toBeNull();
+    expect(perDose[0].promptDate).toBe('2020-07-23');
+  });
+
+  it('guard: high-risk (asplenia) 16yo with a dose at age 10, answered "no" → off-window, does not count', () => {
+    const perDose = analyzeHistory(
+      'MenB',
+      [{ date: '2020-07-23', brand: 'Bexsero (MenB)' }],
+      192,
+      ['asplenia'],
+      '2026-07-23',
+      { 0: 'no' }
+    ).perDose;
+    expect(perDose[0].status).toBe('valid');
+    expect(perDose[0].notAdolescentCount).toBe(true);
+    expect(perDose[0].effectiveDoseNum).toBeNull();
   });
 
   it('guard: healthy 20yo with a dose given AT age 16 → still counts (Dose 2 of 2)', () => {
