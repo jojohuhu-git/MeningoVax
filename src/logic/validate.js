@@ -75,6 +75,13 @@ const MIN_AGE_MENACWY_PERMISSIVE_MONTHS = 2;
 // is unknown for MenB — all products require ≥10 years, so even permissive is 120.
 const MIN_AGE_MENB_PERMISSIVE_MONTHS = 120;
 
+// P0-1: the healthy MenB 2-dose series is recommended at 16–23y. For a patient with
+// NO current MenB risk factor, a MenB dose given before 16 is validly administered
+// (≥ the 120-month product floor) but does NOT count toward the healthy series —
+// MenB antibody wanes within ~1 year, so an early dose is not protective at 16.
+// Mirrors MenACWY's pre-age-10 exclusion. Owner decision 2026-07-23 (Option 1).
+const MENB_HEALTHY_MIN_AGE_MONTHS = 192;
+
 // ── Interval constants — reuse the recommend.js patterns ─────────────────
 // MenACWY: baseline minimum between ANY two doses regardless of risk class
 // (duplicate-dose detection, Task 3). The high-risk rule (8wk) is stricter
@@ -347,6 +354,18 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
         `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`
       );
     }
+    // P0-1: if the patient has no current MenB risk factor and is CURRENTLY under 16,
+    // then any past (undated) dose was necessarily given before age 16 — a dose can't
+    // have been given later than today. So it does not count toward the healthy series.
+    // (If the patient is currently ≥16 we can't tell when an undated dose was given, so
+    // it falls through to the "counted / unknown" case below.)
+    if (!hasMenbRisk(riskIds) && ageMonths < MENB_HEALTHY_MIN_AGE_MONTHS) {
+      return {
+        status: 'valid',
+        reasons: [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years); MenB given before 16 is not counted for a patient without a high-risk indication.`],
+        notAdolescentCount: true,
+      };
+    }
     return unknownResult([
       `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
     ]);
@@ -371,6 +390,21 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today) {
       [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.`],
       `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`
     );
+  }
+
+  // ── P0-1: healthy MenB doses before age 16 don't count toward the healthy series ─
+  // For a patient with NO current MenB risk factor, the healthy 2-dose series is
+  // recommended at 16–23y. A dose given before 16 was validly administered (above the
+  // 10-year product floor) but does NOT advance the healthy series — this is the direct
+  // analog of MenACWY's pre-age-10 `notAdolescentCount` rule. High-risk patients
+  // (hasMenbRisk) legitimately start at age 10 and must keep counting their doses.
+  // Owner decision 2026-07-23 (Option 1). Source: ACIP 2020 MMWR RR-9.
+  if (!hasMenbRisk(riskIds) && ageAtDose !== null && ageAtDose < MENB_HEALTHY_MIN_AGE_MONTHS) {
+    return {
+      status: 'valid',
+      reasons: [`Given before age 16 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
+      notAdolescentCount: true,
+    };
   }
 
   // ── MenB antigen-family mismatch (Task 4 — family lock anchor fix) ────
