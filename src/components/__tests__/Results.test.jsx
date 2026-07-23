@@ -108,3 +108,57 @@ describe('Item 1: auto-focus the date field on a newly added dose row', () => {
     expect(document.querySelectorAll('input[type="date"]').length).toBe(0);
   });
 });
+
+// Item 4 (2026-07-23): a 20y patient with no MenACWY history (catch-up,
+// REQUIRED) and no MenB history (healthy 16-23y shared-decision, OPTIONAL)
+// is the real reachable case where "due today" must not flatten required
+// and optional together -- MenB is dueToday but only via shared-decision.
+function acwyRequiredMenbOptionalState(overrides = {}) {
+  return baseState({ ageMonths: 240, riskIds: [], menacwyDoses: [], menbDoses: [], ...overrides });
+}
+
+describe('Item 4: required vs optional in "due today" copy', () => {
+  it('summary line states MenACWY is due and MenB is optional, not "Due today: MenACWY and MenB"', () => {
+    render(<Harness initial={acwyRequiredMenbOptionalState()} />);
+    const summary = screen.getByTestId('results-summary-line');
+    expect(summary.textContent).not.toMatch(/Due today: MenACWY and MenB/);
+    expect(summary.textContent).toMatch(/Due today: MenACWY/);
+    expect(summary.textContent).toMatch(/MenB is optional \(shared clinical decision\)/i);
+  });
+
+  it('pentavalent header does not claim both are due, but the pentavalent option still renders', () => {
+    render(<Harness initial={acwyRequiredMenbOptionalState()} />);
+    const header = screen.queryByTestId('dose-options-header');
+    expect(header).not.toBeNull();
+    expect(header.textContent).not.toMatch(/both.*due/i);
+    expect(header.textContent).toMatch(/MenACWY is due today/i);
+    expect(header.textContent).toMatch(/optional \(shared clinical decision\)/i);
+
+    // Owner decision: pentavalentEligible is NOT gated on SCDM -- the combined
+    // shot option must still be offered.
+    expect(screen.getByTestId('penta-card')).not.toBeNull();
+    expect(screen.getByTestId('option-penta-label')).not.toBeNull();
+  });
+
+  it('pentavalent note does not say "Both...are due today" in the SCDM case', () => {
+    render(<Harness initial={acwyRequiredMenbOptionalState()} />);
+    const pentaCard = screen.getByTestId('penta-card');
+    expect(pentaCard.textContent).not.toMatch(/Both MenACWY and MenB are due today/);
+    expect(pentaCard.textContent).toMatch(/MenB is optional today \(shared clinical decision\)/i);
+  });
+
+  it('MenB status badge reads "Optional (shared decision)"', () => {
+    render(<Harness initial={acwyRequiredMenbOptionalState()} />);
+    expect(screen.getByText('Optional (shared decision)')).toBeDefined();
+    expect(screen.queryByText('Shared decision')).toBeNull();
+  });
+
+  it('summary line: both required (e.g. high-risk asplenia adult, both due) keeps the original wording', () => {
+    // High-risk adult with no history: both MenACWY and MenB are REQUIRED
+    // primary-series doses -- not shared-decision.
+    render(<Harness initial={baseState({ ageMonths: 240, riskIds: ['asplenia'] })} />);
+    const summary = screen.getByTestId('results-summary-line');
+    expect(summary.textContent).toMatch(/Due today: MenACWY and MenB/);
+    expect(summary.textContent).not.toMatch(/optional/i);
+  });
+});

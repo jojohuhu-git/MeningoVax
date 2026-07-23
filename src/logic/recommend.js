@@ -562,9 +562,14 @@ export function recommend(input) {
   const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
-  // dose are both due today at this visit (and the patient is ≥10y).
+  // dose are both due today at this visit (and the patient is ≥10y). MenB can
+  // be "due" via a shared-decision rec (16-23y) -- that's still eligible for
+  // the pentavalent (owner decision, 2026-07-23: don't gate on SCDM), but the
+  // note must not claim MenB is due when it's only optional.
   const acwyDueToday = menacwy.some((r) => r.dueToday);
-  const bDueToday = menb.some((r) => r.dueToday);
+  const bDueRec = menb.find((r) => r.dueToday);
+  const bDueToday = !!bDueRec;
+  const bRequiredToday = bDueToday && bDueRec.status !== 'shared-decision';
   const pentavalentEligible = am >= M.y10 && acwyDueToday && bDueToday;
 
   // Determine which pentavalent matches the established/needed MenB family.
@@ -572,7 +577,9 @@ export function recommend(input) {
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
-        note: 'Both MenACWY and MenB are due today. A single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).',
+        note: bRequiredToday
+          ? 'Both MenACWY and MenB are due today. A single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).'
+          : 'MenACWY is due today. MenB is optional today (shared clinical decision) -- if you choose to give it, a single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).',
         brands: bFamily === '4C'
           ? ['Penmenvy (MenABCWY)']
           : bFamily === 'FHbp'

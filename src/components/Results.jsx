@@ -45,20 +45,41 @@ export default function Results({ state, onReset, onChange, onBack }) {
   const group = ageGroup(ageMonths);
   const riskLabels = riskIds.map(id => RISK_FACTORS.find(r => r.id === id)?.label).filter(Boolean);
 
-  const acwyDueToday = menacwy.some(r => r.dueToday);
-  const bDueToday = menb.some(r => r.dueToday);
+  const acwyDueRec = menacwy.find(r => r.dueToday);
+  const bDueRec = menb.find(r => r.dueToday);
+  const acwyDueToday = !!acwyDueRec;
+  const bDueToday = !!bDueRec;
+  // Item 4 (2026-07-23): a shared-decision rec (MenB 16-23y) can be dueToday
+  // AND optional at the same time -- "due" alone reads as mandatory. Split
+  // "due today" into required (must happen) vs. optional (shared clinical
+  // decision) so the summary/banners/header never call an optional dose
+  // flatly "due."
+  const acwyRequiredToday = acwyDueToday && acwyDueRec.status !== 'shared-decision';
+  const bRequiredToday = bDueToday && bDueRec.status !== 'shared-decision';
 
-  // D1: answer-first summary line, composed from the same dueToday/pentavalent
-  // flags that already drive the option cards below -- no new logic.
+  // D1: answer-first summary line, composed from the same required/optional
+  // flags that drive the option cards below -- no new engine logic.
+  const requiredDue = [];
+  const optionalDue = [];
+  if (acwyRequiredToday) requiredDue.push('MenACWY');
+  else if (acwyDueToday) optionalDue.push('MenACWY');
+  if (bRequiredToday) requiredDue.push('MenB');
+  else if (bDueToday) optionalDue.push('MenB');
+
   let summaryLine;
-  if (acwyDueToday && bDueToday) {
+  if (requiredDue.length === 2) {
     summaryLine = pentavalent.eligible
       ? 'Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.'
       : 'Due today: MenACWY and MenB.';
-  } else if (acwyDueToday) {
-    summaryLine = 'Due today: MenACWY.';
-  } else if (bDueToday) {
-    summaryLine = 'Due today: MenB.';
+  } else if (requiredDue.length === 1) {
+    summaryLine = `Due today: ${requiredDue[0]}.`;
+    if (optionalDue.length === 1) {
+      summaryLine += ` ${optionalDue[0]} is optional (shared clinical decision).`;
+    }
+  } else if (optionalDue.length === 2) {
+    summaryLine = 'MenACWY and MenB are optional today (shared clinical decision).';
+  } else if (optionalDue.length === 1) {
+    summaryLine = `${optionalDue[0]} is optional today (shared clinical decision). No other MenACWY or MenB doses due today.`;
   } else {
     summaryLine = 'No MenACWY or MenB doses due today.';
   }
@@ -218,7 +239,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <div className="history-edit-section-title">Vaccine box colors</div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today: on schedule, expected now</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up: behind the routine schedule, needed now to catch up</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Shared decision: optional, patient and provider decide together</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Optional (shared decision): patient and provider decide together</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-neutral" /><span>Not currently due (complete, not indicated, or deferred)</span></div>
             </div>
             <div className="dose-history-block">
@@ -234,10 +255,15 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
       {/* B2/B3: when a pentavalent is eligible, present the two ways to give MenACWY +
           MenB today as an explicit choice — separate injections (primary/default) first,
-          the single pentavalent shot (alternative that REPLACES both) second. */}
+          the single pentavalent shot (alternative that REPLACES both) second.
+          Item 4 (2026-07-23): pentavalentEligible still fires when MenB is only
+          due via shared-decision (owner decision -- the combined shot stays
+          available), so this header must not claim MenB is "due" in that case. */}
       {pentavalent.eligible && (
         <div className="dose-options-header" data-testid="dose-options-header">
-          Both MenACWY and MenB are due today: two ways to give them:
+          {bRequiredToday
+            ? 'Both MenACWY and MenB are due today: two ways to give them:'
+            : 'MenACWY is due today. MenB is optional (shared clinical decision) — if you choose to give it, these are the two ways to give both:'}
         </div>
       )}
 
@@ -253,7 +279,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
         <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group-body' : undefined}>
         {acwyDueToday && bDueToday && !pentavalent.eligible && (
           <div className="dual-due-banner" data-testid="dual-due-banner">
-            These are two separate vaccines. Both are due today. Within each, choose one brand.
+            These are two separate vaccines.{' '}
+            {bRequiredToday
+              ? 'Both are due today.'
+              : 'MenACWY is due today; MenB is optional (shared clinical decision).'}{' '}
+            Within each, choose one brand.
           </div>
         )}
 

@@ -8,7 +8,7 @@ const STATUS_LABELS = {
   'due':              'Due',
   'catchup':          'Catch-up',
   'risk-based':       'Risk-Based',
-  'shared-decision':  'Shared decision',
+  'shared-decision':  'Optional (shared decision)',
   'complete':         'Complete',
   'not-indicated':    'Not indicated',
   'deferred':         'Deferred',
