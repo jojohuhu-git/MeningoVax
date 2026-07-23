@@ -354,10 +354,13 @@ describe('Task 5 — dueToday is false when dose is not yet due', () => {
   });
 
   it('MenB healthy: D1 given 3 months ago → D2 not due today (needs 6 months)', () => {
+    // Patient is 16y3m so that a dose given 3 months ago lands at exactly age 16 —
+    // i.e. it counts as D1 (per P0-1, a healthy MenB dose must be given at ≥16y to
+    // count toward the series). The point of THIS test is the ≥6-month D1→D2 interval.
     const r = run({
-      ageMonths: 192, // 16y
+      ageMonths: 195, // 16y3m
       riskIds: [],
-      menbDoses: [{ date: monthsAgo(3), brand: 'Bexsero (MenB)' }],
+      menbDoses: [{ date: monthsAgo(3), brand: 'Bexsero (MenB)' }], // given at age 16y0m
     });
     const rec = r.menb[0];
     expect(rec.dueToday).toBe(false);
