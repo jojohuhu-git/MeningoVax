@@ -1,3 +1,7 @@
+**SUPERSEDED** by `docs/archive/handoff-2026-07-23-publish-complete.md` — the two publish
+steps in "What's NOT done" below (MeningoVax push, PneumoVax PR) are both complete as of
+later the same day. Read that file instead; this one is historical record only.
+
 # MeningoVax — Handoff after recorded-dose UX five-item queue (2026-07-23)
 
 Supersedes: `docs/archive/plan-2026-07-23-recorded-dose-ux-five-items.md` (now DONE —
