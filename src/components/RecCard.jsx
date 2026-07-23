@@ -141,16 +141,19 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         )}
 
         {/* B6: a "complete" status with a booster still coming is NOT a quiet
-            done state — call it out with its own emphasized line and date. */}
+            done state — call it out with its own emphasized line and date.
+            Item 2 (2026-07-23): neutral gray, not amber -- amber reads as
+            "behind schedule, act now," which is a false alarm for a date
+            that isn't due yet. Bold weight still keeps it prominent. */}
         {boosterDueDate && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            Booster still due: approximately {fmtDate(boosterDueDate)}
+            Not yet due — booster ~{fmtDate(boosterDueDate)}
           </div>
         )}
 
         {!dueToday && earliestNextDate && (
           <div className="next-date">
-            Eligible {fmtDate(earliestNextDate)}
+            Not yet due — eligible {fmtDate(earliestNextDate)}
           </div>
         )}
 

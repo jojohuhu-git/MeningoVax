@@ -226,6 +226,8 @@ describe('App wizard', () => {
 
   // B6: a "complete" status with a booster still due later must show a
   // prominent banner with an approximate date, not read as fully done.
+  // Item 2 (2026-07-23): reworded to lead with "not yet due" and de-ambered
+  // (neutral gray, not the catch-up "act now" palette) -- see below.
   it('shows a prominent booster-due banner for a 12y with dose 1 recorded (booster due at 16y)', () => {
     render(<App />);
     enterAgeYears(12);
@@ -241,7 +243,26 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
     const banner = screen.getByTestId('booster-due-banner');
-    expect(banner.textContent).toMatch(/booster still due.*approximately/i);
+    expect(banner.textContent).toMatch(/not yet due/i);
+  });
+
+  // Item 2: a purely-future eligible date should also read "not yet due,"
+  // not a bare "Eligible {date}" that's easy to miss / could read as urgent.
+  it('shows "Not yet due — eligible {date}" for a future earliestNextDate', () => {
+    render(<App />);
+    enterAgeYears(20);
+    fireEvent.click(getNextBtn());
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('No previous doses')); // MenACWY: none
+    fireEvent.click(getNextBtn());
+    fireEvent.click(screen.getByText('Yes, record doses')); // MenB: 1 dose
+    fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+    fireEvent.change(document.querySelector('input[type="date"]'), { target: { value: '2026-06-01' } });
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    const nextDate = document.querySelector('.next-date');
+    expect(nextDate).not.toBeNull();
+    expect(nextDate.textContent).toMatch(/not yet due.*eligible/i);
   });
 
   it('renders MenB not-indicated for young child without risk', () => {

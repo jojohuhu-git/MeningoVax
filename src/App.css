@@ -762,15 +762,17 @@ body {
   margin-bottom: var(--sp-8);
 }
 /* B6: a "complete" status with a booster still coming — call it out, don't
-   let it read as a quiet, fully-done state. Amber like catch-up (something
-   will need to happen), but text-only (no full-card fill change). */
+   let it read as a quiet, fully-done state. Item 2 (2026-07-23): neutral
+   gray, NOT amber -- amber is the catch-up ("behind schedule, act now")
+   palette, which is a false alarm for a date that is purely in the future.
+   Bold weight keeps it prominent without borrowing an "act now" color. */
 .booster-due-banner {
   display: inline-block;
   font-size: var(--fs-base);
   font-weight: 700;
-  color: var(--a);
-  background: var(--alt);
-  border: 1px solid var(--amd);
+  color: var(--gy2);
+  background: var(--gy6);
+  border: 1px solid var(--gy5);
   border-radius: var(--rads);
   padding: var(--sp-4) var(--sp-12);
   margin-bottom: var(--sp-8);
