@@ -4,14 +4,14 @@
 // engine-layer coverage and the full rationale).
 //
 // A healthy patient's MenB dose given before age 16 must render as
-// "Valid (off-window)" — NOT "On time" / an effective-dose chip — so the clinician
+// "Off-window — repeat" — NOT "Counts" / an effective-dose chip — so the clinician
 // is not told an age-10 dose validly started the healthy 2-dose series.
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import RecCard from '../RecCard.jsx';
 
-describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Valid (off-window)", not "On time"', () => {
+describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Off-window — repeat", not "Counts"', () => {
   it('MenB shared-decision Dose 1 of 2 with an age-10 dose flagged notAdolescentCount', () => {
     render(
       <RecCard
@@ -30,10 +30,10 @@ describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Valid (off-window)", no
         }]}
       />
     );
-    const chip = screen.getByText('Valid (off-window)');
+    const chip = screen.getByText('Off-window — repeat');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     // Must NOT read as an on-time counted dose, and must NOT read as invalid.
-    expect(screen.queryByText('On time')).toBeNull();
+    expect(screen.queryByText('Counts')).toBeNull();
     expect(screen.queryByText('Invalid')).toBeNull();
   });
 });

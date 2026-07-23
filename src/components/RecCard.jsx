@@ -30,9 +30,14 @@ function describeDose(dose, idx, ageMonths, today) {
 // result now optionally carries effectiveDoseNum, doesNotCount, and
 // notAdolescentCount (A3) from analyzeHistory.
 //
-// E5: labels/colors match vaxapp's compliance-audit language — on time
-// (green), valid but off-window (amber), invalid (red), unknown (gray) —
-// so a clinician who uses both apps reads the same vocabulary in both.
+// Chip vocabulary (owner-agreed design, 2026-07-23 handoff):
+//   Counts (green) — a valid dose that advances this patient's series.
+//   Off-window — repeat (amber) — safely given, but doesn't advance this
+//     patient's series. Clinical rationale goes in the reasons text beside
+//     the chip, not the label itself.
+//   Invalid (red) — a true error: below the product floor, incompatible
+//     MenB antigen family, or a spacing violation. Disregard the dose.
+//   Unknown (gray) — no date; can't verify.
 function DoseValidation({ result }) {
   if (!result) return null;
   const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount } = result;
@@ -46,8 +51,8 @@ function DoseValidation({ result }) {
         : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
-    ? 'Valid (off-window)'
-    : status === 'valid' ? 'On time' : status === 'invalid' ? 'Invalid' : 'Unknown';
+    ? 'Off-window — repeat'
+    : status === 'valid' ? 'Counts' : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   // Only show reasons when non-empty AND not a bare 'valid' with no notes.
   const showReasons = reasons && reasons.length > 0;

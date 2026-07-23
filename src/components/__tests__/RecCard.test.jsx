@@ -19,7 +19,7 @@ const baseRec = {
 };
 
 describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () => {
-  it('labels a plain valid dose "On time" (green)', () => {
+  it('labels a plain valid dose "Counts" (green)', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -27,11 +27,11 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', reasons: [] }]}
       />
     );
-    const chip = screen.getByText('On time');
+    const chip = screen.getByText('Counts');
     expect(chip.className).toMatch(/dose-val-valid/);
   });
 
-  it('labels a pre-age-10 dose "Valid (off-window)" (amber), never "Invalid"', () => {
+  it('labels a pre-age-10 dose "Off-window — repeat" (amber), never "Invalid"', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -44,7 +44,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         }]}
       />
     );
-    const chip = screen.getByText('Valid (off-window)');
+    const chip = screen.getByText('Off-window — repeat');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     expect(screen.queryByText('Invalid')).toBeNull();
   });

@@ -244,8 +244,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
             </div>
             <div className="dose-history-block">
               <div className="history-edit-section-title">Recorded-dose validity colors</div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>On time</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Valid (off-window): counted, but outside the routine timing</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>Counts: advances this patient's series</span></div>
+              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Off-window — repeat: safely given, but doesn't advance this series</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
               <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
             </div>

@@ -125,7 +125,7 @@ describe('App wizard', () => {
     expect(panel.textContent).toMatch(/due today/i);
     expect(panel.textContent).toMatch(/catch-up/i);
     expect(panel.textContent).toMatch(/shared decision/i);
-    expect(panel.textContent).toMatch(/on time/i);
+    expect(panel.textContent).toMatch(/counts/i);
     expect(panel.textContent).toMatch(/off-window/i);
     expect(panel.textContent).toMatch(/invalid/i);
 
