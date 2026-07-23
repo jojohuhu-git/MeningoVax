@@ -1,5 +1,10 @@
 # MeningoVax + PneumoVax — Handoff after publishing the recorded-dose UX queue (2026-07-23)
 
+> **SUPERSEDED 2026-07-23** by `docs/archive/handoff-2026-07-23-menb-healthy-age-gate-shipped.md`.
+> Since this file was written, a P0 MenB clinical fix shipped and the "Parked list" below now
+> carries owner decisions (#2=A+preview, #3=C, #4=A, #5=B). Resume from the newer handoff, not
+> this one.
+
 Supersedes: `docs/archive/handoff-2026-07-23-recorded-dose-ux-five-items-done.md` (its two
 "what's not done" publish steps are now both complete — that file is historical record
 only, do not resume work from it).
