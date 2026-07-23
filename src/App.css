@@ -932,13 +932,10 @@ body {
   flex-shrink: 0;
 }
 
-/* ── B2/B3: two-options header + per-option labels ───────────────── */
-.dose-options-header {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  color: var(--gy);
-  margin-bottom: var(--sp-12);
-}
+/* ── B2/B3: per-option labels ──────────────────────────────────────
+   (the two-options header that used to precede these was deleted, 2026-07-23
+   parked item #2 — it restated status the summary line + per-card badges
+   already show) */
 /* D16: "Option N: ..." now renders as the box's own header bar (matches the
    rec-cards' header-bar language) instead of a label floating above the box.
    Both Option 1 and Option 2 use the app's teal UI accent (not blue/amber) —

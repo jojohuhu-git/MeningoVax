@@ -256,16 +256,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
       {/* B2/B3: when a pentavalent is eligible, present the two ways to give MenACWY +
           MenB today as an explicit choice — separate injections (primary/default) first,
           the single pentavalent shot (alternative that REPLACES both) second.
-          Item 4 (2026-07-23): pentavalentEligible still fires when MenB is only
-          due via shared-decision (owner decision -- the combined shot stays
-          available), so this header must not claim MenB is "due" in that case. */}
-      {pentavalent.eligible && (
-        <div className="dose-options-header" data-testid="dose-options-header">
-          {bRequiredToday
-            ? 'Both MenACWY and MenB are due today: two ways to give them:'
-            : 'MenACWY is due today. MenB is optional (shared clinical decision) — if you choose to give it, these are the two ways to give both:'}
-        </div>
-      )}
+          Parked UX item #2 (2026-07-23, owner-approved via before/after preview):
+          the dose-options-header that used to sit here restated due/optional
+          status the results-summary-line above and each RecCard's own status
+          badge below already state -- 3-4x redundancy. Deleted; the "Option 1 /
+          Option 2" labels below are enough to introduce the choice. */}
 
       {/* Option 1: two separate injections — grouped visually when both are due.
           D9: header bar sits INSIDE the box (matches Option 2's own header-bar

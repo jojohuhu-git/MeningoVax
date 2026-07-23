@@ -126,13 +126,13 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     expect(summary.textContent).toMatch(/MenB is optional \(shared clinical decision\)/i);
   });
 
-  it('pentavalent header does not claim both are due, but the pentavalent option still renders', () => {
+  it('does not render the redundant pentavalent header (status is already stated by the summary line and per-card badges), and the pentavalent option still renders', () => {
+    // Parked UX item #2 (2026-07-23, owner-approved after a before/after
+    // preview): the dose-options-header restated due/optional status that the
+    // results-summary-line and each RecCard's own status badge already state
+    // -- 3-4x redundancy. Deleted rather than reworded.
     render(<Harness initial={acwyRequiredMenbOptionalState()} />);
-    const header = screen.queryByTestId('dose-options-header');
-    expect(header).not.toBeNull();
-    expect(header.textContent).not.toMatch(/both.*due/i);
-    expect(header.textContent).toMatch(/MenACWY is due today/i);
-    expect(header.textContent).toMatch(/optional \(shared clinical decision\)/i);
+    expect(screen.queryByTestId('dose-options-header')).toBeNull();
 
     // Owner decision: pentavalentEligible is NOT gated on SCDM -- the combined
     // shot option must still be offered.
