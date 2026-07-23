@@ -349,4 +349,45 @@ describe('App wizard', () => {
       expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
     });
   });
+
+  // Item 1 (2026-07-23): the wizard's dose-history editor should focus a
+  // newly-added row's (empty) date input, so a clinician doesn't have to
+  // click into it separately.
+  describe('Item 1: auto-focus the date field on a newly added dose row (wizard)', () => {
+    it('focuses the new row date input when "+ Add dose" is clicked in StepHistory', () => {
+      render(<App />);
+      enterAgeYears(23);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn()); // no risks
+      fireEvent.click(screen.getByText('Yes, record doses'));
+
+      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+
+      const dateInput = document.querySelector('input[type="date"]');
+      expect(dateInput).not.toBeNull();
+      expect(document.activeElement).toBe(dateInput);
+    });
+  });
+
+  // Item 5 (2026-07-23): StepHistory and the Results "Recorded doses" panel
+  // now share one DoseEditor component, so the MenB family-lock guidance
+  // that used to appear only in StepHistory must also appear in Results.
+  describe('Item 5: MenB family-lock guidance stays available after picking a brand in the wizard', () => {
+    it('shows "Family locked: MenB-4C" in StepHistory after selecting Bexsero for dose 1', () => {
+      render(<App />);
+      enterAgeYears(20);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn()); // no risks
+      fireEvent.click(screen.getByText('No previous doses')); // MenACWY: none
+      fireEvent.click(getNextBtn());
+
+      expect(screen.getByText('MenB History')).toBeDefined();
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+      const brandSelect = document.querySelector('select');
+      fireEvent.change(brandSelect, { target: { value: 'Bexsero' } });
+
+      expect(screen.getByText(/Family locked: MenB-4C/i)).toBeDefined();
+    });
+  });
 });

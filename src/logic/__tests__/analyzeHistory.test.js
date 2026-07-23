@@ -400,3 +400,34 @@ describe('validateHistory() backward compatibility', () => {
     expect(perDose).toHaveLength(doses.length);
   });
 });
+
+// ── ITEM 3 (2026-07-23): sortedDoses stays parallel to perDose ───────────
+// RecCard zips a `doses` array against `doseValidations` by index. perDose
+// is chronologically sorted, so any doses array shown alongside it (e.g.
+// Results.jsx's audit list) must be sorted the same way -- this is what
+// `sortedDoses` is for.
+describe('analyzeHistory() sortedDoses (Item 3 — audit-list alignment)', () => {
+  it('returns sortedDoses in the same chronological order as perDose, for doses entered out of order', () => {
+    const early = monthsAgo(120); // 10y ago
+    const late = monthsAgo(12);   // 1y ago
+    // Entered out of order: late dose first, early dose second.
+    const doses = [
+      { date: late, brand: '' },
+      { date: early, brand: '' },
+    ];
+    const { perDose, sortedDoses } = analyze('MenACWY', doses, 360, ['asplenia']);
+
+    expect(sortedDoses).toHaveLength(2);
+    expect(sortedDoses[0].date).toBe(early);
+    expect(sortedDoses[1].date).toBe(late);
+
+    // perDose[i] describes sortedDoses[i], not the raw input at index i.
+    expect(perDose[0].effectiveDoseNum).toBe(1);
+    expect(perDose[1].effectiveDoseNum).toBe(2);
+  });
+
+  it('returns an empty sortedDoses for no input', () => {
+    const { sortedDoses } = analyze('MenB', [], 240, []);
+    expect(sortedDoses).toEqual([]);
+  });
+});

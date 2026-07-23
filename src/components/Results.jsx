@@ -6,6 +6,7 @@ import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
+import DoseEditor from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
 
 const MENACWY_HISTORY_BRANDS = [
@@ -35,6 +36,12 @@ export default function Results({ state, onReset, onChange, onBack }) {
   });
 
   const { menacwy, menb, pentavalent } = result;
+  // Item 3 (2026-07-23): RecCard zips `doses[i]` against `doseValidations[i]`
+  // by array index. analyzeHistory() sorts its perDose chronologically, so
+  // the doses prop must come from the same sorted call, not raw entry order
+  // (menacwyDoses/menbDoses), or the two arrays drift out of alignment.
+  const menacwyHistory = analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds);
+  const menbHistory = analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds);
   const group = ageGroup(ageMonths);
   const riskLabels = riskIds.map(id => RISK_FACTORS.find(r => r.id === id)?.label).filter(Boolean);
 
@@ -69,25 +76,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
   // ── Recorded-dose editors (live re-render via onChange) ──
   function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, { date: '', brand: '' }] }); }
-  function removeAcwy(i) { onChange?.({ menacwyDoses: menacwyDoses.filter((_, idx) => idx !== i) }); }
-  function updateAcwy(i, field, val) {
-    onChange?.({ menacwyDoses: menacwyDoses.map((d, idx) => idx === i ? { ...d, [field]: val } : d) });
-  }
   function addB() { onChange?.({ menbDoses: [...menbDoses, { date: '', brand: '' }] }); }
-  function removeB(i) { onChange?.({ menbDoses: menbDoses.filter((_, idx) => idx !== i) }); }
-  function updateB(i, field, val) {
-    onChange?.({ menbDoses: menbDoses.map((d, idx) => idx === i ? { ...d, [field]: val } : d) });
-  }
-  function brandSelect(brandOptions, dose, onSet) {
-    return (
-      <select value={dose.brand || ''} onChange={e => onSet(e.target.value)}>
-        <option value="">Unknown brand</option>
-        {brandOptions
-          .filter(b => b.key !== undefined && b.key !== '')
-          .map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
-      </select>
-    );
-  }
 
   // D6b: Ctrl+A (Cmd+A on Mac) adds a dose row in the Recorded-doses editor,
   // matching StepHistory's shortcut. Two dose lists share the panel, so the
@@ -187,63 +176,35 @@ export default function Results({ state, onReset, onChange, onBack }) {
           <div className="age-edit-row dose-history-panel" data-testid="recorded-doses-panel">
 
             {/* MenACWY doses */}
-            <div className="dose-history-block" onFocusCapture={() => setActiveDoseSection('acwy')}>
+            <div className="dose-history-block">
               <div className="history-edit-section-title">MenACWY doses</div>
-              {menacwyDoses.length === 0 && (
-                <div className="dose-history-empty">
-                  No MenACWY doses recorded.
-                </div>
-              )}
-              {menacwyDoses.map((dose, i) => (
-                <div key={i} className="dose-row dose-history-row">
-                  <div className="dose-field">
-                    <label>Date (optional)</label>
-                    <input type="date" value={dose.date || ''}
-                      max={new Date().toISOString().slice(0, 10)}
-                      onChange={e => updateAcwy(i, 'date', e.target.value)} />
-                  </div>
-                  <div className="dose-field">
-                    <label>Brand (optional)</label>
-                    {brandSelect(MENACWY_HISTORY_BRANDS, dose, v => updateAcwy(i, 'brand', v))}
-                  </div>
-                  <button className="dose-remove" onClick={() => removeAcwy(i)}
-                    aria-label={`Remove MenACWY dose ${i + 1}`}>×</button>
-                </div>
-              ))}
-              <div className="add-dose-row">
-                <button className="add-dose-btn" onClick={addAcwy}>+ Add MenACWY dose</button>
-                <kbd>Ctrl/Cmd + A</kbd>
-              </div>
+              <DoseEditor
+                vaccine="MenACWY"
+                doses={menacwyDoses}
+                onChange={list => onChange?.({ menacwyDoses: list })}
+                brandOptions={MENACWY_HISTORY_BRANDS}
+                addDoseLabel="+ Add MenACWY dose"
+                removeLabel={i => `Remove MenACWY dose ${i + 1}`}
+                emptyMessage="No MenACWY doses recorded."
+                rowClassName="dose-history-row"
+                onFocusCapture={() => setActiveDoseSection('acwy')}
+              />
             </div>
 
             {/* MenB doses */}
-            <div className="dose-history-block" onFocusCapture={() => setActiveDoseSection('menb')}>
+            <div className="dose-history-block">
               <div className="history-edit-section-title">MenB doses</div>
-              {menbDoses.length === 0 && (
-                <div className="dose-history-empty">
-                  No MenB doses recorded.
-                </div>
-              )}
-              {menbDoses.map((dose, i) => (
-                <div key={i} className="dose-row dose-history-row">
-                  <div className="dose-field">
-                    <label>Date (optional)</label>
-                    <input type="date" value={dose.date || ''}
-                      max={new Date().toISOString().slice(0, 10)}
-                      onChange={e => updateB(i, 'date', e.target.value)} />
-                  </div>
-                  <div className="dose-field">
-                    <label>Brand (optional)</label>
-                    {brandSelect(MENB_HISTORY_BRANDS, dose, v => updateB(i, 'brand', v))}
-                  </div>
-                  <button className="dose-remove" onClick={() => removeB(i)}
-                    aria-label={`Remove MenB dose ${i + 1}`}>×</button>
-                </div>
-              ))}
-              <div className="add-dose-row">
-                <button className="add-dose-btn" onClick={addB}>+ Add MenB dose</button>
-                <kbd>Ctrl/Cmd + A</kbd>
-              </div>
+              <DoseEditor
+                vaccine="MenB"
+                doses={menbDoses}
+                onChange={list => onChange?.({ menbDoses: list })}
+                brandOptions={MENB_HISTORY_BRANDS}
+                addDoseLabel="+ Add MenB dose"
+                removeLabel={i => `Remove MenB dose ${i + 1}`}
+                emptyMessage="No MenB doses recorded."
+                rowClassName="dose-history-row"
+                onFocusCapture={() => setActiveDoseSection('menb')}
+              />
             </div>
 
             <span className="age-edit-hint">Changes update recommendations immediately.</span>
@@ -303,8 +264,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <RecCard
               key={i}
               rec={r}
-              doses={menacwyDoses}
-              doseValidations={analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds).perDose}
+              doses={menacwyHistory.sortedDoses}
+              doseValidations={menacwyHistory.perDose}
               ageMonths={ageMonths ?? 0}
             />
           ))}
@@ -317,8 +278,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
             <RecCard
               key={i}
               rec={r}
-              doses={menbDoses}
-              doseValidations={analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds).perDose}
+              doses={menbHistory.sortedDoses}
+              doseValidations={menbHistory.perDose}
               ageMonths={ageMonths ?? 0}
             />
           ))}

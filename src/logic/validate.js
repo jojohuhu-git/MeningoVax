@@ -612,7 +612,8 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today) {
  *
  * @returns {{
  *   perDose: Array<{status, effectiveDoseNum, reasons, detail?, doesNotCount?}>,
- *   effective: Array<{date?, brand?}>
+ *   effective: Array<{date?, brand?}>,
+ *   sortedDoses: Array<{date?, brand?}>
  * }}
  */
 export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
@@ -627,8 +628,8 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today) {
   // undated doses sort FIRST (they count but are never a timing anchor, and an undated
   // historical dose is assumed to be the earlier dose — matching existing convention).
   const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
-  if (filtered.length === 0) return { perDose: [], effective: [] };
-  return runWalk(vaccine, filtered, ageMonths, riskIds, ref);
+  if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [] };
+  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref), sortedDoses: filtered };
 }
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses
