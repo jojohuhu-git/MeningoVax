@@ -26,6 +26,7 @@ The save-time guardrail (flags stray top-level notes — see Root Directory Hygi
 | Plain-English folder guide (owner is a non-coder) | [MAP.md](MAP.md) |
 | Architecture, file map, engine API, validation model | [docs/agent/architecture.md](docs/agent/architecture.md) |
 | MenACWY/MenB clinical rules, schedules, booster cadence | [docs/agent/clinical-rules.md](docs/agent/clinical-rules.md) |
+| Plain-English rules summary (owner-facing; source of truth, synced to vaxapp) | [docs/agent/meningococcal-rules-summary.md](docs/agent/meningococcal-rules-summary.md) |
 | Test files and coverage requirements | [docs/agent/testing.md](docs/agent/testing.md) |
 | Session history (2026-06-04 through 2026-06-13) | [docs/archive/agent-session-log.md](docs/archive/agent-session-log.md) |
 
