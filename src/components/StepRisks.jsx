@@ -48,21 +48,15 @@ export default function StepRisks({ riskIds, onChange }) {
         })}
       </div>
 
-      <label
+      <button
+        type="button"
         className={`risk-none${noneSelected ? ' selected' : ''}`}
         onClick={clearAll}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => e.key === 'Enter' && clearAll()}
+        aria-pressed={noneSelected}
       >
-        <input
-          type="checkbox"
-          className="risk-checkbox"
-          checked={noneSelected}
-          onChange={clearAll}
-        />
+        <span className="risk-none-check" aria-hidden="true" />
         <span>None of these risk factors apply</span>
-      </label>
+      </button>
     </div>
   );
 }
