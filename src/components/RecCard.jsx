@@ -30,9 +30,12 @@ function describeDose(dose, idx, ageMonths, today) {
 // result now optionally carries effectiveDoseNum, doesNotCount, and
 // notAdolescentCount (A3) from analyzeHistory.
 //
-// Chip vocabulary (owner-agreed design, 2026-07-23 handoff):
-//   Counts (green) — a valid dose that advances this patient's series.
-//   Off-window — repeat (amber) — safely given, but doesn't advance this
+// Chip vocabulary (owner-agreed design, 2026-07-23 handoff, C2 revision):
+//   Dose N of M (green) — a valid dose that advances this patient's series;
+//     N is this dose's position (effectiveDoseNum), M is the primary-series
+//     total (seriesTotal from recommend.js — boosters are NOT counted in M).
+//     Replaces the old two-chip "Counts" + "Effective dose N" pairing.
+//   Off-window - repeat (amber) — safely given, but doesn't advance this
 //     patient's series. Clinical rationale goes in the reasons text beside
 //     the chip, not the label itself.
 //   Invalid (red) — a true error: below the product floor, incompatible
@@ -40,8 +43,8 @@ function describeDose(dose, idx, ageMonths, today) {
 //   Unknown (gray) — no date; can't verify.
 //   Needs input (gray, interactive) — a PENDING state on doses where whether
 //     the patient was high-risk on that date is unknown and decisive. The
-//     provider's answer resolves it live to Counts/Off-window.
-function DoseValidation({ result, onAnswer }) {
+//     provider's answer resolves it live to Dose N of M/Off-window.
+function DoseValidation({ result, seriesTotal, onAnswer }) {
   if (!result) return null;
   const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate } = result;
 
@@ -73,15 +76,14 @@ function DoseValidation({ result, onAnswer }) {
         : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
-    ? 'Off-window — repeat'
-    : status === 'valid' ? 'Counts' : status === 'invalid' ? 'Invalid' : 'Unknown';
+    ? 'Off-window - repeat'
+    : status === 'valid'
+      ? (effectiveDoseNum != null && seriesTotal != null ? `Dose ${effectiveDoseNum} of ${seriesTotal}` : 'Counts')
+      : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>
       <span className={chipClass}>{chipLabel}</span>
-      {effectiveDoseNum != null && status !== 'invalid' && (
-        <span className="dose-val-effective">Effective dose {effectiveDoseNum}</span>
-      )}
       {showReasonsBlock(reasons, detail)}
     </div>
   );
@@ -112,7 +114,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
+  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations, seriesTotal, boosterSummary } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -187,6 +189,16 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
+        {/* C4 (2026-07-23 handoff): count/cadence of FUTURE boosters beyond
+            what's due today. The concrete next date, when known, stays in
+            the booster-due-banner above -- this line only states how many
+            and how often. Replaces the rejected "+ boosters" header flag. */}
+        {boosterSummary && (
+          <div className="booster-summary-line" data-testid="booster-summary-line">
+            {boosterSummary}
+          </div>
+        )}
+
         {/* Series progress — what's recorded vs what's due */}
         {given > 0 && (
           <div className="rec-progress" data-testid="rec-progress">
@@ -197,6 +209,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                   <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
                   <DoseValidation
                     result={doseValidations[i]}
+                    seriesTotal={seriesTotal}
                     onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, i, answer)}
                   />
                 </li>

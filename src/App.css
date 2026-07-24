@@ -66,7 +66,7 @@
 
   /* D15: 4px-base spacing scale — consolidates ad-hoc margin/gap/padding
      values (2-24px) onto 5 steps. Sub-4px vertical paddings on tiny chips/
-     badges (dose-val-chip, dose-val-effective, kbd, meta-chip, age-edit-btn,
+     badges (dose-val-chip, kbd, meta-chip, age-edit-btn,
      risk-checkbox) are intentionally left off this scale -- they're optical
      alignment/height-matching values tuned in earlier D-items, not rhythm
      spacing, and rounding them up would break those alignments. */
@@ -792,6 +792,13 @@ body {
   padding: var(--sp-4) var(--sp-12);
   margin-bottom: var(--sp-8);
 }
+/* C4 (2026-07-23): count/cadence of future boosters -- a plain detail line,
+   not an emphasized banner (the banner above already carries the urgency/date). */
+.booster-summary-line {
+  font-size: var(--fs-base);
+  color: var(--gy3);
+  margin-bottom: var(--sp-8);
+}
 .rec-dose-label {
   font-size: var(--fs-base);
   font-weight: 600;
@@ -960,20 +967,6 @@ body {
   opacity: 0.55;
   text-decoration: line-through;
 }
-/* Effective dose number badge (shown for renumbered survivors) */
-.dose-val-effective {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px var(--sp-8);
-  border-radius: var(--rads);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  background: var(--glt);
-  color: var(--g);
-  border: 1px solid var(--gmd);
-  flex-shrink: 0;
-}
-
 /* ── B2/B3: per-option labels ──────────────────────────────────────
    (the two-options header that used to precede these was deleted, 2026-07-23
    parked item #2 — it restated status the summary line + per-card badges
