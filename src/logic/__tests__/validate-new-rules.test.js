@@ -223,7 +223,6 @@ describe('Task 3 — Baseline ≥4wk minimum interval between any two MenACWY do
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
     expect(results[1].reasons[0]).toMatch(/4 weeks/i);
-    expect(results[1].reasons[0]).toMatch(/28 days/i);
   });
 
   it('Two MenACWY doses 3 days apart (obvious duplicate) → second invalid', () => {

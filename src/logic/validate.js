@@ -309,7 +309,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
         if (interval < minInterval) {
           return invalidResult(
             [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval is ${minLabel}.`],
-            `Actual interval: ${interval} days. Minimum: ${minInterval} days.`
+            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(minInterval)}.`
           );
         }
       }
@@ -342,8 +342,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
 
         if (interval < cadenceDays) {
           return invalidResult(
-            [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel} (${cadenceDays} days). This dose is too soon and does not count.`],
-            `Actual interval: ${interval} days. Required cadence: ${cadenceDays} days (${cadenceLabel}).`
+            [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
+            `Actual interval: ${fmtDays(interval)}. Required cadence: ${cadenceLabel}.`
           );
         }
       }
@@ -355,8 +355,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // NOTE: position-based logic (routine 11-12y vs 16y booster) stays in the engine.
       if (interval < MENACWY_BASELINE_MIN_INTERVAL) {
         return invalidResult(
-          [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks (28 days).`],
-          `Actual interval: ${interval} days. Minimum: ${MENACWY_BASELINE_MIN_INTERVAL} days.`
+          [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks.`],
+          `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_BASELINE_MIN_INTERVAL)}.`
         );
       }
     }
@@ -507,8 +507,8 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
       const interval = daysBetween(prevKeptDated.date, dose.date);
       if (interval < MENB_HR_D2_MIN_INTERVAL) {
         return invalidResult(
-          [`Given only ${fmtDays(interval)} after dose 1. High-risk schedule requires ≥4 weeks (28 days) between D1 and D2.`],
-          `Actual interval: ${interval} days. Minimum: ${MENB_HR_D2_MIN_INTERVAL} days.`
+          [`Given only ${fmtDays(interval)} after dose 1. High-risk schedule requires ≥4 weeks between D1 and D2.`],
+          `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`
         );
       }
     }
@@ -525,15 +525,15 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
       if (d1Date) {
         const fromD1 = daysBetween(d1Date, dose.date);
         if (fromD1 < MENB_HR_D3_MIN_FROM_D1) {
-          reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months (~${MENB_HR_D3_MIN_FROM_D1} days) from D1.`);
-          detail += `D1→D3: ${fromD1} days (min ${MENB_HR_D3_MIN_FROM_D1}). `;
+          reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months from D1.`);
+          detail += `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}). `;
         }
       }
       if (d2Date) {
         const fromD2 = daysBetween(d2Date, dose.date);
         if (fromD2 < MENB_HR_D3_MIN_FROM_D2) {
-          reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months (~${MENB_HR_D3_MIN_FROM_D2} days) from D2.`);
-          detail += `D2→D3: ${fromD2} days (min ${MENB_HR_D3_MIN_FROM_D2}).`;
+          reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months from D2.`);
+          detail += `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`;
         }
       }
 
@@ -561,7 +561,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
         if (interval < minInterval) {
           return invalidResult(
             [`MenB booster given only ${fmtDays(interval)} after the previous dose. Minimum is ${minLabel}. This dose does not count.`],
-            `Actual interval: ${interval} days. Minimum: ${minInterval} days.`
+            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(minInterval)}.`
           );
         }
       }
@@ -601,8 +601,8 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
         const fromD2 = daysBetween(d2Date, dose.date);
         if (fromD2 < MENB_RESCUE_D3_MIN_FROM_D2) {
           return invalidResult(
-            [`Rescue dose given only ${fmtDays(fromD2)} after dose 2. Must be ≥4 months (~${MENB_RESCUE_D3_MIN_FROM_D2} days) after the early dose 2.`],
-            `D2→D3: ${fromD2} days (min ${MENB_RESCUE_D3_MIN_FROM_D2}).`
+            [`Rescue dose given only ${fmtDays(fromD2)} after dose 2. Must be ≥4 months after the early dose 2.`],
+            `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
           );
         }
       }
