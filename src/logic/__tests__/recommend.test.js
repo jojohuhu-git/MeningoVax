@@ -442,18 +442,22 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
 // notes (2026-07-23 audit handoff, "not done" queue). Quotes verified live
 // against the ACIP 2020 MMWR and the current CDC vaccine-recommendations page.
 describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-07-24)', () => {
-  it('MenB high-risk dose 1 cites cdcRecommendations alongside acip2020', () => {
+  // 2026-07-24 citation audit: the ACIP Oct 2024 MMWR (mm7349a3) supersedes
+  // the 2020 MMWR's brand-split MenB-4C table and states the 3-dose
+  // high-risk schedule explicitly — cdcRecommendations dropped in favour of
+  // this cleaner, non-superseded source.
+  it('MenB high-risk dose 1 cites the ACIP Oct 2024 MMWR (mm7349a3) alongside acip2020', () => {
     const r = run({ ageMonths: 300, riskIds: ['asplenia'] });
     const shorts = menb(r).citations.map((c) => c.short);
-    expect(shorts).toContain('CDC Meningococcal Recommendations');
+    expect(shorts).toContain('ACIP Oct 2024 MMWR');
     expect(shorts).toContain('ACIP 2020 MMWR');
   });
 
-  it('MenB high-risk booster cites cdcRecommendations', () => {
+  it('MenB high-risk booster cites the ACIP Oct 2024 MMWR (mm7349a3)', () => {
     const r = run({ ageMonths: 300, riskIds: ['asplenia'], menbDoses: [
       { date: '2024-01-03', brand: 'Bexsero' }, { date: '2024-02-10', brand: 'Bexsero' }, { date: '2024-07-10', brand: 'Bexsero' },
     ] });
-    expect(menb(r).citations.map((c) => c.short)).toContain('CDC Meningococcal Recommendations');
+    expect(menb(r).citations.map((c) => c.short)).toContain('ACIP Oct 2024 MMWR');
   });
 
   it('Pregnancy deferral note carries a [1] highlight-superscript', () => {

@@ -11,7 +11,8 @@ import { cite } from '../../data/refs.js';
 
 const ACIP_ANCHORS = {
   acwyRoutine1112and16: cite(1, 'acwyRoutine1112and16').url,
-  menbSharedDecision1623: cite(1, 'menbSharedDecision1623').url,
+  menbHealthySCDM1623Box: cite(1, 'menbHealthySCDM1623Box').url,
+  menbHealthy2Dose0and6: cite(1, 'menbHealthy2Dose0and6').url,
   boosterBeforeAge7: cite(1, 'boosterBeforeAge7').url,
   boosterAtOrAfterAge7: cite(1, 'boosterAtOrAfterAge7').url,
 };
@@ -39,19 +40,21 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ marker: '[1]', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
 
-  it('healthy MenB 16-23y dose-1 note cites the shared-decision-making rule', () => {
+  it('healthy MenB 16-23y dose-1 note cites the shared-decision-making rule and the 0/6mo schedule', () => {
     const r = run({ ageMonths: 192, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.status).toBe('shared-decision');
     expect(rec.note).toContain('[1]');
-    expect(rec.noteCites[0]).toMatchObject({ marker: '[1]', url: ACIP_ANCHORS.menbSharedDecision1623 });
+    expect(rec.note).toContain('[2]');
+    expect(rec.noteCites[0]).toMatchObject({ marker: '[1]', url: ACIP_ANCHORS.menbHealthySCDM1623Box });
+    expect(rec.noteCites[1]).toMatchObject({ marker: '[2]', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
   });
 
   it('healthy MenB "not yet due" (before 16) note cites the shared-decision-making rule', () => {
     const r = run({ ageMonths: 120, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.note).toContain('[1]');
-    expect(rec.noteCites[0]).toMatchObject({ marker: '[1]', url: ACIP_ANCHORS.menbSharedDecision1623 });
+    expect(rec.noteCites[0]).toMatchObject({ marker: '[1]', url: ACIP_ANCHORS.menbHealthySCDM1623Box });
   });
 
   it('high-risk MenACWY dose-1 note cites both age-7 booster-cadence branches', () => {

@@ -82,13 +82,6 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-23',
   },
-  menbSharedDecision1623: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
-    quote: 'ACIP recommends a MenB series for persons aged 16–23 years',
-    label: 'ACIP 2020 MMWR: MenB shared clinical decision-making, 16–23y',
-    short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
-  },
   boosterBeforeAge7: {
     url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
@@ -122,6 +115,86 @@ export const CITATIONS = {
     quote: 'vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks',
     label: 'ACIP 2020 MMWR: MenB deferred during pregnancy absent an increased-risk indication',
     short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbLicensedAge1025: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: 'MenB vaccines are licensed in the United States only for persons aged 10–25 years',
+    label: 'ACIP 2020 MMWR: MenB licensure (age 10–25 years)',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  acwyCatchup1921: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: 'Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination',
+    label: 'ACIP 2020 MMWR: 19–21y catch-up dose (no dose after the 16th birthday)',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  acwyFirstDoseAfter16NoBooster: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: 'Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease',
+    label: 'ACIP 2020 MMWR: a first dose given at ≥16y needs no booster',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+
+  // ACIP Oct 2024 MMWR (73(49);1124) — supersedes the 2020 MMWR's MenB-4C
+  // 2-dose table. THE authoritative source for every MenB-4C schedule.
+  // Quotes confirmed live 2026-07-24 as exact substrings of
+  // https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm.
+  mm7349a3: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    label: 'New Dosing Interval and Schedule for the Bexsero MenB-4C Vaccine: ACIP, October 2024 (MMWR 73(49);1124)',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbHighRisk3DoseSchedule: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease',
+    label: 'ACIP Oct 2024 MMWR: MenB-4C high-risk 3-dose series, 0/1–2/6 months',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbHealthy2Dose0and6: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'ACIP recommends that MenB-4C be administered to healthy adolescents and young adults aged 16–23 years as a 2-dose series at 0 and 6 months for the prevention of serogroup B meningococcal disease, based on shared clinical decision-making',
+    label: 'ACIP Oct 2024 MMWR: MenB-4C healthy 2-dose series, 0/6 months',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbRescueDoseRule: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose',
+    label: 'ACIP Oct 2024 MMWR: healthy 2-dose interval and the early-dose-2 rescue-dose rule',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbAcceleratedRapidProtection: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'Persons receiving a MenB vaccine based on shared clinical decision-making who desire more rapid protection against serogroup B (e.g., students initiating vaccination <6 months before college entry) may receive the 3-dose series (0, 1–2, and 6 months) to optimize rapid protection. This guidance applies to both MenB-4C and MenB-FHbp.',
+    label: 'ACIP Oct 2024 MMWR: healthy accelerated 3-dose series for rapid protection',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-07-24',
+  },
+
+  // ACIP 2025 MMWR (75(1);7–14) — same document as pentavalentGSK2025 below
+  // (its PMC mirror is PMC12782235); its Box cleanly restates every current
+  // MenACWY/MenB indication and the MenB high-risk booster cadence. Quotes
+  // confirmed live 2026-07-24 as exact substrings of
+  // https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm.
+  menbHealthySCDM1623Box: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'Healthy persons aged 16–23 years: Vaccination with a 2-dose MenB series on the basis of shared clinical decision-making, with 16–18 years the preferred age for MenB vaccination',
+    label: 'ACIP 2025 MMWR Box: MenB healthy shared clinical decision-making, 16–23y (16–18y preferred)',
+    short: 'ACIP 2025 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbHighRiskBoosterCadenceBox: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains',
+    label: 'ACIP 2025 MMWR Box: MenB high-risk booster cadence',
+    short: 'ACIP 2025 MMWR',
     lastVerified: '2026-07-24',
   },
 
