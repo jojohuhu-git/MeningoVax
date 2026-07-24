@@ -190,7 +190,6 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                 {stripAntigen(b)}
               </div>
             ))}
-            <div className="rec-brands-helper">Select one brand for this dose.</div>
           </div>
         )}
 
@@ -201,13 +200,13 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             that isn't due yet. Bold weight still keeps it prominent. */}
         {boosterDueDate && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            Not yet due — booster ~{fmtDate(boosterDueDate)}
+            Booster not yet due - ~{fmtDate(boosterDueDate)}
           </div>
         )}
 
         {!dueToday && earliestNextDate && (
           <div className="next-date">
-            Not yet due — eligible {fmtDate(earliestNextDate)}
+            Next dose not yet due - eligible {fmtDate(earliestNextDate)}
           </div>
         )}
 

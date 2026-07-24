@@ -828,12 +828,6 @@ body {
   background: var(--gy4);
   flex-shrink: 0;
 }
-.rec-brands-helper {
-  font-size: var(--fs-sm);
-  color: var(--gy3);
-  font-style: italic;
-  margin-top: var(--sp-4);
-}
 .rec-note {
   font-size: var(--fs-base);
   color: var(--gy2);
