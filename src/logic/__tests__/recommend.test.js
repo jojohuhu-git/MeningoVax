@@ -25,7 +25,7 @@ describe('MenACWY routine adolescent', () => {
   it('routine dose 1 cites ACIP 2020 MMWR before the CDC schedule note', () => {
     const r = run({ ageMonths: 132, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const urls = acwy(r).citations.map((c) => c.url);
-    expect(urls[0]).toMatch(/ncbi\.nlm\.nih\.gov/);
+    expect(urls[0]).toMatch(/cdc\.gov\/mmwr/);
   });
 
   it('13-year-old with dose 1 → booster due at 16y, not today', () => {
@@ -73,7 +73,7 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
   it('asplenia adult cites only ACIP 2020 MMWR, not the CDC adult schedule note', () => {
     const r = run({ ageMonths: 360, riskIds: ['asplenia'] });
     const cdcIdx = acwy(r).citations.findIndex((c) => c.url.includes('adult-notes'));
-    const acipIdx = acwy(r).citations.findIndex((c) => c.url.includes('ncbi.nlm.nih.gov'));
+    const acipIdx = acwy(r).citations.findIndex((c) => c.url.includes('cdc.gov/mmwr'));
     expect(acipIdx).toBeGreaterThanOrEqual(0);
     expect(cdcIdx).toBe(-1);
   });

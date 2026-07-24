@@ -58,81 +58,87 @@ export const CITATIONS = {
   },
 
   // ACIP MMWR — source of truth. Every acwy*/booster*/menb* anchor below
-  // cites this same document at one specific sentence. All 5 quotes below
-  // were confirmed live 2026-07-23 as exact verbatim substrings of
-  // https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/ (direct DOM substring
-  // search, not model paraphrase) — none are stale.
+  // cites this same document at one specific sentence. 2026-07-24: switched
+  // from the PMC mirror (pmc.ncbi.nlm.nih.gov/articles/PMC7527029/) to CDC's
+  // own static hosting of the identical report. Same document, same author,
+  // same text — only the URL changed. Reason: PMC's 2024 site rebuild
+  // ("cloudpmc-viewer") re-renders the page client-side after load, which
+  // breaks the browser's #:~:text= scroll-to-highlight (the match target
+  // gets swapped out from under it); CDC's plain server-rendered page does
+  // not have this problem. All 11 quotes below were re-confirmed live
+  // 2026-07-24 as exact verbatim substrings (after HTML-entity decoding) of
+  // https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm — none are stale.
   acip2020: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     label: 'Mbaeyi SA et al. Meningococcal Vaccination: ACIP Recommendations, United States, 2020 (MMWR RR-9)',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   acwyRoutine1112and16: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years',
     label: 'ACIP 2020 MMWR: routine 11–12y dose, 16y booster',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   acwyBeforeAge10: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease for which boosters are recommended should still receive MenACWY according to the recommended adolescent schedule, with the first dose at age 11–12 years and a booster dose at age 16 years',
     label: 'ACIP 2020 MMWR: doses before age 10 do not count toward the adolescent series',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   boosterBeforeAge7: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
     label: 'ACIP 2020 MMWR: booster cadence, primary completed before age 7',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   boosterAtOrAfterAge7: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
     label: 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   acwyInfantHighRisk2to6mo: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '4 doses at 2, 4, 6, and 12 mos',
     label: 'ACIP 2020 MMWR: high-risk infant MenACWY-CRM series starting at age 2 months — 4 doses at 2, 4, 6, and 12 months',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
   acwyInfantHighRisk7to23mo: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)',
     label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
   menbPregnancyDeferral: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks',
     label: 'ACIP 2020 MMWR: MenB deferred during pregnancy absent an increased-risk indication',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
   menbLicensedAge1025: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'MenB vaccines are licensed in the United States only for persons aged 10–25 years',
     label: 'ACIP 2020 MMWR: MenB licensure (age 10–25 years)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
   acwyCatchup1921: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination',
     label: 'ACIP 2020 MMWR: 19–21y catch-up dose (no dose after the 16th birthday)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
   acwyFirstDoseAfter16NoBooster: {
-    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease',
     label: 'ACIP 2020 MMWR: a first dose given at ≥16y needs no booster',
     short: 'ACIP 2020 MMWR',
