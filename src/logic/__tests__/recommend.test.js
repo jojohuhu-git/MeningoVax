@@ -138,6 +138,26 @@ describe('MenACWY single-dose indications', () => {
     expect(acwy(r).citations[0].url).toMatch(/immunize\.org/);
   });
 
+  // W4 (2026-07-24, p2018.pdf Item #P2018 10/14/2025, verified live): the
+  // college-dorm row lists THREE vaccination-history sub-cases, all needing
+  // "1 dose of MenACWY" -- none, a dose before 16y, AND a dose since the 16th
+  // birthday but more than 5 years previously. The `confirmedAt16` branch
+  // only checked whether a >=16y dose existed, not its recency, so the third
+  // sub-case fell through and was wrongly marked complete.
+  it('college dorm with a dose at 16y that is now >5 years ago → due, not complete', () => {
+    // dose at 192mo (16y), now 264mo (22y) → 72 months = 6 years elapsed
+    const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
+    expect(acwy(r).status).toBe('exposure');
+    expect(acwy(r).dueToday).toBe(true);
+    expect(acwy(r).note).toMatch(/more than 5 years/i);
+  });
+
+  it('college dorm with a dose at 16y exactly 5 years ago → still complete (boundary)', () => {
+    // dose at 192mo (16y), now 252mo (21y) → 60 months = exactly 5 years
+    const r = run({ ageMonths: 252, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2021-06-03', ageMonths: 192 }] });
+    expect(acwy(r).status).toBe('complete');
+  });
+
   it('military recruit with a prior documented dose → complete (single-dose indication met)', () => {
     const r = run({ ageMonths: 240, riskIds: ['military'], menacwyDoses: [{ date: '2025-06-03' }] });
     expect(acwy(r).status).toBe('complete');

@@ -218,17 +218,30 @@ function menacwyRec(am, riskIds, doses, today) {
     const isCollege = riskIds.includes('college_dorm');
 
     // College-dorm rule keys off whether a dose was given at age ≥16y.
+    // p2018.pdf (immunize.org Item #P2018, 10/14/2025) lists 3 history
+    // sub-cases needing "1 dose": none, a dose before 16y, AND a dose since
+    // the 16th birthday but more than 5 years previously — so a ≥16y dose
+    // only satisfies the requirement while it's 5 years old or less.
     if (isCollege) {
-      // Confirmed ≥16y dose → requirement satisfied.
-      const confirmedAt16 = doses.some((d) => {
-        const a = ageAtDose(d, am, today);
-        return a != null && a >= M.y16;
-      });
-      if (confirmedAt16) {
+      const dosesAt16Plus = doses
+        .map((d) => ({ a: ageAtDose(d, am, today) }))
+        .filter(({ a }) => a != null && a >= M.y16);
+      const recentAt16 = dosesAt16Plus.some(({ a }) => am - a <= 60); // ≤5 years (60 months)
+      if (recentAt16) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
           note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
           refs: refsFor([]),
+        })];
+      }
+      // A ≥16y dose exists but is now more than 5 years old — no longer
+      // satisfies the requirement.
+      if (dosesAt16Plus.length > 0) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (prior dose >5y ago)', seriesTotal: 1,
+          doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
+          note: 'A MenACWY dose was given at age ≥16 years, but more than 5 years ago. That dose no longer satisfies the college-residence requirement: give one dose now.',
+          refs: refsFor(['pentavalentGSK2025']),
         })];
       }
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
