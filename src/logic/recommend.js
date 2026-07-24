@@ -402,7 +402,30 @@ function menacwyRoutine(am, given, doses, last, today) {
   const routineCite = [cite('acwyRoutine1112and16')];
   const lastDate = last?.date || null;
   const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
+  // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
+  // filters out anything given before age 10 for a healthy patient — see
+  // validate.js), so a recorded dose here whose age is <132mo (11y) was
+  // necessarily given AT age 10, not before. ACIP/immunize.org: that dose
+  // is valid for adolescent dose 1 — no repeat is needed. This only matters
+  // for THIS one recorded dose (given === 1); once a second dose exists the
+  // schedule has already moved past the single-dose-1 question.
+  const doseAgesM = doses.map((d) => ageAtDose(d, am, today));
+  const doseAtAge10 = given === 1 && doseAgesM[0] != null && doseAgesM[0] < M.y11;
 
+  // Under 11, with a dose already on file: it can only be the age-10 dose
+  // above (nothing younger survives the A3 filter) — route to the same
+  // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
+  // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
+  if (am < M.y11 && given >= 1) {
+    const monthsUntil16 = M.y16 - am;
+    const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 1,
+      boosterSummary: 'Boosters: 1 more - at age 16',
+      earliestNextDate: null,
+      boosterDueDate,
+      note: 'A MenACWY dose given at age 10 counts as the first dose of the routine adolescent series [c]; no repeat dose is needed now. The routine booster is due at age 16 years (see the approximate date above).',
+      noteCites: [cite('acwyAge10CountsAsDose1')], refs })];
+  }
   if (am < M.y11) {
     return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet due',
       note: 'Routine MenACWY is recommended at 11–12 years (with a booster at 16 years) [c]. No routine dose is indicated at this age without a risk factor.',
@@ -428,8 +451,10 @@ function menacwyRoutine(am, given, doses, last, today) {
       boosterSummary: 'Boosters: 1 more - at age 16',
       earliestNextDate: null,
       boosterDueDate,
-      note: 'Routine dose 1 recorded. The routine booster is due at age 16 years [c] (see the approximate date above).',
-      noteCites: routineCite, refs })];
+      note: doseAtAge10
+        ? 'Routine dose 1 recorded, given at age 10 — this counts as the first dose of the adolescent series [c]; no repeat dose is needed. The routine booster is due at age 16 years (see the approximate date above).'
+        : 'Routine dose 1 recorded. The routine booster is due at age 16 years [c] (see the approximate date above).',
+      noteCites: doseAtAge10 ? [cite('acwyAge10CountsAsDose1')] : routineCite, refs })];
   }
   // 16–18y
   if (am < M.y19) {

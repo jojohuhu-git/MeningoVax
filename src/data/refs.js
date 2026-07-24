@@ -144,6 +144,15 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
+  // Change 2 (2026-07-24): a dose given at exactly age 10 is valid for the
+  // adolescent series — no repeat is needed at 11–12. Verified live.
+  acwyAge10CountsAsDose1: {
+    url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
+    quote: 'ACIP considers a dose of MenACWY given to a 10-year-old child to be valid for the first dose in the adolescent series.',
+    label: 'immunize.org Ask the Experts: a MenACWY dose at age 10 counts as adolescent dose 1',
+    short: 'Ask the Experts: MenACWY',
+    lastVerified: '2026-07-24',
+  },
 
   // ACIP Oct 2024 MMWR (73(49);1124) — supersedes the 2020 MMWR's MenB-4C
   // 2-dose table. THE authoritative source for every MenB-4C schedule.
