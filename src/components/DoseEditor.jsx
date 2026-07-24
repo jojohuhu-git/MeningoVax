@@ -12,7 +12,6 @@ export default function DoseEditor({
   onChange,
   brandOptions,
   addDoseLabel = '+ Add dose',
-  addAccessKey,
   removeLabel,
   emptyMessage,
   rowClassName,
@@ -109,8 +108,7 @@ export default function DoseEditor({
         <button
           className="add-dose-btn"
           onClick={addDose}
-          accessKey={addAccessKey}
-          title={addAccessKey ? 'Add dose (Ctrl/Cmd+A)' : undefined}
+          title="Add dose (Ctrl/Cmd+A)"
         >
           {addDoseLabel}
         </button>

@@ -335,6 +335,23 @@ describe('App wizard', () => {
       expect(document.querySelectorAll('.dose-row').length).toBe(1);
     });
 
+    // A1 (2026-07-24 plan): the Add-dose button used to also carry a browser
+    // native accessKey="a" (Alt+A on Windows/Linux, Ctrl+Alt+A on Mac Firefox),
+    // duplicating the JS-driven Ctrl/Cmd+A shortcut above via a different,
+    // less discoverable trigger. Removed — only the JS listener should fire.
+    it('the Add-dose button has no accessKey and no underlined "A" in its label', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('Yes, record doses'));
+
+      const addBtn = screen.getByTitle('Add dose (Ctrl/Cmd+A)');
+      expect(addBtn.accessKey).toBe('');
+      expect(addBtn.querySelector('u')).toBeNull();
+      expect(addBtn.textContent).toBe('+ Add dose');
+    });
+
     it('Enter advances from the Age step to Risks', () => {
       render(<App />);
       enterAgeYears(14);
