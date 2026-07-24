@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after W3 (exposure/outbreak status) (2026-07-24)
 
+**SUPERSEDED by `docs/archive/handoff-2026-07-24-w4-college-dorm-5y-fix-done.md`** — W4
+(this file's one open item) is now done too. Do not resume from this file; go to the W4
+handoff for the current "what's next" pointer.
+
 **Supersedes** `docs/archive/handoff-2026-07-24-citation-wiring-w1-w2-w5-done.md` for the
 "what's next" pointer — that file's W1/W2/W5 remain done and accurate; W3 (its one open
 item along with W4) is now also done. Do not resume W3 from that file.
