@@ -1,5 +1,11 @@
 # MeningoVax — Handoff after merging C5 subscript deep-links (2026-07-24)
 
+> **PARTIALLY SUPERSEDED (2026-07-24)** by
+> `docs/archive/handoff-2026-07-24-items-2-3-done.md`. **Item 2** (edit/undo for the
+> "Needs input" prompt) and **Item 3** (fmtDays() consistency) — both listed below as
+> "still wanted, not started" — are now DONE. Build the remaining queue (chip-relabeling,
+> vaxapp MenB parity, parked UX #4, broader C5 coverage) from the new handoff, not this one.
+
 **Supersedes `docs/archive/handoff-2026-07-23-results-tab-clarity-shipped.md`** — that
 file's queue is now folded into this one. PR #6 (the whole Results-tab clarity redesign,
 C1–C5) is merged to `main` and deployed. Do not resume from the superseded file.
