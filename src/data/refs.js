@@ -63,8 +63,19 @@ export const REFS = {
   },
 
   // immunize.org ----------------------------------------------------------
-  // immMenACWY and immMenB were removed — no citation in any rec or validate call.
-  // If needed in future, re-add as keys here and wire into collectRefs().
+  // C5 (2026-07-23 handoff): re-added. URLs verified live 2026-07-23. Leads
+  // only on "messy practical" recs (interrupted series, "does this old dose
+  // count") — CDC/ACIP still leads on recs a specific MMWR rule defines.
+  immMenACWY: {
+    url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
+    label: 'immunize.org: Ask the Experts — Meningococcal ACWY',
+    short: 'Ask the Experts: MenACWY',
+  },
+  immMenB: {
+    url: 'https://www.immunize.org/ask-experts/topic/menb/',
+    label: 'immunize.org: Ask the Experts — Meningococcal B',
+    short: 'Ask the Experts: MenB',
+  },
 };
 
 // Resolve an array of ref keys to {url, label, short} objects, dropping unknown keys.

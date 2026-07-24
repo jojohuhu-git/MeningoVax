@@ -96,7 +96,10 @@ function menacwyRec(am, riskIds, doses, today) {
   const last = doses[given - 1] || null;
   const lastDate = last?.date || null;
   const riskClass = menacwyRiskClass(riskIds);
-  const refsFor = (ids) => collectRefs(riskIds, ids, ['cdcAdultMening', 'acip2020']);
+  // C5: ACIP 2020 MMWR (RR-9) is the source-of-truth table for these
+  // risk-based schedules, so it leads; the CDC schedule note (a summary of
+  // the same ACIP recommendation) follows.
+  const refsFor = (ids) => collectRefs(riskIds, ids, ['acip2020', 'cdcAdultMening']);
 
   // Booster cadence per ACIP 2020 MMWR and immunize.org p2035:
   //   FIRST booster (given === 2 → dose 3):
@@ -207,7 +210,10 @@ function menacwyRec(am, riskIds, doses, today) {
           note: datesKnown
             ? 'A prior MenACWY dose is recorded but was given before age 16. The college-residence requirement is met only by a dose at age ≥16 years: give one dose now.'
             : 'A prior MenACWY dose is recorded but its age cannot be confirmed. If it was given on or after the 16th birthday, no further dose is needed; otherwise give one dose now. Confirm the date in the record.',
-          refs: refsFor([]),
+          // C5: an unconfirmed-date dose is a "does this old dose count"
+          // practical judgment call, not a rule a single MMWR table defines
+          // -- immunize.org's Ask the Experts leads here.
+          refs: datesKnown ? refsFor([]) : ['immMenACWY', ...refsFor([])],
         })];
       }
       // No history.
@@ -240,7 +246,8 @@ function menacwyRec(am, riskIds, doses, today) {
 }
 
 function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
-  const refs = collectRefs(riskIds, [], ['cdcChildMenACWY', 'acip2020']);
+  // C5: ACIP 2020 MMWR leads (source-of-truth), CDC schedule note follows.
+  const refs = collectRefs(riskIds, [], ['acip2020', 'cdcChildMenACWY']);
   const lastDate = last?.date || null;
   if (am < M.y2 && given === 0 && am >= 2) {
     // start series; Menveo only
@@ -335,7 +342,8 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
 // the patient has no current high-risk indication — see validate.js. This
 // function only needs the ordinary routine schedule logic.
 function menacwyRoutine(am, given, doses, last, today) {
-  const refs = ['cdcChildMenACWY', 'acip2020'];
+  // C5: ACIP 2020 MMWR leads (source-of-truth), CDC schedule note follows.
+  const refs = ['acip2020', 'cdcChildMenACWY'];
   const lastDate = last?.date || null;
   const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
 
@@ -515,7 +523,10 @@ function menbRec(am, riskIds, doses, today) {
           minIntervalDays: DAYS.months(4),
           family, brands: menbBrands(family),
           note: 'Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series.',
-          refs: refs(['cdcChildMenB']),
+          // C5: an interrupted/off-schedule series is a "does this old dose
+          // count" practical judgment call -- immunize.org's Ask the
+          // Experts leads here, ahead of the general CDC schedule note.
+          refs: ['immMenB', ...refs(['cdcChildMenB'])],
         })];
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
