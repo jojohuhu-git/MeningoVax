@@ -103,6 +103,27 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-23',
   },
+  acwyInfantHighRisk2to6mo: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: '4 doses at 2, 4, 6, and 12 mos',
+    label: 'ACIP 2020 MMWR: high-risk infant MenACWY-CRM series starting at age 2 months — 4 doses at 2, 4, 6, and 12 months',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  acwyInfantHighRisk7to23mo: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: '2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)',
+    label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  menbPregnancyDeferral: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/',
+    quote: 'vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks',
+    label: 'ACIP 2020 MMWR: MenB deferred during pregnancy absent an increased-risk indication',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
 
   // Pentavalent MMWRs. Label uses "MMWR <publish year>;<volume>(<issue>)" —
   // the precise publish citation, not the ACIP-action year (2026-07-23 fix:
@@ -129,10 +150,19 @@ export const CITATIONS = {
     // this page states the MenACWY high-risk booster age-split (<7y vs
     // ≥7y at primary completion) explicitly, which cdcAdultMening's
     // adult-schedule note does not (it only says "5 years").
+    // 2026-07-24 (re-verified live): this page also states a single
+    // brand-agnostic high-risk MenB schedule -- 3-dose primary (doses at
+    // 0, 1-2, 6 months) for BOTH MenB-4C and MenB-FHbp, with boosters 1yr
+    // after completion then every 2-3yrs -- which supersedes the 2020
+    // MMWR's brand-split table (3-dose FHbp OR 2-dose 4C). The app's
+    // uniform 3-dose schedule for both brands matches this current page,
+    // not the older MMWR table. Bulleted list content, not a clean
+    // quotable sentence, so cited here as a whole-page chip rather than a
+    // [N] highlight-superscript (same reasoning as immunize.org below).
     url: 'https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html',
     label: 'CDC: Meningococcal Vaccine Recommendations (HCP)',
     short: 'CDC Meningococcal Recommendations',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-07-24',
   },
   cdcComplementInhibitor: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',

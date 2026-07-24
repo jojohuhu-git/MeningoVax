@@ -437,3 +437,46 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
   });
 });
+
+// ── 2026-07-24: citation coverage extended to previously-uncited MenB/infant
+// notes (2026-07-23 audit handoff, "not done" queue). Quotes verified live
+// against the ACIP 2020 MMWR and the current CDC vaccine-recommendations page.
+describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-07-24)', () => {
+  it('MenB high-risk dose 1 cites cdcRecommendations alongside acip2020', () => {
+    const r = run({ ageMonths: 300, riskIds: ['asplenia'] });
+    const shorts = menb(r).citations.map((c) => c.short);
+    expect(shorts).toContain('CDC Meningococcal Recommendations');
+    expect(shorts).toContain('ACIP 2020 MMWR');
+  });
+
+  it('MenB high-risk booster cites cdcRecommendations', () => {
+    const r = run({ ageMonths: 300, riskIds: ['asplenia'], menbDoses: [
+      { date: '2024-01-03', brand: 'Bexsero' }, { date: '2024-02-10', brand: 'Bexsero' }, { date: '2024-07-10', brand: 'Bexsero' },
+    ] });
+    expect(menb(r).citations.map((c) => c.short)).toContain('CDC Meningococcal Recommendations');
+  });
+
+  it('Pregnancy deferral note carries a [1] highlight-superscript', () => {
+    const r = run({ ageMonths: 240, riskIds: ['pregnancy'] });
+    expect(menb(r).note).toMatch(/\[1\]/);
+    expect(menb(r).noteCites[0].marker).toBe('[1]');
+  });
+
+  it('Infant high-risk 2-6mo dose 1 note carries a [1] highlight-superscript', () => {
+    const r = run({ ageMonths: 4, riskIds: ['asplenia'] });
+    expect(acwy(r).note).toMatch(/\[1\]/);
+    expect(acwy(r).noteCites.length).toBeGreaterThan(0);
+  });
+
+  it('Infant high-risk 7-11mo dose 1 note carries a [1] highlight-superscript', () => {
+    const r = run({ ageMonths: 9, riskIds: ['asplenia'] });
+    expect(acwy(r).note).toMatch(/\[1\]/);
+  });
+
+  it('Infant high-risk 12-23mo dose 1 note carries [1] and [2] highlight-superscripts', () => {
+    const r = run({ ageMonths: 15, riskIds: ['asplenia'] });
+    expect(acwy(r).note).toMatch(/\[1\]/);
+    expect(acwy(r).note).toMatch(/\[2\]/);
+    expect(acwy(r).noteCites.length).toBe(2);
+  });
+});

@@ -273,18 +273,21 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     if (am <= 6) {
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 4 (infant high-risk)', doseNum: 1, seriesTotal: 4, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(4),
-        note: 'High-risk infants 2–6 months: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses). Only Menveo is licensed for infants ≥2 months.', refs });
+        note: 'High-risk infants 2–6 months: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [1]. Only Menveo is licensed for infants ≥2 months.',
+        noteCites: [cite(1, 'acwyInfantHighRisk2to6mo')], refs });
     }
     if (am <= 11) {
       // D5: D2 must be ≥12 weeks after D1 AND not before 12 months of age.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 + booster (infant high-risk 7–11mo)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
-        note: 'High-risk infants 7–11 months: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age. Then a booster at 12–23 months (≥12 weeks after the primary series).', refs });
+        note: 'High-risk infants 7–11 months: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [1]. Then a booster at 12–23 months (≥12 weeks after the primary series).',
+        noteCites: [cite(1, 'acwyInfantHighRisk7to23mo')], refs });
     }
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk 12–23mo)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
-      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.', refs });
+      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart [1], then a first booster in 3 years (primary series completed before age 7) [2], then every 5 years while at risk.',
+      noteCites: [cite(1, 'acwyInfantHighRisk7to23mo'), cite(2, 'boosterBeforeAge7')], refs });
   }
 
   // ── Continuing an infant series ──────────────────────────────────────────
@@ -311,7 +314,8 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
       minIntervalDays: DAYS.weeks(12),
       brands: MENACWY_INFANT,
-      note: 'D6: Dose 2 was given at ≥7 months, so the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age. After completion, a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
+      note: 'D6: Dose 2 was given at ≥7 months, so the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age [1]. After completion, a first booster in 3 years (primary series completed before age 7) [2], then every 5 years while at risk.',
+      noteCites: [cite(1, 'acwyInfantHighRisk7to23mo'), cite(2, 'boosterBeforeAge7')],
       refs });
   }
 
@@ -334,8 +338,9 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       minIntervalDays: boostDays,
       brands: menacwyBrands(am),
       note: isFirstInfantBooster
-        ? 'Infant high-risk primary series complete. First booster is due 3 years after the primary series (completed before age 7), then every 5 years while the high-risk condition persists.'
+        ? 'Infant high-risk primary series complete. First booster is due 3 years after the primary series (completed before age 7) [1], then every 5 years while the high-risk condition persists.'
         : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
+      noteCites: isFirstInfantBooster ? [cite(1, 'boosterBeforeAge7')] : [],
       refs });
   }
 
@@ -350,8 +355,11 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
     note: d1WasInfant7to11
-      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age. Then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.'
-      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months), then a first booster in 3 years (primary series completed before age 7), then every 5 years while at risk.',
+      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age [1]. Then a first booster in 3 years (primary series completed before age 7) [2], then every 5 years while at risk.'
+      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months) [1], then a first booster in 3 years (primary series completed before age 7) [2], then every 5 years while at risk.',
+    noteCites: d1WasInfant7to11
+      ? [cite(1, 'acwyInfantHighRisk7to23mo'), cite(2, 'boosterBeforeAge7')]
+      : [cite(1, 'acwyInfantHighRisk2to6mo'), cite(2, 'boosterBeforeAge7')],
     refs });
 }
 
@@ -466,7 +474,9 @@ function menbRec(am, riskIds, doses, today) {
   // Pregnancy deferral (unless an overriding high-risk indication applies).
   if (shouldDeferMenB(riskIds)) {
     return [rec({ vaccine: 'MenB', status: 'deferred', doseLabel: 'Defer during pregnancy', seriesTotal: highRisk ? 3 : 2,
-      note: 'MenB is generally deferred during pregnancy due to limited safety data, unless the patient is at increased risk (asplenia, complement deficiency, complement-inhibitor therapy, microbiologist, or serogroup B outbreak).', refs: refs() })];
+      note: 'MenB is generally deferred during pregnancy due to limited safety data, unless the patient is at increased risk (asplenia, complement deficiency, complement-inhibitor therapy, microbiologist, or serogroup B outbreak) [1].',
+      noteCites: [cite(1, 'menbPregnancyDeferral')],
+      refs: refs() })];
   }
 
   // ── High-risk: 3-dose 0/1–2/6 primary + boosters ─────────────────────────
@@ -475,7 +485,10 @@ function menbRec(am, riskIds, doses, today) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk', dueToday: true,
         family, brands: menbBrands(family),
         note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
-        refs: refs(['cdcComplementInhibitor']) })];
+        // cdcRecommendations (2026-07-24 finding): current CDC guidance
+        // states this same 3-dose schedule applies to both antigen
+        // families, superseding the 2020 MMWR's brand-split table.
+        refs: refs(['cdcComplementInhibitor', 'cdcRecommendations']) })];
     }
     if (given === 1) {
       const elapsed = intervalElapsed(lastDate, DAYS.weeks(4), today);
@@ -483,7 +496,7 @@ function menbRec(am, riskIds, doses, today) {
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
         family, brands: menbBrands(family),
         note: 'High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.',
-        refs: refs() })];
+        refs: refs(['cdcRecommendations']) })];
     }
     if (given === 2) {
       // C1: D3 requires BOTH ≥6 months from D1 AND ≥4 months from D2.
@@ -507,7 +520,7 @@ function menbRec(am, riskIds, doses, today) {
         minIntervalDays: DAYS.months(4), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
         note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule). After completion, boost 1 year later, then every 2–3 years while at risk.',
-        refs: refs() })];
+        refs: refs(['cdcRecommendations']) })];
     }
     // given >= 3: primary complete → boosters
     const firstBooster = given === 3;
@@ -519,7 +532,7 @@ function menbRec(am, riskIds, doses, today) {
       earliestNextDate: elapsed ? null : addDays(lastDate, intervalDays), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       note: 'High-risk MenB booster: 1 year after completing the primary series, then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.',
-      refs: refs() })];
+      refs: refs(['cdcRecommendations']) })];
   }
 
   // ── Healthy 16–23y shared clinical decision-making: 2-dose 0/6 ───────────
