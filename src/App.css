@@ -834,6 +834,15 @@ body {
   line-height: 1.55;
   margin-bottom: var(--sp-12);
 }
+/* C5: [N] subscript deep-links inside .rec-note, one per cited MMWR sentence. */
+.note-cite {
+  font-size: var(--fs-2xs);
+  vertical-align: super;
+  color: var(--c);
+  text-decoration: none;
+  padding: 0 1px;
+}
+.note-cite:hover { text-decoration: underline; }
 .rec-citations {
   display: flex;
   flex-wrap: wrap;

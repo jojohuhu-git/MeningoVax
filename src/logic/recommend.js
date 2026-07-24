@@ -15,7 +15,7 @@
 // brand strings. Do not re-derive brand eligibility in the UI.
 // ─────────────────────────────────────────────────────────────────────────
 
-import { resolveRefs } from '../data/refs.js';
+import { resolveRefs, ACIP_ANCHORS } from '../data/refs.js';
 import {
   menacwyRiskClass,
   hasMenbRisk,
@@ -68,6 +68,10 @@ function rec(o) {
     brands: o.brands ?? [],
     family: o.family ?? null,
     note: o.note,
+    // C5: [N] markers embedded in `note` that deep-link straight to the
+    // exact ACIP MMWR sentence, distinct from the general `citations` chips
+    // below (which cite the whole rec, not one sentence within it).
+    noteCites: o.noteCites ?? [],
     citations: resolveRefs(o.refs ?? []),
     // B6: set when a "complete" status still has a future booster coming
     // (an approximate ISO date), so the UI can show it prominently instead
@@ -77,6 +81,12 @@ function rec(o) {
     // today (count/cadence). null when no further booster is expected.
     boosterSummary: o.boosterSummary ?? null,
   };
+}
+
+// C5: build a [N] note-citation marker. `n` must match the literal "[N]"
+// substring placed in the note text at the point the cited sentence ends.
+function cite(n, anchorKey, label) {
+  return { marker: `[${n}]`, url: ACIP_ANCHORS[anchorKey], label };
 }
 
 // Compute age (months) at a past dose from its date and current age.
@@ -127,7 +137,11 @@ function menacwyRec(am, riskIds, doses, today) {
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
         doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: first booster 3–5 years after the primary series (based on completion age), then every 5 years while at risk', dueToday: true, brands: menacwyBrands(am),
-        note: 'High-risk indication (asplenia, persistent complement deficiency, complement-inhibitor therapy, or HIV): 2-dose primary series ≥8 weeks apart, then a first booster 3 years after primary if completed before age 7 (otherwise 5 years), then every 5 years while at increased risk.',
+        note: 'High-risk indication (asplenia, persistent complement deficiency, complement-inhibitor therapy, or HIV): 2-dose primary series ≥8 weeks apart, then a first booster 3 years after primary if completed before age 7 [1] (otherwise 5 years [2]), then every 5 years while at increased risk.',
+        noteCites: [
+          cite(1, 'boosterBeforeAge7', 'ACIP 2020 MMWR: booster cadence, primary completed before age 7'),
+          cite(2, 'boosterAtOrAfterAge7', 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7'),
+        ],
         refs: refsFor([]),
       })];
     }
@@ -156,8 +170,13 @@ function menacwyRec(am, riskIds, doses, today) {
       earliestNextDate: elapsed ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
       note: isFirstBooster
-        ? `Primary series complete. This first booster is due ${boostYears} years after the primary series${boostYears === '3' ? ' (completed before age 7)' : ' (primary completed at age 7 or older)'}, then every 5 years while the high-risk condition persists.`
+        ? `Primary series complete. This first booster is due ${boostYears} years after the primary series${boostYears === '3' ? ' (completed before age 7) [1]' : ' (primary completed at age 7 or older) [1]'}, then every 5 years while the high-risk condition persists.`
         : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
+      noteCites: isFirstBooster ? [
+        boostYears === '3'
+          ? cite(1, 'boosterBeforeAge7', 'ACIP 2020 MMWR: booster cadence, primary completed before age 7')
+          : cite(1, 'boosterAtOrAfterAge7', 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7'),
+      ] : [],
       refs: refsFor([]),
     })];
   }
@@ -349,14 +368,18 @@ function menacwyRoutine(am, given, doses, last, today) {
 
   if (am < M.y11) {
     return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet due',
-      note: 'Routine MenACWY is recommended at 11–12 years (with a booster at 16 years). No routine dose is indicated at this age without a risk factor.', refs })];
+      note: 'Routine MenACWY is recommended at 11–12 years (with a booster at 16 years) [1]. No routine dose is indicated at this age without a risk factor.',
+      noteCites: [cite(1, 'acwyRoutine1112and16', 'ACIP 2020 MMWR: routine 11–12y dose, 16y booster')],
+      refs })];
   }
   // 11–15y
   if (am < M.y16) {
     if (given === 0) {
       return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 1, boosterSummary: 'Boosters: 1 more - at age 16', dueToday: true,
         brands: menacwyBrands(am),
-        note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.', refs })];
+        note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [1]. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.',
+        noteCites: [cite(1, 'acwyRoutine1112and16', 'ACIP 2020 MMWR: routine 11–12y dose, 16y booster')],
+        refs })];
     }
     // already has dose 1 → booster due at 16y (future)
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
@@ -495,7 +518,8 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
-        note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba). If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making [1]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba). If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        noteCites: [cite(1, 'menbSharedDecision1623', 'ACIP 2020 MMWR: MenB shared clinical decision-making, 16–23y')],
         refs: refs(['cdcChildMenB', 'pentavalentGSK2025']) })];
     }
     if (given === 1) {
@@ -543,8 +567,9 @@ function menbRec(am, riskIds, doses, today) {
   // Healthy outside 16–23y → not routinely indicated
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: am < M.y16
-      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years (preferably 16–18). Not routinely indicated yet at this age without a risk factor.'
-      : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday). Vaccinate only for a high-risk indication.',
+      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years (preferably 16–18) [1]. Not routinely indicated yet at this age without a risk factor.'
+      : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday) [1]. Vaccinate only for a high-risk indication.',
+    noteCites: [cite(1, 'menbSharedDecision1623', 'ACIP 2020 MMWR: MenB shared clinical decision-making, 16–23y')],
     family, refs: refs() })];
 }
 

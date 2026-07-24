@@ -111,6 +111,25 @@ function DoseValidation({ result, seriesTotal, onAnswer }) {
   );
 }
 
+// C5: render `note` text with any [N] markers turned into clickable
+// superscript links that deep-link to the exact MMWR sentence (noteCites
+// pairs each literal "[N]" substring with its target URL). Plain string
+// back out when there's nothing to link — most notes have no noteCites.
+function renderNoteWithCites(note, noteCites) {
+  if (!noteCites || noteCites.length === 0) return note;
+  const escaped = noteCites.map((c) => c.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'g');
+  return note.split(pattern).map((part, i) => {
+    const c = noteCites.find((cite) => cite.marker === part);
+    if (!c) return part;
+    return (
+      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={c.label}>
+        {part}
+      </a>
+    );
+  });
+}
+
 // Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
 function showReasonsBlock(reasons, detail) {
   if (!reasons || reasons.length === 0) return null;
@@ -136,7 +155,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations, seriesTotal, boosterSummary } = rec;
+  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -239,7 +258,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {note && <div className="rec-note">{note}</div>}
+        {note && <div className="rec-note">{renderNoteWithCites(note, noteCites)}</div>}
 
         {citations && citations.length > 0 && (
           <div className="rec-citations">
