@@ -1,3 +1,8 @@
+> **SUPERSEDED (2026-07-24)** by
+> `docs/archive/handoff-2026-07-24-changes-1-4-all-done.md`. Changes 2 and 4 (listed
+> below as remaining) are both now done, pushed, and live-verified. Do not resume this
+> file — use the newer handoff.
+
 # MeningoVax — Handoff after Changes 1 & 3 shipped; 2 & 4 remaining (2026-07-24)
 
 > Supersedes `docs/archive/handoff-2026-07-24-four-build-changes-spec.md` — that file
