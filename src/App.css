@@ -921,6 +921,19 @@ body {
 .dose-val-unknown   { background: var(--gy6); color: var(--gy3); border: 1px solid var(--gy5); }
 /* Needs input: pending on a provider answer — dashed border signals it's interactive. */
 .dose-val-needs-input { background: var(--gy6); color: var(--gy2); border: 1px dashed var(--gy4); }
+/* Item 2 (2026-07-23 handoff): re-opens the risk-at-dose prompt on an
+   already-answered dose, in place (not an undo-to-pending). */
+.dose-val-edit-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--fs-xs);
+  color: var(--gy3);
+  text-decoration: underline;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dose-val-edit-link:hover { color: var(--gy2); }
 /* Pending row: chip + reasons + prompt, prompt always wraps to its own full-width line. */
 .dose-val-pending { align-items: flex-start; }
 .risk-at-dose-prompt {

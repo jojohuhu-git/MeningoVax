@@ -203,3 +203,32 @@ describe('Risk-at-dose "Needs input" prompt updates live', () => {
     expect(screen.queryByText('Dose 1 of 2')).toBeNull();
   });
 });
+
+// Item 2 (2026-07-23 handoff): once answered, an "Edit" link on the resolved
+// chip re-opens the same prompt and a new answer replaces the stored one --
+// end-to-end through Results' real state.riskAtDoseAnswers wiring, not just
+// RecCard's local prop handling.
+describe('Item 2: editing an already-answered risk-at-dose prompt', () => {
+  it('answering "Yes" then clicking Edit and picking "No" flips the dose to off-window', () => {
+    render(
+      <Harness
+        initial={baseState({
+          ageMonths: 120,
+          menacwyDoses: [{ date: '2020-01-15', brand: 'Menveo (MenACWY)' }],
+        })}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    expect(screen.getByText('Dose 1 of 2')).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId('dose-val-edit-risk-answer'));
+    expect(screen.getByTestId('risk-at-dose-prompt')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'No' }));
+
+    expect(screen.queryByTestId('risk-at-dose-prompt')).toBeNull();
+    expect(screen.getByText('Off-window - repeat')).toBeTruthy();
+    expect(screen.queryByText('Dose 1 of 2')).toBeNull();
+  });
+});

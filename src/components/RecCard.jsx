@@ -66,23 +66,27 @@ function describeDose(dose, idx, ageMonths, today) {
 //   Needs input (gray, interactive) — a PENDING state on doses where whether
 //     the patient was high-risk on that date is unknown and decisive. The
 //     provider's answer resolves it live to Dose N of M/Off-window.
-function DoseValidation({ result, seriesTotal, onAnswer }) {
+function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }) {
+  const [editing, setEditing] = useState(false);
   if (!result) return null;
   const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate } = result;
 
-  if (status === 'pending') {
+  // Item 2 (2026-07-23 handoff): once answered, the validator's result no
+  // longer carries needsInput/promptDate (see validate.js), so re-opening the
+  // prompt falls back to this dose's own recorded date instead.
+  if (status === 'pending' || editing) {
     return (
       <div className="dose-val dose-val-pending" data-testid="dose-val-pending">
         <span className="dose-val-chip dose-val-needs-input">Needs input</span>
         {showReasonsBlock(reasons, null)}
         <div className="risk-at-dose-prompt" data-testid="risk-at-dose-prompt">
           <div className="risk-at-dose-question">
-            Was this patient at high risk for meningococcal disease when this dose was given ({fmtDate(promptDate)})?
+            Was this patient at high risk for meningococcal disease when this dose was given ({fmtDate(promptDate ?? doseDate)})?
           </div>
           <div className="risk-at-dose-actions">
-            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('yes')}>Yes</button>
-            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('no')}>No</button>
-            <button type="button" className="btn btn-outline btn-small" onClick={() => onAnswer?.('unsure')}>Not sure</button>
+            <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('yes'); setEditing(false); }}>Yes</button>
+            <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('no'); setEditing(false); }}>No</button>
+            <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('unsure'); setEditing(false); }}>Not sure</button>
           </div>
         </div>
       </div>
@@ -106,6 +110,16 @@ function DoseValidation({ result, seriesTotal, onAnswer }) {
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>
       <span className={chipClass}>{chipLabel}</span>
+      {wasPrompted && (
+        <button
+          type="button"
+          className="dose-val-edit-link"
+          data-testid="dose-val-edit-risk-answer"
+          onClick={() => setEditing(true)}
+        >
+          Edit
+        </button>
+      )}
       {showReasonsBlock(reasons, detail)}
     </div>
   );
@@ -154,7 +168,7 @@ function timingClass(status, dueToday) {
   return 'timing-neutral';
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer }) {
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
   const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
@@ -251,6 +265,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                     result={doseValidations[i]}
                     seriesTotal={seriesTotal}
                     onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, i, answer)}
+                    wasPrompted={riskAtDoseAnswers[i] !== undefined}
+                    doseDate={d?.date}
                   />
                 </li>
               ))}
