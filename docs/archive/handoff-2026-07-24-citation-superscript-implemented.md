@@ -1,5 +1,11 @@
 # MeningoVax — Handoff after citation-superscript implementation (2026-07-24)
 
+> **SUPERSEDED (2026-07-24, later same day)** — the remaining-queue items
+> below (MenB/infant quote coverage, pregnancy deferral) are now implemented.
+> See `docs/archive/handoff-2026-07-24-citation-coverage-complete-recs-table-request.md`
+> for what shipped and the owner's new request. Do not resume the "not done"
+> queue from here.
+
 Supersedes `docs/archive/handoff-2026-07-23-citation-superscript-audit-plan.md`
 (that file's research/plan is now implemented — don't re-derive it, don't
 re-run its queue).
