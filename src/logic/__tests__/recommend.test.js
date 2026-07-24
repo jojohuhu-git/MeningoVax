@@ -124,14 +124,14 @@ describe('MenACWY single-dose indications', () => {
 
   it('college dorm with a prior dose given before 16y → still due (booster at ≥16y)', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ ageMonths: 132 }] });
-    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).status).toBe('exposure');
     expect(acwy(r).dueToday).toBe(true);
     expect(acwy(r).note).toMatch(/before age 16/i);
   });
 
   it('college dorm with a prior dose of unknown age → due, note flags unconfirmed', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ brand: 'Menveo' }] });
-    expect(acwy(r).status).toBe('risk-based');
+    expect(acwy(r).status).toBe('exposure');
     expect(acwy(r).note).toMatch(/cannot be confirmed/i);
     // C5: "does this old dose count" is a messy practical judgment call --
     // immunize.org's Ask the Experts leads the citation list here.
@@ -141,6 +141,50 @@ describe('MenACWY single-dose indications', () => {
   it('military recruit with a prior documented dose → complete (single-dose indication met)', () => {
     const r = run({ ageMonths: 240, riskIds: ['military'], menacwyDoses: [{ date: '2025-06-03' }] });
     expect(acwy(r).status).toBe('complete');
+  });
+});
+
+// ── W3 (2026-07-24): exposure/outbreak status, distinct from risk-based ────
+// Owner decision (see handoff-2026-07-24-citation-wiring-w1-w2-w5-done.md):
+// transient one-and-done indications (military, college-dorm, ACWY outbreak)
+// AND ongoing travel/microbiologist re-exposure get a status of 'exposure',
+// not 'risk-based' -- that word is reserved for ongoing MEDICAL risk
+// (asplenia, complement deficiency, HIV). Same purple badge color as
+// risk-based (owner decision) -- only the status word/grouping differs.
+describe('W3: exposure/outbreak MenACWY status distinct from medical risk-based', () => {
+  it('travel, no doses → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 300, riskIds: ['travel'] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('travel booster due → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 300, riskIds: ['travel'], menacwyDoses: [{ date: '2018-06-03' }] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('microbiologist, no doses → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 300, riskIds: ['microbiologist'] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('military recruit, no doses → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 240, riskIds: ['military'] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('serogroup A/C/W/Y outbreak, no doses → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 240, riskIds: ['outbreak_acwy'] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('college dorm, no history → status is exposure, not risk-based', () => {
+    const r = run({ ageMonths: 228, riskIds: ['college_dorm'] });
+    expect(acwy(r).status).toBe('exposure');
+  });
+
+  it('medical high-risk (asplenia) is unaffected -- still risk-based', () => {
+    const r = run({ ageMonths: 360, riskIds: ['asplenia'] });
+    expect(acwy(r).status).toBe('risk-based');
   });
 });
 

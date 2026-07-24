@@ -58,7 +58,7 @@ function menbBrands(family) {
 function rec(o) {
   return {
     vaccine: o.vaccine,
-    status: o.status,          // due | catchup | risk-based | shared-decision | complete | not-indicated | deferred
+    status: o.status,          // due | catchup | risk-based | exposure | shared-decision | complete | not-indicated | deferred
     doseLabel: o.doseLabel,
     doseNum: o.doseNum ?? null,
     seriesTotal: o.seriesTotal ?? null,
@@ -182,10 +182,15 @@ function menacwyRec(am, riskIds, doses, today) {
   }
 
   // ── Single dose with ongoing boosters (travel, microbiologist) ───────────
+  // W3 (2026-07-24 owner decision): status is 'exposure', not 'risk-based' --
+  // that word is reserved for ongoing MEDICAL risk (asplenia, complement
+  // deficiency, HIV, above). Travel/microbiologist re-exposure is a
+  // different kind of "why," even though the schedule (1 dose + q5y
+  // boosters) is structurally similar.
   if (riskClass === 'single+boost') {
     if (given === 0) {
       return [rec({
-        vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose (ongoing-risk indication)',
+        vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (ongoing-risk indication)',
         doseNum: 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: true, brands: menacwyBrands(am),
         note: 'Travel to hyperendemic/epidemic areas or routine occupational exposure (microbiologist): 1 dose now. Re-vaccinate every 5 years if risk continues.',
         // C5/2026-07-24: cdcRecommendations dropped in favour of the ACIP
@@ -196,7 +201,7 @@ function menacwyRec(am, riskIds, doses, today) {
     }
     const elapsed = intervalElapsed(lastDate, DAYS.years(5), today);
     return [rec({
-      vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Booster (dose ${given + 1}, every 5 years)`,
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, every 5 years)`,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.years(5)),
       minIntervalDays: DAYS.years(5), brands: menacwyBrands(am),
@@ -206,6 +211,9 @@ function menacwyRec(am, riskIds, doses, today) {
   }
 
   // ── Single dose, no booster (military, college dorm, ACWY outbreak) ───────
+  // W3 (2026-07-24 owner decision): status is 'exposure', not 'risk-based' --
+  // these are transient one-and-done indications, distinct from ongoing
+  // medical risk. See the single+boost branch above for the same rule.
   if (riskClass === 'single') {
     const isCollege = riskIds.includes('college_dorm');
 
@@ -227,7 +235,7 @@ function menacwyRec(am, riskIds, doses, today) {
       if (given >= 1) {
         const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');
         return [rec({
-          vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose (booster at ≥16y)',
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (booster at ≥16y)',
           doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
           note: datesKnown
             ? 'A prior MenACWY dose is recorded but was given before age 16. The college-residence requirement is met only by a dose at age ≥16 years: give one dose now.'
@@ -240,7 +248,7 @@ function menacwyRec(am, riskIds, doses, today) {
       }
       // No history.
       return [rec({
-        vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose', seriesTotal: 1,
+        vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
         doseNum: 1, dueToday: true, brands: menacwyBrands(am),
         note: 'First-year college student living in a residence hall: a single MenACWY dose, unless a dose was already given at age ≥16 years.',
         // C5/2026-07-24: ACIP 2025 MMWR Box lists this indication directly
@@ -258,7 +266,7 @@ function menacwyRec(am, riskIds, doses, today) {
       })];
     }
     return [rec({
-      vaccine: 'MenACWY', status: 'risk-based', doseLabel: '1 dose', seriesTotal: 1,
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
       note: 'Military recruits and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
       refs: refsFor(['pentavalentGSK2025']),

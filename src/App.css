@@ -680,6 +680,10 @@ body {
 .status-badge.due              { color: var(--g); }
 .status-badge.catchup          { color: var(--a); }
 .status-badge.risk-based       { color: var(--p); }
+/* W3 (2026-07-24 owner decision): exposure/outbreak (travel, microbiologist,
+   military, college-dorm) keeps the same purple as risk-based -- only the
+   status word/grouping differs, not the color. */
+.status-badge.exposure         { color: var(--p); }
 .status-badge.shared-decision  { color: var(--b); }
 .status-badge.complete         { color: var(--gy3); }
 .status-badge.not-indicated    { color: var(--gy4); }

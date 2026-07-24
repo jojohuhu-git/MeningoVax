@@ -29,7 +29,7 @@ function statusPillLabel(rec) {
   if (status === 'catchup') return 'Catch-up dose due today';
   if (status === 'shared-decision') return dueToday ? 'Optional today - shared decision' : 'Up to date';
 
-  // 'due' / 'risk-based': a dose is being recommended now.
+  // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
   if (!dueToday) return 'Up to date';
   const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
   if (isBooster) return 'Booster due today';
