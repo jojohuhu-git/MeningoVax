@@ -28,28 +28,32 @@ export const RISK_FACTORS = [
     sublabel: 'e.g. C5–C9, properdin, factor H/D; or eculizumab (Soliris), ravulizumab (Ultomiris)',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
-    refs: ['cdcComplementInhibitor', 'acip2020', 'cdcAdultMening'],
+    // cdcAdultMening dropped 2026-07-24: it just restates the acip2020 rule
+    // (2026-07-23 owner decision). cdcComplementInhibitor stays — it has
+    // unique content (newer complement inhibitors, incomplete-protection
+    // finding, prophylaxis guidance) that the MMWR doesn't cover.
+    refs: ['cdcComplementInhibitor', 'acip2020'],
   },
   {
     id: 'asplenia',
     label: 'Anatomic or functional asplenia/sickle cell disease',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
-    refs: ['acip2020', 'cdcAdultMening'],
+    refs: ['acip2020'],
   },
   {
     id: 'hiv',
     label: 'HIV infection',
     menacwyClass: 'primary2',
     menbClass: undefined,
-    refs: ['acip2020', 'cdcAdultMening'],
+    refs: ['acip2020'],
   },
   {
     id: 'microbiologist',
     label: 'Microbiologist routinely exposed to N. meningitidis',
     menacwyClass: 'single+boost',
     menbClass: 'highrisk',
-    refs: ['acip2020', 'cdcAdultMening'],
+    refs: ['acip2020'],
   },
   {
     id: 'travel',
@@ -71,7 +75,7 @@ export const RISK_FACTORS = [
     label: 'First-year college student living in a residence hall',
     menacwyClass: 'single',
     menbClass: undefined,
-    refs: ['cdcAdultMening', 'acip2020'],
+    refs: ['acip2020'],
   },
   {
     id: 'outbreak_acwy',

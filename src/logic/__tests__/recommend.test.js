@@ -66,14 +66,16 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
     expect(acwy(r).dueToday).toBe(true);
   });
 
-  // C5: ACIP 2020 MMWR is the source-of-truth table for the high-risk
-  // schedule, so it leads over the CDC adult schedule note (a summary).
-  it('asplenia adult cites ACIP 2020 MMWR before the CDC adult schedule note', () => {
+  // C5/2026-07-24: ACIP 2020 MMWR is the source-of-truth table for the
+  // high-risk schedule. The CDC adult schedule note is dropped entirely —
+  // it just restates the same MMWR rule (2026-07-23 owner decision: don't
+  // cite two sources for one rule).
+  it('asplenia adult cites only ACIP 2020 MMWR, not the CDC adult schedule note', () => {
     const r = run({ ageMonths: 360, riskIds: ['asplenia'] });
     const cdcIdx = acwy(r).citations.findIndex((c) => c.url.includes('adult-notes'));
     const acipIdx = acwy(r).citations.findIndex((c) => c.url.includes('ncbi.nlm.nih.gov'));
     expect(acipIdx).toBeGreaterThanOrEqual(0);
-    expect(cdcIdx).toBeGreaterThan(acipIdx);
+    expect(cdcIdx).toBe(-1);
   });
 
   it('complement inhibitor adult, dose 1 four weeks ago → dose 2 not yet (needs 8wk)', () => {

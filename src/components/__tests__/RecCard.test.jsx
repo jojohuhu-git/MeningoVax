@@ -247,3 +247,30 @@ describe('RecCard recorded-dose age at administration (D3)', () => {
     expect(screen.getByText(/age unknown/)).toBeTruthy();
   });
 });
+
+// 2026-07-24: citation-superscript hover quote (2026-07-23 owner decision —
+// the quoted source sentence shows on hover, as a fallback for browsers that
+// ignore the #:~:text= scroll-to-highlight fragment, e.g. Firefox).
+describe('RecCard note-citation hover quote', () => {
+  it('the [N] superscript link title attribute is the exact quoted sentence, and href carries the highlight fragment', () => {
+    const quote = 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years';
+    render(
+      <RecCard
+        rec={{
+          ...baseRec,
+          note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [1].',
+          noteCites: [{ marker: '[1]', url: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/#:~:text=${encodeURIComponent(quote)}`, label: quote }],
+        }}
+      />
+    );
+    const link = screen.getByText('[1]');
+    expect(link.getAttribute('title')).toBe(quote);
+    expect(link.getAttribute('href')).toContain('#:~:text=');
+  });
+
+  it('note text with no noteCites renders as plain text, no link', () => {
+    render(<RecCard rec={{ ...baseRec, note: 'Plain note, no citation.' }} />);
+    expect(screen.getByText('Plain note, no citation.')).toBeTruthy();
+    expect(screen.queryByRole('link')).toBeNull();
+  });
+});

@@ -7,7 +7,14 @@
 // sentence, not the MMWR content itself.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
-import { ACIP_ANCHORS } from '../../data/refs.js';
+import { cite } from '../../data/refs.js';
+
+const ACIP_ANCHORS = {
+  acwyRoutine1112and16: cite(1, 'acwyRoutine1112and16').url,
+  menbSharedDecision1623: cite(1, 'menbSharedDecision1623').url,
+  boosterBeforeAge7: cite(1, 'boosterBeforeAge7').url,
+  boosterAtOrAfterAge7: cite(1, 'boosterAtOrAfterAge7').url,
+};
 
 const TODAY = '2026-06-03';
 function run(input) {
