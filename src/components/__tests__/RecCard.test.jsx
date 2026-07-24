@@ -258,8 +258,8 @@ describe('RecCard note-citation hover quote', () => {
       <RecCard
         rec={{
           ...baseRec,
-          note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [1].',
-          noteCites: [{ marker: '[1]', url: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/#:~:text=${encodeURIComponent(quote)}`, label: quote }],
+          note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [c].',
+          noteCites: [{ key: 'acwyRoutine1112and16', url: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/#:~:text=${encodeURIComponent(quote)}`, label: quote }],
         }}
       />
     );

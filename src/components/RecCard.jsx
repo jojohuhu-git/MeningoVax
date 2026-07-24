@@ -125,22 +125,37 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
   );
 }
 
-// C5: render `note` text with any [N] markers turned into clickable
-// superscript links that deep-link to the exact MMWR sentence (noteCites
-// pairs each literal "[N]" substring with its target URL). Plain string
-// back out when there's nothing to link — most notes have no noteCites.
+// C5/Change 4 (2026-07-24): render `note` text with each literal "[c]"
+// placeholder turned into a clickable, NUMBERED superscript link that
+// deep-links to the exact MMWR sentence. `noteCites` is an ORDERED list of
+// {key, page, url, label} — one entry per "[c]" occurrence in the note, in
+// order. The visible [N] number is assigned HERE, by order of first
+// mention, not hardcoded in recommend.js — so a source can no longer
+// render under a different number than intended just because a manual
+// cite(N, key) call was typed wrong.
+// Numbers are deduped by `page` (owner decision, 2026-07-24): two citation
+// keys that quote different sentences on the SAME source page share one
+// [N] — the number identifies the document, not the sentence. Each marker
+// still gets its OWN href (deep-linking to its own quoted sentence) and its
+// own hover title (that exact quote), so distinct sentences stay
+// individually reachable even when their numbers match.
 function renderNoteWithCites(note, noteCites) {
   if (!noteCites || noteCites.length === 0) return note;
-  const escaped = noteCites.map((c) => c.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const pattern = new RegExp(`(${escaped.join('|')})`, 'g');
-  return note.split(pattern).map((part, i) => {
-    const c = noteCites.find((cite) => cite.marker === part);
-    if (!c) return part;
-    return (
+  const numberByPage = new Map();
+  let nextNumber = 1;
+  const parts = note.split('[c]');
+  return parts.flatMap((part, i) => {
+    if (i === parts.length - 1) return [part];
+    const c = noteCites[i];
+    if (!c) return [part];
+    const dedupeKey = c.page ?? c.key;
+    if (!numberByPage.has(dedupeKey)) numberByPage.set(dedupeKey, nextNumber++);
+    const marker = `[${numberByPage.get(dedupeKey)}]`;
+    return [part, (
       <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={c.label}>
-        {part}
+        {marker}
       </a>
-    );
+    )];
   });
 }
 

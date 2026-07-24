@@ -524,27 +524,27 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
     expect(menb(r).citations.map((c) => c.short)).toContain('ACIP Oct 2024 MMWR');
   });
 
-  it('Pregnancy deferral note carries a [1] highlight-superscript', () => {
+  it('Pregnancy deferral note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 240, riskIds: ['pregnancy'] });
-    expect(menb(r).note).toMatch(/\[1\]/);
-    expect(menb(r).noteCites[0].marker).toBe('[1]');
+    expect(menb(r).note).toMatch(/\[c\]/);
+    expect(menb(r).noteCites[0].key).toBe('menbPregnancyDeferral');
   });
 
-  it('Infant high-risk 2-6mo dose 1 note carries a [1] highlight-superscript', () => {
+  it('Infant high-risk 2-6mo dose 1 note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 4, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/\[1\]/);
+    expect(acwy(r).note).toMatch(/\[c\]/);
     expect(acwy(r).noteCites.length).toBeGreaterThan(0);
   });
 
-  it('Infant high-risk 7-11mo dose 1 note carries a [1] highlight-superscript', () => {
+  it('Infant high-risk 7-11mo dose 1 note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 9, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/\[1\]/);
+    expect(acwy(r).note).toMatch(/\[c\]/);
   });
 
-  it('Infant high-risk 12-23mo dose 1 note carries [1] and [2] highlight-superscripts', () => {
+  it('Infant high-risk 12-23mo dose 1 note carries two [c] highlight-superscript placeholders', () => {
     const r = run({ ageMonths: 15, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/\[1\]/);
-    expect(acwy(r).note).toMatch(/\[2\]/);
+    const matches = acwy(r).note.match(/\[c\]/g) || [];
+    expect(matches.length).toBe(2);
     expect(acwy(r).noteCites.length).toBe(2);
   });
 });

@@ -289,12 +289,22 @@ export function resolveRefs(keys = []) {
     .map(({ url, label, short }) => ({ url, label, short }));
 }
 
-// C5: build a [N] note-citation marker. `n` must match the literal "[N]"
-// substring placed in the note text at the point the cited sentence ends.
-// The link deep-links to the exact sentence via `quote`, and its tooltip
-// shows that same quoted text (2026-07-23 owner decision: quote shows on
-// hover, for browsers/environments where #:~:text= doesn't visibly scroll).
-export function cite(n, key) {
+// C5/Change 4 (2026-07-24): a note-citation source, keyed but NOT numbered.
+// Each occurrence corresponds to one literal "[c]" placeholder in the note
+// text, in order. RecCard's renderNoteWithCites() assigns the visible [N]
+// number at render time (by order of first mention, deduping repeats of the
+// same underlying PAGE — see `page` below) — recommend.js no longer
+// hardcodes numbers, so the same source can no longer drift to a different
+// number just because it was typed wrong.
+// `url` deep-links to the exact quoted sentence via `quote`, and `label` is
+// that same quoted text shown as the hover tooltip (2026-07-23 owner
+// decision: quote shows on hover, for browsers/environments where
+// #:~:text= doesn't visibly scroll). `page` is the plain page URL with no
+// fragment — two citation keys that quote different sentences on the SAME
+// page share one visible [N] (owner decision, 2026-07-24: the number
+// identifies the source document; the link and hover text still point at
+// the specific sentence).
+export function cite(key) {
   const c = CITATIONS[key];
-  return { marker: `[${n}]`, url: highlightUrl(key), label: c?.quote ?? c?.label };
+  return { key, page: c?.url, url: highlightUrl(key), label: c?.quote ?? c?.label };
 }
