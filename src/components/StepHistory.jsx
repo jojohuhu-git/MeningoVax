@@ -19,16 +19,18 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
     return () => document.removeEventListener('keydown', handleKeydown);
   }, [hasHistory, doses, onChange]);
 
-  // Ctrl/Cmd+Y answers "Yes, record doses"; Alt/Cmd+N answers "No previous
-  // doses" -- lets the whole history question be answered from the keyboard
-  // without reaching for the mouse.
+  // Ctrl/Cmd+Y answers "Yes, record doses"; Ctrl/Cmd+E answers "No previous
+  // doses" ("E" for Empty) -- lets the whole history question be answered
+  // from the keyboard without reaching for the mouse. Not Ctrl/Cmd+N: the
+  // browser claims Cmd+N (Mac) / Ctrl+N (Win) for "new window" before the
+  // page ever sees the keydown, so it can't be caught here.
   useEffect(() => {
     function handleKeydown(e) {
       const key = e.key.toLowerCase();
       if ((e.ctrlKey || e.metaKey) && key === 'y') {
         e.preventDefault();
         handleYes();
-      } else if ((e.altKey || e.metaKey) && key === 'n') {
+      } else if ((e.ctrlKey || e.metaKey) && key === 'e') {
         e.preventDefault();
         handleNo();
       }
@@ -62,7 +64,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
           onClick={handleNo}
         >
           No previous doses
-          <span className="shortcut-hint history-toggle-hint">Alt/Cmd+N</span>
+          <span className="shortcut-hint history-toggle-hint">Ctrl/Cmd+E</span>
         </button>
         <button
           className={`history-toggle-btn${hasHistory === true ? ' selected' : ''}`}
