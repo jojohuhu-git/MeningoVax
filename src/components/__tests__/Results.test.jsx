@@ -147,9 +147,9 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     expect(pentaCard.textContent).toMatch(/MenB is optional today \(shared clinical decision\)/i);
   });
 
-  it('MenB status badge reads "Optional (shared decision)"', () => {
+  it('MenB status badge reads "Optional today - shared decision"', () => {
     render(<Harness initial={acwyRequiredMenbOptionalState()} />);
-    expect(screen.getByText('Optional (shared decision)')).toBeDefined();
+    expect(screen.getByText('Optional today - shared decision')).toBeDefined();
     expect(screen.queryByText('Shared decision')).toBeNull();
   });
 

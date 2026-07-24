@@ -4,15 +4,37 @@ import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 
-const STATUS_LABELS = {
-  'due':              'Due',
-  'catchup':          'Catch-up',
-  'risk-based':       'Risk-Based',
-  'shared-decision':  'Optional (shared decision)',
-  'complete':         'Complete',
-  'not-indicated':    'Not indicated',
-  'deferred':         'Deferred',
-};
+// C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
+// instead of a terse status word that needed a legend to decode (the legend
+// was removed in C1). Owner-approved vocabulary:
+//   due today, boosters follow      -> "Dose due today, future boosters needed"
+//   due today, no boosters          -> "Dose due today"
+//   behind schedule                 -> "Catch-up dose due today"
+//   series done, booster due today  -> "Booster due today"
+//   series done, booster in future  -> "Future booster needed"
+//   optional (MenB 16-23y)          -> "Optional today - shared decision"
+//   nothing left                    -> "Up to date"
+//   not indicated for this patient  -> "Not needed"
+//   MenB in pregnancy               -> "Deferred in pregnancy"
+// Derived from rec fields already on the object (status, dueToday,
+// boosterDueDate, boosterSummary) plus a doseNum > seriesTotal comparison
+// to tell a primary/catch-up dose apart from a booster dose -- no new
+// engine field needed, since seriesTotal already excludes boosters (C2).
+function statusPillLabel(rec) {
+  const { status, dueToday, doseNum, seriesTotal, boosterDueDate, boosterSummary } = rec;
+
+  if (status === 'deferred') return 'Deferred in pregnancy';
+  if (status === 'not-indicated') return 'Not needed';
+  if (status === 'complete') return boosterDueDate ? 'Future booster needed' : 'Up to date';
+  if (status === 'catchup') return 'Catch-up dose due today';
+  if (status === 'shared-decision') return dueToday ? 'Optional today - shared decision' : 'Up to date';
+
+  // 'due' / 'risk-based': a dose is being recommended now.
+  if (!dueToday) return 'Up to date';
+  const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
+  if (isBooster) return 'Booster due today';
+  return boosterSummary ? 'Dose due today, future boosters needed' : 'Dose due today';
+}
 
 // One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
 // D3: age at administration lets a clinician compare a recorded dose's timing
@@ -139,7 +161,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <span className="rec-vaccine-name">{vaccine}</span>
           {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
             <Chevron open={expanded} />
           </span>
         </button>
@@ -147,7 +169,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
           </span>
         </div>
       )}
