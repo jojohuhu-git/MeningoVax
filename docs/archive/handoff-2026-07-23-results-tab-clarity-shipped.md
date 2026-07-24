@@ -1,5 +1,10 @@
 # MeningoVax — Handoff after implementing the Results-tab clarity redesign (2026-07-23)
 
+> **SUPERSEDED (2026-07-24)** by
+> `docs/archive/handoff-2026-07-24-c5-subscript-links-merged.md`. C5's subscript
+> deep-link piece (this file's one open item) is now DONE and PR #6 (this whole redesign)
+> is merged to `main` and deployed. Do not resume from this file; read the newer one.
+
 **Supersedes `handoff-2026-07-23-results-tab-clarity-design.md`** (the design doc this
 session implemented from) — that file's queue (C1–C5 + small copy items) is DONE except
 one piece noted below. Do not resume from the design doc; resume from this file.
