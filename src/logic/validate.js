@@ -110,6 +110,8 @@ const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(4);   // ~122 d
 
 // Age band for infant-booster cadence check (7 years in months)
 const AGE_7Y_MONTHS = 84;
+// Routine (non-high-risk) MenACWY booster age floor (16 years in months)
+const AGE_16Y_MONTHS = 192;
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -360,6 +362,28 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
         );
       }
     }
+  }
+
+  // ── Change 3 (2026-07-24 handoff): a healthy 2nd ACWY dose given before ──
+  // the 16y booster window doesn't count. Routine (non-high-risk) MenACWY is
+  // exactly 2 doses: the adolescent primary dose (11-12y, or credited at 10y
+  // per the age-10 rule above) + a booster tied to age 16 (16-18y catch-up if
+  // the primary dose was given at 13-15y). ACIP: "Adolescents who receive
+  // their first dose at age 13–15 years should receive a booster dose at age
+  // 16–18 years... Adolescents who receive a first dose after their 16th
+  // birthday do not need a booster dose" — the booster is an AGE window, not
+  // just an interval from dose 1. A dose given after the primary dose already
+  // counted, but before the patient turns 16, is safe but isn't the booster
+  // and must not chip-render as "Dose 2 of 1" (a chip must never show a
+  // number greater than the series total). High-risk patients are unaffected
+  // — their primary series legitimately has 2+ doses before age 16.
+  // Source: https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm
+  if (!isHighRiskNow && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
+    return {
+      status: 'valid',
+      reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16.`],
+      notAdolescentCount: true,
+    };
   }
 
   return validResult(answeredYesNote ? [answeredYesNote] : []);

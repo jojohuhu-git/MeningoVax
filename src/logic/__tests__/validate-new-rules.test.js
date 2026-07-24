@@ -607,3 +607,62 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     expect(results[3].reasons[0]).toMatch(/5 years/i);
   });
 });
+
+// ── Handoff 2026-07-24 Change #3 — chips never show N > M; an early 2nd ──
+// healthy MenACWY dose (given before the 16y booster window) must not
+// advance the routine dose count. Owner's live example: D1 at 10y6m
+// (MenQuadfi, counts as the adolescent dose), D2 at 11y8m (brand unknown) —
+// far too early to be the 16y booster. D2 must land in the amber
+// "notAdolescentCount" bucket (like the existing pre-age-10 / pre-age-16
+// rules), not advance effectiveDoseNum to 2 against a seriesTotal of 1.
+// Source: ACIP 2020 MMWR (rr6909a1.htm), re-verified live 2026-07-24 —
+// "Adolescents who receive their first dose at age 13–15 years should
+// receive a booster dose at age 16–18 years... Adolescents who receive a
+// first dose after their 16th birthday do not need a booster dose" — the
+// booster is tied to the 16-18y age window, never to an interval alone.
+describe('Change #3 — healthy 2nd MenACWY dose given before the 16y booster window does not count', () => {
+  it('owner example: D1 at 10y6m (counts), D2 at 11y8m (too early for booster) → D2 does not advance the count', () => {
+    // Patient now 20y (240mo). D1 ageAtDose ≈126mo (10y6m), D2 ageAtDose ≈140mo (11y8m).
+    const d1 = monthsAgo(114); // 240-114=126mo ≈ 10y6m
+    const d2 = monthsAgo(100); // 240-100=140mo ≈ 11y8m
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'MenQuadfi (MenACWY)' },
+      { date: d2, brand: '' },
+    ], 240);
+    expect(results[0].status).toBe('valid');
+    expect(results[0].effectiveDoseNum).toBe(1);
+    expect(results[1].status).toBe('valid');
+    expect(results[1].notAdolescentCount).toBe(true);
+    expect(results[1].effectiveDoseNum).toBeNull();
+  });
+
+  it('a dose given at ≥16y after an already-counted primary dose DOES advance the count (it is the real booster)', () => {
+    const d1 = monthsAgo(120); // ageAtDose ≈ 11y (patient now 21y = 252mo)
+    const d2 = monthsAgo(60);  // ageAtDose ≈ 16y — the real booster
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+    ], 252);
+    expect(results[0].effectiveDoseNum).toBe(1);
+    expect(results[1].status).toBe('valid');
+    expect(results[1].notAdolescentCount).toBeFalsy();
+    expect(results[1].effectiveDoseNum).toBe(2);
+  });
+
+  it('high-risk patients are unaffected — their 2nd primary dose before 16y still counts', () => {
+    // High-risk primary series legitimately has 2+ doses before age 16.
+    // Dates kept well clear of the age-10 boundary (monthsAgo()'s day-based
+    // approximation can land a dose fractionally under a whole-month
+    // threshold — see the Case B comment above); 'yes' answers are a
+    // defensive no-op if the ambiguity prompt fires anyway.
+    const d1 = monthsAgo(20); // ageAtDose ≈ 130mo (10y10m, safely ≥10y) (patient now 150mo)
+    const d2 = monthsAgo(8);  // ageAtDose ≈ 142mo (11y10m), ≥8wk after d1
+    const results = validate('MenACWY', [
+      { date: d1, brand: 'Menveo (MenACWY)' },
+      { date: d2, brand: 'Menveo (MenACWY)' },
+    ], 150, ['asplenia'], { 0: 'yes', 1: 'yes' });
+    expect(results[1].status).toBe('valid');
+    expect(results[1].notAdolescentCount).toBeFalsy();
+    expect(results[1].effectiveDoseNum).toBe(2);
+  });
+});
