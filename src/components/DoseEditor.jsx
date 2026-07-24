@@ -114,7 +114,7 @@ export default function DoseEditor({
         >
           {addDoseLabel}
         </button>
-        <kbd>Ctrl/Cmd + A</kbd>
+        <span className="shortcut-hint">Ctrl/Cmd+A</span>
       </div>
     </div>
   );

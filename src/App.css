@@ -459,6 +459,11 @@ body {
 .history-toggle-btn {
   flex: 1;
   min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   border-radius: var(--rads);
   border: 1.5px solid var(--gy5);
   background: var(--wh);
@@ -472,6 +477,9 @@ body {
   border-color: var(--c);
   color: var(--c);
   font-weight: 600;
+}
+.history-toggle-hint {
+  font-size: var(--fs-xs);
 }
 .dose-list { display: flex; flex-direction: column; gap: var(--sp-12); }
 .dose-row {
@@ -1194,19 +1202,6 @@ body {
 .legend-swatch-invalid    { background: var(--rlt); border-color: var(--rmd); }
 .legend-swatch-unknown    { background: var(--gy6); border-color: var(--gy5); }
 .legend-swatch-needs-input { background: var(--gy6); border: 1px dashed var(--gy4); }
-kbd {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px var(--sp-8);
-  border-radius: var(--rads);
-  border: 1px solid var(--gy5);
-  background: var(--gy6);
-  color: var(--gy);
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  justify-content: center;
-}
 .shortcut-hint {
   display: inline-flex;
   align-items: center;

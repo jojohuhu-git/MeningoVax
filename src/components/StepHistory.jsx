@@ -19,6 +19,25 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
     return () => document.removeEventListener('keydown', handleKeydown);
   }, [hasHistory, doses, onChange]);
 
+  // Ctrl/Cmd+Y answers "Yes, record doses"; Alt/Cmd+N answers "No previous
+  // doses" -- lets the whole history question be answered from the keyboard
+  // without reaching for the mouse.
+  useEffect(() => {
+    function handleKeydown(e) {
+      const key = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && key === 'y') {
+        e.preventDefault();
+        handleYes();
+      } else if ((e.altKey || e.metaKey) && key === 'n') {
+        e.preventDefault();
+        handleNo();
+      }
+    }
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function handleYes() {
     setHasHistory(true);
   }
@@ -43,12 +62,14 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
           onClick={handleNo}
         >
           No previous doses
+          <span className="shortcut-hint history-toggle-hint">Alt/Cmd+N</span>
         </button>
         <button
           className={`history-toggle-btn${hasHistory === true ? ' selected' : ''}`}
           onClick={handleYes}
         >
           Yes, record doses
+          <span className="shortcut-hint history-toggle-hint">Ctrl/Cmd+Y</span>
         </button>
       </div>
 
