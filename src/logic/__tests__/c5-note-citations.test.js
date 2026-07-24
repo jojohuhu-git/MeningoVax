@@ -15,7 +15,6 @@ import { cite } from '../../data/refs.js';
 
 const ACIP_ANCHORS = {
   acwyRoutine1112and16: cite('acwyRoutine1112and16').url,
-  menbHealthySCDM1623Box: cite('menbHealthySCDM1623Box').url,
   menbHealthy2Dose0and6: cite('menbHealthy2Dose0and6').url,
   boosterBeforeAge7: cite('boosterBeforeAge7').url,
   boosterAtOrAfterAge7: cite('boosterAtOrAfterAge7').url,
@@ -44,20 +43,22 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
 
-  it('healthy MenB 16-23y dose-1 note cites the shared-decision-making rule and the 0/6mo schedule', () => {
+  it('healthy MenB 16-23y dose-1 note cites the mm7349a3 SCDM/0-6mo sentence (not the mislabeled Penmenvy page), and drops the "(preferably 16-18)" claim', () => {
     const r = run({ ageMonths: 192, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.status).toBe('shared-decision');
+    expect(rec.note).not.toContain('preferably 16');
     expect(rec.noteCites).toHaveLength(2);
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthySCDM1623Box', url: ACIP_ANCHORS.menbHealthySCDM1623Box });
+    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
     expect(rec.noteCites[1]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
   });
 
-  it('healthy MenB "not yet due" (before 16) note cites the shared-decision-making rule', () => {
+  it('healthy MenB "not yet due" (before 16) note cites the mm7349a3 SCDM sentence and drops "(preferably 16-18)"', () => {
     const r = run({ ageMonths: 120, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.note).toContain('[c]');
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthySCDM1623Box', url: ACIP_ANCHORS.menbHealthySCDM1623Box });
+    expect(rec.note).not.toContain('preferably 16');
+    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
   });
 
   it('high-risk MenACWY dose-1 note cites both age-7 booster-cadence branches', () => {

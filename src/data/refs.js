@@ -198,13 +198,6 @@ export const CITATIONS = {
   // MenACWY/MenB indication and the MenB high-risk booster cadence. Quotes
   // confirmed live 2026-07-24 as exact substrings of
   // https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm.
-  menbHealthySCDM1623Box: {
-    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
-    quote: 'Healthy persons aged 16–23 years: Vaccination with a 2-dose MenB series on the basis of shared clinical decision-making, with 16–18 years the preferred age for MenB vaccination',
-    label: 'ACIP 2025 MMWR Box: MenB healthy shared clinical decision-making, 16–23y (16–18y preferred)',
-    short: 'ACIP 2025 MMWR',
-    lastVerified: '2026-07-24',
-  },
   menbHighRiskBoosterCadenceBox: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains',

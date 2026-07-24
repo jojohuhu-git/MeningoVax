@@ -616,13 +616,15 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
-        note: 'Healthy adolescents/young adults 16–23 years (preferably 16–18) may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
-        // C5/2026-07-24: first [c] is the cleaner 2025 MMWR Box preferred-age
-        // sentence; second [c] is the mm7349a3 0/6-month schedule (CHANGED
-        // from ≥1mo in the 2020 table) — cdcChildMenB dropped (citation
-        // audit finding).
-        noteCites: [cite('menbHealthySCDM1623Box'), cite('menbHealthy2Dose0and6')],
-        refs: refs([], ['pentavalentGSK2025']) })];
+        note: 'Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
+        // covers the 16-23y age range and the 0/6-month schedule in one
+        // quote) — the old first cite (menbHealthySCDM1623Box, the
+        // Penmenvy/mm7501a2 page) mislabeled a generic MenB-4C statement as
+        // Penmenvy-specific, and its "preferably 16-18" claim isn't in
+        // mm7349a3 so was dropped.
+        noteCites: [cite('menbHealthy2Dose0and6'), cite('menbHealthy2Dose0and6')],
+        refs: refs([], ['mm7349a3']) })];
     }
     if (given === 1) {
       const elapsed = intervalElapsed(lastDate, DAYS.months(6), today);
@@ -631,7 +633,7 @@ function menbRec(am, riskIds, doses, today) {
         family, brands: menbBrands(family),
         note: 'Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].',
         noteCites: [cite('menbRescueDoseRule')],
-        refs: refs([], ['pentavalentGSK2025']) })];
+        refs: refs([], ['mm7349a3']) })];
     }
     if (given === 2) {
       const dose1date = doses[0]?.date;
@@ -654,12 +656,12 @@ function menbRec(am, riskIds, doses, today) {
           // count" practical judgment call -- immunize.org's Ask the
           // Experts leads here, ahead of the general schedule source.
           noteCites: [cite('menbRescueDoseRule')],
-          refs: ['immMenB', ...refs([], ['pentavalentGSK2025'])],
+          refs: ['immMenB', ...refs([], ['mm7349a3'])],
         })];
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
         note: 'Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.',
-        refs: refs([], ['pentavalentGSK2025']) })];
+        refs: refs([], ['mm7349a3']) })];
     }
     if (given >= 3) {
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (accelerated 3-dose series)', family, seriesTotal: 3,
@@ -670,14 +672,15 @@ function menbRec(am, riskIds, doses, today) {
   }
 
   // Healthy outside 16–23y → not routinely indicated
-  // C5/2026-07-24: [c] swapped to the cleaner 2025 MMWR Box sentence;
-  // cdcChildMenB dropped (citation audit finding).
+  // C1/2026-07-24: [c] points at mm7349a3 (the same source as the
+  // shared-decision recs above), not the mislabeled Penmenvy page; the
+  // "preferably 16-18" claim isn't in mm7349a3 so was dropped.
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: am < M.y16
-      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years (preferably 16–18) [c]. Not routinely indicated yet at this age without a risk factor.'
+      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years [c]. Not routinely indicated yet at this age without a risk factor.'
       : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday) [c]. Vaccinate only for a high-risk indication.',
-    noteCites: [cite('menbHealthySCDM1623Box')],
-    family, refs: refs([], ['pentavalentGSK2025']) })];
+    noteCites: [cite('menbHealthy2Dose0and6')],
+    family, refs: refs([], ['mm7349a3']) })];
 }
 
 // Merge risk-driven ref keys with defaults, de-duplicated, preserving order.
