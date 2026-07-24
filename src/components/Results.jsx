@@ -27,7 +27,6 @@ export default function Results({ state, onReset, onChange, onBack }) {
   const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
   const [editingDoses, setEditingDoses] = useState(false);
-  const [showLegend, setShowLegend] = useState(false);
   const [activeDoseSection, setActiveDoseSection] = useState('acwy');
 
   const result = recommend({
@@ -163,7 +162,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <button
                 type="button"
                 className="age-edit-btn"
-                onClick={() => { setEditingAge(v => !v); setEditingDoses(false); setShowLegend(false); }}
+                onClick={() => { setEditingAge(v => !v); setEditingDoses(false); }}
                 aria-expanded={editingAge}
               >
                 Adjust age<Chevron open={editingAge} />
@@ -173,20 +172,12 @@ export default function Results({ state, onReset, onChange, onBack }) {
               <button
                 type="button"
                 className="age-edit-btn"
-                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setShowLegend(false); setActiveDoseSection('acwy'); }}
+                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setActiveDoseSection('acwy'); }}
                 aria-expanded={editingDoses}
               >
                 {`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} />
               </button>
             )}
-            <button
-              type="button"
-              className="age-edit-btn"
-              onClick={() => { setShowLegend(v => !v); setEditingAge(false); setEditingDoses(false); }}
-              aria-expanded={showLegend}
-            >
-              Color key<Chevron open={showLegend} />
-            </button>
           </div>
         </div>
         {editingAge && (
@@ -246,27 +237,6 @@ export default function Results({ state, onReset, onChange, onBack }) {
             </div>
 
             <span className="age-edit-hint">Changes update recommendations immediately.</span>
-          </div>
-        )}
-        {/* E6/D6: what the colors used throughout this page mean (colors only;
-            keyboard-shortcut hints live at the controls they act on, see D6b). */}
-        {showLegend && (
-          <div className="age-edit-row legend-panel dose-history-panel" data-testid="legend-panel">
-            <div className="dose-history-block">
-              <div className="history-edit-section-title">Vaccine box colors</div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-due" /><span>Due today: on schedule, expected now</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-catchup" /><span>Catch-up: behind the routine schedule, needed now to catch up</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-shared" /><span>Optional (shared decision): patient and provider decide together</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-neutral" /><span>Not currently due (complete, not indicated, or deferred)</span></div>
-            </div>
-            <div className="dose-history-block">
-              <div className="history-edit-section-title">Recorded-dose validity colors</div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-valid" /><span>Counts: advances this patient's series</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-offwindow" /><span>Off-window — repeat: safely given, but doesn't advance this series</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-invalid" /><span>Invalid (does not count)</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-unknown" /><span>Unknown (no date recorded)</span></div>
-              <div className="legend-row"><span className="legend-swatch legend-swatch-needs-input" /><span>Needs input: whether this dose counts depends on the patient's risk status on that date — answer the prompt to resolve it</span></div>
-            </div>
           </div>
         )}
       </div>

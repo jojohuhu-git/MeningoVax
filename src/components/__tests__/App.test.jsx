@@ -105,10 +105,9 @@ describe('App wizard', () => {
     expect(links.length).toBeGreaterThan(0);
   });
 
-  // E6/D6: a color key explaining the box colors, toggled the same way as
-  // "Adjust age" / "Recorded doses". Keyboard-shortcut hints live at the
-  // controls they act on (D6b), not in this panel.
-  it('toggles a color key explaining box colors', () => {
+  // C1 (2026-07-23): the color-key legend was removed — every pill/chip now
+  // carries its own words, so no key is needed to decode them.
+  it('does not render a color key / legend button on Results', () => {
     render(<App />);
     enterAgeYears(23);
     fireEvent.click(getNextBtn());
@@ -119,18 +118,7 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
     expect(screen.queryByTestId('legend-panel')).toBeNull();
-    const colorKeyBtn = screen.getByRole('button', { name: /color key/i });
-    fireEvent.click(colorKeyBtn);
-    const panel = screen.getByTestId('legend-panel');
-    expect(panel.textContent).toMatch(/due today/i);
-    expect(panel.textContent).toMatch(/catch-up/i);
-    expect(panel.textContent).toMatch(/shared decision/i);
-    expect(panel.textContent).toMatch(/counts/i);
-    expect(panel.textContent).toMatch(/off-window/i);
-    expect(panel.textContent).toMatch(/invalid/i);
-
-    fireEvent.click(colorKeyBtn);
-    expect(screen.queryByTestId('legend-panel')).toBeNull();
+    expect(screen.queryByRole('button', { name: /color key/i })).toBeNull();
   });
 
   it('shows "Start Over" button on Results and resets to Age step', () => {
