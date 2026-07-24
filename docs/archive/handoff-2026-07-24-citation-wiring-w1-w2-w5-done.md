@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after W1/W2/W5 citation wiring (2026-07-24)
 
+**Partially superseded by `docs/archive/handoff-2026-07-24-w3-exposure-outbreak-status-done.md`**
+— this file's W3 item is now done as of that session; only W4 remains open. Do not resume
+W3 from here.
+
 **Partially supersedes `docs/archive/handoff-2026-07-24-citation-audit-complete-wiring-queue.md`**
 — that file's W1, W2, and W5 queue items are done as of this session. Its remaining items
 (W3, W4) are unaffected and still open — this file is their new source of truth. Do not
