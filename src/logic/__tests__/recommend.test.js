@@ -19,6 +19,15 @@ describe('MenACWY routine adolescent', () => {
     expect(acwy(r).brands).toContain('Menveo 2-vial (MenACWY)');
   });
 
+  // C5 (2026-07-23 handoff): the ACIP 2020 MMWR defines this routine
+  // schedule directly; the CDC schedule note summarizes the same ACIP
+  // recommendation. ACIP leads, not CDC-by-default.
+  it('routine dose 1 cites ACIP 2020 MMWR before the CDC schedule note', () => {
+    const r = run({ ageMonths: 132, riskIds: [], menacwyDoses: [], menbDoses: [] });
+    const urls = acwy(r).citations.map((c) => c.url);
+    expect(urls[0]).toMatch(/ncbi\.nlm\.nih\.gov/);
+  });
+
   it('13-year-old with dose 1 → booster due at 16y, not today', () => {
     const r = run({ ageMonths: 156, riskIds: [], menacwyDoses: [{ date: '2024-06-03', ageMonths: 132 }] });
     expect(acwy(r).status).toBe('complete');
@@ -55,6 +64,16 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseLabel).toMatch(/Dose 1 of 2/);
     expect(acwy(r).dueToday).toBe(true);
+  });
+
+  // C5: ACIP 2020 MMWR is the source-of-truth table for the high-risk
+  // schedule, so it leads over the CDC adult schedule note (a summary).
+  it('asplenia adult cites ACIP 2020 MMWR before the CDC adult schedule note', () => {
+    const r = run({ ageMonths: 360, riskIds: ['asplenia'] });
+    const cdcIdx = acwy(r).citations.findIndex((c) => c.url.includes('adult-notes'));
+    const acipIdx = acwy(r).citations.findIndex((c) => c.url.includes('ncbi.nlm.nih.gov'));
+    expect(acipIdx).toBeGreaterThanOrEqual(0);
+    expect(cdcIdx).toBeGreaterThan(acipIdx);
   });
 
   it('complement inhibitor adult, dose 1 four weeks ago → dose 2 not yet (needs 8wk)', () => {
@@ -112,6 +131,9 @@ describe('MenACWY single-dose indications', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ brand: 'Menveo' }] });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).note).toMatch(/cannot be confirmed/i);
+    // C5: "does this old dose count" is a messy practical judgment call --
+    // immunize.org's Ask the Experts leads the citation list here.
+    expect(acwy(r).citations[0].url).toMatch(/immunize\.org/);
   });
 
   it('military recruit with a prior documented dose → complete (single-dose indication met)', () => {
@@ -156,6 +178,9 @@ describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
     expect(menb(r).doseLabel).toMatch(/rescue/i);
     expect(menb(r).doseNum).toBe(3);
     expect(menb(r).minIntervalDays).toBe(DAYS.months(4));
+    // C5: an interrupted/off-schedule series is a "does this old dose
+    // count" practical judgment call -- immunize.org leads here.
+    expect(menb(r).citations[0].url).toMatch(/immunize\.org/);
   });
 
   it('dose 2 given early, <4 months after dose 2 → rescue dose not yet due', () => {

@@ -18,6 +18,55 @@ const baseRec = {
   dueToday: true,
 };
 
+// C3 (2026-07-23 handoff): self-describing status pills, replacing the old
+// terse STATUS_LABELS map that needed a legend (removed in C1) to decode.
+describe('RecCard status pill (C3 self-describing vocabulary)', () => {
+  it('primary dose due today with future boosters', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'due', dueToday: true, doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)' }} />);
+    expect(screen.getByText('Dose due today, future boosters needed')).toBeTruthy();
+  });
+
+  it('primary dose due today with no boosters', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'due', dueToday: true, doseNum: 1, seriesTotal: 1 }} />);
+    expect(screen.getByText('Dose due today')).toBeTruthy();
+  });
+
+  it('catch-up dose reads "Catch-up dose due today"', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'catchup', dueToday: true, doseNum: 1, seriesTotal: 1 }} />);
+    expect(screen.getByText('Catch-up dose due today')).toBeTruthy();
+  });
+
+  it('booster dose due today (doseNum beyond the primary series total)', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'risk-based', dueToday: true, doseNum: 3, seriesTotal: 2 }} />);
+    expect(screen.getByText('Booster due today')).toBeTruthy();
+  });
+
+  it('complete with a booster due later reads "Future booster needed"', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'complete', dueToday: false, boosterDueDate: '2028-08-01' }} />);
+    expect(screen.getByText('Future booster needed')).toBeTruthy();
+  });
+
+  it('complete with nothing further reads "Up to date"', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'complete', dueToday: false }} />);
+    expect(screen.getByText('Up to date')).toBeTruthy();
+  });
+
+  it('not-indicated reads "Not needed"', () => {
+    render(<RecCard rec={{ ...baseRec, status: 'not-indicated', dueToday: false }} />);
+    expect(screen.getByText('Not needed')).toBeTruthy();
+  });
+
+  it('deferred (MenB in pregnancy) reads "Deferred in pregnancy"', () => {
+    render(<RecCard rec={{ ...baseRec, vaccine: 'MenB', status: 'deferred', dueToday: false }} />);
+    expect(screen.getByText('Deferred in pregnancy')).toBeTruthy();
+  });
+
+  it('shared-decision due today reads "Optional today - shared decision"', () => {
+    render(<RecCard rec={{ ...baseRec, vaccine: 'MenB', status: 'shared-decision', dueToday: true, doseNum: 1, seriesTotal: 2 }} />);
+    expect(screen.getByText('Optional today - shared decision')).toBeTruthy();
+  });
+});
+
 describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () => {
   it('labels a plain valid dose "Counts" (green)', () => {
     render(
@@ -31,7 +80,25 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     expect(chip.className).toMatch(/dose-val-valid/);
   });
 
-  it('labels a pre-age-10 dose "Off-window — repeat" (amber), never "Invalid"', () => {
+  // C2 (2026-07-23 handoff): when the rec carries a seriesTotal (M) and the
+  // result carries an effectiveDoseNum (N), the chip merges into a single
+  // "Dose N of M" label instead of two separate chips ("Counts" +
+  // "Effective dose N").
+  it('labels a valid dose with a known series total "Dose N of M" (green), not two chips', () => {
+    render(
+      <RecCard
+        rec={{ ...baseRec, seriesTotal: 2 }}
+        doses={[{ date: '2024-01-01', brand: '' }]}
+        doseValidations={[{ status: 'valid', effectiveDoseNum: 1, reasons: [] }]}
+      />
+    );
+    const chip = screen.getByText('Dose 1 of 2');
+    expect(chip.className).toMatch(/dose-val-valid/);
+    expect(screen.queryByText('Counts')).toBeNull();
+    expect(screen.queryByText(/Effective dose/)).toBeNull();
+  });
+
+  it('labels a pre-age-10 dose "Off-window - repeat" (amber), never "Invalid"', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -44,7 +111,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         }]}
       />
     );
-    const chip = screen.getByText('Off-window — repeat');
+    const chip = screen.getByText('Off-window - repeat');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     expect(screen.queryByText('Invalid')).toBeNull();
   });
@@ -130,6 +197,26 @@ describe('RecCard "Needs input" chip and risk-at-dose prompt (§2-3)', () => {
     fireEvent.click(unsureButtons[1]);
     expect(onRiskAtDoseAnswer).toHaveBeenCalledWith('MenACWY', 0, 'no');
     expect(onRiskAtDoseAnswer).toHaveBeenCalledWith('MenACWY', 1, 'unsure');
+  });
+});
+
+// C4 (2026-07-23 handoff): a "Boosters:" body line states the count/cadence
+// of FUTURE boosters beyond what's due today. The concrete next date stays
+// in the separate booster-due-banner.
+describe('RecCard "Boosters:" summary line (C4)', () => {
+  it('renders the boosterSummary line when the rec carries one', () => {
+    render(
+      <RecCard
+        rec={{ ...baseRec, boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)' }}
+      />
+    );
+    const line = screen.getByTestId('booster-summary-line');
+    expect(line.textContent).toBe('Boosters: every 5 years while at high risk (ongoing)');
+  });
+
+  it('renders nothing when the rec has no boosterSummary', () => {
+    render(<RecCard rec={baseRec} />);
+    expect(screen.queryByTestId('booster-summary-line')).toBeNull();
   });
 });
 

@@ -4,15 +4,37 @@ import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 
-const STATUS_LABELS = {
-  'due':              'Due',
-  'catchup':          'Catch-up',
-  'risk-based':       'Risk-Based',
-  'shared-decision':  'Optional (shared decision)',
-  'complete':         'Complete',
-  'not-indicated':    'Not indicated',
-  'deferred':         'Deferred',
-};
+// C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
+// instead of a terse status word that needed a legend to decode (the legend
+// was removed in C1). Owner-approved vocabulary:
+//   due today, boosters follow      -> "Dose due today, future boosters needed"
+//   due today, no boosters          -> "Dose due today"
+//   behind schedule                 -> "Catch-up dose due today"
+//   series done, booster due today  -> "Booster due today"
+//   series done, booster in future  -> "Future booster needed"
+//   optional (MenB 16-23y)          -> "Optional today - shared decision"
+//   nothing left                    -> "Up to date"
+//   not indicated for this patient  -> "Not needed"
+//   MenB in pregnancy               -> "Deferred in pregnancy"
+// Derived from rec fields already on the object (status, dueToday,
+// boosterDueDate, boosterSummary) plus a doseNum > seriesTotal comparison
+// to tell a primary/catch-up dose apart from a booster dose -- no new
+// engine field needed, since seriesTotal already excludes boosters (C2).
+function statusPillLabel(rec) {
+  const { status, dueToday, doseNum, seriesTotal, boosterDueDate, boosterSummary } = rec;
+
+  if (status === 'deferred') return 'Deferred in pregnancy';
+  if (status === 'not-indicated') return 'Not needed';
+  if (status === 'complete') return boosterDueDate ? 'Future booster needed' : 'Up to date';
+  if (status === 'catchup') return 'Catch-up dose due today';
+  if (status === 'shared-decision') return dueToday ? 'Optional today - shared decision' : 'Up to date';
+
+  // 'due' / 'risk-based': a dose is being recommended now.
+  if (!dueToday) return 'Up to date';
+  const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
+  if (isBooster) return 'Booster due today';
+  return boosterSummary ? 'Dose due today, future boosters needed' : 'Dose due today';
+}
 
 // One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
 // D3: age at administration lets a clinician compare a recorded dose's timing
@@ -30,9 +52,12 @@ function describeDose(dose, idx, ageMonths, today) {
 // result now optionally carries effectiveDoseNum, doesNotCount, and
 // notAdolescentCount (A3) from analyzeHistory.
 //
-// Chip vocabulary (owner-agreed design, 2026-07-23 handoff):
-//   Counts (green) — a valid dose that advances this patient's series.
-//   Off-window — repeat (amber) — safely given, but doesn't advance this
+// Chip vocabulary (owner-agreed design, 2026-07-23 handoff, C2 revision):
+//   Dose N of M (green) — a valid dose that advances this patient's series;
+//     N is this dose's position (effectiveDoseNum), M is the primary-series
+//     total (seriesTotal from recommend.js — boosters are NOT counted in M).
+//     Replaces the old two-chip "Counts" + "Effective dose N" pairing.
+//   Off-window - repeat (amber) — safely given, but doesn't advance this
 //     patient's series. Clinical rationale goes in the reasons text beside
 //     the chip, not the label itself.
 //   Invalid (red) — a true error: below the product floor, incompatible
@@ -40,8 +65,8 @@ function describeDose(dose, idx, ageMonths, today) {
 //   Unknown (gray) — no date; can't verify.
 //   Needs input (gray, interactive) — a PENDING state on doses where whether
 //     the patient was high-risk on that date is unknown and decisive. The
-//     provider's answer resolves it live to Counts/Off-window.
-function DoseValidation({ result, onAnswer }) {
+//     provider's answer resolves it live to Dose N of M/Off-window.
+function DoseValidation({ result, seriesTotal, onAnswer }) {
   if (!result) return null;
   const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate } = result;
 
@@ -73,18 +98,36 @@ function DoseValidation({ result, onAnswer }) {
         : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
-    ? 'Off-window — repeat'
-    : status === 'valid' ? 'Counts' : status === 'invalid' ? 'Invalid' : 'Unknown';
+    ? 'Off-window - repeat'
+    : status === 'valid'
+      ? (effectiveDoseNum != null && seriesTotal != null ? `Dose ${effectiveDoseNum} of ${seriesTotal}` : 'Counts')
+      : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>
       <span className={chipClass}>{chipLabel}</span>
-      {effectiveDoseNum != null && status !== 'invalid' && (
-        <span className="dose-val-effective">Effective dose {effectiveDoseNum}</span>
-      )}
       {showReasonsBlock(reasons, detail)}
     </div>
   );
+}
+
+// C5: render `note` text with any [N] markers turned into clickable
+// superscript links that deep-link to the exact MMWR sentence (noteCites
+// pairs each literal "[N]" substring with its target URL). Plain string
+// back out when there's nothing to link — most notes have no noteCites.
+function renderNoteWithCites(note, noteCites) {
+  if (!noteCites || noteCites.length === 0) return note;
+  const escaped = noteCites.map((c) => c.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'g');
+  return note.split(pattern).map((part, i) => {
+    const c = noteCites.find((cite) => cite.marker === part);
+    if (!c) return part;
+    return (
+      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={c.label}>
+        {part}
+      </a>
+    );
+  });
 }
 
 // Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
@@ -112,7 +155,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, citations } = rec;
+  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -137,7 +180,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <span className="rec-vaccine-name">{vaccine}</span>
           {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
             <Chevron open={expanded} />
           </span>
         </button>
@@ -145,7 +188,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{STATUS_LABELS[status] || status}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
           </span>
         </div>
       )}
@@ -166,7 +209,6 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                 {stripAntigen(b)}
               </div>
             ))}
-            <div className="rec-brands-helper">Select one brand for this dose.</div>
           </div>
         )}
 
@@ -177,13 +219,23 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             that isn't due yet. Bold weight still keeps it prominent. */}
         {boosterDueDate && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            Not yet due — booster ~{fmtDate(boosterDueDate)}
+            Booster not yet due - ~{fmtDate(boosterDueDate)}
           </div>
         )}
 
         {!dueToday && earliestNextDate && (
           <div className="next-date">
-            Not yet due — eligible {fmtDate(earliestNextDate)}
+            Next dose not yet due - eligible {fmtDate(earliestNextDate)}
+          </div>
+        )}
+
+        {/* C4 (2026-07-23 handoff): count/cadence of FUTURE boosters beyond
+            what's due today. The concrete next date, when known, stays in
+            the booster-due-banner above -- this line only states how many
+            and how often. Replaces the rejected "+ boosters" header flag. */}
+        {boosterSummary && (
+          <div className="booster-summary-line" data-testid="booster-summary-line">
+            {boosterSummary}
           </div>
         )}
 
@@ -197,6 +249,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                   <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
                   <DoseValidation
                     result={doseValidations[i]}
+                    seriesTotal={seriesTotal}
                     onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, i, answer)}
                   />
                 </li>
@@ -205,7 +258,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {note && <div className="rec-note">{note}</div>}
+        {note && <div className="rec-note">{renderNoteWithCites(note, noteCites)}</div>}
 
         {citations && citations.length > 0 && (
           <div className="rec-citations">

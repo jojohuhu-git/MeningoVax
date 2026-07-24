@@ -37,7 +37,7 @@ function openRecordedDoses() {
 // in the audit list must be sorted the same way, or a dose's row shows a
 // DIFFERENT dose's validity chip.
 describe('Item 3: recorded-dose audit list stays aligned when entered out of order', () => {
-  it('shows "Effective dose 1" on the chronologically-earliest row, not the first-entered row', () => {
+  it('shows "Dose 1 of 2" on the chronologically-earliest row, not the first-entered row', () => {
     render(
       <Harness
         initial={baseState({
@@ -62,8 +62,8 @@ describe('Item 3: recorded-dose audit list stays aligned when entered out of ord
 
     // The earlier (2010) dose is effective dose 1; the later (2020) dose is
     // effective dose 2 -- regardless of entry order.
-    expect(row2010.textContent).toMatch(/Effective dose 1/);
-    expect(row2020.textContent).toMatch(/Effective dose 2/);
+    expect(row2010.textContent).toMatch(/Dose 1 of 2/);
+    expect(row2020.textContent).toMatch(/Dose 2 of 2/);
   });
 });
 
@@ -147,9 +147,9 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     expect(pentaCard.textContent).toMatch(/MenB is optional today \(shared clinical decision\)/i);
   });
 
-  it('MenB status badge reads "Optional (shared decision)"', () => {
+  it('MenB status badge reads "Optional today - shared decision"', () => {
     render(<Harness initial={acwyRequiredMenbOptionalState()} />);
-    expect(screen.getByText('Optional (shared decision)')).toBeDefined();
+    expect(screen.getByText('Optional today - shared decision')).toBeDefined();
     expect(screen.queryByText('Shared decision')).toBeNull();
   });
 
@@ -167,7 +167,7 @@ describe('Item 4: required vs optional in "due today" copy', () => {
 // updates state.riskAtDoseAnswers and the recommendation re-renders live --
 // same onChange -> state -> re-render cycle as every other editable field.
 describe('Risk-at-dose "Needs input" prompt updates live', () => {
-  it('answering "Yes" on an ambiguous high-risk dose resolves the chip to "Counts" and updates the dose count', () => {
+  it('answering "Yes" on an ambiguous high-risk dose resolves the chip to "Dose 1 of 2" and updates the dose count', () => {
     render(
       <Harness
         initial={baseState({
@@ -178,16 +178,15 @@ describe('Risk-at-dose "Needs input" prompt updates live', () => {
     );
 
     expect(screen.getByText('Needs input')).toBeTruthy();
-    expect(screen.queryByText('Counts')).toBeNull();
+    expect(screen.queryByText('Dose 1 of 2')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
 
     expect(screen.queryByText('Needs input')).toBeNull();
-    expect(screen.getByText('Counts')).toBeTruthy();
-    expect(screen.getByText('Effective dose 1')).toBeTruthy();
+    expect(screen.getByText('Dose 1 of 2')).toBeTruthy();
   });
 
-  it('answering "No" resolves the chip to "Off-window — repeat" and the dose still does not count', () => {
+  it('answering "No" resolves the chip to "Off-window - repeat" and the dose still does not count', () => {
     render(
       <Harness
         initial={baseState({
@@ -200,7 +199,7 @@ describe('Risk-at-dose "Needs input" prompt updates live', () => {
     fireEvent.click(screen.getByRole('button', { name: 'No' }));
 
     expect(screen.queryByText('Needs input')).toBeNull();
-    expect(screen.getByText('Off-window — repeat')).toBeTruthy();
-    expect(screen.queryByText('Effective dose 1')).toBeNull();
+    expect(screen.getByText('Off-window - repeat')).toBeTruthy();
+    expect(screen.queryByText('Dose 1 of 2')).toBeNull();
   });
 });
