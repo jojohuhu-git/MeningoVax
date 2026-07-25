@@ -5,15 +5,18 @@
 file; it's kept only for the design rationale (owner decisions, table titles/footnotes).
 
 Repo: `~/Downloads/MeningoVax-main` (vite base `/MeningoVax/`; live on GitHub Pages).
-Branch: `main`, off `main` (repo has no branch protection). **NOT pushed** —
-`main...origin/main [ahead 4]`. Owner has asked to confirm before each push every prior
-session; this handoff does not push on its own.
+Branch: `main`, off `main` (repo has no branch protection). **Pushed** — owner confirmed
+this in chat; `main` and `origin/main` both at commit `2141272`. GitHub Pages deploy
+confirmed green (`gh run watch 30138444670 --exit-status`: build + deploy jobs both
+✓) and the live site (https://jojohuhu-git.github.io/MeningoVax/) spot-checked loading
+correctly after deploy.
 
 Baseline this session was 373 passing tests (confirmed live via `npx vitest run` before
 starting). Now **380 passing**, all green, working tree clean of code changes at commit
-`26699f1`. (Working tree still shows the same pre-existing doc-only modified/untracked
-files under `docs/archive/` that every prior handoff in this chain has noted — not
-touched this session.)
+`2141272` (includes this handoff + the superseded-banner edit, both committed). Working
+tree still shows the same pre-existing doc-only modified/untracked files under
+`docs/archive/` that every prior handoff in this chain has noted — not touched this
+session.
 
 ## What's done (by item ID, from the PLAN queue)
 
@@ -73,25 +76,22 @@ already flagged as out of scope.
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git checkout main` (already on `main`; branch is
-   4 commits ahead of `origin/main`, not yet pushed).
+1. `cd ~/Downloads/MeningoVax-main && git checkout main && git pull` (should already be
+   up to date — session ended with `main` and `origin/main` both at `2141272`).
 2. `npx vitest run` — confirm **380 passing** before any new work. If it differs, stop
    and reconcile.
-3. **Ask the owner whether to push these 4 commits to `origin/main`** before starting
-   anything new — every prior session has asked before pushing, and this session did
-   not push. `main` is unprotected but push is still a confirm-first action.
-4. No open owner decisions block starting new work — this queue closed cleanly. If the
-   owner wants the next piece of work, ask what it is; possible candidates noted in
-   other memory/handoffs: M1 (a suspected `validate.js` booster-cadence bug, needs
-   re-confirmation before fixing — see
+3. No open owner decisions block starting new work — this queue closed cleanly AND is
+   live. If the owner wants the next piece of work, ask what it is; possible candidates
+   noted in other memory/handoffs: M1 (a suspected `validate.js` booster-cadence bug,
+   needs re-confirmation before fixing — see
    `.claude/prompts/plan-2026-07-16-meningovax-followups.md`), M2/M3 (minor cleanup),
    or the vaxapp (PediVax) MenB-healthy-pre-16 parity port (separate repo,
    `~/Downloads/vaxapp-main` — see memory note `project_menb_healthy_age16_gate`).
    Don't default to any of these without asking.
-5. Per-item workflow for any new vaccine-logic or citation work: verify the clinical
+4. Per-item workflow for any new vaccine-logic or citation work: verify the clinical
    source live (`verify-clinical-source` skill) → reproduce/confirm → failing test
    (synthetic fixture) → minimal fix → full suite green → live-verify in the running
    app (`preview_start` name `"MeningoVax dev server"` — Vite auto-increments the port;
    check `preview_logs` for the actual one) → one commit per item ID.
-6. Ship: MeningoVax `main` is UNPROTECTED but ask before pushing — confirmed again this
-   session's own resuming instructions; keep that pattern.
+5. Ship: MeningoVax `main` is UNPROTECTED but ask before pushing — keep asking each
+   time even though this session's push went cleanly; that's the established pattern.
