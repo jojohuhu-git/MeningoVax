@@ -208,6 +208,58 @@ describe('W3: exposure/outbreak MenACWY status distinct from medical risk-based'
   });
 });
 
+// ── C2 (2026-07-24 plan): MenACWY exposure recs cite the specific ACIP 2020
+// MMWR table for the patient's risk factor, not the mislabeled Penmenvy
+// (mm7501a2) page or the generic whole-document acip2020 chip.
+describe('C2: exposure recs cite their specific ACIP 2020 MMWR table, not Penmenvy', () => {
+  function urls(r) {
+    return acwy(r).citations.map((c) => c.url);
+  }
+
+  it('microbiologist cites Table 7 only (no Penmenvy, no whole-document acip2020)', () => {
+    const r = run({ ageMonths: 300, riskIds: ['microbiologist'] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('microbiologists'))).toBe(true);
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm');
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm');
+  });
+
+  it('travel cites Table 9 only (drops the separate cdcRecommendations page too)', () => {
+    const r = run({ ageMonths: 300, riskIds: ['travel'] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('hyperendemic'))).toBe(true);
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm');
+    expect(chipUrls.length).toBe(1);
+  });
+
+  it('military recruit cites Table 10 only', () => {
+    const r = run({ ageMonths: 240, riskIds: ['military'] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('military'))).toBe(true);
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm');
+  });
+
+  it('college dorm (no history) cites Table 10 only', () => {
+    const r = run({ ageMonths: 228, riskIds: ['college_dorm'] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('residence'))).toBe(true);
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm');
+  });
+
+  it('serogroup A/C/W/Y outbreak cites Table 8 only', () => {
+    const r = run({ ageMonths: 240, riskIds: ['outbreak_acwy'] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('outbreak'))).toBe(true);
+    expect(chipUrls).not.toContain('https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm');
+  });
+
+  it('routine adolescent schedule (no risk factors) upgrades to the Table 2 anchor', () => {
+    const r = run({ ageMonths: 132, riskIds: [] });
+    const chipUrls = urls(r);
+    expect(chipUrls.some((u) => u.includes('rr6909a1.htm') && u.includes('children%20and%20adults'))).toBe(true);
+  });
+});
+
 // ── MenB healthy shared decision (the corrected 0/6 interval) ───────────────
 describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
   it('17-year-old healthy, no doses → shared decision dose 1', () => {

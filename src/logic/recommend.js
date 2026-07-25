@@ -105,6 +105,15 @@ function menacwyRec(am, riskIds, doses, today) {
   // is dropped from the default set — it just restates the same MMWR rule
   // (2026-07-23 owner decision: don't cite two sources for one rule).
   const refsFor = (ids) => collectRefs(riskIds, ids, ['acip2020']);
+  // C2/2026-07-24: for the exposure recs (travel/microbiologist/military/
+  // college-dorm/ACWY-outbreak), each risk factor now carries its own
+  // specific ACIP 2020 MMWR table anchor (riskFactors.js). Using the
+  // whole-document `acip2020` default here as well would show two
+  // identically-labeled "ACIP 2020 MMWR" chips (the table anchor AND the
+  // whole-page link) since collectRefs only dedupes by key, not by which
+  // document the key points at -- so these recs use an empty default and
+  // rely solely on the risk factor's own ref.
+  const refsExposure = (extra = []) => collectRefs(riskIds, extra, []);
 
   // Booster cadence per ACIP 2020 MMWR and immunize.org p2035:
   //   FIRST booster (given === 2 → dose 3):
@@ -196,7 +205,7 @@ function menacwyRec(am, riskIds, doses, today) {
         // C5/2026-07-24: cdcRecommendations dropped in favour of the ACIP
         // 2025 MMWR indication Box (same doc as pentavalentGSK2025) —
         // citation audit finding.
-        refs: refsFor(['pentavalentGSK2025']),
+        refs: refsExposure(),
       })];
     }
     const elapsed = intervalElapsed(lastDate, DAYS.years(5), today);
@@ -206,7 +215,7 @@ function menacwyRec(am, riskIds, doses, today) {
       earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.years(5)),
       minIntervalDays: DAYS.years(5), brands: menacwyBrands(am),
       note: 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
-      refs: refsFor(['pentavalentGSK2025']),
+      refs: refsExposure(),
     })];
   }
 
@@ -231,7 +240,11 @@ function menacwyRec(am, riskIds, doses, today) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
           note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
-          refs: refsFor([]),
+          // C2: college_dorm's own ref (Table 10) already carries this rule
+          // -- refsFor([]) here would ALSO add the whole-document acip2020
+          // default, producing two identically-labeled "ACIP 2020 MMWR"
+          // chips (found while implementing C2, not in the original plan).
+          refs: refsExposure(),
         })];
       }
       // A ≥16y dose exists but is now more than 5 years old — no longer
@@ -241,7 +254,7 @@ function menacwyRec(am, riskIds, doses, today) {
           vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (prior dose >5y ago)', seriesTotal: 1,
           doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
           note: 'A MenACWY dose was given at age ≥16 years, but more than 5 years ago. That dose no longer satisfies the college-residence requirement: give one dose now.',
-          refs: refsFor(['pentavalentGSK2025']),
+          refs: refsExposure(),
         })];
       }
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
@@ -256,7 +269,7 @@ function menacwyRec(am, riskIds, doses, today) {
           // C5: an unconfirmed-date dose is a "does this old dose count"
           // practical judgment call, not a rule a single MMWR table defines
           // -- immunize.org's Ask the Experts leads here.
-          refs: datesKnown ? refsFor(['pentavalentGSK2025']) : ['immMenACWY', ...refsFor(['pentavalentGSK2025'])],
+          refs: datesKnown ? refsExposure() : ['immMenACWY', ...refsExposure()],
         })];
       }
       // No history.
@@ -266,7 +279,7 @@ function menacwyRec(am, riskIds, doses, today) {
         note: 'First-year college student living in a residence hall: a single MenACWY dose, unless a dose was already given at age ≥16 years.',
         // C5/2026-07-24: ACIP 2025 MMWR Box lists this indication directly
         // (same doc as pentavalentGSK2025) — citation audit finding.
-        refs: refsFor(['pentavalentGSK2025']),
+        refs: refsExposure(),
       })];
     }
 
@@ -275,14 +288,14 @@ function menacwyRec(am, riskIds, doses, today) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
         note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit or serogroup A/C/W/Y outbreak). Re-dose only if a separate ongoing-risk indication applies.',
-        refs: refsFor(['pentavalentGSK2025']),
+        refs: refsExposure(),
       })];
     }
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
       note: 'Military recruits and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
-      refs: refsFor(['pentavalentGSK2025']),
+      refs: refsExposure(),
     })];
   }
 
@@ -398,7 +411,9 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
 function menacwyRoutine(am, given, doses, last, today) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
-  const refs = ['acip2020'];
+  // C2/2026-07-24: upgraded from the whole-document chip to the Table 2
+  // (routine schedule) anchor -- a precision upgrade, not a Penmenvy fix.
+  const refs = ['acip2020Table2'];
   const routineCite = [cite('acwyRoutine1112and16')];
   const lastDate = last?.date || null;
   const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);

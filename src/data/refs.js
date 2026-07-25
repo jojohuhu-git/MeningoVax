@@ -74,6 +74,55 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
+
+  // C2 (2026-07-24 plan): chip-only, per-risk-factor table anchors within
+  // the same acip2020 document (rr6909a1.htm) — deep-linked to the specific
+  // schedule table for each risk factor rather than the generic Penmenvy
+  // (mm7501a2) page or the whole-document acip2020 chip. No `quote` field:
+  // resolveRefs() uses `url` verbatim, so the #:~:text= fragment (built
+  // here, not by highlightUrl) survives on the chip. All five table titles
+  // and the two load-bearing footnotes below were read from the live
+  // rendered CDC page 2026-07-24 (table <caption> elements + the footnote
+  // list immediately following each table).
+  acip2020Table2: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 2. Recommended meningococcal vaccines and administration schedules for children and adults')}`,
+    label: 'ACIP 2020 MMWR: Table 2 — recommended vaccines and administration schedules for children and adults',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  acip2020Table7: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 7. Recommended vaccination schedule and intervals for microbiologists routinely exposed to isolates of Neisseria meningitidis')}`,
+    label: 'ACIP 2020 MMWR: Table 7 — schedule for microbiologists routinely exposed to N. meningitidis isolates',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  // Table 8's `*` footnote is only a pointer to a separate outbreak-guidance
+  // PDF, not a rule the recommendation acts on -- title only, per the
+  // owner's footnote rule (do not add a second text= directive for a
+  // non-load-bearing footnote).
+  acip2020Table8: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 8. Recommended vaccination schedule and intervals for persons who are at risk during an outbreak')}`,
+    label: 'ACIP 2020 MMWR: Table 8 — schedule for persons at risk during an outbreak',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  // Table 9's `*` footnote defines the travel indication itself (meningitis
+  // belt / dry season) -- load-bearing, so it gets a second text= directive.
+  acip2020Table9: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 9. Recommended vaccination schedule and intervals for persons who travel to or are residents of countries where meningococcal disease is hyperendemic or epidemic')}&text=${encodeURIComponent('For international travelers, vaccination is recommended for those visiting the parts of sub-Saharan Africa known as the meningitis belt during the dry season (December–June)')}`,
+    label: 'ACIP 2020 MMWR: Table 9 — schedule for travelers to hyperendemic/epidemic countries',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+  // Table 10's `*` footnote is the college-dorm 5-year-recency rule (W4) --
+  // load-bearing, second text= directive.
+  acip2020Table10: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 10. Recommended vaccination schedule and intervals for college freshmen living in residence halls* and military recruits')}&text=${encodeURIComponent('College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry')}`,
+    label: 'ACIP 2020 MMWR: Table 10 — schedule for college freshmen in residence halls and military recruits',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-07-24',
+  },
+
   acwyRoutine1112and16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years',

@@ -53,7 +53,9 @@ export const RISK_FACTORS = [
     label: 'Microbiologist routinely exposed to N. meningitidis',
     menacwyClass: 'single+boost',
     menbClass: 'highrisk',
-    refs: ['acip2020'],
+    // C2/2026-07-24: table anchor within acip2020 (Table 7), not the
+    // generic whole-document chip.
+    refs: ['acip2020Table7'],
   },
   {
     id: 'travel',
@@ -61,35 +63,41 @@ export const RISK_FACTORS = [
     sublabel: 'including Hajj pilgrims, sub-Saharan "meningitis belt"',
     menacwyClass: 'single+boost',
     menbClass: undefined,
-    refs: ['acip2020', 'cdcRecommendations'],
+    // C2/2026-07-24: table anchor (Table 9) replaces both the generic
+    // acip2020 chip and the separate cdcRecommendations page (W1 already
+    // dropped the CDC-page duplication elsewhere for the same reason).
+    refs: ['acip2020Table9'],
   },
   {
     id: 'military',
     label: 'Military recruit',
     menacwyClass: 'single',
     menbClass: undefined,
-    refs: ['acip2020'],
+    refs: ['acip2020Table10'],
   },
   {
     id: 'college_dorm',
     label: 'First-year college student living in a residence hall',
     menacwyClass: 'single',
     menbClass: undefined,
-    refs: ['acip2020'],
+    refs: ['acip2020Table10'],
   },
   {
     id: 'outbreak_acwy',
     label: 'Increased risk from a serogroup A/C/W/Y outbreak',
     menacwyClass: 'single',
     menbClass: undefined,
-    refs: ['cdcRecommendations'],
+    refs: ['acip2020Table8'],
   },
   {
     id: 'outbreak_b',
     label: 'Increased risk from a serogroup B outbreak',
     menacwyClass: undefined,
     menbClass: 'highrisk',
-    refs: ['cdcChildMenB', 'cdcRecommendations'],
+    // C1/2026-07-24 note (flagged in the C2 plan, applied here): a MenB
+    // indication, not MenACWY, so it gets the C1 mm7349a3 swap, not a
+    // Table 8 (MenACWY) anchor.
+    refs: ['mm7349a3', 'cdcRecommendations'],
   },
   {
     id: 'pregnancy',
