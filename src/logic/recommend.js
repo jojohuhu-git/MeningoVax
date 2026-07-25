@@ -202,9 +202,8 @@ function menacwyRec(am, riskIds, doses, today) {
         vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (ongoing-risk indication)',
         doseNum: 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: true, brands: menacwyBrands(am),
         note: 'Travel to hyperendemic/epidemic areas or routine occupational exposure (microbiologist): 1 dose now. Re-vaccinate every 5 years if risk continues.',
-        // C5/2026-07-24: cdcRecommendations dropped in favour of the ACIP
-        // 2025 MMWR indication Box (same doc as pentavalentGSK2025) —
-        // citation audit finding.
+        // C2/2026-07-24: cites whichever risk factor's own table anchor
+        // (Table 7 microbiologist / Table 9 travel) applies -- see refsExposure.
         refs: refsExposure(),
       })];
     }
@@ -277,8 +276,7 @@ function menacwyRec(am, riskIds, doses, today) {
         vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
         doseNum: 1, dueToday: true, brands: menacwyBrands(am),
         note: 'First-year college student living in a residence hall: a single MenACWY dose, unless a dose was already given at age ≥16 years.',
-        // C5/2026-07-24: ACIP 2025 MMWR Box lists this indication directly
-        // (same doc as pentavalentGSK2025) — citation audit finding.
+        // C2/2026-07-24: cites college_dorm's own Table 10 anchor.
         refs: refsExposure(),
       })];
     }
