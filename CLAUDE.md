@@ -41,6 +41,8 @@ This folder is iCloud-synced — edits can silently revert. If a change "disappe
 ### Clinical Authority
 ACIP/CDC/AAP/immunize.org over FDA package inserts. Never revert to FDA-labeled ages without explicit instruction.
 
+Within that group, AAP is a tiebreak, not a ranking (owner decision, 2026-08-10): where ACIP/CDC and AAP agree, cite either; where they disagree, AAP governs; never adopt a CDC revision recommending fewer doses or narrower eligibility than AAP; where AAP is silent, CDC/MMWR stands.
+
 ### Engine Logic Stays in the Engine
 Brand eligibility, the MenB antigen-family lock, booster cadence, and dose validation are computed in `recommend.js` and `validate.js`. Do NOT re-derive clinical logic in components.
 

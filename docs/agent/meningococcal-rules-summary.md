@@ -10,7 +10,10 @@ healthy-age P0-1 fix. If this date is more than a few weeks old, treat the
 numbers below as "probably right, worth re-checking against `validate.js` /
 `recommend.js`" rather than gospel.
 
-**Authority order:** ACIP > CDC > AAP > immunize.org, over FDA package inserts.
+**Authority rule (2026-08-10):** ACIP/CDC/AAP/immunize.org over FDA package inserts.
+Within that group, AAP is a tiebreak, not a ranking: where ACIP/CDC and AAP agree, cite
+either; where they disagree, AAP governs; never adopt a CDC revision recommending fewer
+doses or narrower eligibility than AAP; where AAP is silent, CDC/MMWR stands.
 CDSI "preferable" windows are ignored — only CDSI absolute min/max ages are
 enforced. Full citations live in `src/data/refs.js`.
 
