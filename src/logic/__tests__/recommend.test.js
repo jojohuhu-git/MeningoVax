@@ -635,29 +635,61 @@ describe('HCT advisory', () => {
     expect(acwyLine.citations.map((c) => c.short)).toContain('IDSA 2013 Guideline (HCT MenACWY)');
   });
 
-  it('ages 10-25: gives the MenB "check other boxes" pointer, sourced', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y — inside both bands
+  it('ages 10-15, no other risk: gives the MenB "check other boxes" pointer, sourced', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y — MenACWY band, but MenB pointer band
     const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
     expect(menbLine.text).toMatch(/Not triggered by transplant alone/);
     expect(menbLine.citations.map((c) => c.short)).toContain('Kamboj & Shah 2019 (HCT MenB)');
   });
 
-  it('age 30 (outside both bands): states plainly that no source establishes a recommendation here', () => {
-    const r = run({ ageMonths: 360, riskIds: ['hct'] }); // 30y
+  it('ages 16-23: MenB is indicated from the transplant alone (CDC + ASCO, settled 2026-09-13) — not a "not triggered" pointer', () => {
+    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
+    expect(menbLine.text).not.toMatch(/Not triggered/);
+    expect(menbLine.text).toMatch(/16 through 23/);
+    expect(menbLine.citations.map((c) => c.short)).toContain('CDC Altered Immunocompetence');
+  });
+
+  it('age 22 (in the 16-23 transplant-alone MenB band, out of the 11-18 MenACWY band): only the MenB line', () => {
+    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
+    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenB']);
+  });
+
+  it('any age with a high-risk condition (asplenia): both MenACWY and MenB are indicated from that risk, not from the transplant, even outside their age bands', () => {
+    const r = run({ ageMonths: 360, riskIds: ['hct', 'asplenia'] }); // 30y — outside every band
+    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
+    expect(acwyLine.text).toMatch(/high-risk condition/);
+    expect(acwyLine.text).not.toMatch(/6–12 months after transplant, with a booster/);
+    expect(menbLine.text).toMatch(/high-risk condition/);
+  });
+
+  it('any age with the complement/eculizumab risk factor also triggers both, even below age 10', () => {
+    const r = run({ ageMonths: 6, riskIds: ['hct', 'complement'] }); // 6mo
+    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
+    expect(acwyLine).toBeTruthy();
+    expect(menbLine).toBeTruthy();
+  });
+
+  it('neither band nor high-risk applies: the transplant alone creates no booster schedule, and no invented recommendation', () => {
+    const r = run({ ageMonths: 360, riskIds: ['hct'] }); // 30y, no other risk
     expect(r.hct.lines).toHaveLength(1);
     expect(r.hct.lines[0].label).toBeNull();
     expect(r.hct.lines[0].text).toMatch(/None of the sources reviewed/);
   });
 
-  it('age 5 (outside both bands): same plain no-recommendation line', () => {
+  it('age 5 (below every band, no other risk): same plain no-recommendation line', () => {
     const r = run({ ageMonths: 60, riskIds: ['hct'] }); // 5y
     expect(r.hct.lines).toHaveLength(1);
     expect(r.hct.lines[0].label).toBeNull();
   });
 
-  it('age 22 (in MenB band, out of MenACWY band): only the MenB pointer line', () => {
-    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
-    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenB']);
+  it('the transplant alone never invents a booster schedule — booster wording only from a sourced band, not the high-risk limb', () => {
+    const r = run({ ageMonths: 360, riskIds: ['hct', 'asplenia'] }); // 30y, high-risk only
+    for (const line of r.hct.lines) {
+      expect(line.text).not.toMatch(/\bbooster\b.*\bmonths? after transplant\b/);
+    }
   });
 
   it('HCT computed alongside the normal engine, not instead of it', () => {
