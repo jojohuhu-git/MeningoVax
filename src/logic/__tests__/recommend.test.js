@@ -638,7 +638,7 @@ describe('HCT advisory', () => {
   it('ages 10-15, no other risk: gives the MenB "check other boxes" pointer, sourced', () => {
     const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y — MenACWY band, but MenB pointer band
     const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine.text).toMatch(/Not triggered by transplant alone/);
+    expect(menbLine.text).toMatch(/Not specifically sourced as transplant-driven/);
     expect(menbLine.citations.map((c) => c.short)).toContain('Kamboj & Shah 2019 (HCT MenB)');
   });
 
@@ -657,9 +657,11 @@ describe('HCT advisory', () => {
     expect(menbLine.text).toMatch(/3 doses apply only if an additional MenB risk factor/);
   });
 
-  it('age 22 (in the 16-23 transplant-alone MenB band, out of the 11-18 MenACWY band): only the MenB line', () => {
+  it('age 22 (in the 16-23 transplant-alone MenB band, out of the 11-18 MenACWY band): MenACWY still gets a line — no source there, but the vaccine can still be given', () => {
     const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
-    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenB']);
+    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenACWY', 'MenB']);
+    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
+    expect(acwyLine.text).toMatch(/no upper age limit, so it can still be given/);
   });
 
   it('any age with a high-risk condition (asplenia): both MenACWY and MenB are indicated from that risk, not from the transplant, even outside their age bands', () => {
@@ -671,25 +673,33 @@ describe('HCT advisory', () => {
     expect(menbLine.text).toMatch(/high-risk condition/);
   });
 
-  it('any age with the complement/eculizumab risk factor also triggers both, even below age 10', () => {
+  it('the complement/eculizumab risk factor triggers MenACWY at any age, but MenB only from age 10 (its real minimum licensed age) — not below it, even with the risk factor selected', () => {
     const r = run({ ageMonths: 6, riskIds: ['hct', 'complement'] }); // 6mo
     const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
     const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
     expect(acwyLine).toBeTruthy();
+    expect(menbLine).toBeUndefined();
+  });
+
+  it('the complement/eculizumab risk factor at age 10+ does trigger MenB', () => {
+    const r = run({ ageMonths: 132, riskIds: ['hct', 'complement'] }); // 11y
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
     expect(menbLine).toBeTruthy();
+    expect(menbLine.text).toMatch(/any age from 10 years/);
   });
 
-  it('neither band nor high-risk applies: the transplant alone creates no booster schedule, and no invented recommendation', () => {
+  it('neither band nor high-risk applies (age 30, no other risk): both vaccines still get a line — age doesn\'t bar giving them, it just isn\'t what CDC/ASCO/IDSA specifically source', () => {
     const r = run({ ageMonths: 360, riskIds: ['hct'] }); // 30y, no other risk
-    expect(r.hct.lines).toHaveLength(1);
-    expect(r.hct.lines[0].label).toBeNull();
-    expect(r.hct.lines[0].text).toMatch(/None of the sources reviewed/);
+    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenACWY', 'MenB']);
+    expect(r.hct.lines[0].text).toMatch(/no upper age limit, so it can still be given/);
+    expect(r.hct.lines[1].text).toMatch(/Not specifically sourced as transplant-driven/);
   });
 
-  it('age 5 (below every band, no other risk): same plain no-recommendation line', () => {
-    const r = run({ ageMonths: 60, riskIds: ['hct'] }); // 5y
+  it('below every real minimum age (6 weeks, no other risk): the true fallback — neither vaccine can be given yet', () => {
+    const r = run({ ageMonths: 1, riskIds: ['hct'] }); // ~1mo, below MenACWY's own 2mo floor
     expect(r.hct.lines).toHaveLength(1);
     expect(r.hct.lines[0].label).toBeNull();
+    expect(r.hct.lines[0].text).toMatch(/below the minimum age for either meningococcal vaccine/);
   });
 
   it('the transplant alone never invents a booster schedule — booster wording only from a sourced band, not the high-risk limb', () => {
