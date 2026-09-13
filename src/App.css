@@ -1172,6 +1172,12 @@ body {
   border-left: 4px solid var(--r);
 }
 .advisory-banner-exclude .advisory-banner-title { color: var(--r); }
+.advisory-banner-hct {
+  background: var(--alt);
+  border: 1.5px solid var(--amd);
+  border-left: 4px solid var(--a);
+}
+.advisory-banner-hct .advisory-banner-title { color: var(--a); }
 /* Dose history edit panel */
 .history-edit-summary {
   cursor: pointer;

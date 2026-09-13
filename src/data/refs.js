@@ -327,6 +327,22 @@ export const CITATIONS = {
     short: 'CDC Altered Immunocompetence',
     lastVerified: '2026-09-12',
   },
+
+  // Post-HCT meningococcal advisory (verified live, verbatim, 2026-09-13) ---
+  idsa2013MenacwyHct: {
+    url: 'https://academic.oup.com/cid/article/58/3/e44/336537',
+    quote: 'Two doses of MCV4 should be administered 6–12 months after HSCT to persons aged 11–18 years, with a booster dose given at age 16–18 years for those who received the initial post-HSCT dose of vaccine at age 11–15 years',
+    label: '2013 IDSA Clinical Practice Guideline for Vaccination of the Immunocompromised Host (Rubin et al., Clin Infect Dis 2014) — Recommendation 80',
+    short: 'IDSA 2013 Guideline (HCT MenACWY)',
+    lastVerified: '2026-09-13',
+  },
+  kambojShah2019MenbHct: {
+    url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6814287/',
+    quote: 'Meningococcal B vaccines should additionally be administered to SCT recipients aged 10–25 years with at risk conditions (asplenia, terminal complement deficiency, laboratory worker, travel, outbreak)',
+    label: 'Kamboj & Shah, "Vaccination of the Stem Cell Transplant (SCT) Recipient" (Infect Dis Clin North Am, 2019), citing IDSA/ASBMT/EBMT consensus',
+    short: 'Kamboj & Shah 2019 (HCT MenB)',
+    lastVerified: '2026-09-13',
+  },
 };
 
 // Build a scroll-to-highlight URL (#:~:text=) from a citation's quote.

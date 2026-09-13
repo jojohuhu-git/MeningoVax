@@ -60,6 +60,15 @@ export const RISK_FACTORS = [
     refs: ['acip2020'],
   },
   {
+    id: 'hct',
+    label: 'Hematopoietic cell transplant (HCT)',
+    sublabel: 'full re-vaccination; advisory, coordinate with the transplant/ID team',
+    menacwyClass: undefined,
+    menbClass: undefined,
+    group: 'IC',
+    refs: ['cdcAlteredImmunocompetence', 'idsa2013MenacwyHct', 'kambojShah2019MenbHct'],
+  },
+  {
     id: 'hct_cart_bcell_exclude',
     label: 'CAR-T therapy, B-cell malignancy, or B-cell-depleting therapy',
     sublabel: 'this tool does not apply — needs an individualized, specialist-guided schedule',
@@ -168,4 +177,9 @@ export function shouldDeferMenB(riskIds = []) {
 // This hard-stops the whole engine — too heterogeneous for one safe recipe.
 export function hasExclusion(riskIds = []) {
   return riskIds.some((id) => RISK_BY_ID[id]?.exclude);
+}
+
+// Any HCT (hematopoietic cell transplant) selected?
+export function hasHCT(riskIds = []) {
+  return riskIds.includes('hct');
 }

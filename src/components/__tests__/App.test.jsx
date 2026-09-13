@@ -441,4 +441,20 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /edit risk factors/i }));
     expect(screen.getByText('Risk Factors')).toBeDefined();
   });
+
+  it('HCT checkbox (age 14) shows the post-HCT advisory with the MenACWY recipe, still goes through history', () => {
+    render(<App />);
+    enterAgeYears(14);
+    fireEvent.click(getNextBtn()); // → Risks
+    fireEvent.click(screen.getByLabelText(/hematopoietic cell transplant \(hct\)/i, { exact: false }));
+    fireEvent.click(getNextBtn()); // → MenACWY history (HCT is not an exclusion — history still shows)
+    expect(screen.getByText('MenACWY History')).toBeDefined();
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(getNextBtn()); // → MenB history
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    expect(screen.getByTestId('hct-card')).toBeTruthy();
+    expect(screen.getByText(/6–12 months after transplant/i)).toBeDefined();
+  });
 });
