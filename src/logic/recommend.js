@@ -765,7 +765,7 @@ function hctAdvisory(am, riskIds = []) {
     lines.push({
       label: 'MenB',
       text: menbTransplantAloneBand
-        ? 'Indicated at this age (16 through 23 years) from the transplant alone — no additional risk factor is required. No MenB booster interval is established; CDC states there are presently no recommendations for booster doses of either MenB vaccine.'
+        ? 'Indicated at this age (16 through 23 years) from the transplant alone — no additional risk factor is required. This is the standard 2-dose series shown below, not the 3-dose high-risk schedule; 3 doses apply only if an additional MenB risk factor (asplenia, complement deficiency, microbiologist exposure, or a serogroup B outbreak) is also selected. No MenB booster interval is established; CDC states there are presently no recommendations for booster doses of either MenB vaccine.'
         : 'Indicated at any age from 10 years because of the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy) — not the transplant alone. The standing high-risk MenB recommendation above already governs dosing and boosters; the transplant itself adds no separate schedule.',
       refs: ['cdcAlteredImmunocompetence'],
     });

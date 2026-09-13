@@ -650,6 +650,13 @@ describe('HCT advisory', () => {
     expect(menbLine.citations.map((c) => c.short)).toContain('CDC Altered Immunocompetence');
   });
 
+  it('ages 16-23, transplant alone: MenB is the 2-dose series, not 3 — 3 doses require an additional MenB risk factor', () => {
+    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y, no other risk
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
+    expect(menbLine.text).toMatch(/standard 2-dose series/);
+    expect(menbLine.text).toMatch(/3 doses apply only if an additional MenB risk factor/);
+  });
+
   it('age 22 (in the 16-23 transplant-alone MenB band, out of the 11-18 MenACWY band): only the MenB line', () => {
     const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
     expect(r.hct.lines.map((l) => l.label)).toEqual(['MenB']);
