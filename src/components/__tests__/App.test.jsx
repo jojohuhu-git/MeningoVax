@@ -416,4 +416,20 @@ describe('App wizard', () => {
       expect(screen.getByText(/Family locked: MenB-4C/i)).toBeDefined();
     });
   });
+
+  it('CAR-T/B-cell checkbox shows the hard-stop and no rec cards', () => {
+    render(<App />);
+    enterAgeYears(30);
+    fireEvent.click(getNextBtn()); // → Risks
+    fireEvent.click(screen.getByLabelText(/CAR-T therapy, B-cell malignancy/i, { exact: false }));
+    fireEvent.click(getNextBtn()); // → MenACWY history
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(getNextBtn()); // → MenB history
+    fireEvent.click(screen.getByText('No previous doses'));
+    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+    expect(screen.getByTestId('exclusion-stop')).toBeTruthy();
+    expect(screen.getAllByText(/does not apply to this patient/i).length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('[data-testid="rec-card"]').length).toBe(0);
+  });
 });

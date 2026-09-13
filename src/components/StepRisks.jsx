@@ -29,7 +29,7 @@ export default function StepRisks({ riskIds, onChange }) {
           return (
             <label
               key={rf.id}
-              className={`risk-item${selected ? ' selected' : ''}`}
+              className={`risk-item${selected ? ' selected' : ''}${rf.exclude ? ' risk-item-exclude' : ''}`}
             >
               <input
                 type="checkbox"

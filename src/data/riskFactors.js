@@ -107,6 +107,15 @@ export const RISK_FACTORS = [
     deferMenB: true,
     refs: ['cdcAdultMening'],
   },
+  {
+    id: 'hct_cart_bcell_exclude',
+    label: 'CAR-T therapy, B-cell malignancy, or B-cell-depleting therapy',
+    sublabel: 'this tool does not apply — needs an individualized, specialist-guided schedule',
+    menacwyClass: undefined,
+    menbClass: undefined,
+    exclude: true,
+    refs: ['cdcAlteredImmunocompetence'],
+  },
 ];
 
 export const RISK_BY_ID = Object.fromEntries(RISK_FACTORS.map((r) => [r.id, r]));
@@ -130,4 +139,10 @@ export function hasMenbRisk(riskIds = []) {
 export function shouldDeferMenB(riskIds = []) {
   const defer = riskIds.some((id) => RISK_BY_ID[id]?.deferMenB);
   return defer && !hasMenbRisk(riskIds);
+}
+
+// CAR-T therapy / B-cell malignancy / B-cell-depleting therapy selected?
+// This hard-stops the whole engine — too heterogeneous for one safe recipe.
+export function hasExclusion(riskIds = []) {
+  return riskIds.some((id) => RISK_BY_ID[id]?.exclude);
 }
