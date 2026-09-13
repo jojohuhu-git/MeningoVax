@@ -1,6 +1,13 @@
 import React from 'react';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 
+const GROUP_LABELS = {
+  IC: 'Immunocompromising conditions',
+  exposure: 'Exposure-based risks',
+  other: 'Other',
+};
+const GROUP_ORDER = ['IC', 'exposure', 'other'];
+
 export default function StepRisks({ riskIds, onChange }) {
   const noneSelected = riskIds.length === 0;
 
@@ -24,26 +31,35 @@ export default function StepRisks({ riskIds, onChange }) {
       </div>
 
       <div className="risk-list" role="group" aria-label="Risk factors">
-        {RISK_FACTORS.map(rf => {
-          const selected = riskIds.includes(rf.id);
+        {GROUP_ORDER.map(group => {
+          const items = RISK_FACTORS.filter(rf => rf.group === group);
+          if (items.length === 0) return null;
           return (
-            <label
-              key={rf.id}
-              className={`risk-item${selected ? ' selected' : ''}${rf.exclude ? ' risk-item-exclude' : ''}`}
-            >
-              <input
-                type="checkbox"
-                className="risk-checkbox"
-                checked={selected}
-                onChange={() => toggle(rf.id)}
-              />
-              <div className="risk-text">
-                <div className="risk-label">{rf.label}</div>
-                {rf.sublabel && (
-                  <div className="risk-sublabel">{rf.sublabel}</div>
-                )}
-              </div>
-            </label>
+            <div key={group} className="risk-group">
+              <div className="risk-group-title">{GROUP_LABELS[group]}</div>
+              {items.map(rf => {
+                const selected = riskIds.includes(rf.id);
+                return (
+                  <label
+                    key={rf.id}
+                    className={`risk-item${selected ? ' selected' : ''}${rf.exclude ? ' risk-item-exclude' : ''}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="risk-checkbox"
+                      checked={selected}
+                      onChange={() => toggle(rf.id)}
+                    />
+                    <div className="risk-text">
+                      <div className="risk-label">{rf.label}</div>
+                      {rf.sublabel && (
+                        <div className="risk-sublabel">{rf.sublabel}</div>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           );
         })}
       </div>
