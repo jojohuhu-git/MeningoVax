@@ -392,7 +392,12 @@ body {
 .risk-list {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--sp-8);
+}
+.risk-group { margin-bottom: var(--sp-8); }
+.risk-group-title {
+  font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--gy3); margin: var(--sp-8) 0 var(--sp-4); padding: 0 2px;
 }
 .risk-item {
   display: flex;
@@ -409,6 +414,9 @@ body {
   background: var(--clt);
   border-color: var(--cmd);
 }
+/* Exclusion checkbox (CAR-T/B-cell) — visually distinct hard-stop condition */
+.risk-item-exclude { border-color: var(--rmd); }
+.risk-item-exclude.selected { background: var(--rlt); border-color: var(--r); }
 .risk-checkbox {
   width: 20px;
   height: 20px;
@@ -1158,6 +1166,12 @@ body {
   line-height: 1.5;
   margin-bottom: var(--sp-8);
 }
+.advisory-banner-exclude {
+  background: var(--rlt);
+  border: 1.5px solid var(--rmd);
+  border-left: 4px solid var(--r);
+}
+.advisory-banner-exclude .advisory-banner-title { color: var(--r); }
 /* Dose history edit panel */
 .history-edit-summary {
   cursor: pointer;

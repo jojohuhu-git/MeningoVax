@@ -319,6 +319,14 @@ export const CITATIONS = {
     short: 'Ask the Experts: MenB',
     lastVerified: '2026-07-23',
   },
+
+  // CAR-T / B-cell malignancy / B-cell-depleting therapy hard stop --------
+  cdcAlteredImmunocompetence: {
+    url: 'https://www.cdc.gov/vaccines/hcp/acip-recs/general-recs/immunocompetence.html',
+    label: 'CDC ACIP General Best Practice Guidelines — Altered Immunocompetence',
+    short: 'CDC Altered Immunocompetence',
+    lastVerified: '2026-09-12',
+  },
 };
 
 // Build a scroll-to-highlight URL (#:~:text=) from a citation's quote.

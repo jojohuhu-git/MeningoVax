@@ -600,3 +600,25 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
     expect(acwy(r).noteCites.length).toBe(2);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════
+// Hard-stop exclusion: CAR-T / B-cell malignancy / B-cell-depleting therapy
+// ════════════════════════════════════════════════════════════════════════
+describe('hard-stop exclusion', () => {
+  it('CAR-T/B-cell risk id ⇒ excluded, no recs, pentavalent not eligible', () => {
+    const r = run({ ageMonths: 120, riskIds: ['hct_cart_bcell_exclude'] });
+    expect(r.excluded).toBe(true);
+    expect(r.exclusionMessage).toMatch(/does not apply to this patient/);
+    expect(r.menacwy).toEqual([]);
+    expect(r.menb).toEqual([]);
+    expect(r.pentavalent).toEqual({ eligible: false });
+    expect(r.exclusionCitations.length).toBeGreaterThan(0);
+  });
+
+  it('both an unrelated risk and CAR-T/B-cell ticked together ⇒ hard stop wins', () => {
+    const r = run({ ageMonths: 120, riskIds: ['asplenia', 'hct_cart_bcell_exclude'] });
+    expect(r.excluded).toBe(true);
+    expect(r.menacwy).toEqual([]);
+    expect(r.menb).toEqual([]);
+  });
+});

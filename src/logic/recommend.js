@@ -20,6 +20,7 @@ import {
   menacwyRiskClass,
   hasMenbRisk,
   shouldDeferMenB,
+  hasExclusion,
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
@@ -706,11 +707,40 @@ function collectRefs(riskIds, extra, defaults) {
   return out;
 }
 
+// Hard-stop exclusion (CAR-T therapy / B-cell malignancy / B-cell-depleting
+// therapy) — too heterogeneous for one safe recipe. Verified live against
+// CDC's ACIP General Best Practice Guidelines, "Altered Immunocompetence"
+// page, 2026-09-12.
+const EXCLUSION_MESSAGE = 'This tool does not apply to this patient. Standard '
+  + 'age-based immunization logic is not valid for recipients of hematopoietic '
+  + 'cell transplant (HCT) or CAR‑T therapy, or for patients with a '
+  + 'B‑cell malignancy or recent B‑cell–depleting therapy. These '
+  + 'patients need an individualized, transplant/therapy‑specific '
+  + 'revaccination schedule, and certain live vaccines may be contraindicated. '
+  + 'Follow institutional protocols or current national guidance (e.g., ASCO, '
+  + 'NCCN, IDSA, CDC).';
+
 // ── Public API ───────────────────────────────────────────────────────────
 export function recommend(input) {
   const am = input.ageMonths ?? 0;
   const riskIds = input.riskIds ?? [];
   const today = todayISO(input.today);
+
+  // Hard-stop exclusion wins over everything, including the HCT advisory
+  // (both boxes can be ticked; owner decision 2026-09-12: the stop wins, the
+  // transplant advice is hidden rather than shown underneath a "does not
+  // apply" notice).
+  if (hasExclusion(riskIds)) {
+    return {
+      excluded: true,
+      exclusionMessage: EXCLUSION_MESSAGE,
+      exclusionCitations: resolveRefs(['cdcAlteredImmunocompetence']),
+      menacwy: [],
+      menb: [],
+      pentavalent: { eligible: false },
+      meta: { ageMonths: am, today, riskIds },
+    };
+  }
   const rawMenacwyDoses = (input.menacwyDoses ?? []).filter(Boolean);
   const rawMenbDoses = (input.menbDoses ?? []).filter(Boolean);
   // Risk-at-dose "Needs input" prompt answers (2026-07-23 handoff §2-§3),

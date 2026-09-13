@@ -37,7 +37,33 @@ export default function Results({ state, onReset, onChange, onBack }) {
     riskAtDoseAnswers,
   });
 
-  const { menacwy, menb, pentavalent } = result;
+  const { menacwy, menb, pentavalent, excluded, exclusionMessage, exclusionCitations } = result;
+
+  if (excluded) {
+    return (
+      <div>
+        <div className="advisory-banner advisory-banner-exclude" data-testid="exclusion-stop">
+          <div className="advisory-banner-title">Does not apply to this patient</div>
+          <div className="advisory-note">{exclusionMessage}</div>
+          {exclusionCitations && exclusionCitations.length > 0 && (
+            <div className="rec-citations">
+              {exclusionCitations.map((c, i) => (
+                <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
+                  className="citation-chip" title={c.label}>{c.short || c.label}</a>
+              ))}
+            </div>
+          )}
+        </div>
+        <Disclaimer />
+        <div className="results-actions">
+          {onBack && (
+            <button className="btn btn-outline" onClick={onBack}>Edit risk factors</button>
+          )}
+          <button className="btn btn-outline" onClick={onReset}>Start Over</button>
+        </div>
+      </div>
+    );
+  }
   // Item 3 (2026-07-23): RecCard zips `doses[i]` against `doseValidations[i]`
   // by array index. analyzeHistory() sorts its perDose chronologically, so
   // the doses prop must come from the same sorted call, not raw entry order

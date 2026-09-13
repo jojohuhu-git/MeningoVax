@@ -20,14 +20,23 @@
 //   'single'   — 1 dose; 'single+boost' adds q5y boosters while risk persists
 // menbClass:
 //   'highrisk' — 3-dose 0/1–2/6mo primary + boosters; undefined = no MenB indication
+//
+// `group` is DISPLAY ONLY (which StepRisks.jsx section a checkbox renders
+// under) — mirrors PneumoVax's grouping (owner decision, 2026-09-13):
+//   'IC'       — immunocompromising/medical risk conditions
+//   'exposure' — behavioral/occupational/environmental exposure
+//   'other'    — doesn't fit either (pregnancy)
+// It's separate from menacwyClass/menbClass, which the clinical engine reads.
 
 export const RISK_FACTORS = [
+  // ── Immunocompromising / medical risk conditions ─────────────────────
   {
     id: 'complement',
     label: 'Persistent complement deficiency or complement-inhibitor therapy',
     sublabel: 'e.g. C5–C9, properdin, factor H/D; or eculizumab (Soliris), ravulizumab (Ultomiris)',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
+    group: 'IC',
     // cdcAdultMening dropped 2026-07-24: it just restates the acip2020 rule
     // (2026-07-23 owner decision). cdcComplementInhibitor stays — it has
     // unique content (newer complement inhibitors, incomplete-protection
@@ -39,6 +48,7 @@ export const RISK_FACTORS = [
     label: 'Anatomic or functional asplenia/sickle cell disease',
     menacwyClass: 'primary2',
     menbClass: 'highrisk',
+    group: 'IC',
     refs: ['acip2020'],
   },
   {
@@ -46,13 +56,27 @@ export const RISK_FACTORS = [
     label: 'HIV infection',
     menacwyClass: 'primary2',
     menbClass: undefined,
+    group: 'IC',
     refs: ['acip2020'],
   },
+  {
+    id: 'hct_cart_bcell_exclude',
+    label: 'CAR-T therapy, B-cell malignancy, or B-cell-depleting therapy',
+    sublabel: 'this tool does not apply — needs an individualized, specialist-guided schedule',
+    menacwyClass: undefined,
+    menbClass: undefined,
+    group: 'IC',
+    exclude: true,
+    refs: ['cdcAlteredImmunocompetence'],
+  },
+
+  // ── Exposure-based risks ──────────────────────────────────────────────
   {
     id: 'microbiologist',
     label: 'Microbiologist routinely exposed to N. meningitidis',
     menacwyClass: 'single+boost',
     menbClass: 'highrisk',
+    group: 'exposure',
     // C2/2026-07-24: table anchor within acip2020 (Table 7), not the
     // generic whole-document chip.
     refs: ['acip2020Table7'],
@@ -63,6 +87,7 @@ export const RISK_FACTORS = [
     sublabel: 'including Hajj pilgrims, sub-Saharan "meningitis belt"',
     menacwyClass: 'single+boost',
     menbClass: undefined,
+    group: 'exposure',
     // C2/2026-07-24: table anchor (Table 9) replaces both the generic
     // acip2020 chip and the separate cdcRecommendations page (W1 already
     // dropped the CDC-page duplication elsewhere for the same reason).
@@ -73,6 +98,7 @@ export const RISK_FACTORS = [
     label: 'Military recruit',
     menacwyClass: 'single',
     menbClass: undefined,
+    group: 'exposure',
     refs: ['acip2020Table10'],
   },
   {
@@ -80,6 +106,7 @@ export const RISK_FACTORS = [
     label: 'First-year college student living in a residence hall',
     menacwyClass: 'single',
     menbClass: undefined,
+    group: 'exposure',
     refs: ['acip2020Table10'],
   },
   {
@@ -87,6 +114,7 @@ export const RISK_FACTORS = [
     label: 'Increased risk from a serogroup A/C/W/Y outbreak',
     menacwyClass: 'single',
     menbClass: undefined,
+    group: 'exposure',
     refs: ['acip2020Table8'],
   },
   {
@@ -94,16 +122,20 @@ export const RISK_FACTORS = [
     label: 'Increased risk from a serogroup B outbreak',
     menacwyClass: undefined,
     menbClass: 'highrisk',
+    group: 'exposure',
     // C1/2026-07-24 note (flagged in the C2 plan, applied here): a MenB
     // indication, not MenACWY, so it gets the C1 mm7349a3 swap, not a
     // Table 8 (MenACWY) anchor.
     refs: ['mm7349a3', 'cdcRecommendations'],
   },
+
+  // ── Other ──────────────────────────────────────────────────────────────
   {
     id: 'pregnancy',
     label: 'Pregnancy',
     menacwyClass: undefined,
     menbClass: undefined,
+    group: 'other',
     deferMenB: true,
     refs: ['cdcAdultMening'],
   },
@@ -130,4 +162,10 @@ export function hasMenbRisk(riskIds = []) {
 export function shouldDeferMenB(riskIds = []) {
   const defer = riskIds.some((id) => RISK_BY_ID[id]?.deferMenB);
   return defer && !hasMenbRisk(riskIds);
+}
+
+// CAR-T therapy / B-cell malignancy / B-cell-depleting therapy selected?
+// This hard-stops the whole engine — too heterogeneous for one safe recipe.
+export function hasExclusion(riskIds = []) {
+  return riskIds.some((id) => RISK_BY_ID[id]?.exclude);
 }

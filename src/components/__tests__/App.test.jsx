@@ -416,4 +416,29 @@ describe('App wizard', () => {
       expect(screen.getByText(/Family locked: MenB-4C/i)).toBeDefined();
     });
   });
+
+  it('CAR-T/B-cell checkbox skips both history steps and shows the hard-stop with no rec cards', () => {
+    render(<App />);
+    enterAgeYears(30);
+    fireEvent.click(getNextBtn()); // → Risks
+    fireEvent.click(screen.getByLabelText(/CAR-T therapy, B-cell malignancy/i, { exact: false }));
+    fireEvent.click(getNextBtn()); // → skips MenACWY + MenB history, straight to Results
+
+    expect(screen.queryByText('MenACWY History')).toBeNull();
+    expect(screen.queryByText('MenB History')).toBeNull();
+    expect(screen.getByTestId('exclusion-stop')).toBeTruthy();
+    expect(screen.getAllByText(/does not apply to this patient/i).length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('[data-testid="rec-card"]').length).toBe(0);
+  });
+
+  it('CAR-T/B-cell "Edit risk factors" button returns to Risks, not MenB history', () => {
+    render(<App />);
+    enterAgeYears(30);
+    fireEvent.click(getNextBtn()); // → Risks
+    fireEvent.click(screen.getByLabelText(/CAR-T therapy, B-cell malignancy/i, { exact: false }));
+    fireEvent.click(getNextBtn()); // → Results
+
+    fireEvent.click(screen.getByRole('button', { name: /edit risk factors/i }));
+    expect(screen.getByText('Risk Factors')).toBeDefined();
+  });
 });
