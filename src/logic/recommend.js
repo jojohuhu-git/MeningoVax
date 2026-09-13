@@ -767,19 +767,19 @@ function hctAdvisory(am, riskIds = []) {
     if (inAcwyBand) {
       lines.push({
         label: 'MenACWY',
-        text: '2 doses of MenACWY, 6–12 months after transplant, with a booster at age 16–18 (if the first post-transplant dose was given at 11–15, the booster is due at 16; if given at 16–18, the booster is due 16–18).',
+        text: '2 doses of MenACWY, 6–12 months after transplant. Booster at 16–18 (age 16 if the first dose was given at 11–15; otherwise 16–18).',
         refs: ['idsa2013MenacwyHct'],
       });
     } else if (highRisk) {
       lines.push({
         label: 'MenACWY',
-        text: 'Indicated at any age because of the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy) — not the transplant alone. The standing high-risk MenACWY recommendation above already governs dosing and boosters; the transplant itself adds no separate schedule.',
+        text: 'Indicated at any age from the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy), not the transplant — the standing high-risk MenACWY recommendation above already governs dosing and boosters.',
         refs: ['cdcAlteredImmunocompetence'],
       });
     } else {
       lines.push({
         label: 'MenACWY',
-        text: 'CDC and IDSA specifically source a post-transplant MenACWY schedule for ages 11 through 18, or any age with a high-risk condition — neither applies here. MenACWY has no upper age limit, so it can still be given: transplant centers often vaccinate more broadly than these sources and may choose to use the same 2-dose, 6–12-month schedule. If another risk factor independently applies, select it — it carries its own age-appropriate rules.',
+        text: 'Not specifically sourced at this age (CDC/IDSA cover ages 11 through 18, or any age with a high-risk condition). MenACWY has no upper age limit, so it can still be given — centers often vaccinate more broadly and may use the same 2-dose, 6–12-month schedule. If another risk factor applies, select it for its own rules.',
         refs: [],
       });
     }
@@ -791,19 +791,19 @@ function hctAdvisory(am, riskIds = []) {
     if (menbTransplantAloneBand) {
       lines.push({
         label: 'MenB',
-        text: 'Indicated at this age (16 through 23 years) from the transplant alone — no additional risk factor is required. This is the standard 2-dose series shown below, not the 3-dose high-risk schedule; 3 doses apply only if an additional MenB risk factor (asplenia, complement deficiency, microbiologist exposure, or a serogroup B outbreak) is also selected. No MenB booster interval is established; CDC states there are presently no recommendations for booster doses of either MenB vaccine.',
+        text: 'Indicated at this age (16 through 23) from the transplant alone. This is the standard 2-dose series shown below, not the 3-dose high-risk one — 3 doses apply only if an additional MenB risk factor (asplenia, complement deficiency, microbiologist exposure, or a serogroup B outbreak) is also selected. No MenB booster is established.',
         refs: ['cdcAlteredImmunocompetence'],
       });
     } else if (highRisk) {
       lines.push({
         label: 'MenB',
-        text: 'Indicated at any age from 10 years because of the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy) — not the transplant alone. The standing high-risk MenB recommendation above already governs dosing and boosters; the transplant itself adds no separate schedule.',
+        text: 'Indicated at any age from 10 years from the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy), not the transplant — the standing high-risk MenB recommendation above already governs dosing and boosters.',
         refs: ['cdcAlteredImmunocompetence'],
       });
     } else {
       lines.push({
         label: 'MenB',
-        text: 'Not specifically sourced as transplant-driven at this age. If this patient ALSO has asplenia, complement deficiency/complement-inhibitor therapy, is a microbiologist routinely exposed to N. meningitidis, or has a travel/outbreak exposure — select that condition too, and MenB will be recommended per its own age-appropriate rules. Otherwise, transplant centers often vaccinate more broadly than these sources, and this app’s standard MenB age-eligibility rules shown below still govern whether it can be given.',
+        text: 'Not specifically sourced as transplant-driven at this age. If another MenB risk factor applies (asplenia, complement deficiency, microbiologist exposure, travel/outbreak) — select it for its own rules. Otherwise, centers may still vaccinate more broadly; this app’s standard MenB rules below govern eligibility.',
         refs: ['kambojShah2019MenbHct'],
       });
     }
