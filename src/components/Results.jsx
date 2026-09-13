@@ -57,7 +57,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
         <Disclaimer />
         <div className="results-actions">
           {onBack && (
-            <button className="btn btn-outline" onClick={onBack}>Edit history</button>
+            <button className="btn btn-outline" onClick={onBack}>Edit risk factors</button>
           )}
           <button className="btn btn-outline" onClick={onReset}>Start Over</button>
         </div>

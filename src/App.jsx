@@ -5,6 +5,7 @@ import StepRisks from './components/StepRisks.jsx';
 import StepHistory from './components/StepHistory.jsx';
 import Results from './components/Results.jsx';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from './data/brands.js';
+import { hasExclusion } from './data/riskFactors.js';
 
 const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
 
@@ -50,10 +51,20 @@ export default function App() {
       }
       setAgeError('');
     }
+    // The hard-stop exclusion (CAR-T/B-cell) needs no vaccination history to
+    // show its stop message, so skip both history steps straight to Results.
+    if (state.step === 1 && hasExclusion(state.riskIds)) {
+      setState(prev => ({ ...prev, step: 4 }));
+      return;
+    }
     setState(prev => ({ ...prev, step: Math.min(prev.step + 1, STEPS.length - 1) }));
   }
 
   function goBack() {
+    if (state.step === 4 && hasExclusion(state.riskIds)) {
+      setState(prev => ({ ...prev, step: 1 }));
+      return;
+    }
     setState(prev => ({ ...prev, step: Math.max(prev.step - 1, 0) }));
   }
 
@@ -133,7 +144,7 @@ export default function App() {
         )}
         {state.step === 4 && (
           <Results state={state} onReset={reset} onChange={update}
-            onBack={() => update({ step: 3 })} />
+            onBack={goBack} />
         )}
       </main>
 
