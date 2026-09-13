@@ -622,3 +622,53 @@ describe('hard-stop exclusion', () => {
     expect(r.menb).toEqual([]);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════
+// M-B: HCT advisory (post-transplant meningococcal guidance)
+// ════════════════════════════════════════════════════════════════════════
+describe('HCT advisory', () => {
+  it('ages 11-18: gives the MenACWY recipe, sourced', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y
+    expect(r.hct).not.toBeNull();
+    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
+    expect(acwyLine.text).toMatch(/6–12 months after transplant/);
+    expect(acwyLine.citations.map((c) => c.short)).toContain('IDSA 2013 Guideline (HCT MenACWY)');
+  });
+
+  it('ages 10-25: gives the MenB "check other boxes" pointer, sourced', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y — inside both bands
+    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
+    expect(menbLine.text).toMatch(/Not triggered by transplant alone/);
+    expect(menbLine.citations.map((c) => c.short)).toContain('Kamboj & Shah 2019 (HCT MenB)');
+  });
+
+  it('age 30 (outside both bands): states plainly that no source establishes a recommendation here', () => {
+    const r = run({ ageMonths: 360, riskIds: ['hct'] }); // 30y
+    expect(r.hct.lines).toHaveLength(1);
+    expect(r.hct.lines[0].label).toBeNull();
+    expect(r.hct.lines[0].text).toMatch(/None of the sources reviewed/);
+  });
+
+  it('age 5 (outside both bands): same plain no-recommendation line', () => {
+    const r = run({ ageMonths: 60, riskIds: ['hct'] }); // 5y
+    expect(r.hct.lines).toHaveLength(1);
+    expect(r.hct.lines[0].label).toBeNull();
+  });
+
+  it('age 22 (in MenB band, out of MenACWY band): only the MenB pointer line', () => {
+    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
+    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenB']);
+  });
+
+  it('HCT computed alongside the normal engine, not instead of it', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct', 'asplenia'] });
+    expect(r.hct).not.toBeNull();
+    expect(r.menacwy.length).toBeGreaterThan(0);
+    expect(r.menb.length).toBeGreaterThan(0);
+  });
+
+  it('no HCT selected ⇒ hct is null', () => {
+    const r = run({ ageMonths: 168, riskIds: [] });
+    expect(r.hct).toBeNull();
+  });
+});

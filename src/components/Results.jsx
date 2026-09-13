@@ -37,7 +37,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
     riskAtDoseAnswers,
   });
 
-  const { menacwy, menb, pentavalent, excluded, exclusionMessage, exclusionCitations } = result;
+  const { menacwy, menb, pentavalent, hct, excluded, exclusionMessage, exclusionCitations } = result;
 
   if (excluded) {
     return (
@@ -124,6 +124,9 @@ export default function Results({ state, onReset, onChange, onBack }) {
     summaryLine = `${optionalDue[0]} is optional today (shared clinical decision). No other MenACWY or MenB doses due today.`;
   } else {
     summaryLine = 'No MenACWY or MenB doses due today.';
+  }
+  if (hct) {
+    summaryLine = 'Post-HCT advisory applies. See details below.';
   }
 
   // Inline age editor — recommendations recompute live from state.ageMonths.
@@ -266,6 +269,30 @@ export default function Results({ state, onReset, onChange, onBack }) {
           </div>
         )}
       </div>
+
+      {/* HCT advisory block — alert banner, prominent at top */}
+      {hct && (
+        <div className="advisory-banner advisory-banner-hct" data-testid="hct-card">
+          <div className="advisory-banner-title">
+            Advisory: {hct.title}
+          </div>
+          <div className="advisory-banner-flag">{hct.coordinateFlag}</div>
+          {hct.lines.map((l, i) => (
+            <div key={i}>
+              {l.label && <div className="advisory-dose-line">{l.label}: {l.text}</div>}
+              {!l.label && <div className="advisory-note">{l.text}</div>}
+              {l.citations && l.citations.length > 0 && (
+                <div className="rec-citations">
+                  {l.citations.map((c, j) => (
+                    <a key={j} href={c.url} target="_blank" rel="noopener noreferrer"
+                      className="citation-chip" title={c.label}>{c.short || c.label}</a>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* B2/B3: when a pentavalent is eligible, present the two ways to give MenACWY +
           MenB today as an explicit choice — separate injections (primary/default) first,

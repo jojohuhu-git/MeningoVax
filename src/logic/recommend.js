@@ -21,6 +21,7 @@ import {
   hasMenbRisk,
   shouldDeferMenB,
   hasExclusion,
+  hasHCT,
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
@@ -29,7 +30,7 @@ import { analyzeHistory } from './validate.js';
 
 // Age bands (months)
 const M = {
-  y2: 24, y7: 84, y10: 120, y11: 132, y16: 192, y18: 216, y19: 228, y22: 264, y23: 276, y24: 288,
+  y2: 24, y7: 84, y10: 120, y11: 132, y16: 192, y18: 216, y19: 228, y22: 264, y23: 276, y24: 288, y26: 312,
 };
 
 // ── brand option builders ─────────────────────────────────────────────────
@@ -707,6 +708,66 @@ function collectRefs(riskIds, extra, defaults) {
   return out;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  HCT advisory block (relative-to-transplant; never asks for the transplant
+//  date — see PneumoVax's hsctAdvisory() for the same design rule).
+//
+//  Sourced, verified live 2026-09-13 (see refs.js for verbatim quotes):
+//   • CDC Altered Immunocompetence page: general non-live-vaccine restart
+//     floor is 6 months post-HCT; meningococcal conjugate (MenACWY) is
+//     revaccinated "for individuals 11 through 18 years or at high-risk",
+//     MenB "for individuals 16 through 23 years or at high-risk". CDC's own
+//     Table 8-1 does NOT list meningococcal as a risk-specific vaccine for
+//     transplant/malignancy in general — only tied to these age bands (or an
+//     independently-qualifying risk factor, handled by its own checkbox).
+//   • IDSA 2013 guideline (Rubin et al., Recommendation 80) — the ONLY
+//     meningococcal recommendation in that guideline for HCT patients, and
+//     it predates MenB licensure (2014-15), which is why it has no MenB
+//     content: 2 doses of MCV4 6-12 months post-HCT for ages 11-18, booster
+//     at 16-18.
+//   • Kamboj & Shah 2019 (citing IDSA/ASBMT/EBMT): MenB should additionally
+//     be given to HCT recipients aged 10-25 who ALSO have another qualifying
+//     risk condition (asplenia, complement deficiency, microbiologist
+//     exposure, travel, or outbreak) — not from HCT alone. Those conditions
+//     already have their own checkboxes/age rules in this app.
+//
+//  Outside the 11-18 (MenACWY) / 10-25-with-another-risk (MenB) windows, none
+//  of these three sources establish a transplant-specific meningococcal
+//  recommendation — that is stated plainly below rather than guessed at.
+function hctAdvisory(am) {
+  const inAcwyBand = am >= M.y11 && am < M.y19;   // 11 through 18 years
+  const inMenbBand = am >= M.y10 && am < M.y26;   // 10 through 25 years
+
+  const lines = [];
+  if (inAcwyBand) {
+    lines.push({
+      label: 'MenACWY',
+      text: '2 doses of MenACWY, 6–12 months after transplant, with a booster at age 16–18 (if the first post-transplant dose was given at 11–15, the booster is due at 16; if given at 16–18, the booster is due 16–18).',
+      refs: ['idsa2013MenacwyHct'],
+    });
+  }
+  if (inMenbBand) {
+    lines.push({
+      label: 'MenB',
+      text: 'Not triggered by transplant alone. If this patient ALSO has asplenia, complement deficiency/complement-inhibitor therapy, is a microbiologist routinely exposed to N. meningitidis, or has a travel/outbreak exposure — select that condition too, and MenB will be recommended per its own age-appropriate rules.',
+      refs: ['kambojShah2019MenbHct'],
+    });
+  }
+  if (!inAcwyBand && !inMenbBand) {
+    lines.push({
+      label: null,
+      text: 'None of the sources reviewed (CDC, the 2013 IDSA guideline, or a 2019 review of IDSA/ASBMT/EBMT consensus) establish a transplant-specific meningococcal recommendation at this age. If another risk factor independently applies (e.g. asplenia), select it — it carries its own age-appropriate rules.',
+      refs: [],
+    });
+  }
+
+  return {
+    title: 'Post-HCT meningococcal vaccination — advisory',
+    coordinateFlag: 'Coordinate with the transplant/ID team — your center may use its own post-HCT protocol. Most non-live vaccines, including meningococcal vaccines, are re-initiated no sooner than 6 months after transplant.',
+    lines,
+  };
+}
+
 // Hard-stop exclusion (CAR-T therapy / B-cell malignancy / B-cell-depleting
 // therapy) — too heterogeneous for one safe recipe. Verified live against
 // CDC's ACIP General Best Practice Guidelines, "Altered Immunocompetence"
@@ -738,6 +799,7 @@ export function recommend(input) {
       menacwy: [],
       menb: [],
       pentavalent: { eligible: false },
+      hct: null,
       meta: { ageMonths: am, today, riskIds },
     };
   }
@@ -760,6 +822,16 @@ export function recommend(input) {
 
   const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today);
   const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
+
+  // ── HCT advisory block (prominent at top; standard recs still shown) ──
+  const rawHct = hasHCT(riskIds) ? hctAdvisory(am) : null;
+  const hct = rawHct
+    ? {
+        title: rawHct.title,
+        coordinateFlag: rawHct.coordinateFlag,
+        lines: rawHct.lines.map((l) => ({ ...l, citations: resolveRefs(l.refs) })),
+      }
+    : null;
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y). MenB can
@@ -789,5 +861,5 @@ export function recommend(input) {
       }
     : { eligible: false };
 
-  return { menacwy, menb, pentavalent, meta: { ageMonths: am, today, riskIds } };
+  return { menacwy, menb, pentavalent, hct, meta: { ageMonths: am, today, riskIds } };
 }
