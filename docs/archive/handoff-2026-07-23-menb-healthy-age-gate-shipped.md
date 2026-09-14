@@ -1,5 +1,10 @@
 # MeningoVax — Handoff after shipping the MenB healthy-age fix + cross-app audit (2026-07-23)
 
+**SUPERSEDED by
+`docs/archive/handoff-2026-07-23-dose-chip-mislabeled-found.md`** — this file's "rules-summary
+doc" and parked-UX "#2 delete the header" items are now DONE, and a new item (a mislabeled
+dose-validity chip) was found. Do not resume this file's queue; read the newer one.
+
 Supersedes: `docs/archive/handoff-2026-07-23-publish-complete.md` (its "Parked list" is still
 open but now carries owner decisions — see below; do not resume that file's framing).
 

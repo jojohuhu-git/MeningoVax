@@ -49,27 +49,6 @@ sync, esp. the MenB intervals and the dose-2-based booster cadence).
 
 ## P2 — Medium
 
-### M1 · MenACWY catch-up cuts off at exactly 21y0m (denies 21y1m–21y11m) ✓verified
-- **Where:** `src/logic/recommend.js:331` (`if (am <= 252)`)
-- **What:** 252mo = exactly 21y0m. Patients 21y1m–21y11m (253–263mo) fall through to the ≥22y "not routinely indicated" branch (`:344`). CLAUDE.md (D2) says all 17–21y with no dose on/after the 16th birthday should get a catch-up Dose 1 of 1; "through 21 years" means inclusive to the 22nd birthday (264mo).
-- **Impact:** An unvaccinated 21.5-year-old (e.g. a first-year college student in a residence hall — exactly the target population) is told MenACWY is "not routinely indicated" and denied an indicated catch-up dose.
-- **Fix:** `if (am < 264)` (add `M.y22 = 264`); keep ≥22y as not-indicated. Update the inline comment.
-- **Test:** am=258 (21y6m), no dose ≥16y → `catchup`; am=264 → `not-indicated`.
-
-### M2 · MenB shared-decision cuts off at exactly 23y0m (denies 23y1m–23y11m) ✓verified
-- **Where:** `src/logic/recommend.js:412` (`if (am >= M.y16 && am <= M.y23)`, `M.y23=276`)
-- **What:** 276mo = exactly 23y0m. ACIP's window is "16 through 23 years" — inclusive of the entire 23rd year (to the 24th birthday, 288mo). 23y1m–23y11m (277–287mo) fall through to "not routinely recommended."
-- **Impact:** A healthy 23.5-year-old is denied the shared-decision MenB offer ACIP still allows.
-- **Fix:** `am < M.y24` (add `M.y24 = 288`) or `am <= 287`. Update the fallthrough wording.
-- **Test:** am=282 (23y6m) → `shared-decision`; am=288 → `not-indicated`.
-
-### M3 · MenB family lock anchored on raw Dose-0 brand, not the first known-brand dose
-- **Where:** `src/logic/recommend.js:353–354` (`const firstBrand = doses[0]?.brand || ''; const family = menbFamily(firstBrand)`)
-- **What:** When effective D1 has an unknown brand but a later effective dose establishes a known family (e.g. Bexsero=4C at D2), `family` resolves to `null` and `menbBrands(null)` returns **both** families. `validate.js:357` anchors on `kept.find(d => d.brand)` (first kept known-brand dose) and would flag a cross-family dose invalid → engine and validator disagree. The same `null` flows into pentavalent selection (`:502`), offering both Penbraya and Penmenvy.
-- **Impact:** For a patient whose D1 brand is unrecorded but a later dose is documented, the engine offers the wrong-family MenB product (and both pentavalents), undermining the interchangeability lock.
-- **Fix:** `const family = menbFamily((doses.find(d => d.brand)?.brand) || '');` — mirror `validate.js`.
-- **Test:** doses=[{unknown}, {Bexsero}] high-risk → next-dose brands = Bexsero/4C only (not Trumenba); pentavalent offer = Penmenvy only.
-
 ### M4 · MenACWY high-risk class hardcoded in the validator (drift risk)
 - **Where:** `src/logic/validate.js:223–225` (`riskIds.some(id => ['asplenia','complement','hiv'].includes(id))`)
 - **What:** The strict 8-week-interval / booster-cadence gate uses a hardcoded literal instead of `menacwyRiskClass(riskIds) === 'primary2'` from `riskFactors.js` (the authoritative source). Today the list matches, but CLAUDE.md says rules must read class from data, never a hardcoded map. A future `primary2` risk would silently skip the validator's interval checks while the engine treats it as primary2.
@@ -102,4 +81,4 @@ agreement fixtures so the hand-synced engines can't drift.
 
 ## Verification for this repo
 - `npm install && npm test` (currently ~186 tests, 5 files). Add a regression test per fix; when changing an interval/cadence, **update both `recommend.js` and `validate.js`** (CLAUDE.md rule).
-- Manual smoke (`npm run dev`): high-risk MenB with late D2 (C1), high-risk infant completed series (H1), ages 21y6m / 23y6m (M1/M2), unknown-brand MenB D1 + Bexsero D2 (M3).
+- Manual smoke (`npm run dev`): high-risk MenB with late D2 (C1), high-risk infant completed series (H1).
