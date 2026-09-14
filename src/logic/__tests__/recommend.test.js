@@ -627,12 +627,21 @@ describe('hard-stop exclusion', () => {
 // M-B: HCT advisory (post-transplant meningococcal guidance)
 // ════════════════════════════════════════════════════════════════════════
 describe('HCT advisory', () => {
-  it('ages 11-18: gives the MenACWY recipe, sourced', () => {
+  it('ages 11-18: gives the MenACWY recipe, sourced, with the ASCO interval', () => {
     const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y
     expect(r.hct).not.toBeNull();
     const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).toMatch(/6–12 months after transplant/);
+    expect(acwyLine.text).toMatch(/2 doses of MenACWY, 2 months apart, 6–12 months after transplant/);
     expect(acwyLine.citations.map((c) => c.short)).toContain('IDSA 2013 Guideline (HCT MenACWY)');
+    expect(acwyLine.citations.map((c) => c.short)).toContain('ASCO Vaccination of Adults With Cancer (2024)');
+  });
+
+  it('P0-B (2026-09-14): no booster is stated inside the transplant advisory — the ' +
+    'transplant alone generates no booster; the routine ACIP-sourced booster (if any) ' +
+    'comes from the standing MenACWY engine shown below, not from this advisory', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y, in the 11-18 ACWY band
+    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
+    expect(acwyLine.text).not.toMatch(/[Bb]ooster/);
   });
 
   it('ages 10-15, no other risk: gives the MenB "check other boxes" pointer, sourced', () => {

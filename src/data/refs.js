@@ -328,7 +328,14 @@ export const CITATIONS = {
     lastVerified: '2026-09-12',
   },
 
-  // Post-HCT meningococcal advisory (verified live, verbatim, 2026-09-13) ---
+  // Post-HCT meningococcal advisory (verified live, verbatim, 2026-09-13/14) --
+  ascoAdultCancer2024: {
+    url: 'https://ascopubs.org/doi/10.1200/JCO.24.00032',
+    label: 'ASCO Guideline: Vaccination of Adults With Cancer (J Clin Oncol 2024)',
+    short: 'ASCO Vaccination of Adults With Cancer (2024)',
+    quote: 'Two doses of quadrivalent meningococcal vaccine 2 months apart are recommended 6-12 months after transplant for recipients with risk factors. Meningococcal B vaccines should also be offered to HSCT recipients with high-risk conditions or young adults (16-23 years old) who are eligible to receive the vaccine.',
+    lastVerified: '2026-09-14',
+  },
   idsa2013MenacwyHct: {
     url: 'https://academic.oup.com/cid/article/58/3/e44/336537',
     quote: 'Two doses of MCV4 should be administered 6–12 months after HSCT to persons aged 11–18 years, with a booster dose given at age 16–18 years for those who received the initial post-HSCT dose of vaccine at age 11–15 years',

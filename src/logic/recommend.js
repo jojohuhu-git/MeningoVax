@@ -765,10 +765,17 @@ function hctAdvisory(am, riskIds = []) {
   // MenACWY — floor is 2 months; no upper age limit on giving it at all.
   if (am >= 2) {
     if (inAcwyBand) {
+      // P0-B (2026-09-14, owner decision): interval now matches vaxapp exactly
+      // (2 months apart, from ASCO). The old booster clause is removed
+      // entirely -- it restated the ordinary ACIP adolescent booster (already
+      // shown by the standing MenACWY engine below), had a self-contradictory
+      // "otherwise 16-18" half not supported by any source, and "the
+      // transplant alone generates no booster" applies here just as it does
+      // in vaxapp. See the fix-queue doc for the full source comparison.
       lines.push({
         label: 'MenACWY',
-        text: '2 doses of MenACWY, 6–12 months after transplant. Booster at 16–18 (age 16 if the first dose was given at 11–15; otherwise 16–18).',
-        refs: ['idsa2013MenacwyHct'],
+        text: '2 doses of MenACWY, 2 months apart, 6–12 months after transplant.',
+        refs: ['idsa2013MenacwyHct', 'ascoAdultCancer2024'],
       });
     } else if (highRisk) {
       lines.push({
