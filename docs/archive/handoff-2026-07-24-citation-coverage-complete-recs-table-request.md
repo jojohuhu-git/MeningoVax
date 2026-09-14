@@ -1,5 +1,10 @@
 # MeningoVax — Handoff after full citation coverage + new recs-table request (2026-07-24)
 
+**Superseded by `docs/archive/handoff-2026-07-24-citation-references-verified-not-wired.md`**
+— the recs-table request below was fulfilled (owner built the docx and reviewed it with a
+follow-up session); that later handoff has the sourced references and open questions.
+Do not resume the "not done" queue below; it is stale.
+
 Supersedes `docs/archive/handoff-2026-07-24-citation-superscript-implemented.md`
 (that file's "not done" queue — MenB/infant quote coverage — is now implemented;
 don't re-derive it or re-run it).
