@@ -730,7 +730,7 @@ function collectRefs(riskIds, extra, defaults) {
 //     meningococcal recommendation in that guideline for HCT patients, and
 //     it predates MenB licensure (2014-15), which is why it has no MenB
 //     content: 2 doses of MCV4 6-12 months post-HCT for ages 11-18, booster
-//     at 16-18. Kept as the MenACWY 11-18 citation — unchanged, it was right.
+//     at 16-18.
 //   • Kamboj & Shah 2019 (citing IDSA/ASBMT/EBMT): MenB should additionally
 //     be given to HCT recipients aged 10-25 who ALSO have another qualifying
 //     risk condition (asplenia, complement deficiency, microbiologist
@@ -755,8 +755,29 @@ function collectRefs(riskIds, extra, defaults) {
 //  real bug the same correction surfaced: the high-risk limb previously had
 //  no age floor for MenB, so a patient under 10 with the complement/asplenia
 //  checkbox got a MenB line despite being below MenB's licensed minimum age.
+//
+//  P1 correction (2026-09-14, owner decision, supersedes the IDSA-sourced
+//  "11 through 18" MenACWY carve-out above): the unconditional 11-18 age
+//  band was WRONG. Read the ASCO passage live (ascopubs.org, JCO 2024):
+//  "Two doses of quadrivalent meningococcal vaccine 2 months apart are
+//  recommended 6-12 months after transplant for recipients with risk
+//  factors." No age band — ASCO requires an additional risk factor at any
+//  age, same as the high-risk limb below, not a separate age-only path. The
+//  same sentence's MenB clause proves this is deliberate: it explicitly
+//  offers an unconditional age path ("young adults 16-23 years old") next
+//  to the risk-factor path, so ASCO plainly knows how to write "age alone
+//  qualifies" when it means that — it didn't write MenACWY that way.
+//  Confirmed by contrast with CDC's post-HCT pneumococcal rule (MMWR RR-9
+//  2023), which has NO risk-factor qualifier at all: every HSCT recipient
+//  19+ gets it, transplant alone is sufficient. Meningococcal and
+//  pneumococcal differ by design; MenACWY is not universal to transplant
+//  recipients the way pneumococcal is. IDSA's 2013 "11-18" language is now
+//  superseded for this row by ASCO's more current, more specific 2024
+//  guidance — the two-sided "band OR high-risk" MenACWY branch below is
+//  removed; only the high-risk limb triggers the schedule. MenB is
+//  unaffected — ASCO's own text still gives it the unconditional 16-23
+//  age path, so `menbTransplantAloneBand` stays as-is.
 function hctAdvisory(am, riskIds = []) {
-  const inAcwyBand = am >= M.y11 && am < M.y19;              // 11 through 18 years
   const menbTransplantAloneBand = am >= M.y16 && am < M.y24; // 16 through 23 years
   const highRisk = riskIds.some((id) => id === 'asplenia' || id === 'complement');
 
@@ -764,20 +785,7 @@ function hctAdvisory(am, riskIds = []) {
 
   // MenACWY — floor is 2 months; no upper age limit on giving it at all.
   if (am >= 2) {
-    if (inAcwyBand) {
-      // P0-B (2026-09-14, owner decision): interval now matches vaxapp exactly
-      // (2 months apart, from ASCO). The old booster clause is removed
-      // entirely -- it restated the ordinary ACIP adolescent booster (already
-      // shown by the standing MenACWY engine below), had a self-contradictory
-      // "otherwise 16-18" half not supported by any source, and "the
-      // transplant alone generates no booster" applies here just as it does
-      // in vaxapp. See the fix-queue doc for the full source comparison.
-      lines.push({
-        label: 'MenACWY',
-        text: '2 doses of MenACWY, 2 months apart, 6–12 months after transplant.',
-        refs: ['idsa2013MenacwyHct', 'ascoAdultCancer2024'],
-      });
-    } else if (highRisk) {
+    if (highRisk) {
       lines.push({
         label: 'MenACWY',
         text: 'Indicated at any age from the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy), not the transplant — the standing high-risk MenACWY recommendation above already governs dosing and boosters.',
@@ -786,8 +794,8 @@ function hctAdvisory(am, riskIds = []) {
     } else {
       lines.push({
         label: 'MenACWY',
-        text: 'Not specifically sourced at this age (CDC/IDSA cover ages 11 through 18, or any age with a high-risk condition). MenACWY has no upper age limit, so it can still be given — centers often vaccinate more broadly and may use the same 2-dose, 6–12-month schedule. If another risk factor applies, select it for its own rules.',
-        refs: [],
+        text: 'Not indicated from the transplant alone. ASCO\'s post-transplant schedule (2 doses, 2 months apart, 6–12 months after transplant) is sourced for recipients with an additional risk factor, not for the transplant by itself — select a risk factor above if one applies. MenACWY has no upper age limit, so it can still be given; centers may still vaccinate more broadly without a specific source.',
+        refs: ['ascoAdultCancer2024'],
       });
     }
   }
