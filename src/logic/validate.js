@@ -279,7 +279,21 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // the adolescent series years later is the separate risk-at-dose question the
   // owner has parked (queue item 21), and this does not answer it.
   const onInfantSeriesNow = ageMonths < 24 && menacwyInfantSeriesIndicated(riskIds);
-  if (!ongoingRiskNow && !onInfantSeriesNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  // M12 (2026-09-15): an A/C/W/Y outbreak contact follows a booster schedule too,
+  // so their earlier doses count at ANY age, not only under 2. ACIP 2020 MMWR
+  // 69(RR-9) Table 8 gives a previously-vaccinated patient identified at risk
+  // again "a single dose if >=3 yrs since vaccination" (under 7) or ">=5 yrs" (7
+  // or older) — and the ACIP sentence this whole rule turns on names that very
+  // table: "Children who received MenACWY at age <11 years and for whom booster
+  // vaccination is recommended because of an ongoing increased risk should follow
+  // the booster dose schedule (Tables 4, 5, 6, 7, 8, and 9), not the routine
+  // adolescent schedule." Discarding the dose made the app offer dose 1 again
+  // instead of the top-up.
+  //
+  // Military recruits and college residents keep the old treatment: they are
+  // 'single' too, but Table 10 gives them no booster schedule to follow.
+  const onOutbreakSchedule = riskIds.includes('outbreak_acwy');
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
@@ -428,7 +442,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // ongoingRiskNow): a baby with two correctly-spaced infant doses had the
   // second one set aside and was offered dose 1 again. onInfantSeriesNow is
   // scoped to patients still under 2 today — see its definition above.
-  if (!ongoingRiskNow && !onInfantSeriesNow && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16.`],

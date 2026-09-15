@@ -333,18 +333,62 @@ function menacwyRec(am, riskIds, doses, today) {
       })];
     }
 
-    // Military recruit / serogroup A/C/W/Y outbreak: a single dose satisfies.
+    // M12 (2026-09-15), cross-repo parity with vaxapp: an A/C/W/Y outbreak
+    // contact who was vaccinated long ago is NOT simply "Complete". ACIP 2020
+    // MMWR 69(RR-9) Table 8, fetched live from cdc.gov 2026-09-15: "Boosters (if
+    // previously vaccinated and identified as being at increased risk): • Aged
+    // <7 yrs: Single dose if ≥3 yrs since vaccination • Aged ≥7 yrs: single dose
+    // if ≥5 yrs since vaccination."
+    //
+    // This is a TOP-UP triggered by being identified at risk again, not the
+    // standing countdown travel gets from Table 9 (owner-confirmed 2026-09-15) —
+    // so it is offered because the patient is recorded as at risk in an outbreak
+    // now, and the copy says it does not start a repeating schedule.
+    //
+    // Note the clock: Table 8 keys the 3-versus-5-year threshold to the
+    // patient's age TODAY, inside its own age-group rows, where Tables 4-6 and 9
+    // key theirs to the age at which the primary series was completed.
+    //
+    // Military recruits and college residents share this branch and are
+    // deliberately unchanged: Table 10 really is a single dose for them.
+    const isOutbreakACWY = riskIds.includes('outbreak_acwy');
+    if (isOutbreakACWY && given >= 1) {
+      const topUpDays = am < M.y7 ? DAYS.years(3) : DAYS.years(5);
+      const elapsedTopUp = intervalElapsed(lastDate, topUpDays, today);
+      if (!elapsedTopUp) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete for this outbreak', seriesTotal: 1,
+          earliestNextDate: addDays(lastDate, topUpDays),
+          minIntervalDays: topUpDays,
+          note: `The recorded dose covers this outbreak. If the patient is identified as being at increased risk in an outbreak again, a single further dose is given once it has been ${am < M.y7 ? 'three' : 'five'} years or more since the last one (${am < M.y7 ? 'under age 7' : 'age 7 or older'}) [c].`,
+          noteCites: [cite('acip2020Table8')],
+          refs: refsExposure(),
+        })];
+      }
+      return [rec({
+        vaccine: 'MenACWY', status: 'exposure', doseLabel: `Outbreak top-up (dose ${given + 1})`, seriesTotal: 1,
+        doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
+        minIntervalDays: topUpDays,
+        note: `More than ${am < M.y7 ? 'three' : 'five'} years have passed since the last MenACWY dose (${am < M.y7 ? 'under age 7' : 'age 7 or older'}), so a single further dose is given to top up protection for this outbreak [c]. It does not start a repeating schedule.`,
+        noteCites: [cite('acip2020Table8')],
+        refs: refsExposure(),
+      })];
+    }
+
+    // Military recruit / college resident: a single dose satisfies.
     if (given >= 1) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
-        note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit or serogroup A/C/W/Y outbreak). Re-dose only if a separate ongoing-risk indication applies.',
+        note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit). Re-dose only if a separate ongoing-risk indication applies.',
         refs: refsExposure(),
       })];
     }
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
-      note: 'Military recruits and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
+      note: isOutbreakACWY
+        ? 'People identified as being at increased risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.'
+        : 'Military recruits: a single MenACWY dose.',
       refs: refsExposure(),
     })];
   }

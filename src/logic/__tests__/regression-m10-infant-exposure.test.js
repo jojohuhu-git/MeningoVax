@@ -106,10 +106,32 @@ describe('M10 — the validator must not eat the infant series it now prescribes
     expect(r.seriesTotal).toBe(4);
   });
 
-  it('control: an ADOLESCENT outbreak contact still loses a pre-age-10 dose', () => {
-    // The rule is correct for the routine adolescent series and must stay. This
-    // patient is 12, long off the infant series, so the guard does not apply.
+  it('an ADOLESCENT outbreak contact keeps their dose too — superseded by M12', () => {
+    // SUPERSEDED, deliberately flipped rather than deleted (the M8 precedent in
+    // this queue). M10 asserted `expect(r.doseNum).toBe(1)` here: outside the
+    // infant window, an outbreak contact's pre-age-10 dose was still discarded,
+    // because outbreak was a one-dose-ever indication with no booster schedule
+    // to follow.
+    //
+    // M12 (2026-09-15) refuted that. ACIP 2020 MMWR 69(RR-9) Table 8 gives a
+    // previously-vaccinated outbreak contact a top-up dose, so they DO follow a
+    // booster schedule and their earlier doses count at any age — the same ACIP
+    // sentence names Table 8 among the schedules that displace the routine
+    // adolescent one.
+    //
+    // This 12-year-old was vaccinated about 3.5 years ago. At 7 or older the
+    // top-up threshold is 5 years, so nothing is due yet and the recorded dose
+    // stands: 'complete', no dose number. Before M12 they were told to start
+    // again at dose 1.
     const r = acwy(run(144, ['outbreak_acwy'], ['2023-03-15']));
+    expect(r.status).toBe('complete');
+    expect(r.doseNum).toBeNull();
+  });
+
+  it('control: a healthy adolescent still loses a pre-age-10 dose', () => {
+    // The pre-age-10 rule is correct for the routine adolescent series and must
+    // stay for anyone without a risk-based schedule to follow.
+    const r = acwy(run(144, [], ['2023-03-15']));
     expect(r.doseNum).toBe(1);
   });
 });
