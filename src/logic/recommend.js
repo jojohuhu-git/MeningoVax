@@ -842,14 +842,24 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
-        note: `Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.${menbPregnancyCaveat}`,
+        note: `Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making, and ACIP prefers giving it at 16 through 18 years [c]. Being past 18 does not make the patient ineligible — the series may still be given up to the 24th birthday. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.${menbPregnancyCaveat}`,
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one
         // quote) — the old first cite (menbHealthySCDM1623Box, the
         // Penmenvy/mm7501a2 page) mislabeled a generic MenB-4C statement as
         // Penmenvy-specific, and its "preferably 16-18" claim isn't in
         // mm7349a3 so was dropped.
-        noteCites: [cite('menbHealthy2Dose0and6'), cite('menbHealthy2Dose0and6')],
+        //
+        // M16/2026-09-15: the preference is BACK, now correctly cited. C1 was
+        // right that mm7349a3 does not contain it and wrong to conclude it was
+        // unsupported — it is verbatim in ACIP 2020 Table 2 ("MenB series at
+        // age 16–23 yrs on basis of shared clinical decision-making (preferred
+        // age 16–18 yrs)") and still printed in the current CDC schedule notes.
+        // mm7349a3 changed the DOSING INTERVAL and is silent on preferred age;
+        // silence is not disagreement. The first [c] therefore now points at
+        // Table 2 for the age claim, the second still at mm7349a3 for the
+        // 0/6-month schedule — one source per claim, as C1 intended.
+        noteCites: [cite('menbHealthyPreferredAge1618'), cite('menbHealthy2Dose0and6')],
         refs: refs([], ['mm7349a3']) })];
     }
     if (given === 1) {
@@ -903,9 +913,15 @@ function menbRec(am, riskIds, doses, today) {
   // "preferably 16-18" claim isn't in mm7349a3 so was dropped.
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: am < M.y16
-      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years [c]. Not routinely indicated yet at this age without a risk factor.'
+      // M16: the pre-16 card names the preferred age too, so a clinician
+      // planning ahead knows the conversation is best had at 16-18 rather than
+      // only that it becomes possible at 16.
+      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years, and ACIP prefers giving it at 16 through 18 years [c]. Not routinely indicated yet at this age without a risk factor.'
       : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday) [c]. Vaccinate only for a high-risk indication.',
-    noteCites: [cite('menbHealthy2Dose0and6')],
+    // M16: the pre-16 branch's claim is the preferred-age one, so it cites
+    // Table 2; the post-23 branch's claim is the window, which Table 2 also
+    // states in the same sentence.
+    noteCites: [cite('menbHealthyPreferredAge1618')],
     family, refs: refs([], ['mm7349a3']) })];
 }
 

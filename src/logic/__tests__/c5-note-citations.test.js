@@ -43,22 +43,33 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
 
-  it('healthy MenB 16-23y dose-1 note cites the mm7349a3 SCDM/0-6mo sentence (not the mislabeled Penmenvy page), and drops the "(preferably 16-18)" claim', () => {
+  // M16 (2026-09-15) revised both of these. C5's original point was that the
+  // MISLABELED Penmenvy page (menbHealthySCDM1623Box, mm7501a2) must not be
+  // cited -- that still holds and is still asserted. What changed is the second
+  // half: C5 also pinned the REMOVAL of the preferred-age claim, on the
+  // reasoning that it was absent from mm7349a3. It is absent from mm7349a3, but
+  // it is verbatim in ACIP 2020 Table 2 and still in the current CDC schedule
+  // notes, so it was mis-cited rather than unsupported. Each [c] now points at
+  // the source for its own claim: Table 2 for the age, mm7349a3 for the
+  // 0/6-month schedule.
+  it('healthy MenB 16-23y dose-1 note cites Table 2 for the age and mm7349a3 for the schedule, never the mislabeled Penmenvy page', () => {
     const r = run({ ageMonths: 192, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.status).toBe('shared-decision');
-    expect(rec.note).not.toContain('preferably 16');
     expect(rec.noteCites).toHaveLength(2);
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
+    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
     expect(rec.noteCites[1]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
+    // The thing C5 was actually guarding against:
+    expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
 
-  it('healthy MenB "not yet due" (before 16) note cites the mm7349a3 SCDM sentence and drops "(preferably 16-18)"', () => {
+  it('healthy MenB "not yet due" (before 16) note cites Table 2 and names the preferred age', () => {
     const r = run({ ageMonths: 120, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.note).toContain('[c]');
-    expect(rec.note).not.toContain('preferably 16');
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
+    expect(rec.note).toMatch(/16 through 18/);
+    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
+    expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
 
   it('high-risk MenACWY dose-1 note cites both age-7 booster-cadence branches', () => {
