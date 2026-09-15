@@ -114,3 +114,48 @@ export function menbSeriesInfo({ highRisk, doses }) {
   }
   return { total: MENB_HEALTHY_TOTAL, hasBoosterPhase: false };
 }
+
+/**
+ * M4: how many PRIMARY doses this patient's MenACWY series has, keyed to the
+ * age at DOSE 1 — which is what decides it clinically.
+ *
+ * The validator needs this to answer a question it previously guessed at: is
+ * the dose in front of me still part of the primary series, or is it a booster?
+ * It used to assume the primary series was always two doses, so it called dose
+ * 3 a booster for everyone and demanded three years of spacing. A baby with
+ * asplenia on the textbook 2/4/6/12-month series had doses 3 and 4 voided.
+ *
+ * Note this keys off the age at dose 1, NOT the patient's current age, unlike
+ * menacwySeriesInfo() above — a five-year-old who started as an infant still
+ * had an infant primary series, and their old doses must be graded as such.
+ *
+ * CDC child & adolescent schedule notes, "Meningococcal serogroup A,C,W,Y
+ * vaccination", special situations, Menveo (fetched live 2026-09-15):
+ *   "Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6,
+ *    and 12 months)"
+ *   "Dose 1 at age 3–6 months: 3- or 4- dose series ..."
+ *   "Dose 1 at age 7–23 months: 2-dose series ..."
+ *   "Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart"
+ *
+ * The infant totals come from menacwyInfantHighRiskTotal() rather than being
+ * restated here, so this cannot drift from what the engine asks for. That
+ * function's 7–23-month answer is itself a known divergence from the CDC text
+ * above — it is queue item M5, deliberately left for M5 rather than changed
+ * here, so that M4 is only about WHERE the booster clock starts.
+ *
+ * @param {'primary2'|'single+boost'|'single'|null} riskClass
+ * @param {number|null} d1AgeM — age in months at dose 1 (null if unknown)
+ * @returns {number} number of primary doses before the booster phase begins
+ */
+export function menacwyPrimaryTotal({ riskClass, d1AgeM }) {
+  if (riskClass === 'primary2') {
+    // A series begun under 2 years old is an infant series.
+    if (d1AgeM != null && d1AgeM < 24) return menacwyInfantHighRiskTotal({ d1AgeM });
+    return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+  }
+  // Exposure-risk classes (travel, outbreak, military, college, microbiologist)
+  // take a single primary dose from 2 years old. Their infant pathways are
+  // queue item M10 and are not decided here.
+  if (riskClass === 'single+boost' || riskClass === 'single') return MENACWY_SINGLE_TOTAL;
+  return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+}

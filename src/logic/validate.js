@@ -51,7 +51,7 @@
 import { daysBetween, calendarMonthsBetween, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
-import { menacwySeriesInfo, menbSeriesInfo } from './seriesTotals.js';
+import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -324,16 +324,27 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // ALL SUBSEQUENT boosters (effectiveIdx >= 3): always 5 years regardless of D2 age.
       // A booster given TOO SOON does not count.
       // Only too-soon is flagged; late/overdue boosters are acceptable catch-up.
-      if (riskClass && effectiveIdx >= 2) {
-        const isFirstBooster = effectiveIdx === 2;
+      // M4: a dose is a booster only once the PRIMARY series is behind it, and
+      // how long that series is depends on the age at dose 1. This used to be
+      // hardcoded as "dose 3 onwards", which is right only for a series begun at
+      // 2 years or older. A baby with asplenia on the textbook 2/4/6/12-month
+      // series had doses 3 and 4 graded as boosters given "~2 months after the
+      // previous dose" against a 3-year cadence, and both were voided.
+      const keptDated = kept.filter(d => d.date);
+      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
+      const primaryTotal = menacwyPrimaryTotal({ riskClass: menacwyRiskClass(riskIds), d1AgeM });
+      if (riskClass && effectiveIdx >= primaryTotal) {
+        const isFirstBooster = effectiveIdx === primaryTotal;
         let cadenceDays;
         let cadenceLabel;
         if (isFirstBooster) {
-          // First booster cadence keys off the patient's age at dose 2 (the 2nd kept dated dose).
-          const dose2 = kept.filter(d => d.date)[1] || null;
-          const dose2AgeAtDose = ageAtDoseFromDate(dose2, ageMonths, today);
+          // M4: the first booster's cadence keys off the age at the LAST dose of
+          // the primary series — the dose the clock actually starts from — not
+          // off dose 2, which is only the same dose in a 2-dose series.
+          const lastPrimary = keptDated[primaryTotal - 1] || keptDated[keptDated.length - 1] || null;
+          const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ageMonths, today);
           // Conservative: unknown age treated same as <7y → 3 years.
-          cadenceDays = (dose2AgeAtDose == null || dose2AgeAtDose < AGE_7Y_MONTHS)
+          cadenceDays = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS)
             ? MENACWY_BOOSTER_3Y
             : MENACWY_BOOSTER_5Y;
           cadenceLabel = cadenceDays === MENACWY_BOOSTER_3Y ? '3 years' : '5 years';
