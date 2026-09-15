@@ -42,6 +42,10 @@ export const MENACWY_SINGLE_TOTAL = 1;           // military / college-dorm / ou
 export const MENB_HIGHRISK_TOTAL = 3;
 export const MENB_HEALTHY_TOTAL = 2;
 export const MENB_HEALTHY_RESCUE_TOTAL = 3;
+// Routine MenACWY is the only schedule whose PRIMARY series is shorter than
+// its total: the 11-12y dose is primary, the 16y dose is the booster that
+// closes it. Exported so recommend.js's routine branches never hand-type it.
+export const MENACWY_ROUTINE_PRIMARY_TOTAL = 1;
 
 const AGE_16Y_MONTHS = 192;
 
@@ -94,16 +98,24 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // gives the latter of each pair no infant row at all.
   if (am < 24 && (riskClass === 'primary2' || infantSeries)) {
     const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+    const infantTotal = menacwyInfantHighRiskTotal({ d1AgeM });
     return {
-      total: menacwyInfantHighRiskTotal({ d1AgeM }),
+      total: infantTotal,
+      // Every dose of an at-risk infant schedule is a PRIMARY dose. CDC,
+      // "Meningococcal Vaccine Recommendations" (fetched live 2026-09-15):
+      // "A 2-4-dose primary series", with boosters beginning only after it
+      // ("booster dose 3 years after completion of the primary series and
+      // every 5 years thereafter" for children under 7). So primaryTotal
+      // equals the whole total here — the 12-month dose is NOT a booster.
+      primaryTotal: infantTotal,
       // Outbreak has no standing booster cadence (ACIP Table 8 gives a one-off
       // top-up on re-exposure instead), but every other infant indication does.
       hasBoosterPhase: riskClass !== 'single',
     };
   }
-  if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
-  if (riskClass === 'single+boost') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
-  if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: false };
+  if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, primaryTotal: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
+  if (riskClass === 'single+boost') return { total: MENACWY_SINGLE_TOTAL, primaryTotal: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
+  if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, primaryTotal: MENACWY_SINGLE_TOTAL, hasBoosterPhase: false };
   // Routine (no current MenACWY risk indication): 1 dose is enough when the
   // FIRST dose on record was given at ≥16y (ACIP: no booster needed);
   // otherwise the 16y booster is still owed, so the series isn't closed
@@ -112,7 +124,13 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
     const a = ageAtDose(d, am, today);
     return a != null && a < AGE_16Y_MONTHS;
   });
-  return { total: hasDoseBefore16 ? 2 : 1, hasBoosterPhase: false };
+  // The routine schedule is the ONE place where the primary series is shorter
+  // than the total: the 11-12y dose is primary, the 16y dose is a booster that
+  // closes the series. CDC, "Meningococcal Vaccine Recommendations" (fetched
+  // live 2026-09-15): adolescents get a dose at 11-12 years and "a MenACWY
+  // booster dose at age 16 years". A first-ever dose at >=16y needs no booster,
+  // so there total is 1 and that single dose is primary.
+  return { total: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, hasBoosterPhase: false };
 }
 
 /**
@@ -124,16 +142,25 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
  * @returns {{ total: number, hasBoosterPhase: boolean }}
  */
 export function menbSeriesInfo({ highRisk, doses }) {
-  if (highRisk) return { total: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
+  // CDC, "Meningococcal Vaccine Recommendations" (fetched live 2026-09-15):
+  // people at increased risk get "A 3-dose primary series", then boosters
+  // "1 year after series completion" and "Every 2 to 3 years thereafter".
+  // All three doses are primary.
+  if (highRisk) return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
   // Healthy 2-dose schedule becomes a 3-dose total only once a D1→D2
   // interval <6 months is on record (rescue dose) — mirrors recommend.js's
   // own needsRescue check (daysBetween(d1,d2) < DAYS.months(6)) exactly.
   const d1 = doses[0];
   const d2 = doses[1];
   if (d1?.date && d2?.date && daysBetween(d1.date, d2.date) < DAYS.months(6)) {
-    return { total: MENB_HEALTHY_RESCUE_TOTAL, hasBoosterPhase: false };
+    // The rescue dose is part of the primary series, not a booster. CDC child
+    // & adolescent schedule notes, MenB shared clinical decision-making
+    // (fetched live 2026-09-15): "2-dose series at least 6 months apart (if
+    // dose 2 is administered earlier than 6 months, administer dose 3 at least
+    // 4 months after dose 2)" -- plainly "dose 3", never a booster.
+    return { total: MENB_HEALTHY_RESCUE_TOTAL, primaryTotal: MENB_HEALTHY_RESCUE_TOTAL, hasBoosterPhase: false };
   }
-  return { total: MENB_HEALTHY_TOTAL, hasBoosterPhase: false };
+  return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: false };
 }
 
 /**
