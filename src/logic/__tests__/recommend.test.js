@@ -627,21 +627,23 @@ describe('hard-stop exclusion', () => {
 // M-B: HCT advisory (post-transplant meningococcal guidance)
 // ════════════════════════════════════════════════════════════════════════
 describe('HCT advisory', () => {
-  it('ages 11-18: gives the MenACWY recipe, sourced, with the ASCO interval', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y
+  it('P1 (2026-09-14, owner decision): age 14, no additional risk factor — MenACWY ' +
+    'is NOT indicated from the transplant alone. ASCO requires an additional risk ' +
+    'factor at any age; there is no unconditional 11-18 age path (that traced to ' +
+    'IDSA 2013, now superseded for this row by ASCO 2024)', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y, no other risk
     expect(r.hct).not.toBeNull();
     const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).toMatch(/2 doses of MenACWY, 2 months apart, 6–12 months after transplant/);
-    expect(acwyLine.citations.map((c) => c.short)).toContain('IDSA 2013 Guideline (HCT MenACWY)');
+    expect(acwyLine.text).toMatch(/[Nn]ot indicated from the transplant alone/);
+    expect(acwyLine.text).not.toMatch(/^2 doses of MenACWY, 2 months apart/);
     expect(acwyLine.citations.map((c) => c.short)).toContain('ASCO Vaccination of Adults With Cancer (2024)');
   });
 
-  it('P0-B (2026-09-14): no booster is stated inside the transplant advisory — the ' +
-    'transplant alone generates no booster; the routine ACIP-sourced booster (if any) ' +
-    'comes from the standing MenACWY engine shown below, not from this advisory', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y, in the 11-18 ACWY band
+  it('P1: a high-risk condition (not the age band) is what gives MenACWY its schedule and boosters — the advisory text defers to the standing high-risk engine, it does not invent a transplant-alone booster', () => {
+    const r = run({ ageMonths: 168, riskIds: ['hct', 'asplenia'] }); // 14y, high-risk
     const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).not.toMatch(/[Bb]ooster/);
+    expect(acwyLine.text).toMatch(/high-risk condition/);
+    expect(acwyLine.text).toMatch(/standing high-risk MenACWY recommendation above already governs dosing and boosters/);
   });
 
   it('ages 10-15, no other risk: gives the MenB "check other boxes" pointer, sourced', () => {
