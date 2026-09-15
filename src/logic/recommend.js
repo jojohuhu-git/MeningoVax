@@ -484,31 +484,42 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     ? ' There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥3 years have passed since the last dose (≥5 years from age 7).'
     : '';
   if (am < M.y2 && given === 0 && am >= 2) {
-    // start series; Menveo only
+    // start series; Menveo only.
+    // One total for BOTH the printed label and seriesTotal. They used to be
+    // written out separately, so when M5 changed the helper (a 7-23-month start
+    // became a 2-dose series) the labels kept F1's older numbers and each card
+    // contradicted its own total. Deriving both from one call makes that
+    // impossible rather than merely fixed.
+    const infantStartTotal = menacwyInfantHighRiskTotal({ d1AgeM: am });
     if (am <= 6) {
-      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 4 (${why})`, doseNum: 1, seriesTotal: 4, boosterSummary: boosterSummaryText, dueToday: true,
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why})`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(4),
         note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
         noteCites: [cite('acwyInfantHighRisk2to6mo')], refs });
     }
     if (am <= 11) {
       // D5: D2 must be ≥12 weeks after D1 AND not before 12 months of age.
-      // F1 (2026-09-14): seriesTotal is 3, not 2 — this patient falls in
-      // menacwyInfantHighRiskTotal()'s d1WasInfant7to11 bucket (matches
-      // the completion guard below, `given >= 3`). The "+ booster" in the
-      // label already signals a 3rd dose follows; text unchanged.
-      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 2 + booster (${why} 7–11mo)`, doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: boosterSummaryText, dueToday: true,
+      // This card used to say "Dose 1 of 2 + booster" and promise "a booster at
+      // 12–23 months", both left over from F1 (2026-09-14), which made this a
+      // 3-dose bucket. M5 (2026-09-15) reversed that to 2 doses but did not
+      // update the text, so the card asked for a third dose CDC does not want —
+      // and dose 2 is ITSELF given at 12–23 months, so the "booster at 12–23
+      // months" sentence also named the wrong dose. The real first booster is 3
+      // years after the series: ACIP 2020 MMWR 69(RR-9) Table 4, "Aged <7 yrs:
+      // Single dose at 3 yrs after primary vaccination and every 5 yrs
+      // thereafter". This now matches the 12–23-month card below.
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why} 7–11mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
-        note: `${whoAged('7–11 months')}: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a booster at 12–23 months (≥12 weeks after the primary series).${outbreakTopUp}`,
-        noteCites: [cite('acwyInfantHighRisk7to23mo')], refs });
+        note: `${whoAged('7–11 months')}: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
+        noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')], refs });
     }
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
-    // F1 (2026-09-14): seriesTotal is 4, not 2 — a 12-23mo start falls
-    // through recommend.js's own `given >= 4` default completion guard
-    // (menacwyInfantHighRiskTotal() mirrors that threshold exactly), so
-    // this patient is asked for up to 4 total doses, same as a standard
-    // 2-6mo start; label corrected to match ("of 2" was misleading).
-    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 4 (${whyShort} 12–23mo)`, doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: boosterSummaryText, dueToday: true,
+    // The label used to read "Dose 1 of 4" — F1's number, kept after M5 cut a
+    // 12–23-month start to a 2-dose series, so the card said 4 while its own
+    // seriesTotal and the note right beneath it said 2. CDC: "Dose 1 at age
+    // 7–23 months: 2-dose series (dose 2 at least 12 weeks after dose 1 and
+    // after age 12 months)".
+    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${whyShort} 12–23mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
       note: `${whoKidsAged('12–23 months')}, unvaccinated: 2-dose primary ≥12 weeks apart [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
       noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')], refs });
