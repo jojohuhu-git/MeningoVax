@@ -1,5 +1,13 @@
 # MeningoVax — Dose-counter structural fix (F1–F6): plan only, nothing built (2026-09-14)
 
+> **Superseded (2026-09-14, same day).** F1–F5 are DONE — see
+> [handoff-2026-09-14b-dose-counter-f1-f5-done.md](handoff-2026-09-14b-dose-counter-f1-f5-done.md).
+> PR #12 open, not yet merged. F6 (port the sweep to vaxapp) and P1 (post-HCT MenACWY
+> above 18, clinical, blocked on a live ASCO read) are still open — see that file for
+> current status. Do not restart F1–F5 from this document; the diagnosis and source
+> citations below are still accurate background, but the "plan only, nothing built"
+> framing in this header is stale.
+
 Branch: `main`, clean, in sync with `origin/main` at `94c7c81`. **Nothing was implemented
 this session** — this is a diagnosis + plan handoff. Suite verified at the time of writing:
 **399 passing (29 files)**, all green. Confirm that number before starting.
