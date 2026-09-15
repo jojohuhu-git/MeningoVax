@@ -46,7 +46,7 @@ export const MENB_HEALTHY_RESCUE_TOTAL = 3;
 const AGE_16Y_MONTHS = 192;
 
 // MenACWY infant/early-childhood high-risk primary total — mirrors
-// recommend.js's menacwyInfantHighRisk() completion threshold EXACTLY
+// recommend.js's menacwyInfantSeries() completion threshold EXACTLY
 // (`seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4`). This must
 // stay a pure function of d1AgeM only, matching that threshold, not a
 // separate clinical judgment call — the D6 3-dose-shortcut path (on3DosePath)
@@ -85,14 +85,23 @@ export function menacwyInfantHighRiskTotal({ d1AgeM }) {
  * @param {string} today — ISO date
  * @returns {{ total: number, hasBoosterPhase: boolean }}
  */
-export function menacwySeriesInfo({ riskClass, am, doses, today }) {
-  if (riskClass === 'primary2') {
-    if (am < 24) {
-      const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
-      return { total: menacwyInfantHighRiskTotal({ d1AgeM }), hasBoosterPhase: true };
-    }
-    return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
+export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = false }) {
+  // M10 (2026-09-15): an infant series is an infant series whatever the
+  // indication. ACIP 2020 MMWR 69(RR-9) prints the same "2-23 mos" row in
+  // Table 9 (travel), Table 8 (outbreak) and Tables 4-6 (medical high risk).
+  // infantSeries is menacwyInfantSeriesIndicated(riskIds) — riskClass alone
+  // cannot tell travel from microbiologist, or outbreak from military, and ACIP
+  // gives the latter of each pair no infant row at all.
+  if (am < 24 && (riskClass === 'primary2' || infantSeries)) {
+    const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+    return {
+      total: menacwyInfantHighRiskTotal({ d1AgeM }),
+      // Outbreak has no standing booster cadence (ACIP Table 8 gives a one-off
+      // top-up on re-exposure instead), but every other infant indication does.
+      hasBoosterPhase: riskClass !== 'single',
+    };
   }
+  if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
   if (riskClass === 'single+boost') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
   if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: false };
   // Routine (no current MenACWY risk indication): 1 dose is enough when the
@@ -159,15 +168,23 @@ export function menbSeriesInfo({ highRisk, doses }) {
  * @param {number|null} d1AgeM — age in months at dose 1 (null if unknown)
  * @returns {number} number of primary doses before the booster phase begins
  */
-export function menacwyPrimaryTotal({ riskClass, d1AgeM }) {
-  if (riskClass === 'primary2') {
-    // A series begun under 2 years old is an infant series.
-    if (d1AgeM != null && d1AgeM < 24) return menacwyInfantHighRiskTotal({ d1AgeM });
-    return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+export function menacwyPrimaryTotal({ riskClass, d1AgeM, infantSeries = false }) {
+  // M10 (2026-09-15): a series BEGUN under 2 years old is an infant series
+  // whatever the indication, so its length comes from the age at dose 1 — not
+  // from "1 dose" just because the reason was travel or an outbreak. Leaving
+  // this at 1 made the validator treat dose 2 of an infant series as a booster
+  // given decades too early and void it, so a baby with two correctly-spaced
+  // doses was sent back to dose 1.
+  //
+  // infantSeries is menacwyInfantSeriesIndicated(riskIds): riskClass alone
+  // cannot separate travel from microbiologist ('single+boost') or outbreak
+  // from military ('single'), and ACIP gives microbiologists (Table 7, ">=10
+  // yrs") and recruits (Table 10) no infant row at all.
+  if (d1AgeM != null && d1AgeM < 24 && (riskClass === 'primary2' || infantSeries)) {
+    return menacwyInfantHighRiskTotal({ d1AgeM });
   }
-  // Exposure-risk classes (travel, outbreak, military, college, microbiologist)
-  // take a single primary dose from 2 years old. Their infant pathways are
-  // queue item M10 and are not decided here.
+  if (riskClass === 'primary2') return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+  // Exposure-risk classes take a single primary dose from 2 years old.
   if (riskClass === 'single+boost' || riskClass === 'single') return MENACWY_SINGLE_TOTAL;
   return MENACWY_HIGHRISK_PRIMARY_TOTAL;
 }
