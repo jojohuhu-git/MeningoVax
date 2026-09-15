@@ -213,13 +213,49 @@ function menacwyRec(am, riskIds, doses, today) {
         refs: refsExposure(),
       })];
     }
-    const elapsed = intervalElapsed(lastDate, DAYS.years(5), today);
+    // M9 (2026-09-15): the FIRST booster is 3 years, not 5, when the primary dose
+    // was given before the 7th birthday. ACIP 2020 MMWR 69(RR-9) Table 9, fetched
+    // live 2026-09-15: "Aged <7 yrs: Single dose at 3 yrs after primary
+    // vaccination and every 5 yrs thereafter / Aged >=7 yrs: Single dose at 5 yrs
+    // after primary vaccination and every 5 yrs thereafter". This branch used a
+    // flat 5 years for everyone, so a child vaccinated at 3 waited two years too
+    // long. The same 3/5 split already existed above for the medical high-risk
+    // branch; it keys off dose 2 there because that series has two primary doses,
+    // and off dose 1 here because this one has a single primary dose.
+    //
+    // Microbiologists share this branch and are deliberately unchanged: ACIP
+    // Table 7 covers ages ">=10 yrs" only and gives them a flat 5 years, with no
+    // <7-year row. isTravel keeps the 3-year rule to the travel indication.
+    const isTravel = riskIds.includes('travel');
+    const isFirstExposureBooster = given === 1;
+    const primaryDoseAge = ageAtDose(doses[0] || null, am, today);
+    // Unknown age falls to the shorter 3-year interval, the same conservative
+    // choice the high-risk branch above makes.
+    const exposureBoostDays = (isTravel && isFirstExposureBooster
+      && (primaryDoseAge == null || primaryDoseAge < M.y7))
+      ? DAYS.years(3)
+      : DAYS.years(5);
+    const exposureBoostLabel = exposureBoostDays === DAYS.years(3)
+      ? 'first booster, 3 years after the primary dose'
+      : isFirstExposureBooster
+        ? 'first booster, 5 years after the primary dose'
+        : 'every 5 years';
+    const elapsed = intervalElapsed(lastDate, exposureBoostDays, today);
     return [rec({
-      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, every 5 years)`,
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
-      earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.years(5)),
-      minIntervalDays: DAYS.years(5), brands: menacwyBrands(am),
-      note: 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
+      earliestNextDate: elapsed ? null : addDays(lastDate, exposureBoostDays),
+      minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
+      note: exposureBoostDays === DAYS.years(3)
+        ? 'The primary dose was given before age 7, so the first booster is due 3 years after it, then every 5 years while the travel risk continues.'
+        : isFirstExposureBooster
+          ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it, then every 5 years while travel or occupational exposure continues.'
+          : 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
+      noteCites: (isTravel && isFirstExposureBooster) ? [
+        exposureBoostDays === DAYS.years(3)
+          ? cite('boosterBeforeAge7')
+          : cite('boosterAtOrAfterAge7'),
+      ] : [],
       refs: refsExposure(),
     })];
   }

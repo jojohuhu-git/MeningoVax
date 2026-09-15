@@ -249,9 +249,22 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // high-risk infant series (given at riskClass === 'primary2') appropriately
   // starts before age 10 and must keep counting those doses.
   // Source: https://www.immunize.org/ask-experts/topic/menacwy/vaccine-recommendations-menacwy/
+  // M9 (2026-09-15): 'single+boost' (travel, microbiologist) is spared too, not
+  // just 'primary2'. ACIP: "Children who received MenACWY at age <11 years and
+  // for whom booster vaccination is recommended because of an ongoing increased
+  // risk should follow the booster dose schedule (Tables 4, 5, 6, 7, 8, and 9),
+  // not the routine adolescent schedule" — Table 9 is travel, Table 7 is
+  // microbiologists. Discarding a traveler's dose at age 3 made the engine ask
+  // for "1 dose (ongoing-risk indication)" today: the dose they already had.
+  // 'single' (military, college dorm, ACWY outbreak) is NOT spared — those are
+  // one-and-done indications with no booster schedule to follow.
   const AGE_10Y_MONTHS = 120;
   const isHighRiskNow = menacwyRiskClass(riskIds) === 'primary2';
-  if (!isHighRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  // 'single+boost' is travel and microbiologist: one primary dose, then boosters
+  // for as long as the risk lasts. They follow a booster schedule, so their
+  // earlier doses count. 'primary2' is the medical high-risk series.
+  const ongoingRiskNow = isHighRiskNow || menacwyRiskClass(riskIds) === 'single+boost';
+  if (!ongoingRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
@@ -390,7 +403,10 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // number greater than the series total). High-risk patients are unaffected
   // — their primary series legitimately has 2+ doses before age 16.
   // Source: https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm
-  if (!isHighRiskNow && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
+  // M9: travelers and microbiologists are excluded here as well. This is the
+  // ROUTINE adolescent booster window; their 2nd dose is a Table 9 / Table 7
+  // booster measured as an interval from the last dose, not an age window.
+  if (!ongoingRiskNow && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16.`],
