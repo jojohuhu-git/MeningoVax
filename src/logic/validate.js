@@ -51,6 +51,7 @@
 import { daysBetween, calendarMonthsBetween, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
+import { menacwySeriesInfo, menbSeriesInfo } from './seriesTotals.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -697,26 +698,54 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
     } else {
-      // Valid or unknown → keep.
-      effectiveCount++;
-      const effectiveDoseNum = effectiveCount;
+      // Valid or unknown → tentatively keep, then apply the F2/F3 series-total
+      // cap: a dose past the schedule's primary total, on a schedule with no
+      // ongoing booster phase (routine MenACWY, single-dose MenACWY exposure
+      // indications, healthy MenB), is an extra dose — safely given, but it
+      // doesn't extend the series and must not be numbered against it (the
+      // reported bug: "Dose 3 of 1"). Schedules WITH an ongoing booster phase
+      // (high-risk MenACWY/MenB, MenACWY travel/microbiologist, MenACWY
+      // infant high-risk) are never capped here — see seriesTotals.js.
+      const candidateKept = [...kept, dose];
+      const seriesInfo = vaccine === 'MenACWY'
+        ? menacwySeriesInfo({ riskClass: menacwyRiskClass(riskIds), am: ageMonths, doses: candidateKept, today })
+        : menbSeriesInfo({ highRisk: hasMenbRisk(riskIds), doses: candidateKept });
+      const isExtra = !seriesInfo.hasBoosterPhase
+        && seriesInfo.total != null
+        && candidateKept.length > seriesInfo.total;
 
-      // If raw index > effective index, this dose was renumbered upward.
-      const wasRenumbered = rawIdx > effectiveCount - 1;
-      const renumberNote = wasRenumbered
-        ? `After excluding the dose(s) above that don't count, this counts as effective dose ${effectiveDoseNum}.`
-        : null;
+      if (isExtra) {
+        perDose.push({
+          ...result,
+          effectiveDoseNum: null,
+          extraDose: true,
+          reasons: [
+            ...result.reasons,
+            `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
+          ],
+        });
+        // Do NOT add to kept; do NOT increment effectiveCount.
+      } else {
+        effectiveCount++;
+        const effectiveDoseNum = effectiveCount;
 
-      const augmentedReasons = renumberNote
-        ? [...result.reasons, renumberNote]
-        : result.reasons;
+        // If raw index > effective index, this dose was renumbered upward.
+        const wasRenumbered = rawIdx > effectiveCount - 1;
+        const renumberNote = wasRenumbered
+          ? `After excluding the dose(s) above that don't count, this counts as effective dose ${effectiveDoseNum}.`
+          : null;
 
-      perDose.push({
-        ...result,
-        reasons: augmentedReasons,
-        effectiveDoseNum,
-      });
-      kept.push(dose);
+        const augmentedReasons = renumberNote
+          ? [...result.reasons, renumberNote]
+          : result.reasons;
+
+        perDose.push({
+          ...result,
+          reasons: augmentedReasons,
+          effectiveDoseNum,
+        });
+        kept.push(dose);
+      }
     }
   }
 

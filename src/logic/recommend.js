@@ -27,6 +27,10 @@ import {
 import { menbFamily } from '../data/brands.js';
 import { todayISO, addDays, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
+import {
+  menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
+  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
+} from './seriesTotals.js';
 
 // Age bands (months)
 const M = {
@@ -318,13 +322,22 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     }
     if (am <= 11) {
       // D5: D2 must be ≥12 weeks after D1 AND not before 12 months of age.
-      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 + booster (infant high-risk 7–11mo)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
+      // F1 (2026-09-14): seriesTotal is 3, not 2 — this patient falls in
+      // menacwyInfantHighRiskTotal()'s d1WasInfant7to11 bucket (matches
+      // the completion guard below, `given >= 3`). The "+ booster" in the
+      // label already signals a 3rd dose follows; text unchanged.
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 + booster (infant high-risk 7–11mo)', doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
         note: 'High-risk infants 7–11 months: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a booster at 12–23 months (≥12 weeks after the primary series).',
         noteCites: [cite('acwyInfantHighRisk7to23mo')], refs });
     }
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
-    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk 12–23mo)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
+    // F1 (2026-09-14): seriesTotal is 4, not 2 — a 12-23mo start falls
+    // through recommend.js's own `given >= 4` default completion guard
+    // (menacwyInfantHighRiskTotal() mirrors that threshold exactly), so
+    // this patient is asked for up to 4 total doses, same as a standard
+    // 2-6mo start; label corrected to match ("of 2" was misleading).
+    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 4 (high-risk 12–23mo)', doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
       note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.',
       noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')], refs });
@@ -372,7 +385,10 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? 'first booster, 3 years after primary' : 'every 5 years'})`,
-      doseNum: given + 1, seriesTotal: d1WasInfant7to11 ? 2 : 4, boosterSummary: 'Boosters: every 5 years while at risk (ongoing)',
+      // F1 (2026-09-14): was hardcoded 2 for the d1WasInfant7to11 bucket —
+      // drifted from the `given >= 3` completion guard just above (should
+      // be 3, matching the initial rec's total and menacwyInfantHighRiskTotal()).
+      doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: 'Boosters: every 5 years while at risk (ongoing)',
       dueToday: elapsedBoost,
       earliestNextDate: elapsedBoost ? null : addDays(lastDate, boostDays),
       minIntervalDays: boostDays,
@@ -389,7 +405,14 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
   // For 7–11m D1, also enforce ≥12m age floor on D2
   const ageFloorMetActual = !d1WasInfant7to11 || am >= 12;
-  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (infant high-risk series)`, doseNum: given + 1, seriesTotal: on3DosePath ? 3 : 4, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk',
+  // F1 (2026-09-14): total keyed off d1WasInfant7to11 alone (via
+  // menacwyInfantHighRiskTotal), not on3DosePath — the D6 shortcut's own
+  // "Dose 3 of 3" rec above already returns before reaching here; once a
+  // shortcut patient falls through to THIS fallback (a 4th dose), they're
+  // being asked for it because the `given >= 4` default guard above didn't
+  // consider them complete at 3, so the total shown here must be 4 too, or
+  // this dose's own doseNum would exceed it.
+  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (infant high-risk series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk',
     dueToday: elapsed && ageFloorMetActual,
     earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
     minIntervalDays: nextIntervalDays,
@@ -417,6 +440,14 @@ function menacwyRoutine(am, given, doses, last, today) {
   const routineCite = [cite('acwyRoutine1112and16')];
   const lastDate = last?.date || null;
   const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
+  // F1 (2026-09-14): the routine series is 2 doses (11-12y + the 16y
+  // booster) whenever an earlier <16y dose is already on record and owes
+  // that booster — otherwise (a dose was given directly at ≥16y, or none
+  // yet) ACIP requires only 1. seriesTotal below was hardcoded to 1 in
+  // every routine branch, which is the reported bug: a patient with 2+
+  // routine doses (e.g. an 82-year-old given 3 adult MenACWY doses) showed
+  // "Dose 2 of 1" / "Dose 3 of 1" on the recorded-dose chips.
+  const hasDoseBefore16 = doses.some((d) => (ageAtDose(d, am, today) ?? Infinity) < M.y16);
   // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
   // filters out anything given before age 10 for a healthy patient — see
   // validate.js), so a recorded dose here whose age is <132mo (11y) was
@@ -434,7 +465,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   if (am < M.y11 && given >= 1) {
     const monthsUntil16 = M.y16 - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 1,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2,
       boosterSummary: 'Boosters: 1 more - at age 16',
       earliestNextDate: null,
       boosterDueDate,
@@ -450,7 +481,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // 11–15y
   if (am < M.y16) {
     if (given === 0) {
-      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 1, boosterSummary: 'Boosters: 1 more - at age 16', dueToday: true,
+      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: 1 more - at age 16', dueToday: true,
         brands: menacwyBrands(am),
         note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [c]. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.',
         noteCites: [cite('acwyRoutine1112and16')],
@@ -462,7 +493,7 @@ function menacwyRoutine(am, given, doses, last, today) {
     // "complete" with no further information.
     const monthsUntil16 = M.y16 - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 1,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2,
       boosterSummary: 'Boosters: 1 more - at age 16',
       earliestNextDate: null,
       boosterDueDate,
@@ -474,16 +505,20 @@ function menacwyRoutine(am, given, doses, last, today) {
   // 16–18y
   if (am < M.y19) {
     if (hasDoseAt16) {
-      return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
+      return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
         note: 'A MenACWY dose given at age ≥16 years completes the routine adolescent schedule [c]; no further routine doses are needed.',
         noteCites: routineCite, refs })];
     }
     // C5/2026-07-24: the given===0 catch-up path cites a DIFFERENT sentence
     // than routineCite — "first dose after 16th birthday needs no booster",
     // not the generic 11-12y/16y routine schedule (citation audit W2 finding).
+    // F1 (2026-09-14): given===0 here means the dose about to be given now
+    // (at ≥16y) is the patient's first ever — 1 dose suffices, no booster.
+    // given>=1 means an earlier <16y dose already exists and this ≥16y dose
+    // is the booster it was owed — 2 total.
     return [rec({ vaccine: 'MenACWY', status: given === 0 ? 'catchup' : 'due',
       doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : 'Booster (16y)',
-      doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+      doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, dueToday: true, brands: menacwyBrands(am),
       note: given === 0
         ? 'Unvaccinated adolescent ≥16 years: a single MenACWY dose; because it is given at ≥16y, no booster is required [c].'
         : 'Routine 16-year booster (the dose given at 11–12y does not count as the booster) [c].',
@@ -500,12 +535,15 @@ function menacwyRoutine(am, given, doses, last, today) {
       // (citation audit W2 finding).
       return [rec({ vaccine: 'MenACWY', status: 'catchup',
         doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up, no dose at ≥16y)',
-        doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+        // F1 (2026-09-14): given===0 → this first-ever dose (at ≥19y) needs
+        // no booster (1 total). given>=1 → an earlier <16y dose owes this
+        // catch-up dose as its booster (2 total). Was hardcoded 1 for both.
+        doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, dueToday: true, brands: menacwyBrands(am),
         note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended: when given at ≥16 years, no booster is needed [c]. Especially recommended for first-year college students living in residence halls.',
         noteCites: [cite('acwyCatchup1921')], refs })];
     }
     // Has a dose at ≥16y → complete
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
       note: 'A MenACWY dose given at age ≥16 years satisfies the adolescent schedule [c]; no further routine doses are needed.',
       noteCites: routineCite, refs })];
   }
@@ -513,7 +551,14 @@ function menacwyRoutine(am, given, doses, last, today) {
   // A1: a dose given at ≥16y completes the adolescent schedule regardless of
   // current age — this branch must check hasDoseAt16 like every earlier band.
   if (hasDoseAt16) {
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
+    // F1 (2026-09-14): this is the exact reported-bug branch — an
+    // 82-year-old with 3 routine MenACWY doses (11y, 16y, and an extra)
+    // landed here with seriesTotal hardcoded to 1, showing "Dose 3 of 1"
+    // on the recorded-dose chips. Total is 2 whenever a <16y dose is also
+    // on record (it and the ≥16y dose ARE the 2-dose series); 1 when the
+    // only dose(s) on record were all given at ≥16y (each independently
+    // satisfies ACIP's "no booster needed" rule on its own).
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
       note: 'A MenACWY dose given at age ≥16 years completed the adolescent schedule [c]; no further routine doses are needed.',
       noteCites: routineCite, refs })];
   }
