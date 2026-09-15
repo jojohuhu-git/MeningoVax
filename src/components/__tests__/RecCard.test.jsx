@@ -68,7 +68,11 @@ describe('RecCard status pill (C3 self-describing vocabulary)', () => {
 });
 
 describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () => {
-  it('labels a plain valid dose "Counts" (green)', () => {
+  // F5 (2026-09-14 dose-counter handoff): 'Counts' was a dead catch-all
+  // fallback for a dose recorded while the vaccine isn't currently
+  // indicated at all (no seriesTotal to compare against) — replaced with
+  // an explicit, owner-approved label instead of inventing a number.
+  it('labels a plain valid dose with no current series "Recorded — not part of an indicated series" (green)', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -76,7 +80,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Counts');
+    const chip = screen.getByText('Recorded — not part of an indicated series');
     expect(chip.className).toMatch(/dose-val-valid/);
   });
 
@@ -96,6 +100,38 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     expect(chip.className).toMatch(/dose-val-valid/);
     expect(screen.queryByText('Counts')).toBeNull();
     expect(screen.queryByText(/Effective dose/)).toBeNull();
+  });
+
+  // F2/F5 (2026-09-14 dose-counter handoff): a valid dose past the series
+  // total, on a schedule with no ongoing booster phase, is an extra dose —
+  // the reported bug's exact scenario ("Dose 3 of 1"). It must render its
+  // own explicit label, never a bare "Dose N of M" with N > M.
+  it('labels a dose analyzeHistory flagged extraDose as "Extra dose" (amber), never N > M', () => {
+    render(
+      <RecCard
+        rec={{ ...baseRec, seriesTotal: 2 }}
+        doses={[{ date: '2024-01-01', brand: '' }]}
+        doseValidations={[{ status: 'valid', effectiveDoseNum: null, extraDose: true, reasons: [] }]}
+      />
+    );
+    const chip = screen.getByText('Extra dose — beyond the indicated series total');
+    expect(chip.className).toMatch(/dose-val-offwindow/);
+    expect(screen.queryByText(/of 2/)).toBeNull();
+  });
+
+  // A valid dose past the total on a schedule that DOES keep boosting
+  // (analyzeHistory deliberately did not cap it — F2) must not render as
+  // "Dose N of M" either, since N > M there too.
+  it('labels a valid dose past the total, not flagged extra, as "Booster" (a legitimate booster)', () => {
+    render(
+      <RecCard
+        rec={{ ...baseRec, seriesTotal: 2 }}
+        doses={[{ date: '2024-01-01', brand: '' }]}
+        doseValidations={[{ status: 'valid', effectiveDoseNum: 3, reasons: [] }]}
+      />
+    );
+    const chip = screen.getByText('Booster (dose 3)');
+    expect(chip.className).toMatch(/dose-val-valid/);
   });
 
   it('labels a pre-age-10 dose "Off-window - repeat" (amber), never "Invalid"', () => {

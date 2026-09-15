@@ -69,7 +69,7 @@ function describeDose(dose, idx, ageMonths, today) {
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
-  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate } = result;
+  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose } = result;
 
   // Item 2 (2026-07-23 handoff): once answered, the validator's result no
   // longer carries needsInput/promptDate (see validate.js), so re-opening the
@@ -93,19 +93,43 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
     );
   }
 
+  // F5 (2026-09-14 dose-counter handoff): 'Counts' was a catch-all fallback
+  // for states nobody enumerated — this app's own old dead wording (already
+  // removed everywhere else, C2 2026-07-24). Every case below now has an
+  // engine-named state and an explicit label:
+  //   Dose N of M   — a valid dose within the primary series total.
+  //   Booster       — a valid dose past the total on a schedule with an
+  //     ongoing booster phase (high-risk/exposure MenACWY, high-risk MenB) —
+  //     analyzeHistory() deliberately did NOT cap it (F2); showing "N of M"
+  //     here would itself violate the "chip never shows N > M" rule.
+  //   Extra dose    — a valid dose past the total on a schedule with NO
+  //     booster phase (routine MenACWY, single-dose exposure, healthy
+  //     MenB) — analyzeHistory() capped it (extraDose:true, F2/F3). This is
+  //     the reported bug's exact scenario (a 3rd routine MenACWY dose).
+  //   Recorded — not part of an indicated series — a dose recorded while
+  //     this vaccine isn't currently indicated at all (no seriesTotal to
+  //     compare against).
   const chipClass = notAdolescentCount
     ? 'dose-val-chip dose-val-offwindow'
-    : status === 'valid'
-      ? 'dose-val-chip dose-val-valid'
-      : status === 'invalid'
-        ? 'dose-val-chip dose-val-invalid'
-        : 'dose-val-chip dose-val-unknown';
+    : extraDose
+      ? 'dose-val-chip dose-val-offwindow'
+      : status === 'valid'
+        ? 'dose-val-chip dose-val-valid'
+        : status === 'invalid'
+          ? 'dose-val-chip dose-val-invalid'
+          : 'dose-val-chip dose-val-unknown';
 
   const chipLabel = notAdolescentCount
     ? 'Off-window - repeat'
-    : status === 'valid'
-      ? (effectiveDoseNum != null && seriesTotal != null ? `Dose ${effectiveDoseNum} of ${seriesTotal}` : 'Counts')
-      : status === 'invalid' ? 'Invalid' : 'Unknown';
+    : extraDose
+      ? 'Extra dose — beyond the indicated series total'
+      : status === 'valid'
+        ? (seriesTotal == null
+            ? 'Recorded — not part of an indicated series'
+            : effectiveDoseNum <= seriesTotal
+              ? `Dose ${effectiveDoseNum} of ${seriesTotal}`
+              : `Booster (dose ${effectiveDoseNum})`)
+        : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>

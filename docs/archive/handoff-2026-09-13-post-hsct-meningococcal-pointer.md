@@ -1,5 +1,12 @@
 # MeningoVax — post-HSCT meningococcal fix (pointer, 2026-09-13)
 
+> **Partly under review (2026-09-14).** Every item in this file shipped (`ba255ef`, `a0106f4`)
+> and the record below is accurate. **One line is no longer settled:** "The 11–18 and 16–23
+> bands themselves were correct — keep them." That assumption is now an open clinical question
+> (does the post-HCT 2-dose MenACWY schedule apply above 18?), raised by an owner-reported
+> age-82 case. Do not treat "keep them" as a decision. See
+> [handoff-2026-09-14-dose-counter-structural-fix.md](handoff-2026-09-14-dose-counter-structural-fix.md) (section "P1").
+
 The full handoff for this work lives in the vaxapp repo, because the fix spans three
 apps and has to stay consistent across them:
 
