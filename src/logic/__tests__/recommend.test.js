@@ -138,21 +138,29 @@ describe('MenACWY single-dose indications', () => {
     expect(acwy(r).citations[0].url).toMatch(/immunize\.org/);
   });
 
-  // W4 (2026-07-24, p2018.pdf Item #P2018 10/14/2025, verified live): the
-  // college-dorm row lists THREE vaccination-history sub-cases, all needing
-  // "1 dose of MenACWY" -- none, a dose before 16y, AND a dose since the 16th
-  // birthday but more than 5 years previously. The `confirmedAt16` branch
-  // only checked whether a >=16y dose existed, not its recency, so the third
-  // sub-case fell through and was wrongly marked complete.
-  it('college dorm with a dose at 16y that is now >5 years ago → due, not complete', () => {
+  // W4 (2026-07-24) added a 5-year expiry to the college-dorm rule, sourced
+  // from immunize.org Item #P2018 (10/14/2025): a dose "since 16th birthday,
+  // but more than 5 years previously" was listed as needing another dose.
+  //
+  // M17 (owner decision 2026-09-15) REVERSED that. ACIP 2020 MMWR 69(RR-9)
+  // Table 10 addresses this same patient and says the opposite -- Boosters:
+  // "College freshmen living in residence halls: Not routinely recommended",
+  // and its footnote: "Adolescents who received a first dose after their 16th
+  // birthday do not need a booster dose unless they become at increased risk".
+  // Owner: college students get one dose, no additional boosters.
+  //
+  // Both tests below are kept, inverted, rather than deleted, so the history of
+  // this decision stays visible. See regression-m17-college-no-booster.test.js
+  // for the full reasoning and both verbatim quotes.
+  it('college dorm with a dose at 16y that is now >5 years ago → complete (M17)', () => {
     // dose at 192mo (16y), now 264mo (22y) → 72 months = 6 years elapsed
     const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
-    expect(acwy(r).status).toBe('exposure');
-    expect(acwy(r).dueToday).toBe(true);
-    expect(acwy(r).note).toMatch(/more than 5 years/i);
+    expect(acwy(r).status).toBe('complete');
+    expect(acwy(r).dueToday).not.toBe(true);
+    expect(acwy(r).note || '').not.toMatch(/more than 5 years/i);
   });
 
-  it('college dorm with a dose at 16y exactly 5 years ago → still complete (boundary)', () => {
+  it('college dorm with a dose at 16y exactly 5 years ago → complete (unchanged by M17)', () => {
     // dose at 192mo (16y), now 252mo (21y) → 60 months = exactly 5 years
     const r = run({ ageMonths: 252, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2021-06-03', ageMonths: 192 }] });
     expect(acwy(r).status).toBe('complete');

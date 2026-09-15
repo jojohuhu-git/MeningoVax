@@ -278,16 +278,37 @@ function menacwyRec(am, riskIds, doses, today) {
     const isCollege = riskIds.includes('college_dorm');
 
     // College-dorm rule keys off whether a dose was given at age ≥16y.
-    // p2018.pdf (immunize.org Item #P2018, 10/14/2025) lists 3 history
-    // sub-cases needing "1 dose": none, a dose before 16y, AND a dose since
-    // the 16th birthday but more than 5 years previously — so a ≥16y dose
-    // only satisfies the requirement while it's 5 years old or less.
+    //
+    // M17 (owner decision 2026-09-15): a ≥16y dose satisfies the requirement
+    // PERMANENTLY. One dose, no additional boosters. This overturned a
+    // correctly-sourced earlier reading, so both sides are recorded here.
+    //
+    // The rule used to expire after 5 years, from immunize.org Item #P2018
+    // (job aid, 10/14/2025), which lists among the histories needing a dose:
+    // "First year college students living in residence halls | None, or 1
+    // prior dose when younger than 16 years, or 1 prior dose since 16th
+    // birthday, but more than 5 years previously | Give 1 dose of MenACWY".
+    //
+    // ACIP 2020 MMWR 69(RR-9) Table 10 speaks to this patient directly and
+    // says the opposite. Its Boosters row: "College freshmen living in
+    // residence halls: Not routinely recommended unless person becomes at
+    // increased risk due to another indication". Its footnote, last sentence:
+    // "Adolescents who received a first dose after their 16th birthday do not
+    // need a booster dose unless they become at increased risk for
+    // meningococcal disease."
+    //
+    // Owner broke the tie for ACIP: P2018's "within 5 years before college
+    // entry" is an enrolment-paperwork recency rule, while ACIP's footnote is
+    // a clinical statement about this exact history. Note the tie could NOT be
+    // broken by deferring to vaxapp, as the queue originally proposed: vaxapp
+    // stops at 19 years and this case needs a patient aged 21+, so it has
+    // never encountered it. Do not "restore" the 5-year expiry from P2018
+    // without asking — it was removed knowingly, not overlooked.
     if (isCollege) {
       const dosesAt16Plus = doses
         .map((d) => ({ a: ageAtDose(d, am, today) }))
         .filter(({ a }) => a != null && a >= M.y16);
-      const recentAt16 = dosesAt16Plus.some(({ a }) => am - a <= 60); // ≤5 years (60 months)
-      if (recentAt16) {
+      if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
           note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
@@ -298,16 +319,8 @@ function menacwyRec(am, riskIds, doses, today) {
           refs: refsExposure(),
         })];
       }
-      // A ≥16y dose exists but is now more than 5 years old — no longer
-      // satisfies the requirement.
-      if (dosesAt16Plus.length > 0) {
-        return [rec({
-          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (prior dose >5y ago)', seriesTotal: 1,
-          doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
-          note: 'A MenACWY dose was given at age ≥16 years, but more than 5 years ago. That dose no longer satisfies the college-residence requirement: give one dose now.',
-          refs: refsExposure(),
-        })];
-      }
+      // M17: the ">=16y dose but more than 5 years ago" branch that used to sit
+      // here is gone — see the block comment above for both sources and why.
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
       if (given >= 1) {
         const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');
