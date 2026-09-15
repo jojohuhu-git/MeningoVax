@@ -388,11 +388,27 @@ function menacwyRec(am, riskIds, doses, today) {
       })];
     }
 
-    // Military recruit / college resident: a single dose satisfies.
+    // Military recruit: a single dose satisfies the recruitment requirement.
+    //
+    // M18 (2026-09-15): this used to end "Re-dose only if a separate
+    // ongoing-risk indication applies", which is the COLLEGE half of ACIP 2020
+    // MMWR 69(RR-9) Table 10 attached to the wrong group. That table's Boosters
+    // row, verified live 2026-09-15: "College freshmen living in residence
+    // halls: Not routinely recommended... Military recruits: Every 5 yrs on
+    // basis of assignment". Military is the one group there WITH a standing
+    // booster interval, and this card denied it.
+    //
+    // Deliberately wording only, no booster scheduling — footnote †† of the
+    // same table: "Vaccination recommendations for military personnel are made
+    // by the U.S. Department of Defense on the basis of high-risk travel
+    // requirements." The interval turns on an assignment this app cannot see,
+    // so the card names DoD as the owner of the timing rather than starting a
+    // countdown it has no basis to compute. Do not add a 5-year due date here
+    // without a way to capture the assignment.
     if (given >= 1) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
-        note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit). Re-dose only if a separate ongoing-risk indication applies.',
+        note: 'A documented MenACWY dose satisfies the single-dose recruitment requirement. ACIP gives military recruits a booster every 5 years on the basis of assignment, and the U.S. Department of Defense sets those requirements according to high-risk travel \u2014 so check the service\'s current requirement rather than assuming nothing more is due. This app does not track that timing. A separate ongoing-risk indication would add its own schedule on top.',
         refs: refsExposure(),
       })];
     }
