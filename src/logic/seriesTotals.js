@@ -46,7 +46,7 @@ export const MENB_HEALTHY_RESCUE_TOTAL = 3;
 const AGE_16Y_MONTHS = 192;
 
 // MenACWY infant/early-childhood high-risk primary total — mirrors
-// recommend.js's menacwyInfantHighRisk() completion threshold EXACTLY
+// recommend.js's menacwyInfantSeries() completion threshold EXACTLY
 // (`seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4`). This must
 // stay a pure function of d1AgeM only, matching that threshold, not a
 // separate clinical judgment call — the D6 3-dose-shortcut path (on3DosePath)
@@ -58,8 +58,20 @@ const AGE_16Y_MONTHS = 192;
 // return 4 for them too, or the chip/headline total would stop matching
 // what recommend.js is actually still asking for.
 export function menacwyInfantHighRiskTotal({ d1AgeM }) {
-  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 12;
-  return d1WasInfant7to11 ? 3 : 4;
+  // M5 (2026-09-15): a series STARTED at 7–23 months is a 2-dose primary series.
+  // This used to return 3 for a 7–11-month start and 4 for a 12–23-month one, so
+  // the app asked for a third primary dose that CDC does not want and delayed the
+  // first booster behind it.
+  // CDC child & adolescent schedule notes, "Meningococcal serogroup A,C,W,Y
+  // vaccination", special situations, Menveo (fetched live 2026-09-15):
+  //   "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12 weeks after
+  //    dose 1 and after age 12 months)"
+  // This reverses part of F1 (2026-09-14), which moved this from 2 to 3 to match
+  // recommend.js's `given >= 3` completion guard. F1 was right that the two had
+  // drifted apart; it aligned them on the wrong number. That guard moves to 2 as
+  // well, so the two stay in step.
+  const d1WasInfant7to23 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
+  return d1WasInfant7to23 ? 2 : 4;
 }
 
 /**
@@ -73,14 +85,23 @@ export function menacwyInfantHighRiskTotal({ d1AgeM }) {
  * @param {string} today — ISO date
  * @returns {{ total: number, hasBoosterPhase: boolean }}
  */
-export function menacwySeriesInfo({ riskClass, am, doses, today }) {
-  if (riskClass === 'primary2') {
-    if (am < 24) {
-      const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
-      return { total: menacwyInfantHighRiskTotal({ d1AgeM }), hasBoosterPhase: true };
-    }
-    return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
+export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = false }) {
+  // M10 (2026-09-15): an infant series is an infant series whatever the
+  // indication. ACIP 2020 MMWR 69(RR-9) prints the same "2-23 mos" row in
+  // Table 9 (travel), Table 8 (outbreak) and Tables 4-6 (medical high risk).
+  // infantSeries is menacwyInfantSeriesIndicated(riskIds) — riskClass alone
+  // cannot tell travel from microbiologist, or outbreak from military, and ACIP
+  // gives the latter of each pair no infant row at all.
+  if (am < 24 && (riskClass === 'primary2' || infantSeries)) {
+    const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+    return {
+      total: menacwyInfantHighRiskTotal({ d1AgeM }),
+      // Outbreak has no standing booster cadence (ACIP Table 8 gives a one-off
+      // top-up on re-exposure instead), but every other infant indication does.
+      hasBoosterPhase: riskClass !== 'single',
+    };
   }
+  if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
   if (riskClass === 'single+boost') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
   if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, hasBoosterPhase: false };
   // Routine (no current MenACWY risk indication): 1 dose is enough when the
@@ -113,4 +134,57 @@ export function menbSeriesInfo({ highRisk, doses }) {
     return { total: MENB_HEALTHY_RESCUE_TOTAL, hasBoosterPhase: false };
   }
   return { total: MENB_HEALTHY_TOTAL, hasBoosterPhase: false };
+}
+
+/**
+ * M4: how many PRIMARY doses this patient's MenACWY series has, keyed to the
+ * age at DOSE 1 — which is what decides it clinically.
+ *
+ * The validator needs this to answer a question it previously guessed at: is
+ * the dose in front of me still part of the primary series, or is it a booster?
+ * It used to assume the primary series was always two doses, so it called dose
+ * 3 a booster for everyone and demanded three years of spacing. A baby with
+ * asplenia on the textbook 2/4/6/12-month series had doses 3 and 4 voided.
+ *
+ * Note this keys off the age at dose 1, NOT the patient's current age, unlike
+ * menacwySeriesInfo() above — a five-year-old who started as an infant still
+ * had an infant primary series, and their old doses must be graded as such.
+ *
+ * CDC child & adolescent schedule notes, "Meningococcal serogroup A,C,W,Y
+ * vaccination", special situations, Menveo (fetched live 2026-09-15):
+ *   "Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6,
+ *    and 12 months)"
+ *   "Dose 1 at age 3–6 months: 3- or 4- dose series ..."
+ *   "Dose 1 at age 7–23 months: 2-dose series ..."
+ *   "Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart"
+ *
+ * The infant totals come from menacwyInfantHighRiskTotal() rather than being
+ * restated here, so this cannot drift from what the engine asks for. That
+ * function's 7–23-month answer is itself a known divergence from the CDC text
+ * above — it is queue item M5, deliberately left for M5 rather than changed
+ * here, so that M4 is only about WHERE the booster clock starts.
+ *
+ * @param {'primary2'|'single+boost'|'single'|null} riskClass
+ * @param {number|null} d1AgeM — age in months at dose 1 (null if unknown)
+ * @returns {number} number of primary doses before the booster phase begins
+ */
+export function menacwyPrimaryTotal({ riskClass, d1AgeM, infantSeries = false }) {
+  // M10 (2026-09-15): a series BEGUN under 2 years old is an infant series
+  // whatever the indication, so its length comes from the age at dose 1 — not
+  // from "1 dose" just because the reason was travel or an outbreak. Leaving
+  // this at 1 made the validator treat dose 2 of an infant series as a booster
+  // given decades too early and void it, so a baby with two correctly-spaced
+  // doses was sent back to dose 1.
+  //
+  // infantSeries is menacwyInfantSeriesIndicated(riskIds): riskClass alone
+  // cannot separate travel from microbiologist ('single+boost') or outbreak
+  // from military ('single'), and ACIP gives microbiologists (Table 7, ">=10
+  // yrs") and recruits (Table 10) no infant row at all.
+  if (d1AgeM != null && d1AgeM < 24 && (riskClass === 'primary2' || infantSeries)) {
+    return menacwyInfantHighRiskTotal({ d1AgeM });
+  }
+  if (riskClass === 'primary2') return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+  // Exposure-risk classes take a single primary dose from 2 years old.
+  if (riskClass === 'single+boost' || riskClass === 'single') return MENACWY_SINGLE_TOTAL;
+  return MENACWY_HIGHRISK_PRIMARY_TOTAL;
 }

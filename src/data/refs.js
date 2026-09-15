@@ -114,13 +114,22 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
-  // Table 10's `*` footnote is the college-dorm 5-year-recency rule (W4) --
-  // load-bearing, second text= directive.
+  // Table 10 covers TWO groups with opposite booster rules, and this ref is
+  // shared by both cards, so it anchors to the table caption only -- the same
+  // pattern as Tables 7 and 8.
+  //
+  // It used to carry a second text= directive highlighting "College freshmen
+  // ... at least 1 dose of MenACWY within 5 years before college entry", added
+  // by W4 for the college 5-year expiry. M17 (2026-09-15) removed that rule, so
+  // the directive pointed at guidance the app no longer implements -- and on
+  // the MILITARY card it highlighted the college sentence, which is precisely
+  // the mix-up M18 exists to undo. Dropped rather than re-pointed, because one
+  // shared ref cannot highlight both halves of the Boosters row at once.
   acip2020Table10: {
-    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 10. Recommended vaccination schedule and intervals for college freshmen living in residence halls* and military recruits')}&text=${encodeURIComponent('College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry')}`,
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('TABLE 10. Recommended vaccination schedule and intervals for college freshmen living in residence halls* and military recruits')}`,
     label: 'ACIP 2020 MMWR: Table 10 — schedule for college freshmen in residence halls and military recruits',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-09-15',
   },
 
   acwyRoutine1112and16: {
@@ -164,6 +173,19 @@ export const CITATIONS = {
     label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
+  },
+  // M16 (2026-09-15): the "preferred age 16-18 yrs" claim, restored with the
+  // citation it should always have carried. C1/2026-07-24 dropped it after
+  // correctly finding it absent from mm7349a3 (the Oct 2024 Bexsero dosing
+  // paper) -- it was mis-cited, not unsupported. It is verbatim in ACIP 2020
+  // Table 2, and still printed in the current CDC child & adolescent schedule
+  // notes ("preferred age 16-18 years"), so mm7349a3's silence did not retire it.
+  menbHealthyPreferredAge1618: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('MenB series at age 16\u201323 yrs on basis of shared clinical decision-making (preferred age 16\u201318 yrs)')}`,
+    quote: 'MenB series at age 16\u201323 yrs on basis of shared clinical decision-making (preferred age 16\u201318 yrs)',
+    label: 'ACIP 2020 MMWR Table 2: healthy MenB shared clinical decision-making, preferred age 16\u201318 years',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-09-15',
   },
   menbPregnancyDeferral: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',

@@ -49,9 +49,9 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { daysBetween, calendarMonthsBetween, todayISO, DAYS } from './dateUtils.js';
-import { hasMenbRisk, menacwyRiskClass } from '../data/riskFactors.js';
+import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
-import { menacwySeriesInfo, menbSeriesInfo } from './seriesTotals.js';
+import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -249,9 +249,51 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // high-risk infant series (given at riskClass === 'primary2') appropriately
   // starts before age 10 and must keep counting those doses.
   // Source: https://www.immunize.org/ask-experts/topic/menacwy/vaccine-recommendations-menacwy/
+  // M9 (2026-09-15): 'single+boost' (travel, microbiologist) is spared too, not
+  // just 'primary2'. ACIP: "Children who received MenACWY at age <11 years and
+  // for whom booster vaccination is recommended because of an ongoing increased
+  // risk should follow the booster dose schedule (Tables 4, 5, 6, 7, 8, and 9),
+  // not the routine adolescent schedule" — Table 9 is travel, Table 7 is
+  // microbiologists. Discarding a traveler's dose at age 3 made the engine ask
+  // for "1 dose (ongoing-risk indication)" today: the dose they already had.
+  // 'single' (military, college dorm, ACWY outbreak) is NOT spared — those are
+  // one-and-done indications with no booster schedule to follow.
   const AGE_10Y_MONTHS = 120;
   const isHighRiskNow = menacwyRiskClass(riskIds) === 'primary2';
-  if (!isHighRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  // 'single+boost' is travel and microbiologist: one primary dose, then boosters
+  // for as long as the risk lasts. They follow a booster schedule, so their
+  // earlier doses count. 'primary2' is the medical high-risk series.
+  const ongoingRiskNow = isHighRiskNow || menacwyRiskClass(riskIds) === 'single+boost';
+  // M10 (2026-09-15): an infant on the MenACWY INFANT series is not on the
+  // routine adolescent series at all, so this rule must not eat their doses.
+  // It matters for the A/C/W/Y OUTBREAK indication specifically: outbreak is
+  // riskClass 'single', deliberately not spared above because it used to mean
+  // one dose at any age. M10 put outbreak infants (and travel infants) on the
+  // 4-dose infant series — ACIP 2020 MMWR 69(RR-9) Table 8's "2–23 mos" row —
+  // and every dose of that series is by definition given before age 10, so all
+  // of them were discarded: a baby who had already had two doses was told to
+  // start again at dose 1.
+  //
+  // The guard is deliberately narrow — the patient must be under 2 TODAY, still
+  // on the infant series. Whether those infant doses should also count toward
+  // the adolescent series years later is the separate risk-at-dose question the
+  // owner has parked (queue item 21), and this does not answer it.
+  const onInfantSeriesNow = ageMonths < 24 && menacwyInfantSeriesIndicated(riskIds);
+  // M12 (2026-09-15): an A/C/W/Y outbreak contact follows a booster schedule too,
+  // so their earlier doses count at ANY age, not only under 2. ACIP 2020 MMWR
+  // 69(RR-9) Table 8 gives a previously-vaccinated patient identified at risk
+  // again "a single dose if >=3 yrs since vaccination" (under 7) or ">=5 yrs" (7
+  // or older) — and the ACIP sentence this whole rule turns on names that very
+  // table: "Children who received MenACWY at age <11 years and for whom booster
+  // vaccination is recommended because of an ongoing increased risk should follow
+  // the booster dose schedule (Tables 4, 5, 6, 7, 8, and 9), not the routine
+  // adolescent schedule." Discarding the dose made the app offer dose 1 again
+  // instead of the top-up.
+  //
+  // Military recruits and college residents keep the old treatment: they are
+  // 'single' too, but Table 10 gives them no booster schedule to follow.
+  const onOutbreakSchedule = riskIds.includes('outbreak_acwy');
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
@@ -324,16 +366,27 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // ALL SUBSEQUENT boosters (effectiveIdx >= 3): always 5 years regardless of D2 age.
       // A booster given TOO SOON does not count.
       // Only too-soon is flagged; late/overdue boosters are acceptable catch-up.
-      if (riskClass && effectiveIdx >= 2) {
-        const isFirstBooster = effectiveIdx === 2;
+      // M4: a dose is a booster only once the PRIMARY series is behind it, and
+      // how long that series is depends on the age at dose 1. This used to be
+      // hardcoded as "dose 3 onwards", which is right only for a series begun at
+      // 2 years or older. A baby with asplenia on the textbook 2/4/6/12-month
+      // series had doses 3 and 4 graded as boosters given "~2 months after the
+      // previous dose" against a 3-year cadence, and both were voided.
+      const keptDated = kept.filter(d => d.date);
+      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
+      const primaryTotal = menacwyPrimaryTotal({ riskClass: menacwyRiskClass(riskIds), d1AgeM, infantSeries: menacwyInfantSeriesIndicated(riskIds) });
+      if (riskClass && effectiveIdx >= primaryTotal) {
+        const isFirstBooster = effectiveIdx === primaryTotal;
         let cadenceDays;
         let cadenceLabel;
         if (isFirstBooster) {
-          // First booster cadence keys off the patient's age at dose 2 (the 2nd kept dated dose).
-          const dose2 = kept.filter(d => d.date)[1] || null;
-          const dose2AgeAtDose = ageAtDoseFromDate(dose2, ageMonths, today);
+          // M4: the first booster's cadence keys off the age at the LAST dose of
+          // the primary series — the dose the clock actually starts from — not
+          // off dose 2, which is only the same dose in a 2-dose series.
+          const lastPrimary = keptDated[primaryTotal - 1] || keptDated[keptDated.length - 1] || null;
+          const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ageMonths, today);
           // Conservative: unknown age treated same as <7y → 3 years.
-          cadenceDays = (dose2AgeAtDose == null || dose2AgeAtDose < AGE_7Y_MONTHS)
+          cadenceDays = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS)
             ? MENACWY_BOOSTER_3Y
             : MENACWY_BOOSTER_5Y;
           cadenceLabel = cadenceDays === MENACWY_BOOSTER_3Y ? '3 years' : '5 years';
@@ -379,7 +432,17 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // number greater than the series total). High-risk patients are unaffected
   // — their primary series legitimately has 2+ doses before age 16.
   // Source: https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm
-  if (!isHighRiskNow && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
+  // M9: travelers and microbiologists are excluded here as well. This is the
+  // ROUTINE adolescent booster window; their 2nd dose is a Table 9 / Table 7
+  // booster measured as an interval from the last dose, not an age window.
+  // M10: an infant on the MenACWY infant series is likewise excluded. This is
+  // the ROUTINE adolescent booster window, and dose 2 of a 4-dose infant series
+  // is a primary dose measured in weeks from dose 1 — not the age-16 booster.
+  // It bites the A/C/W/Y OUTBREAK indication ('single', so not covered by
+  // ongoingRiskNow): a baby with two correctly-spaced infant doses had the
+  // second one set aside and was offered dose 1 again. onInfantSeriesNow is
+  // scoped to patients still under 2 today — see its definition above.
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
     return {
       status: 'valid',
       reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16.`],
@@ -708,7 +771,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
       // infant high-risk) are never capped here — see seriesTotals.js.
       const candidateKept = [...kept, dose];
       const seriesInfo = vaccine === 'MenACWY'
-        ? menacwySeriesInfo({ riskClass: menacwyRiskClass(riskIds), am: ageMonths, doses: candidateKept, today })
+        ? menacwySeriesInfo({ riskClass: menacwyRiskClass(riskIds), am: ageMonths, doses: candidateKept, today, infantSeries: menacwyInfantSeriesIndicated(riskIds) })
         : menbSeriesInfo({ highRisk: hasMenbRisk(riskIds), doses: candidateKept });
       const isExtra = !seriesInfo.hasBoosterPhase
         && seriesInfo.total != null

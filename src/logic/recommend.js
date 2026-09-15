@@ -18,6 +18,7 @@
 import { resolveRefs, cite } from '../data/refs.js';
 import {
   menacwyRiskClass,
+  menacwyInfantSeriesIndicated,
   hasMenbRisk,
   shouldDeferMenB,
   hasExclusion,
@@ -136,12 +137,21 @@ function menacwyRec(am, riskIds, doses, today) {
     : DAYS.years(5);
   const boostDays = isFirstBooster ? firstBoosterDays : DAYS.years(5);
 
+  // ── Infant pathways (<2y), whatever the indication ───────────────────────
+  // M10 (2026-09-15): this used to sit INSIDE the primary2 branch below, so it
+  // was reached only by medically high-risk infants. ACIP 2020 MMWR 69(RR-9)
+  // gives travel (Table 9) and A/C/W/Y outbreak (Table 8) the identical "2–23
+  // mos" row, so an infant traveler was wrongly answered by the single+boost
+  // branch ("1 dose (ongoing-risk indication)") and an infant outbreak contact
+  // by the single branch ("1 dose"). Hoisting it here routes all three to the
+  // same series; menacwyInfantSeries varies only the WORDING by indication, and
+  // the booster phase, which genuinely differs for outbreak (see there).
+  if (am < M.y2 && menacwyInfantSeriesIndicated(riskIds)) {
+    return [menacwyInfantSeries(am, given, doses, last, today, riskIds)];
+  }
+
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
   if (riskClass === 'primary2') {
-    // Infant pathways (high risk, <2y)
-    if (am < M.y2) {
-      return [menacwyInfantHighRisk(am, given, doses, last, today, riskIds)];
-    }
     // ≥2y: 2-dose primary ≥8 weeks apart, then boosters.
     if (given === 0) {
       return [rec({
@@ -213,13 +223,49 @@ function menacwyRec(am, riskIds, doses, today) {
         refs: refsExposure(),
       })];
     }
-    const elapsed = intervalElapsed(lastDate, DAYS.years(5), today);
+    // M9 (2026-09-15): the FIRST booster is 3 years, not 5, when the primary dose
+    // was given before the 7th birthday. ACIP 2020 MMWR 69(RR-9) Table 9, fetched
+    // live 2026-09-15: "Aged <7 yrs: Single dose at 3 yrs after primary
+    // vaccination and every 5 yrs thereafter / Aged >=7 yrs: Single dose at 5 yrs
+    // after primary vaccination and every 5 yrs thereafter". This branch used a
+    // flat 5 years for everyone, so a child vaccinated at 3 waited two years too
+    // long. The same 3/5 split already existed above for the medical high-risk
+    // branch; it keys off dose 2 there because that series has two primary doses,
+    // and off dose 1 here because this one has a single primary dose.
+    //
+    // Microbiologists share this branch and are deliberately unchanged: ACIP
+    // Table 7 covers ages ">=10 yrs" only and gives them a flat 5 years, with no
+    // <7-year row. isTravel keeps the 3-year rule to the travel indication.
+    const isTravel = riskIds.includes('travel');
+    const isFirstExposureBooster = given === 1;
+    const primaryDoseAge = ageAtDose(doses[0] || null, am, today);
+    // Unknown age falls to the shorter 3-year interval, the same conservative
+    // choice the high-risk branch above makes.
+    const exposureBoostDays = (isTravel && isFirstExposureBooster
+      && (primaryDoseAge == null || primaryDoseAge < M.y7))
+      ? DAYS.years(3)
+      : DAYS.years(5);
+    const exposureBoostLabel = exposureBoostDays === DAYS.years(3)
+      ? 'first booster, 3 years after the primary dose'
+      : isFirstExposureBooster
+        ? 'first booster, 5 years after the primary dose'
+        : 'every 5 years';
+    const elapsed = intervalElapsed(lastDate, exposureBoostDays, today);
     return [rec({
-      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, every 5 years)`,
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
-      earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.years(5)),
-      minIntervalDays: DAYS.years(5), brands: menacwyBrands(am),
-      note: 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
+      earliestNextDate: elapsed ? null : addDays(lastDate, exposureBoostDays),
+      minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
+      note: exposureBoostDays === DAYS.years(3)
+        ? 'The primary dose was given before age 7, so the first booster is due 3 years after it, then every 5 years while the travel risk continues.'
+        : isFirstExposureBooster
+          ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it, then every 5 years while travel or occupational exposure continues.'
+          : 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
+      noteCites: (isTravel && isFirstExposureBooster) ? [
+        exposureBoostDays === DAYS.years(3)
+          ? cite('boosterBeforeAge7')
+          : cite('boosterAtOrAfterAge7'),
+      ] : [],
       refs: refsExposure(),
     })];
   }
@@ -232,16 +278,37 @@ function menacwyRec(am, riskIds, doses, today) {
     const isCollege = riskIds.includes('college_dorm');
 
     // College-dorm rule keys off whether a dose was given at age ≥16y.
-    // p2018.pdf (immunize.org Item #P2018, 10/14/2025) lists 3 history
-    // sub-cases needing "1 dose": none, a dose before 16y, AND a dose since
-    // the 16th birthday but more than 5 years previously — so a ≥16y dose
-    // only satisfies the requirement while it's 5 years old or less.
+    //
+    // M17 (owner decision 2026-09-15): a ≥16y dose satisfies the requirement
+    // PERMANENTLY. One dose, no additional boosters. This overturned a
+    // correctly-sourced earlier reading, so both sides are recorded here.
+    //
+    // The rule used to expire after 5 years, from immunize.org Item #P2018
+    // (job aid, 10/14/2025), which lists among the histories needing a dose:
+    // "First year college students living in residence halls | None, or 1
+    // prior dose when younger than 16 years, or 1 prior dose since 16th
+    // birthday, but more than 5 years previously | Give 1 dose of MenACWY".
+    //
+    // ACIP 2020 MMWR 69(RR-9) Table 10 speaks to this patient directly and
+    // says the opposite. Its Boosters row: "College freshmen living in
+    // residence halls: Not routinely recommended unless person becomes at
+    // increased risk due to another indication". Its footnote, last sentence:
+    // "Adolescents who received a first dose after their 16th birthday do not
+    // need a booster dose unless they become at increased risk for
+    // meningococcal disease."
+    //
+    // Owner broke the tie for ACIP: P2018's "within 5 years before college
+    // entry" is an enrolment-paperwork recency rule, while ACIP's footnote is
+    // a clinical statement about this exact history. Note the tie could NOT be
+    // broken by deferring to vaxapp, as the queue originally proposed: vaxapp
+    // stops at 19 years and this case needs a patient aged 21+, so it has
+    // never encountered it. Do not "restore" the 5-year expiry from P2018
+    // without asking — it was removed knowingly, not overlooked.
     if (isCollege) {
       const dosesAt16Plus = doses
         .map((d) => ({ a: ageAtDose(d, am, today) }))
         .filter(({ a }) => a != null && a >= M.y16);
-      const recentAt16 = dosesAt16Plus.some(({ a }) => am - a <= 60); // ≤5 years (60 months)
-      if (recentAt16) {
+      if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
           note: 'A MenACWY dose given at age ≥16 years satisfies the first-year-college-resident requirement; no additional dose is needed.',
@@ -252,16 +319,8 @@ function menacwyRec(am, riskIds, doses, today) {
           refs: refsExposure(),
         })];
       }
-      // A ≥16y dose exists but is now more than 5 years old — no longer
-      // satisfies the requirement.
-      if (dosesAt16Plus.length > 0) {
-        return [rec({
-          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (prior dose >5y ago)', seriesTotal: 1,
-          doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
-          note: 'A MenACWY dose was given at age ≥16 years, but more than 5 years ago. That dose no longer satisfies the college-residence requirement: give one dose now.',
-          refs: refsExposure(),
-        })];
-      }
+      // M17: the ">=16y dose but more than 5 years ago" branch that used to sit
+      // here is gone — see the block comment above for both sources and why.
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
       if (given >= 1) {
         const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');
@@ -287,18 +346,78 @@ function menacwyRec(am, riskIds, doses, today) {
       })];
     }
 
-    // Military recruit / serogroup A/C/W/Y outbreak: a single dose satisfies.
+    // M12 (2026-09-15), cross-repo parity with vaxapp: an A/C/W/Y outbreak
+    // contact who was vaccinated long ago is NOT simply "Complete". ACIP 2020
+    // MMWR 69(RR-9) Table 8, fetched live from cdc.gov 2026-09-15: "Boosters (if
+    // previously vaccinated and identified as being at increased risk): • Aged
+    // <7 yrs: Single dose if ≥3 yrs since vaccination • Aged ≥7 yrs: single dose
+    // if ≥5 yrs since vaccination."
+    //
+    // This is a TOP-UP triggered by being identified at risk again, not the
+    // standing countdown travel gets from Table 9 (owner-confirmed 2026-09-15) —
+    // so it is offered because the patient is recorded as at risk in an outbreak
+    // now, and the copy says it does not start a repeating schedule.
+    //
+    // Note the clock: Table 8 keys the 3-versus-5-year threshold to the
+    // patient's age TODAY, inside its own age-group rows, where Tables 4-6 and 9
+    // key theirs to the age at which the primary series was completed.
+    //
+    // Military recruits and college residents share this branch and are
+    // deliberately unchanged: Table 10 really is a single dose for them.
+    const isOutbreakACWY = riskIds.includes('outbreak_acwy');
+    if (isOutbreakACWY && given >= 1) {
+      const topUpDays = am < M.y7 ? DAYS.years(3) : DAYS.years(5);
+      const elapsedTopUp = intervalElapsed(lastDate, topUpDays, today);
+      if (!elapsedTopUp) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete for this outbreak', seriesTotal: 1,
+          earliestNextDate: addDays(lastDate, topUpDays),
+          minIntervalDays: topUpDays,
+          note: `The recorded dose covers this outbreak. If the patient is identified as being at increased risk in an outbreak again, a single further dose is given once it has been ${am < M.y7 ? 'three' : 'five'} years or more since the last one (${am < M.y7 ? 'under age 7' : 'age 7 or older'}) [c].`,
+          noteCites: [cite('acip2020Table8')],
+          refs: refsExposure(),
+        })];
+      }
+      return [rec({
+        vaccine: 'MenACWY', status: 'exposure', doseLabel: `Outbreak top-up (dose ${given + 1})`, seriesTotal: 1,
+        doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
+        minIntervalDays: topUpDays,
+        note: `More than ${am < M.y7 ? 'three' : 'five'} years have passed since the last MenACWY dose (${am < M.y7 ? 'under age 7' : 'age 7 or older'}), so a single further dose is given to top up protection for this outbreak [c]. It does not start a repeating schedule.`,
+        noteCites: [cite('acip2020Table8')],
+        refs: refsExposure(),
+      })];
+    }
+
+    // Military recruit: a single dose satisfies the recruitment requirement.
+    //
+    // M18 (2026-09-15): this used to end "Re-dose only if a separate
+    // ongoing-risk indication applies", which is the COLLEGE half of ACIP 2020
+    // MMWR 69(RR-9) Table 10 attached to the wrong group. That table's Boosters
+    // row, verified live 2026-09-15: "College freshmen living in residence
+    // halls: Not routinely recommended... Military recruits: Every 5 yrs on
+    // basis of assignment". Military is the one group there WITH a standing
+    // booster interval, and this card denied it.
+    //
+    // Deliberately wording only, no booster scheduling — footnote †† of the
+    // same table: "Vaccination recommendations for military personnel are made
+    // by the U.S. Department of Defense on the basis of high-risk travel
+    // requirements." The interval turns on an assignment this app cannot see,
+    // so the card names DoD as the owner of the timing rather than starting a
+    // countdown it has no basis to compute. Do not add a 5-year due date here
+    // without a way to capture the assignment.
     if (given >= 1) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
-        note: 'A documented MenACWY dose satisfies this single-dose indication (military recruit or serogroup A/C/W/Y outbreak). Re-dose only if a separate ongoing-risk indication applies.',
+        note: 'A documented MenACWY dose satisfies the single-dose recruitment requirement. ACIP gives military recruits a booster every 5 years on the basis of assignment, and the U.S. Department of Defense sets those requirements according to high-risk travel \u2014 so check the service\'s current requirement rather than assuming nothing more is due. This app does not track that timing. A separate ongoing-risk indication would add its own schedule on top.',
         refs: refsExposure(),
       })];
     }
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
-      note: 'Military recruits and persons at risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.',
+      note: isOutbreakACWY
+        ? 'People identified as being at increased risk during a serogroup A/C/W/Y outbreak: a single MenACWY dose.'
+        : 'Military recruits: a single MenACWY dose.',
       refs: refsExposure(),
     })];
   }
@@ -307,17 +426,63 @@ function menacwyRec(am, riskIds, doses, today) {
   return menacwyRoutine(am, given, doses, last, today);
 }
 
-function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
+function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   const refs = collectRefs(riskIds, [], ['acip2020']);
   const lastDate = last?.date || null;
+  // M10: which indication put this infant on the series. The SCHEDULE is the
+  // same for all three — ACIP prints one "2–23 mos" row in Tables 4–6, 8 and 9 —
+  // so only the wording varies here, plus the booster phase for outbreak below.
+  // Medical high risk outranks the exposure categories, matching
+  // menacwyRiskClass's own precedence.
+  const infantMedical = menacwyRiskClass(riskIds) === 'primary2';
+  const infantTravel = !infantMedical && riskIds.includes('travel');
+  const infantOutbreak = !infantMedical && !infantTravel && riskIds.includes('outbreak_acwy');
+  // Every string below reproduces the ORIGINAL medical-high-risk text verbatim
+  // when infantMedical is true, so that pathway is byte-for-byte untouched.
+  // The age band sits in the MIDDLE for the exposure wordings: "High-risk
+  // infants 2-6 months" reads fine, but "Infants travelling to ... hyperendemic
+  // or epidemic 2-6 months" does not.
+  const whoAged = (band) => (infantMedical
+    ? `High-risk infants ${band}`
+    : infantTravel
+      ? `Infants aged ${band} travelling to or living in a country where meningococcal disease is hyperendemic or epidemic`
+      : `Infants aged ${band} at increased risk during a serogroup A, C, W or Y outbreak`);
+  const whoKidsAged = (band) => (infantMedical
+    ? `High-risk children ${band}`
+    : infantTravel
+      ? `Travelling children ${band}`
+      : `Children ${band} at increased risk during a serogroup A, C, W or Y outbreak`);
+  const why = infantMedical ? 'infant high-risk' : infantTravel ? 'infant travel' : 'infant outbreak';
+  const whyShort = infantMedical ? 'high-risk' : infantTravel ? 'travel' : 'outbreak';
+  const whyTitle = infantMedical ? 'Infant high-risk' : infantTravel ? 'Infant travel' : 'Infant outbreak';
+  const whilePersists = infantMedical
+    ? 'while the high-risk condition persists'
+    : infantTravel
+      ? 'while the travel risk continues'
+      : 'while the outbreak risk continues';
+  // ACIP Table 8 gives outbreak contacts a one-off top-up when they are
+  // identified at risk in a NEW outbreak — "Boosters (if previously vaccinated
+  // and identified as being at increased risk): • Aged <7 yrs: Single dose if
+  // ≥3 yrs since vaccination • Aged ≥7 yrs: single dose if ≥5 yrs since
+  // vaccination" — NOT the standing countdown travel and medical risk get
+  // (owner-confirmed 2026-09-15). The summary must not promise one.
+  // boosterSummary must stay EMPTY for outbreak: RecCard turns any non-empty
+  // value into the pill "Dose due today, future boosters needed", which would
+  // contradict the very thing the text says. The top-up rule goes in the note.
+  const boosterSummaryText = infantOutbreak
+    ? null
+    : 'Boosters: first in 3 years, then every 5 years while at risk';
+  const outbreakTopUp = infantOutbreak
+    ? ' There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥3 years have passed since the last dose (≥5 years from age 7).'
+    : '';
   if (am < M.y2 && given === 0 && am >= 2) {
     // start series; Menveo only
     if (am <= 6) {
-      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 4 (infant high-risk)', doseNum: 1, seriesTotal: 4, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 4 (${why})`, doseNum: 1, seriesTotal: 4, boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(4),
-        note: 'High-risk infants 2–6 months: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [c]. Only Menveo is licensed for infants ≥2 months.',
+        note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
         noteCites: [cite('acwyInfantHighRisk2to6mo')], refs });
     }
     if (am <= 11) {
@@ -326,9 +491,9 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       // menacwyInfantHighRiskTotal()'s d1WasInfant7to11 bucket (matches
       // the completion guard below, `given >= 3`). The "+ booster" in the
       // label already signals a 3rd dose follows; text unchanged.
-      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 + booster (infant high-risk 7–11mo)', doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 2 + booster (${why} 7–11mo)`, doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
-        note: 'High-risk infants 7–11 months: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a booster at 12–23 months (≥12 weeks after the primary series).',
+        note: `${whoAged('7–11 months')}: 2-dose primary with Menveo. Dose 2 must be given ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a booster at 12–23 months (≥12 weeks after the primary series).${outbreakTopUp}`,
         noteCites: [cite('acwyInfantHighRisk7to23mo')], refs });
     }
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
@@ -337,9 +502,9 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
     // (menacwyInfantHighRiskTotal() mirrors that threshold exactly), so
     // this patient is asked for up to 4 total doses, same as a standard
     // 2-6mo start; label corrected to match ("of 2" was misleading).
-    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 4 (high-risk 12–23mo)', doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk', dueToday: true,
+    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of 4 (${whyShort} 12–23mo)`, doseNum: 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM: am }), boosterSummary: boosterSummaryText, dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
-      note: 'High-risk children 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.',
+      note: `${whoKidsAged('12–23 months')}, unvaccinated: 2-dose primary ≥12 weeks apart [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
       noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')], refs });
   }
 
@@ -353,16 +518,19 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   const d1WasEarly = d1AgeM != null && d1AgeM >= 2 && d1AgeM <= 6; // started at 2–6m
   const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;             // D2 at ≥7m
   const on3DosePath = d1WasEarly && d2WasAt7Plus;
-  // D5 fix: detect whether D1 was in the 7–11m band (D2 needs ≥12-week + ≥12m floor)
-  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 12;
+  // D5 fix: detect whether D1 was in the 7–23m band (D2 needs ≥12-week + ≥12m floor).
+  // M5 (2026-09-15): the band is 7–23 months, not 7–11, and it is a 2-dose primary
+  // series. CDC: "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12
+  // weeks after dose 1 and after age 12 months)".
+  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
     const elapsed = intervalElapsed(lastDate, DAYS.weeks(12), today);
     const ageFloor = am >= 12;
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: 'Dose 3 of 3 (infant high-risk, 3-dose shortcut)',
-      doseNum: 3, seriesTotal: 3, boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk',
+      doseLabel: `Dose 3 of 3 (${why}, 3-dose shortcut)`,
+      doseNum: 3, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed && ageFloor,
       earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
       minIntervalDays: DAYS.weeks(12),
@@ -373,14 +541,30 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   }
 
   // H1: Completion guards — detect when the infant series is done and transition to boosters.
-  // 7–11m start (2-dose primary + 1 booster = 3 total): complete at given >= 3.
+  // 7–23m start (2-dose primary): complete at given >= 2, then boosters.
   // 2–6m start standard path (4-dose: primary at 2/4/6m + booster at 12m): complete at given >= 4.
   // (The 3-dose shortcut path is handled above at given === 2.)
-  const seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4;
+  // M5: 2-dose primary for a 7–23-month start (was `given >= 3`, which asked for a
+  // third primary dose CDC does not want and held the booster back behind it).
+  const seriesComplete = d1WasInfant7to11 ? given >= 2 : given >= 4;
+  if (seriesComplete && infantOutbreak) {
+    // M10: ACIP Table 8 gives an outbreak contact a one-off top-up when they are
+    // identified at risk in a NEW outbreak — "Boosters (if previously vaccinated
+    // and identified as being at increased risk): • Aged <7 yrs: Single dose if
+    // ≥3 yrs since vaccination • Aged ≥7 yrs: single dose if ≥5 yrs since
+    // vaccination". That is re-exposure driven, not a standing countdown
+    // (owner-confirmed 2026-09-15), so this must NOT fall through to the
+    // 3-then-5-year booster cadence below, which travel and medical risk use.
+    return rec({ vaccine: 'MenACWY', status: 'complete',
+      doseLabel: 'Complete (infant outbreak series)',
+      seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }),
+      note: `The outbreak infant series is complete.${outbreakTopUp}`,
+      brands: menacwyBrands(am), refs });
+  }
   if (seriesComplete) {
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
     // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
-    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 3 : 4);
+    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 2 : 4);
     const boostDays = isFirstInfantBooster ? DAYS.years(3) : DAYS.years(5);
     const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
@@ -394,8 +578,8 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
       minIntervalDays: boostDays,
       brands: menacwyBrands(am),
       note: isFirstInfantBooster
-        ? 'Infant high-risk primary series complete. First booster is due 3 years after the primary series (completed before age 7) [c], then every 5 years while the high-risk condition persists.'
-        : 'Continue MenACWY boosters every 5 years while the high-risk condition persists.',
+        ? `${whyTitle} primary series complete. First booster is due 3 years after the primary series (completed before age 7) [c], then every 5 years ${whilePersists}.`
+        : `Continue MenACWY boosters every 5 years ${whilePersists}.`,
       noteCites: isFirstInfantBooster ? [cite('boosterBeforeAge7')] : [],
       refs });
   }
@@ -412,14 +596,14 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   // being asked for it because the `given >= 4` default guard above didn't
   // consider them complete at 3, so the total shown here must be 4 too, or
   // this dose's own doseNum would exceed it.
-  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (infant high-risk series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: 'Boosters: first in 3 years, then every 5 years while at risk',
+  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
     earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
     note: d1WasInfant7to11
-      ? 'Dose 2 of 2-dose high-risk infant series: ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.'
-      : 'Continue the high-risk infant Menveo series (≥4 weeks between primary doses; booster at ~12 months) [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.',
+      ? `Dose 2 of the 2-dose ${why} series: ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.`
+      : `Continue the ${why} Menveo series (≥4 weeks between primary doses; booster at ~12 months) [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')]
       : [cite('acwyInfantHighRisk2to6mo'), cite('boosterBeforeAge7')],
@@ -604,6 +788,17 @@ function menbRec(am, riskIds, doses, today) {
   // Pregnancy deferral (unless an overriding high-risk indication applies).
   // C5/2026-07-24: base swapped from cdcChildMenB to acip2020 — the
   // deferral sentence itself is 2020 MMWR-sourced (citation audit finding).
+  // M11 (2026-09-15), cross-repo parity with vaxapp: pregnancy does not only
+  // defer. Where an increased-risk indication DOES apply, ACIP still frames the
+  // dose as a judgement call, not a routine one -- "unless the woman is at
+  // increased risk and, after consultation with her health care provider, the
+  // benefits of vaccination are considered to outweigh the potential risks"
+  // (ACIP 2020 MMWR 69(RR-9), "Pregnancy and Lactation", fetched live from
+  // cdc.gov 2026-09-15). shouldDeferMenB() is false for those patients, so they
+  // dropped through to the ordinary high-risk cards with pregnancy unmentioned.
+  const menbPregnancyCaveat = (riskIds.includes('pregnancy') && !shouldDeferMenB(riskIds))
+    ? ' Pregnancy: safety data for MenB in pregnancy are limited, so give it only after discussing it with her — it is offered here because she is at increased risk, and the decision is whether the benefit outweighs the potential risk.'
+    : '';
   if (shouldDeferMenB(riskIds)) {
     return [rec({ vaccine: 'MenB', status: 'deferred', doseLabel: 'Defer during pregnancy', seriesTotal: highRisk ? 3 : 2,
       note: 'MenB is generally deferred during pregnancy due to limited safety data, unless the patient is at increased risk (asplenia, complement deficiency, complement-inhibitor therapy, microbiologist, or serogroup B outbreak) [c].',
@@ -616,7 +811,7 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk', dueToday: true,
         family, brands: menbBrands(family),
-        note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months [c]. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
+        note: `High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months [c]. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.${menbPregnancyCaveat}`,
         // C5/2026-07-24: ACIP Oct 2024 MMWR (mm7349a3) states this 3-dose
         // schedule explicitly and supersedes the 2020 MMWR's brand-split
         // table for both antigen families — cdcRecommendations dropped
@@ -629,7 +824,7 @@ function menbRec(am, riskIds, doses, today) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk',
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
         family, brands: menbBrands(family),
-        note: 'High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.',
+        note: `High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.${menbPregnancyCaveat}`,
         refs: refs(['mm7349a3']) })];
     }
     if (given === 2) {
@@ -653,7 +848,7 @@ function menbRec(am, riskIds, doses, today) {
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(4), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
-        note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule) [c]. After completion, boost 1 year later, then every 2–3 years while at risk.',
+        note: `High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule) [c]. After completion, boost 1 year later, then every 2–3 years while at risk.${menbPregnancyCaveat}`,
         noteCites: [cite('menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
@@ -666,7 +861,7 @@ function menbRec(am, riskIds, doses, today) {
       doseNum: given + 1, seriesTotal: 3, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, intervalDays), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
-      note: 'High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.',
+      note: `High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.${menbPregnancyCaveat}`,
       noteCites: [cite('menbHighRiskBoosterCadenceBox')],
       refs: refs(['mm7349a3']) })];
   }
@@ -676,14 +871,24 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
-        note: 'Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        note: `Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making, and ACIP prefers giving it at 16 through 18 years [c]. Being past 18 does not make the patient ineligible — the series may still be given up to the 24th birthday. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.${menbPregnancyCaveat}`,
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one
         // quote) — the old first cite (menbHealthySCDM1623Box, the
         // Penmenvy/mm7501a2 page) mislabeled a generic MenB-4C statement as
         // Penmenvy-specific, and its "preferably 16-18" claim isn't in
         // mm7349a3 so was dropped.
-        noteCites: [cite('menbHealthy2Dose0and6'), cite('menbHealthy2Dose0and6')],
+        //
+        // M16/2026-09-15: the preference is BACK, now correctly cited. C1 was
+        // right that mm7349a3 does not contain it and wrong to conclude it was
+        // unsupported — it is verbatim in ACIP 2020 Table 2 ("MenB series at
+        // age 16–23 yrs on basis of shared clinical decision-making (preferred
+        // age 16–18 yrs)") and still printed in the current CDC schedule notes.
+        // mm7349a3 changed the DOSING INTERVAL and is silent on preferred age;
+        // silence is not disagreement. The first [c] therefore now points at
+        // Table 2 for the age claim, the second still at mm7349a3 for the
+        // 0/6-month schedule — one source per claim, as C1 intended.
+        noteCites: [cite('menbHealthyPreferredAge1618'), cite('menbHealthy2Dose0and6')],
         refs: refs([], ['mm7349a3']) })];
     }
     if (given === 1) {
@@ -691,7 +896,7 @@ function menbRec(am, riskIds, doses, today) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.months(6)), minIntervalDays: DAYS.months(6),
         family, brands: menbBrands(family),
-        note: 'Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].',
+        note: `Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].${menbPregnancyCaveat}`,
         noteCites: [cite('menbRescueDoseRule')],
         refs: refs([], ['mm7349a3']) })];
     }
@@ -711,7 +916,7 @@ function menbRec(am, riskIds, doses, today) {
           earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
           minIntervalDays: DAYS.months(4),
           family, brands: menbBrands(family),
-          note: 'Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series [c].',
+          note: `Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series [c].${menbPregnancyCaveat}`,
           // C5: an interrupted/off-schedule series is a "does this old dose
           // count" practical judgment call -- immunize.org's Ask the
           // Experts leads here, ahead of the general schedule source.
@@ -720,12 +925,12 @@ function menbRec(am, riskIds, doses, today) {
         })];
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
-        note: 'Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.',
+        note: `Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
         refs: refs([], ['mm7349a3']) })];
     }
     if (given >= 3) {
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (accelerated 3-dose series)', family, seriesTotal: 3,
-        note: 'Healthy 3-dose accelerated MenB series complete [c]. No booster recommended unless a high-risk indication develops.',
+        note: `Healthy 3-dose accelerated MenB series complete [c]. No booster recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
         noteCites: [cite('menbAcceleratedRapidProtection')],
         refs: refs([], ['mm7349a3']) })];
     }
@@ -737,9 +942,15 @@ function menbRec(am, riskIds, doses, today) {
   // "preferably 16-18" claim isn't in mm7349a3 so was dropped.
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: am < M.y16
-      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years [c]. Not routinely indicated yet at this age without a risk factor.'
+      // M16: the pre-16 card names the preferred age too, so a clinician
+      // planning ahead knows the conversation is best had at 16-18 rather than
+      // only that it becomes possible at 16.
+      ? 'MenB shared clinical decision-making applies to ages 16 through 23 years, and ACIP prefers giving it at 16 through 18 years [c]. Not routinely indicated yet at this age without a risk factor.'
       : 'MenB is not routinely recommended for healthy adults outside the 16–23-year shared-decision window (through the 24th birthday) [c]. Vaccinate only for a high-risk indication.',
-    noteCites: [cite('menbHealthy2Dose0and6')],
+    // M16: the pre-16 branch's claim is the preferred-age one, so it cites
+    // Table 2; the post-23 branch's claim is the window, which Table 2 also
+    // states in the same sentence.
+    noteCites: [cite('menbHealthyPreferredAge1618')],
     family, refs: refs([], ['mm7349a3']) })];
 }
 

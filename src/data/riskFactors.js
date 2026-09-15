@@ -162,6 +162,30 @@ export function menacwyRiskClass(riskIds = []) {
   return null;
 }
 
+// M10: does this patient need the MenACWY INFANT series (under 2 years)?
+//
+// The infant series is keyed to the age at dose 1, NOT to why the infant is
+// being vaccinated. ACIP 2020 MMWR 69(RR-9) prints the identical "2-23 mos" row
+// in Table 9 (travel), Table 8 (outbreak) and Tables 4-6 (medical high risk),
+// fetched live from cdc.gov 2026-09-15:
+//   "MenACWY-CRM: If first dose at age
+//      - 2 mos: 4 doses at 2, 4, 6, and 12 mos
+//      - 3-6 mos: See catch-up schedule
+//      - 7-23 mos: 2 doses (second dose >=12 wks after the first dose and after
+//        the 1st birthday)"
+//
+// Before M10 the infant series was reached only through riskClass 'primary2',
+// so an infant traveler fell to the single+boost branch ("1 dose") and an infant
+// outbreak contact to the single branch ("1 dose").
+//
+// Microbiologists and military recruits are deliberately excluded: ACIP gives
+// them no infant row at all (Table 7 covers ages ">=10 yrs", Table 10 is
+// recruits), so they keep their single-dose answer.
+export function menacwyInfantSeriesIndicated(riskIds = []) {
+  if (menacwyRiskClass(riskIds) === 'primary2') return true;
+  return riskIds.some((id) => ['travel', 'outbreak_acwy'].includes(id));
+}
+
 // Whether any selected risk indicates high-risk MenB.
 export function hasMenbRisk(riskIds = []) {
   return riskIds.some((id) => RISK_BY_ID[id]?.menbClass === 'highrisk');

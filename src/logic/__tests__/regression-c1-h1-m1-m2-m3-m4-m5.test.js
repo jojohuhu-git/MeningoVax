@@ -83,9 +83,12 @@ describe('H1: Infant high-risk MenACWY series completion', () => {
   });
 
   it('3 doses (by age) for 7-11m-start path now 18mo -> Booster label', () => {
-    // 7-11m start: 2 primary + 1 booster = 3 total. After 3 doses, series is complete.
-    // doseNum will be 4 (dose 4 = first booster), but doseLabel must say "Booster"
-    // not "Dose 4 (infant high-risk series)" which was the pre-fix behavior.
+    // 7-23m start: a 2-dose primary series (M5, 2026-09-15 — this comment used to
+    // say "2 primary + 1 booster = 3 total", which was the model before M5).
+    // With three doses on record the primary series is long finished and dose 3
+    // was already the first booster, so the next dose is a subsequent booster.
+    // Either way the assertion below is the same one that matters: the label must
+    // say "Booster", not "Dose 4 (infant high-risk series)".
     const r = run({ ageMonths: 18, riskIds: RISKS,
       menacwyDoses: [
         { ageMonths: 9 }, { ageMonths: 13 }, { ageMonths: 15 },

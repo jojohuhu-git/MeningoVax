@@ -3,7 +3,7 @@
 // it.
 //
 // NOTE: the high-risk INFANT pathway's own "series complete -> recurring
-// booster" branch (recommend.js menacwyInfantHighRisk) is only reached while
+// booster" branch (recommend.js menacwyInfantSeries) is only reached while
 // the patient's CURRENT age is <2 years (the am < M.y2 gate). By the time any
 // booster is actually due (>=3 years after completing the primary series
 // around 12 months), the patient is necessarily >2 years old, so that branch
