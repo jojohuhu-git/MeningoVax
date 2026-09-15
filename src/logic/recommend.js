@@ -715,6 +715,17 @@ function menbRec(am, riskIds, doses, today) {
   // Pregnancy deferral (unless an overriding high-risk indication applies).
   // C5/2026-07-24: base swapped from cdcChildMenB to acip2020 — the
   // deferral sentence itself is 2020 MMWR-sourced (citation audit finding).
+  // M11 (2026-09-15), cross-repo parity with vaxapp: pregnancy does not only
+  // defer. Where an increased-risk indication DOES apply, ACIP still frames the
+  // dose as a judgement call, not a routine one -- "unless the woman is at
+  // increased risk and, after consultation with her health care provider, the
+  // benefits of vaccination are considered to outweigh the potential risks"
+  // (ACIP 2020 MMWR 69(RR-9), "Pregnancy and Lactation", fetched live from
+  // cdc.gov 2026-09-15). shouldDeferMenB() is false for those patients, so they
+  // dropped through to the ordinary high-risk cards with pregnancy unmentioned.
+  const menbPregnancyCaveat = (riskIds.includes('pregnancy') && !shouldDeferMenB(riskIds))
+    ? ' Pregnancy: safety data for MenB in pregnancy are limited, so give it only after discussing it with her — it is offered here because she is at increased risk, and the decision is whether the benefit outweighs the potential risk.'
+    : '';
   if (shouldDeferMenB(riskIds)) {
     return [rec({ vaccine: 'MenB', status: 'deferred', doseLabel: 'Defer during pregnancy', seriesTotal: highRisk ? 3 : 2,
       note: 'MenB is generally deferred during pregnancy due to limited safety data, unless the patient is at increased risk (asplenia, complement deficiency, complement-inhibitor therapy, microbiologist, or serogroup B outbreak) [c].',
@@ -727,7 +738,7 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk', dueToday: true,
         family, brands: menbBrands(family),
-        note: 'High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months [c]. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.',
+        note: `High-risk indication: 3-dose MenB series at 0, 1–2, and 6 months [c]. Pick one antigen family and stay in it: MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are NOT interchangeable.${menbPregnancyCaveat}`,
         // C5/2026-07-24: ACIP Oct 2024 MMWR (mm7349a3) states this 3-dose
         // schedule explicitly and supersedes the 2020 MMWR's brand-split
         // table for both antigen families — cdcRecommendations dropped
@@ -740,7 +751,7 @@ function menbRec(am, riskIds, doses, today) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk',
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
         family, brands: menbBrands(family),
-        note: 'High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.',
+        note: `High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.${menbPregnancyCaveat}`,
         refs: refs(['mm7349a3']) })];
     }
     if (given === 2) {
@@ -764,7 +775,7 @@ function menbRec(am, riskIds, doses, today) {
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(4), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
-        note: 'High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule) [c]. After completion, boost 1 year later, then every 2–3 years while at risk.',
+        note: `High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule) [c]. After completion, boost 1 year later, then every 2–3 years while at risk.${menbPregnancyCaveat}`,
         noteCites: [cite('menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
@@ -777,7 +788,7 @@ function menbRec(am, riskIds, doses, today) {
       doseNum: given + 1, seriesTotal: 3, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addDays(lastDate, intervalDays), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
-      note: 'High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.',
+      note: `High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.${menbPregnancyCaveat}`,
       noteCites: [cite('menbHighRiskBoosterCadenceBox')],
       refs: refs(['mm7349a3']) })];
   }
@@ -787,7 +798,7 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
-        note: 'Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.',
+        note: `Healthy adolescents/young adults 16–23 years may receive MenB based on shared clinical decision-making [c]. Standard schedule: 2 doses ≥6 months apart (applies to both Bexsero and Trumenba) [c]. If rapid protection is needed (e.g. starting college within 6 months), a planned 3-dose series (0, 1–2, and 6 months) may be used instead.${menbPregnancyCaveat}`,
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one
         // quote) — the old first cite (menbHealthySCDM1623Box, the
@@ -802,7 +813,7 @@ function menbRec(am, riskIds, doses, today) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.months(6)), minIntervalDays: DAYS.months(6),
         family, brands: menbBrands(family),
-        note: 'Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].',
+        note: `Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].${menbPregnancyCaveat}`,
         noteCites: [cite('menbRescueDoseRule')],
         refs: refs([], ['mm7349a3']) })];
     }
@@ -822,7 +833,7 @@ function menbRec(am, riskIds, doses, today) {
           earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
           minIntervalDays: DAYS.months(4),
           family, brands: menbBrands(family),
-          note: 'Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series [c].',
+          note: `Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series [c].${menbPregnancyCaveat}`,
           // C5: an interrupted/off-schedule series is a "does this old dose
           // count" practical judgment call -- immunize.org's Ask the
           // Experts leads here, ahead of the general schedule source.
@@ -831,12 +842,12 @@ function menbRec(am, riskIds, doses, today) {
         })];
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
-        note: 'Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.',
+        note: `Healthy 2-dose MenB series complete (doses ≥6 months apart). No booster recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
         refs: refs([], ['mm7349a3']) })];
     }
     if (given >= 3) {
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (accelerated 3-dose series)', family, seriesTotal: 3,
-        note: 'Healthy 3-dose accelerated MenB series complete [c]. No booster recommended unless a high-risk indication develops.',
+        note: `Healthy 3-dose accelerated MenB series complete [c]. No booster recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
         noteCites: [cite('menbAcceleratedRapidProtection')],
         refs: refs([], ['mm7349a3']) })];
     }
