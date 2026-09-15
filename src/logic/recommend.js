@@ -353,8 +353,11 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   const d1WasEarly = d1AgeM != null && d1AgeM >= 2 && d1AgeM <= 6; // started at 2–6m
   const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;             // D2 at ≥7m
   const on3DosePath = d1WasEarly && d2WasAt7Plus;
-  // D5 fix: detect whether D1 was in the 7–11m band (D2 needs ≥12-week + ≥12m floor)
-  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 12;
+  // D5 fix: detect whether D1 was in the 7–23m band (D2 needs ≥12-week + ≥12m floor).
+  // M5 (2026-09-15): the band is 7–23 months, not 7–11, and it is a 2-dose primary
+  // series. CDC: "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12
+  // weeks after dose 1 and after age 12 months)".
+  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
@@ -373,14 +376,16 @@ function menacwyInfantHighRisk(am, given, doses, last, today, riskIds) {
   }
 
   // H1: Completion guards — detect when the infant series is done and transition to boosters.
-  // 7–11m start (2-dose primary + 1 booster = 3 total): complete at given >= 3.
+  // 7–23m start (2-dose primary): complete at given >= 2, then boosters.
   // 2–6m start standard path (4-dose: primary at 2/4/6m + booster at 12m): complete at given >= 4.
   // (The 3-dose shortcut path is handled above at given === 2.)
-  const seriesComplete = d1WasInfant7to11 ? given >= 3 : given >= 4;
+  // M5: 2-dose primary for a 7–23-month start (was `given >= 3`, which asked for a
+  // third primary dose CDC does not want and held the booster back behind it).
+  const seriesComplete = d1WasInfant7to11 ? given >= 2 : given >= 4;
   if (seriesComplete) {
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
     // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
-    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 3 : 4);
+    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 2 : 4);
     const boostDays = isFirstInfantBooster ? DAYS.years(3) : DAYS.years(5);
     const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',

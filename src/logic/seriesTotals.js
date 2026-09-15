@@ -58,8 +58,20 @@ const AGE_16Y_MONTHS = 192;
 // return 4 for them too, or the chip/headline total would stop matching
 // what recommend.js is actually still asking for.
 export function menacwyInfantHighRiskTotal({ d1AgeM }) {
-  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 12;
-  return d1WasInfant7to11 ? 3 : 4;
+  // M5 (2026-09-15): a series STARTED at 7–23 months is a 2-dose primary series.
+  // This used to return 3 for a 7–11-month start and 4 for a 12–23-month one, so
+  // the app asked for a third primary dose that CDC does not want and delayed the
+  // first booster behind it.
+  // CDC child & adolescent schedule notes, "Meningococcal serogroup A,C,W,Y
+  // vaccination", special situations, Menveo (fetched live 2026-09-15):
+  //   "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12 weeks after
+  //    dose 1 and after age 12 months)"
+  // This reverses part of F1 (2026-09-14), which moved this from 2 to 3 to match
+  // recommend.js's `given >= 3` completion guard. F1 was right that the two had
+  // drifted apart; it aligned them on the wrong number. That guard moves to 2 as
+  // well, so the two stay in step.
+  const d1WasInfant7to23 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
+  return d1WasInfant7to23 ? 2 : 4;
 }
 
 /**
