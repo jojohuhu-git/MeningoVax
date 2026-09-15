@@ -130,8 +130,12 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', effectiveDoseNum: 3, reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Booster (dose 3)');
+    const chip = screen.getByText('Booster');
     expect(chip.className).toMatch(/dose-val-valid/);
+    // Owner decision 2026-09-15: boosters are NOT numbered. A patient on a
+    // lifelong booster schedule (asplenia, travel) can reach booster nine, and
+    // the number carries no clinical meaning — the chip just says "Booster".
+    expect(screen.queryByText(/Booster \(dose/)).toBeNull();
   });
 
   it('labels a pre-age-10 dose "Off-window - repeat" (amber), never "Invalid"', () => {

@@ -31,6 +31,7 @@ import { analyzeHistory } from './validate.js';
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
+  MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
 
 // Age bands (months)
@@ -69,6 +70,11 @@ function rec(o) {
     doseLabel: o.doseLabel,
     doseNum: o.doseNum ?? null,
     seriesTotal: o.seriesTotal ?? null,
+    // Where the primary series ends. Defaults to the whole total because on
+    // every schedule except routine MenACWY every counted dose is a primary
+    // dose (CDC: at-risk MenACWY is "A 2-4-dose primary series"; MenB at-risk
+    // is "A 3-dose primary series") -- so only the routine branches pass this.
+    primaryTotal: o.primaryTotal ?? o.seriesTotal ?? null,
     dueToday: !!o.dueToday,
     earliestNextDate: o.earliestNextDate ?? null,
     minIntervalDays: o.minIntervalDays ?? null,
@@ -649,7 +655,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   if (am < M.y11 && given >= 1) {
     const monthsUntil16 = M.y16 - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16',
       earliestNextDate: null,
       boosterDueDate,
@@ -665,7 +671,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // 11–15y
   if (am < M.y16) {
     if (given === 0) {
-      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: 1 more - at age 16', dueToday: true,
+      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16', dueToday: true,
         brands: menacwyBrands(am),
         note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [c]. If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given the same day.',
         noteCites: [cite('acwyRoutine1112and16')],
@@ -677,7 +683,7 @@ function menacwyRoutine(am, given, doses, last, today) {
     // "complete" with no further information.
     const monthsUntil16 = M.y16 - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16',
       earliestNextDate: null,
       boosterDueDate,
@@ -689,7 +695,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // 16–18y
   if (am < M.y19) {
     if (hasDoseAt16) {
-      return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
+      return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
         note: 'A MenACWY dose given at age ≥16 years completes the routine adolescent schedule [c]; no further routine doses are needed.',
         noteCites: routineCite, refs })];
     }
@@ -727,7 +733,7 @@ function menacwyRoutine(am, given, doses, last, today) {
         noteCites: [cite('acwyCatchup1921')], refs })];
     }
     // Has a dose at ≥16y → complete
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       note: 'A MenACWY dose given at age ≥16 years satisfies the adolescent schedule [c]; no further routine doses are needed.',
       noteCites: routineCite, refs })];
   }
@@ -742,7 +748,7 @@ function menacwyRoutine(am, given, doses, last, today) {
     // on record (it and the ≥16y dose ARE the 2-dose series); 1 when the
     // only dose(s) on record were all given at ≥16y (each independently
     // satisfies ACIP's "no booster needed" rule on its own).
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1,
+    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       note: 'A MenACWY dose given at age ≥16 years completed the adolescent schedule [c]; no further routine doses are needed.',
       noteCites: routineCite, refs })];
   }

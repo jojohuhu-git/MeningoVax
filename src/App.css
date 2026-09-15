@@ -999,6 +999,20 @@ body {
   line-height: 1.4;
 }
 /* Dropped invalid dose row — subtle strikethrough on the dose text */
+/* Group headings inside the recorded-dose list: "Primary series" / "Boosters"
+   (owner decision 2026-09-15). Deliberately quiet — the dose numbers are what
+   the reader is scanning for, these only say which phase they are in. */
+.rec-progress-group {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gy3);
+  padding: var(--sp-12) 0 var(--sp-4);
+  border-bottom: 1px solid var(--gy5);
+}
+.rec-progress-group:first-child { padding-top: 0; }
+
 .dose-val-dropped .rec-progress-dose-text {
   opacity: 0.55;
   text-decoration: line-through;

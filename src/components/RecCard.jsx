@@ -66,6 +66,35 @@ function describeDose(dose, idx, ageMonths, today) {
 //   Needs input (gray, interactive) — a PENDING state on doses where whether
 //     the patient was high-risk on that date is unknown and decisive. The
 //     provider's answer resolves it live to Dose N of M/Off-window.
+// Interleave "Primary series" / "Boosters" headings into the recorded-dose
+// list (owner decision 2026-09-15, option A). `primaryTotal` is where the
+// primary series ends; anything counted past it is a booster.
+//
+// A dose that does NOT count (off-window, invalid, unknown) has no effective
+// dose number, so it cannot name its own phase. It stays in DATE order inside
+// whichever group is currently open rather than being moved to a group of its
+// own — a failed attempt at dose 2 belongs beside dose 2 in the record, and
+// re-ordering it would stop the list lining up against the paper chart.
+//
+// A non-counting dose recorded BEFORE any counting dose (an obsolete product,
+// say) sits above the first heading, which is correct: it precedes the series.
+export function doseRowsWithGroups(doses, doseValidations, primaryTotal) {
+  const rows = [];
+  let openGroup = null;
+  doses.forEach((d, i) => {
+    const n = doseValidations?.[i]?.effectiveDoseNum;
+    if (primaryTotal != null && n != null) {
+      const phase = n <= primaryTotal ? 'primary' : 'booster';
+      if (phase !== openGroup) {
+        rows.push({ kind: 'group', phase, label: phase === 'primary' ? 'Primary series' : 'Boosters' });
+        openGroup = phase;
+      }
+    }
+    rows.push({ kind: 'dose', dose: d, index: i });
+  });
+  return rows;
+}
+
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
@@ -128,7 +157,7 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
             ? 'Recorded — not part of an indicated series'
             : effectiveDoseNum <= seriesTotal
               ? `Dose ${effectiveDoseNum} of ${seriesTotal}`
-              : `Booster (dose ${effectiveDoseNum})`)
+              : 'Booster')
         : status === 'invalid' ? 'Invalid' : 'Unknown';
 
   return (
@@ -208,7 +237,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
-  const { vaccine, status, doseLabel, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
+  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -297,17 +326,23 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <div className="rec-progress" data-testid="rec-progress">
             <span className="rec-progress-label">Recorded:</span>
             <ul className="rec-progress-list">
-              {doses.map((d, i) => (
-                <li key={i} className="rec-progress-dose-row">
-                  <span className="rec-progress-dose-text">{describeDose(d, i, ageMonths, today)}</span>
-                  <DoseValidation
-                    result={doseValidations[i]}
-                    seriesTotal={seriesTotal}
-                    onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, i, answer)}
-                    wasPrompted={riskAtDoseAnswers[i] !== undefined}
-                    doseDate={d?.date}
-                  />
-                </li>
+              {doseRowsWithGroups(doses, doseValidations, primaryTotal).map((row) => (
+                row.kind === 'group' ? (
+                  <li key={`group-${row.phase}`} className="rec-progress-group" data-testid={`dose-group-${row.phase}`}>
+                    {row.label}
+                  </li>
+                ) : (
+                  <li key={row.index} className="rec-progress-dose-row">
+                    <span className="rec-progress-dose-text">{describeDose(row.dose, row.index, ageMonths, today)}</span>
+                    <DoseValidation
+                      result={doseValidations[row.index]}
+                      seriesTotal={seriesTotal}
+                      onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, row.index, answer)}
+                      wasPrompted={riskAtDoseAnswers[row.index] !== undefined}
+                      doseDate={row.dose?.date}
+                    />
+                  </li>
+                )
               ))}
             </ul>
           </div>
