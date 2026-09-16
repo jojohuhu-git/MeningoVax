@@ -302,10 +302,30 @@ function menacwyRec(am, riskIds, doses, today) {
       doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, exposureBoostYears),
       minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
+      // L2-3 (2026-09-16): the two first-booster sentences carry a [c] marker, and
+      // the microbiologist gets a sentence of his own. Until now both indications
+      // shared one sentence while `noteCites` below was gated on isTravel, so the
+      // citation-integrity sweep found the pair out of step in both directions:
+      // the travel card carried a sourced claim with no marker to render it (the
+      // link never appeared), and the microbiologist card would have rendered an
+      // empty superscript once the marker was added.
+      //
+      // The shared sentence was also wrong for a microbiologist on its own terms:
+      // "given at age 7 or older, so the first booster is due 5 years after it"
+      // implies the <7/>=7 split applies to him. It does not — ACIP Table 7 covers
+      // ages ">=10 yrs" and gives a flat 5 years with no under-7 row, which is why
+      // M9 left microbiologists out of the 3-year rule in the first place. His
+      // sentence now states the flat interval without implying an age split, and
+      // cites Table 7 through the risk factor's own chip (refsExposure) rather
+      // than an age-split quote that does not describe him.
+      //
+      // No date changes: exposureBoostYears is untouched.
       note: exposureBoostYears === 3
-        ? 'The primary dose was given before age 7, so the first booster is due 3 years after it, then every 5 years while the travel risk continues.'
+        ? 'The primary dose was given before age 7, so the first booster is due 3 years after it [c], then every 5 years while the travel risk continues.'
         : isFirstExposureBooster
-          ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it, then every 5 years while travel or occupational exposure continues.'
+          ? (isTravel
+            ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it [c], then every 5 years while travel or occupational exposure continues.'
+            : 'The first booster is due 5 years after the primary dose, then every 5 years while occupational exposure continues.')
           : 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
       noteCites: (isTravel && isFirstExposureBooster) ? [
         exposureBoostYears === 3
