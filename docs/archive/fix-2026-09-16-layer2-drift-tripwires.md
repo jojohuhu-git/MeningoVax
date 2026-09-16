@@ -1,6 +1,10 @@
 # Fix queue — Layer 2 drift tripwires (2026-09-16)
 
-**Status: IN PROGRESS.** Owner asked for this while she reviews the 63-rule
+**Status: DONE 2026-09-16** — L2-1 to L2-4 all shipped on branch
+`layer2-drift-tripwires`, one commit per item. Suite 681 passed / 1 failed ->
+**708 passed / 0 failed**. The cross-repo agreement fixture (the fourth Layer 2 item)
+is still NOT started — it needs one decision from the owner, recorded at the bottom of
+this file. Owner asked for this while she reviews the 63-rule
 foundation review (artifact `https://claude.ai/artifact/JkphAX5EUErNbdGt3smGh1`,
 section 09 = the three-layer prevention plan this queue implements).
 
@@ -75,3 +79,25 @@ Known stale passages to fix as part of this item:
   out-of-scope rather than counted as failures. Not started.
 - **Porting the corrected rule text to vaxapp's copy** of the summary. Owner decides
   whether that rides with the two already-owed meningococcal parity ports.
+
+
+## Outcome (2026-09-16)
+
+| Item | Result |
+|---|---|
+| L2-1 | Done. `src/test-setup.js` pins the whole suite to 2026-09-15; `src/test-today.js` holds the date. The overnight failure now passes for the right reason. |
+| L2-2 | Done. `citation-freshness.test.js` — 12-month staleness, missing dates, impossible dates, and a guard that the pinned clock has not frozen the check. Proved it fires by backdating `cdcChildMenACWY`. |
+| L2-3 | Done. `citation-integrity.test.js` sweeps 20 ages x 16 risk combinations x 4 histories. **Found a real defect**: the travel first-booster note carried a citation with no `[c]` marker (the link never rendered), and fixing that exposed the shared microbiologist sentence, which wrongly implied the under-7/over-7 split applies to them. Both corrected; no dates or dose counts changed. Two orphaned sources recorded with reasons in `KNOWN_UNCITED`. |
+| L2-4 | Done. `rule-docs-match-code.test.js` — 13 checks. Went red on all six known gaps; both rule documents corrected and stamped. Proved it fires by reverting the booster-clock sentence. |
+
+**Findings raised for the owner, not fixed here:**
+1. `acwyBeforeAge10` — the verbatim ACIP sentence for "doses before age 10 do not count
+   toward the adolescent series" sits in `refs.js` uncited. `validate.js` implements that
+   rule and cites it only in a code comment, so the clinician never sees the source.
+   Wiring a citation into validator messages is a UI change needing her design input.
+2. The exposure booster's `boosterSummary` still reads "while travel or occupational
+   exposure continues" for a microbiologist, a shared string left over from the same
+   branch. Cosmetic, pre-existing, not touched.
+
+**Still deferred:** the cross-repo agreement fixture, and porting the corrected rule text
+to vaxapp's copy of the summary.
