@@ -129,6 +129,24 @@ export default function Results({ state, onReset, onChange, onBack }) {
     summaryLine = 'Post-HCT advisory applies. See details below.';
   }
 
+  // P1-4 (2026-09-15, owner decision): while any recorded dose is still waiting
+  // on its risk-timing answer, this headline must not assert a recommendation.
+  // The conservative maths (a pending dose does not count) is right; announcing
+  // it as "Due today: MenACWY" is how a clinician ends up vaccinating an
+  // already fully vaccinated child. The reported case read "Due today:
+  // MenACWY" for a child with FIVE doses on record, with five unanswered
+  // questions further down the page.
+  //
+  // This narrows an earlier decision (2026-07-23), which set how pending doses
+  // are COUNTED. That maths is untouched — only the claim made above it.
+  const pendingAnswers = [...menacwyHistory.perDose, ...menbHistory.perDose]
+    .filter((d) => d?.status === 'pending').length;
+  if (pendingAnswers > 0 && !hct) {
+    summaryLine = pendingAnswers === 1
+      ? 'One recorded dose needs an answer below before a recommendation can be made.'
+      : `${pendingAnswers} recorded doses need an answer below before a recommendation can be made.`;
+  }
+
   // Inline age editor — recommendations recompute live from state.ageMonths.
   const years = ageMonths != null ? Math.floor(ageMonths / 12) : '';
   const months = ageMonths != null ? Math.round(ageMonths % 12) : '';

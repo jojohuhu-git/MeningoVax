@@ -232,3 +232,38 @@ describe('Item 2: editing an already-answered risk-at-dose prompt', () => {
     expect(screen.queryByText('Dose 1 of 2')).toBeNull();
   });
 });
+
+// P1-4 (2026-09-15): the page headline must not announce a recommendation while
+// recorded doses are still waiting on their risk-timing answers. See
+// regression-p1-4-no-recommendation-while-pending.test.jsx for the card-level
+// coverage and the full reproduction.
+describe('P1-4: the headline waits for the answers', () => {
+  const pendingState = {
+    ageMonths: 96,
+    riskIds: ['asplenia'],
+    menacwyDoses: ['2018-11-15', '2019-01-15', '2019-03-15', '2019-09-15', '2022-09-15']
+      .map((date) => ({ date })),
+    menbDoses: [],
+  };
+
+  it('it does not say "Due today" for a child whose doses are unanswered', () => {
+    render(<Results state={pendingState} />);
+    const summary = screen.getByTestId('results-summary-line');
+    expect(summary.textContent).not.toMatch(/Due today/);
+  });
+
+  it('it says how many answers are outstanding', () => {
+    render(<Results state={pendingState} />);
+    expect(screen.getByTestId('results-summary-line').textContent)
+      .toMatch(/5 recorded doses need an answer below/i);
+  });
+
+  it('with every answer in, the headline speaks normally again', () => {
+    render(<Results state={{
+      ...pendingState,
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes', 2: 'yes', 3: 'yes', 4: 'yes' } },
+    }} />);
+    expect(screen.getByTestId('results-summary-line').textContent)
+      .not.toMatch(/need an answer below/i);
+  });
+});

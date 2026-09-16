@@ -20,7 +20,29 @@ import { Chevron } from './icons.jsx';
 // boosterDueDate, boosterSummary) plus a doseNum > seriesTotal comparison
 // to tell a primary/catch-up dose apart from a booster dose -- no new
 // engine field needed, since seriesTotal already excludes boosters (C2).
-function statusPillLabel(rec) {
+// P1-4 (2026-09-15, owner decision): while any recorded dose is still waiting
+// on its risk-timing answer, this card must not state a recommendation. The
+// conservative maths (a pending dose does not count) is right, but presenting
+// it as a confident "Dose due today" is how a clinician ends up vaccinating an
+// already fully vaccinated child -- the reported case showed "Dose 1 of 2
+// (high-risk primary series), due today" for a child with five doses on record,
+// with the five unanswered questions further down the page.
+//
+// The questions themselves live INSIDE this card, in the recorded-dose list, so
+// the card is NOT hidden -- only the parts that assert an answer: the status
+// pill, the dose label, and the brand list ("give one of these now"). The
+// record and its prompts stay, and the real recommendation appears the moment
+// the last question is answered.
+export function hasPendingDoses(doseValidations) {
+  return (doseValidations || []).some((v) => v?.status === 'pending');
+}
+
+function statusPillLabel(rec, pending) {
+  // "Answers needed", not "Needs input": the per-dose chip already says "Needs
+  // input", and two identical labels at two levels leaves the clinician asking
+  // which input is meant. This one names the card's state; the chips name the
+  // individual doses that are waiting.
+  if (pending) return 'Answers needed';
   const { status, dueToday, doseNum, seriesTotal, boosterDueDate, boosterSummary } = rec;
 
   if (status === 'deferred') return 'Deferred in pregnancy';
@@ -242,14 +264,18 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
   // still due later must stay expanded — that's not a quiet done state.
-  const collapsible = isNeutral && !boosterDueDate;
+  // P1-4: a card with unanswered questions is never collapsible -- the
+  // questions are inside it, and collapsing would hide the very thing the
+  // clinician is being asked to do.
+  const pending = hasPendingDoses(doseValidations);
+  const collapsible = isNeutral && !boosterDueDate && !pending;
   const [expanded, setExpanded] = useState(!collapsible);
   const given = doses.length;
   const today = todayISO();
 
   return (
     <div
-      className={`rec-card ${timingClass(status, dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
+      className={`rec-card ${timingClass(status, pending ? false : dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
       data-testid="rec-card"
     >
       {collapsible ? (
@@ -262,7 +288,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <span className="rec-vaccine-name">{vaccine}</span>
           {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec, pending)}</span>
             <Chevron open={expanded} />
           </span>
         </button>
@@ -270,7 +296,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         <div className="rec-card-head">
           <span className="rec-vaccine-name">{vaccine}</span>
           <span className="rec-card-head-trailing">
-            <span className={`status-badge ${status}`}>{statusPillLabel(rec)}</span>
+            <span className={`status-badge ${status}`}>{statusPillLabel(rec, pending)}</span>
           </span>
         </div>
       )}
@@ -280,9 +306,17 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         {/* D4: today's action first — dose due + brands, then booster/next-date,
             then recorded history (history supports the decision, it doesn't
             sit above it), then note, then citations. */}
-        <div className="rec-dose-label">{doseLabel}</div>
+        {/* P1-4: the recommendation is withheld, not computed differently,
+            until every risk-timing question below has an answer. */}
+        {pending ? (
+          <div className="rec-dose-label rec-dose-label-pending" data-testid="rec-awaiting-input">
+            Answer the question on each recorded dose below to get a recommendation.
+          </div>
+        ) : (
+          <div className="rec-dose-label">{doseLabel}</div>
+        )}
 
-        {brands && brands.length > 0 && !isNeutral && (
+        {brands && brands.length > 0 && !isNeutral && !pending && (
           <div className="rec-brands">
             <div className="rec-brands-title">Brand options: choose one</div>
             {brands.map((b, i) => (
@@ -299,13 +333,13 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             Item 2 (2026-07-23): neutral gray, not amber -- amber reads as
             "behind schedule, act now," which is a false alarm for a date
             that isn't due yet. Bold weight still keeps it prominent. */}
-        {boosterDueDate && (
+        {boosterDueDate && !pending && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
             Booster not yet due - ~{fmtDate(boosterDueDate)}
           </div>
         )}
 
-        {!dueToday && earliestNextDate && (
+        {!dueToday && earliestNextDate && !pending && (
           <div className="next-date">
             Next dose not yet due - eligible {fmtDate(earliestNextDate)}
           </div>
@@ -315,7 +349,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             what's due today. The concrete next date, when known, stays in
             the booster-due-banner above -- this line only states how many
             and how often. Replaces the rejected "+ boosters" header flag. */}
-        {boosterSummary && (
+        {boosterSummary && !pending && (
           <div className="booster-summary-line" data-testid="booster-summary-line">
             {boosterSummary}
           </div>
