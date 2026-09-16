@@ -7,6 +7,7 @@ import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
+import { newDoseRow } from '../logic/doseIdentity.js';
 
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
@@ -83,13 +84,17 @@ export default function Results({ state, onReset, onChange, onBack }) {
   // Provider answered the risk-at-dose "Needs input" prompt on a specific
   // dose. Recompute happens live via the normal onChange -> state -> re-render
   // cycle, same as every other editable field on this screen.
-  function handleRiskAtDoseAnswer(vaccine, sortedIndex, answer) {
+  // G2: `answerKey` is the dose's own id (see doseIdentity.js), NOT its
+  // position — deleting or re-dating another dose must not hand this answer
+  // to a different injection. An answer left behind by a deleted dose is
+  // inert: its id is never looked up again.
+  function handleRiskAtDoseAnswer(vaccine, answerKey, answer) {
     const key = vaccine === 'MenB' ? 'MenB' : 'MenACWY';
     const prevForVaccine = riskAtDoseAnswers?.[key] ?? {};
     onChange?.({
       riskAtDoseAnswers: {
         ...riskAtDoseAnswers,
-        [key]: { ...prevForVaccine, [sortedIndex]: answer },
+        [key]: { ...prevForVaccine, [answerKey]: answer },
       },
     });
   }
@@ -168,8 +173,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
   }
 
   // ── Recorded-dose editors (live re-render via onChange) ──
-  function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, { date: '', brand: '' }] }); }
-  function addB() { onChange?.({ menbDoses: [...menbDoses, { date: '', brand: '' }] }); }
+  function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, newDoseRow()] }); }
+  function addB() { onChange?.({ menbDoses: [...menbDoses, newDoseRow()] }); }
 
   // D6b: Ctrl+A (Cmd+A on Mac) adds a dose row in the Recorded-doses editor,
   // matching StepHistory's shortcut. Two dose lists share the panel, so the

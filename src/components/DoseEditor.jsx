@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { menbFamily } from '../data/brands.js';
 import { isPentavalentBrand } from '../logic/pentavalentCredit.js';
 import { sortDosesChronologically } from '../logic/validate.js';
+import { newDoseRow } from '../logic/doseIdentity.js';
 
 // Shared row/note renderer for recorded-dose editing, used by both the
 // wizard (StepHistory) and the Results "Recorded doses" inline panel.
@@ -61,7 +62,9 @@ export default function DoseEditor({
   }, [doses.length]);
 
   function addDose() {
-    onChange([...doses, { date: '', brand: '' }]);
+    // G2: newDoseRow, not a bare object — the row needs its own id so a
+    // risk-at-dose answer can be pinned to it rather than to its position.
+    onChange([...doses, newDoseRow()]);
   }
   function removeDose(idx) {
     onChange(doses.filter((_, i) => i !== idx));

@@ -53,6 +53,7 @@ import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 import { cite } from '../data/refs.js';
+import { doseAnswerKey } from './doseIdentity.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -790,7 +791,9 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
 
   for (let rawIdx = 0; rawIdx < rawDoses.length; rawIdx++) {
     const dose = rawDoses[rawIdx];
-    const riskAnswer = riskAtDoseAnswers?.[rawIdx];
+    // G2: keyed by the dose's own id when it has one, falling back to its
+    // position for hand-built fixtures. See doseIdentity.js.
+    const riskAnswer = riskAtDoseAnswers?.[doseAnswerKey(dose, rawIdx)];
 
     // Validate this dose against the current kept list.
     let result;
@@ -898,10 +901,10 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
  * @param {number} ageMonths  — current patient age in months
  * @param {string[]} riskIds  — selected risk-factor IDs
  * @param {string} [today]    — ISO date string; defaults to today's date
- * @param {Object.<number, 'yes'|'no'|'unsure'>} [riskAtDoseAnswers] — provider
- *   answers to the risk-at-dose prompt, keyed by the dose's index in the
- *   chronologically-sorted (post-sort) list — the same index used by
- *   `sortedDoses`/`perDose`.
+ * @param {Object.<string|number, 'yes'|'no'|'unsure'>} [riskAtDoseAnswers] —
+ *   provider answers to the risk-at-dose prompt, keyed by each dose's own
+ *   `id` (G2). Doses built without an id fall back to their index in the
+ *   chronologically-sorted list — the index used by `sortedDoses`/`perDose`.
  *
  * @returns {{
  *   perDose: Array<{status, effectiveDoseNum, reasons, detail?, doesNotCount?, needsInput?, promptDate?}>,
