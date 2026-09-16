@@ -117,6 +117,15 @@ dated today is not future-dated and counts normally. The date input's `max` uses
 `todayISO()`, not `new Date().toISOString()`, so it is not a day ahead of the
 clinician in a UTC-behind timezone.
 
+## History Entry — The Same Dose Recorded Twice
+
+`duplicateEntryProblem()` in `validate.js` flags a dated row whose date already
+appears on a **kept** row of the same vaccine: it carries `recordProblem:
+'duplicate'`, does not count, and does not collect the "repeat this dose only"
+advice. Matched against `kept` rather than every row walked, so a row matching a
+dose that was itself dropped is graded normally. Brands that differ between the
+two rows are named in the reason, since one of them must be wrong.
+
 ## History Entry — Doses Without Dates
 
 Dose counting works by array length without dates. Dates are only used for:

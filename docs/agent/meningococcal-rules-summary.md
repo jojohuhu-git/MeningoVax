@@ -218,6 +218,13 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   or an appointment that has not happened yet. The app says the date is the
   problem and asks for it to be corrected — it does **not** say to repeat the
   dose, because no dose was given. A dose dated *today* counts normally.
+- **The same date recorded twice:** the second row is treated as the same dose
+  entered twice, not as a dose given 0 days after the previous one. It does not
+  count (the shot counts once, on the first row), and the app asks for the
+  duplicate row to be corrected or removed rather than telling anyone to repeat
+  a dose the patient has had. Two doses of the same vaccine are never given on
+  the same day. If the row it would duplicate was itself dropped, this rule does
+  not apply — nothing counted on that date.
 - Doses are re-evaluated in order against the doses already *kept* so far —
   so if an early dose is dropped, a later dose isn't wrongly flagged as "too
   soon" relative to the dropped one.

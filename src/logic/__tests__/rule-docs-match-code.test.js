@@ -231,6 +231,27 @@ describe('L2-4: the rule documents describe what happens to a future-dated dose'
   });
 });
 
+describe('L2-4: the rule documents describe the same dose recorded twice', () => {
+  // G7 (2026-09-16). Read out of the code first, then required of the prose.
+  it('a repeated date is documented as one entry counted once', () => {
+    const day = '2024-01-10';
+    const { perDose, effective } = analyzeHistory(
+      'MenACWY',
+      [{ date: day, brand: 'Menveo' }, { date: day, brand: 'Menveo' }],
+      204,
+      []
+    );
+    expect(effective).toHaveLength(1);
+    expect(perDose[1].doesNotCount).toBe(true);
+    expect(perDose[1].reasons.join(' ')).not.toMatch(/repeat this dose/i);
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'the same date recorded twice is one dose entered twice — counted once, with no instruction to repeat a dose the patient has already had.'))
+        .toMatch(/twice|duplicate/i);
+    }
+  });
+});
+
 describe('L2-4: both documents say when they were last checked against the code', () => {
   it('each carries a verification stamp in YYYY-MM-DD form', () => {
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
