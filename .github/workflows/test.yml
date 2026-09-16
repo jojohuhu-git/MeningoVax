@@ -1,0 +1,29 @@
+name: Tests
+
+# L2-5 (2026-09-16): until now this repo ran its tests nowhere. The deploy
+# workflow publishes to Pages without running them, and the pre-commit hook only
+# checks root-directory note hygiene — so the suite fired only when someone
+# remembered to type `npm test`.
+#
+# That made the whole point of the L2-1 to L2-4 tripwires conditional on memory,
+# which is the same thing those tripwires exist to replace. Mirrors vaxapp's
+# test.yml so both repos behave the same way.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      # Lint intentionally not gated here, matching vaxapp.
