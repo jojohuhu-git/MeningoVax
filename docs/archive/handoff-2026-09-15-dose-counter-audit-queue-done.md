@@ -75,12 +75,30 @@ passed anyway. Commit messages carry the verbatim clinical quotes and URLs.
      start. **Owner decided 2026-09-15: follow CDC and fix vaxapp too.**
      CDC gives a 2-month start a flat 4-dose series.
 
-- **NOT live-verified in the browser.** The folder's 5-dev-server limit was held
-  by other Claude sessions for this entire session; `preview_start` was refused
-  every time. The UI tests render the real components in happy-dom and assert
-  exact on-screen chip text, but that is not the same as driving the page.
-  Worth a look when a slot frees: **P1-4**'s "Answers needed" state, and
-  **P0-2**'s card now reading "Complete (dose given at ≥16y)".
+- **Live verification: DONE 2026-09-15** (it was outstanding when this file was
+  first written). `preview_start` stayed refused — the folder's 5-server limit
+  was held by other chats, and killing the stale processes was denied — but a
+  MeningoVax vite server from 2026-09-13 was still live on **port 5179**, and
+  `navigate` to `http://localhost:5179/MeningoVax/` reaches it without
+  registering a server. Vite serves from disk, so it served this branch's code.
+  Verified by driving the page, zero console errors:
+  - **P1-2 / the reported patient** (DOB 2018-09-15, asplenia, doses 2018-11-15,
+    2019-01-15, 2019-03-15, 2019-09-15, 2022-09-15, all answered yes) — the list
+    now reads `Primary series / D1 Dose 1 of 4 / D2 Dose 2 of 4 / D3 Dose 3 of 4
+    / D4 Dose 4 of 4 / Boosters / D5 Booster`, headline "No MenACWY or MenB
+    doses due today", next booster **Sep 15, 2027**. Exactly the audit's
+    expected; was "Dose 1 of 2, Dose 2 of 2, then three Boosters".
+  - **P1-4** — before any answer: headline "5 recorded doses need an answer
+    below before a recommendation can be made", pill "Answers needed", card
+    "Answer the question on each recorded dose below to get a recommendation",
+    and all five prompts still on screen. Was "Due today: MenACWY" + "Dose 1
+    of 2".
+  - **P0-2** (18y, college dorm, doses at 14y and 17y) — card "Complete (dose
+    given at ≥16y)", pill "Up to date", chips `Dose 1 of 1` / `Booster`, no
+    "Extra dose" anywhere. Checked at 375px mobile width too; no overflow.
+
+  If a future session needs the page again and `preview_start` is refused, port
+  5179 may still be up — check `lsof -nP -iTCP -sTCP:LISTEN` and use `navigate`.
 
 ## Note on test fixtures
 
