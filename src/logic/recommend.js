@@ -129,14 +129,35 @@ function menacwyRec(am, riskIds, doses, today) {
   const refsExposure = (extra = []) => collectRefs(riskIds, extra, []);
 
   // Booster cadence per ACIP 2020 MMWR and immunize.org p2035:
-  //   FIRST booster (given === 2 → dose 3):
-  //     D2 completed at <7y → first booster in 3 years
-  //     D2 completed at ≥7y → first booster in 5 years
-  //     D2 age unknown → conservative 3 years (same as <7y)
-  //   ALL SUBSEQUENT boosters (given >= 3): always 5 years regardless of D2 age.
-  // (Only used in the booster branch where doses[1] exists.)
-  const dose2Age = ageAtDose(doses[1] || null, am, today);
-  const isFirstBooster = given === 2;
+  //   FIRST booster (the dose after the last PRIMARY dose):
+  //     primary series completed at <7y → first booster in 3 years
+  //     primary series completed at ≥7y → first booster in 5 years
+  //     completion age unknown → conservative 3 years (same as <7y)
+  //   ALL SUBSEQUENT boosters: always 5 years regardless of completion age.
+  // (Only used in the primary2 booster branch below.)
+  //
+  // P1-1 (2026-09-15): this was `given === 2` and `doses[1]` — a hand-typed 2,
+  // i.e. "the first booster is always dose 3, and the series always ends at
+  // dose 2". That is only true of a series begun at 2 years or older. A child
+  // with four infant doses on record looked like someone four doses into a
+  // 2-dose series, so the app believed the first booster was already behind
+  // them and put the next one five years out instead of three. The validator
+  // has always had the right form of this test (validate.js: the booster phase
+  // begins at effectiveIdx === primaryTotal), so the two disagreed.
+  //
+  // Deriving the boundary from seriesTotals.js — the same module the validator
+  // reads — means it cannot be wrong for a schedule whose primary series is not
+  // two doses long. P0-1 routes every infant-started patient away from this
+  // branch, so today's answers do not change; this removes the trap rather than
+  // leaving a literal that happens to be right.
+  const menacwyPrimaryDoseTotal = menacwySeriesInfo({
+    riskClass, am, doses, today, infantSeries: menacwyInfantSeriesIndicated(riskIds),
+  }).primaryTotal;
+  // Age at the LAST primary dose — the dose that completed the series and so
+  // started the booster clock.
+  const primaryCompletionAge = ageAtDose(doses[menacwyPrimaryDoseTotal - 1] || null, am, today);
+  const dose2Age = primaryCompletionAge;
+  const isFirstBooster = given === menacwyPrimaryDoseTotal;
   // First booster: <7y or unknown → 3y conservative; ≥7y → 5y.
   const firstBoosterDays = (dose2Age == null || dose2Age < M.y7)
     ? DAYS.years(3)
