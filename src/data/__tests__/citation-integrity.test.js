@@ -17,6 +17,7 @@
 import { describe, it, expect } from 'vitest';
 import { CITATIONS } from '../refs.js';
 import { recommend } from '../../logic/recommend.js';
+import { analyzeHistory } from '../../logic/validate.js';
 import { TEST_TODAY } from '../../test-today.js';
 import { readFileSync } from 'node:fs';
 
@@ -28,11 +29,6 @@ const KNOWN_UNCITED = {
     'Kept as the CDC schedule-note landing page. Dropped from the MenACWY recs '
     + '2026-07-24 because it just restates the ACIP 2020 MMWR rule (owner decision '
     + '2026-07-23: do not cite two sources for one rule).',
-  acwyBeforeAge10:
-    'The verbatim ACIP sentence for "doses before age 10 do not count toward the '
-    + 'adolescent series" — a rule validate.js DOES implement (A3), citing it only in '
-    + 'a code comment. The clinician never sees this source. Raised 2026-09-16 as a '
-    + 'finding for the owner: wire it into the validator message, or drop the entry.',
 };
 
 const SOURCE_FILES = [
@@ -158,6 +154,58 @@ describe('L2-3: no source sits in refs.js unused', () => {
     expect(
       gone,
       `These were deleted from refs.js, so remove them from KNOWN_UNCITED: ${gone.join(', ')}.`
+    ).toEqual([]);
+  });
+});
+
+
+// G4 (2026-09-16): the record panel's dose verdicts are a SECOND channel that
+// can carry citations (`reasonCites`), with the same two failure modes as a
+// rec card's note — a marker with no citation behind it renders an empty
+// superscript, a citation with no marker never appears at all. Same sweep,
+// same invariants, over the validator instead of the engine.
+describe('L2-3: the record panel\'s dose verdicts cite resolvably too', () => {
+  const broken = [];
+  const markerMismatches = [];
+
+  for (const ageMonths of AGES) {
+    for (const riskIds of RISKS) {
+      for (const doses of HISTORIES) {
+        for (const answer of ['yes', 'no', 'unsure', undefined]) {
+          const answers = { 0: answer, 1: answer, 2: answer, 3: answer };
+          for (const vaccine of ['MenACWY', 'MenB']) {
+            const { perDose } = analyzeHistory(vaccine, doses, ageMonths, riskIds, TEST_TODAY, answers);
+            perDose.forEach((d, i) => {
+              const where = `${vaccine} dose ${i + 1}, age ${ageMonths}m, risks [${riskIds.join('+') || 'none'}], risk-at-dose ${answer ?? 'unanswered'}`;
+              const markers = (d.reasons || []).join(' ').split('[c]').length - 1;
+              const cites = (d.reasonCites || []).length;
+              if (markers !== cites) markerMismatches.push(`${where}: ${markers} [c] marker(s) but ${cites} citation(s)`);
+              for (const c of d.reasonCites || []) {
+                if (!c || typeof c.url !== 'string' || !c.url.length || !c.label || !CITATIONS[c.key]) {
+                  broken.push(`${where}: ${JSON.stringify(c)}`);
+                }
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+
+  it('no dose verdict cites a source that cannot be resolved', () => {
+    expect(
+      broken.slice(0, 10),
+      'A dose verdict in the record panel carries a citation with no working link.\n'
+      + broken.slice(0, 10).join('\n')
+    ).toEqual([]);
+  });
+
+  it('every [c] marker in a dose verdict has exactly one citation behind it', () => {
+    expect(
+      markerMismatches.slice(0, 10),
+      'A dose verdict\'s [c] markers and its citation list have drifted apart. A spare '
+      + 'marker renders an empty superscript; a spare citation never appears.\n'
+      + markerMismatches.slice(0, 10).join('\n')
     ).toEqual([]);
   });
 });
