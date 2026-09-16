@@ -1,5 +1,13 @@
 # MeningoVax — Clinical Rules Reference
 
+**Last verified against code:** 2026-09-16.
+
+The load-bearing numbers here are asserted against the code by
+`src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
+file and the suite fails, naming the sentence. The plain-English, owner-facing version of
+the same rules is [meningococcal-rules-summary.md](meningococcal-rules-summary.md), which
+is the source of truth synced to vaxapp.
+
 ## Source Priority
 
 **ACIP/CDC/AAP/immunize.org over FDA package inserts.** Sources are listed at the top of `recommend.js` and in `refs.js`. Never revert to FDA-labeled ages without explicit instruction.
@@ -13,32 +21,67 @@
 - ≥22y healthy: not indicated
 
 ### High-Risk Primary (asplenia, SCD, complement, HIV, `primary2` class)
-- Infant 2–6m: 4-dose primary (D1–D3 at 2/4/6m, D4 at 12m)
-- Infant 7–11m: D1, then D2 ≥12 weeks after D1 AND at ≥12 months of age
-- 12–23m: same 12-week AND ≥12mo-age dual gate for D2
-  - "3-dose shortcut": if primary D1 at 2–6m AND D2 at ≥7m, series completes in 3 doses (D3 ≥12wk after D2 AND ≥12mo; no 4th dose needed)
+Series length is keyed to the age at **D1** and is fixed for life (P0-1) — a patient who
+started under 2y stays on the infant pathway however old they are now. Totals come from
+`seriesTotals.js` → `menacwyInfantHighRiskTotal()`; never hand-type them.
+- D1 at 2m: 4-dose primary (2/4/6/12m). Unconditional — no shortcut (P1-3).
+- D1 at 3–6m: 3- **or** 4-dose. "3-dose shortcut": if D2 landed at ≥7m, D3 completes the
+  series (≥12wk after D2 AND ≥12mo age; enforced in `validate.js`, P1-3). Unknown D2 age
+  falls back to 4.
+- D1 at 7–23m: 2-dose primary, D2 ≥12 weeks after D1 AND at ≥12 months of age (M5 — this
+  band was 3 doses before 2026-09-15).
 - ≥2y: 2-dose primary (D2 ≥8 weeks after D1)
 
+**The infant series is not high-risk-only (M10).** `menacwyInfantSeriesIndicated()` also
+returns true for `travel` and `outbreak_acwy` — ACIP prints the same "2–23 mos" row in
+Tables 4–6, 8 and 9, so those infants get the *same infant series*. `microbiologist` and
+`military` are excluded: no infant row exists for them.
+
 ### High-Risk Booster Cadence
-Keyed off the **age at Dose 2** (same basis used in both `recommend.js` and `validate.js` — keep in sync):
-- D2 completed <7y (84m): **first booster 3y (1095d)**, then **every 5y (1826d)**
-- D2 completed ≥7y: **first booster 5y**, then every 5y
-- Unknown D2 age: conservative 3y for first booster only
+Keyed off the age at the **last dose of the primary series** — the dose that starts the
+clock (P1-1). For a 2-month start that is D4, not D2; keying it to D2 is right only for a
+series begun at ≥2y. Derived from `seriesTotals.js` → `menacwyPrimaryTotal()` in BOTH
+`recommend.js` and `validate.js`, so the two cannot drift.
+- Primary completed <7y (84m): **first booster 3y**, then **every 5y**
+- Primary completed ≥7y: **first booster 5y**, then every 5y
+- Unknown completion age: conservative 3y for the first booster only
+- Compared on the calendar, not in days (P0-5) — `DAYS.years(3)` = 1096 rejected a booster
+  given on its exact three-year anniversary whenever no 29 February fell in the window.
 
 ### Single-Dose Indications (`single` class)
-- `college_dorm`: D1 only; the ≥16y-dose-satisfies rule applies uniquely to this class
-- `military`: D1 only; any documented dose satisfies
-- `acwy_outbreak`: D1 only; any documented dose satisfies
-- **Do not conflate these three.** The college_dorm ≥16y rule must not apply to military or outbreak.
+One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: true` in
+`seriesTotals.js` so a later dose is never discarded (P0-2).
+- `college_dorm`: D1 only; a dose at ≥16y satisfies it **permanently** — no 5-year expiry
+  (M17, owner decision 2026-09-15: ACIP Table 10's footnote over immunize.org P2018's
+  enrolment-recency rule). This ≥16y rule applies uniquely to this class.
+- `military`: D1 satisfies recruitment. Card also states ACIP's every-5-years-by-assignment
+  booster and names the **Department of Defense** as the owner of that timing (M18); the
+  app computes no date, since it cannot see the assignment.
+- `acwy_outbreak`: D1 covers the outbreak. A **top-up** dose follows if the patient is
+  identified at increased risk again and ≥3y (age <7 today) or ≥5y (age ≥7 today) have
+  passed (M12, ACIP Table 8). Re-exposure driven, not a standing countdown. Note this
+  threshold keys off age **today**, unlike Tables 4–6/9 which key off completion age.
+- **Do not conflate these three.**
 
-### Microbiologist (`single+boost` class)
-- D1 + booster every 5 years
+### Travel and Microbiologist (`single+boost` class)
+- `travel`: D1, then first booster at **3y if the primary dose was given before age 7**,
+  otherwise 5y; every later booster 5y (M9, ACIP Table 9).
+- `microbiologist`: D1 + booster every 5 years, flat — ACIP Table 7 covers ages ≥10 and
+  has no under-7 row, so the 3-year rule must NOT be extended to them (L2-3 corrected the
+  card copy that implied it did).
 
 ## MenB Schedule
 
 ### Shared Decision (Healthy, 16–23y)
-- 2-dose primary (Bexsero: 0+≥1m; Trumenba: 0+≥6m)
-- Age gate: 192m–276m (16th birthday through 23y11m); not below 192m
+- 2-dose primary at **0 and 6 months for BOTH brands** — ACIP Oct 2024 (`mm7349a3`)
+  changed the MenB-4C interval and superseded the old brand-split table.
+- Dose 2 given <6 months after dose 1 is **valid, not invalid**: it counts, and a third
+  **rescue** dose is then due ≥4 months after dose 2 (`menbSeriesInfo()` flips the total
+  to 3). Compared on the calendar, not 183 days (P0-4).
+- A planned 3-dose accelerated series (0, 1–2, 6m) is allowed where rapid protection is
+  needed (e.g. college entry <6 months away).
+- Age gate: 192m–276m (16th birthday through 23y11m); not below 192m. ACIP prefers 16–18y
+  (M16), but being past 18 does not make the patient ineligible.
 
 ### High-Risk (asplenia, SCD, complement, microbiologist, outbreak_b)
 - Note: **HIV, immunocomp, and HSCT are NOT MenB high-risk indications**

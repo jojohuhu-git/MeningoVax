@@ -5,10 +5,13 @@ code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth** — MeningoVax is edited first; any change here must be
 carried over to vaxapp's copy at `docs/agent/meningococcal-rules-summary.md`.
 
-**Last verified against code:** 2026-07-23 (commit `764f03a`), after the MenB
-healthy-age P0-1 fix. If this date is more than a few weeks old, treat the
-numbers below as "probably right, worth re-checking against `validate.js` /
-`recommend.js`" rather than gospel.
+**Last verified against code:** 2026-09-16, after the 2026-09-15 dose-counter and
+primary/booster-boundary fixes (M5, M9, M10, M12, M16-M18, P0-1 to P0-5, P1-1 to P1-3).
+
+This file is no longer kept honest by memory alone. The test
+`src/logic/__tests__/rule-docs-match-code.test.js` reads each load-bearing rule out of
+the code and fails if this document stops saying the same thing, naming the file and the
+sentence. Change a rule without changing this file and the suite goes red.
 
 **Authority rule (2026-08-10):** ACIP/CDC/AAP/immunize.org over FDA package inserts.
 Within that group, AAP is a tiebreak, not a ranking: where ACIP/CDC and AAP agree, cite
@@ -44,33 +47,57 @@ purposes. This only applies to healthy patients; a high-risk infant series
 ### High-risk (asplenia/sickle cell, persistent complement deficiency,
 complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
 - **2-dose primary series**, ≥8 weeks apart (≥2 years old), then boosters.
-- **Infants** (high-risk only — MenACWY is not routinely given to healthy
-  infants):
-  - 2–6 months: 4-dose Menveo series (2, 4, 6, 12 months).
-  - 7–11 months: 2-dose primary, dose 2 must be both ≥12 weeks after dose 1
-    **and** not before 12 months old, then a booster.
-  - 12–23 months, unvaccinated: 2-dose primary ≥12 weeks apart, then boosters.
-  - "3-dose shortcut": if dose 1 was given at 2–6 months and dose 2 at ≥7
-    months, the series can complete in 3 doses total instead of 4.
-- **Booster cadence** (keyed off age when dose 2 of the primary was
-  completed):
-  - Completed before age 7: first booster in **3 years**, then every 5 years.
-  - Completed at age 7+: first booster in **5 years**, then every 5 years.
-  - Dose 2 age unknown: treated conservatively as "before 7" (3-year first
-    booster).
+- **Infants.** MenACWY is not routinely given to healthy infants, but three
+  indications put a baby on the infant series: medical high risk, **travel**, and an
+  **A/C/W/Y outbreak**. A travelling or outbreak-exposed infant gets the *same infant
+  series* as a high-risk one — ACIP prints the identical "2–23 months" row in Tables
+  4–6, 8 and 9. Microbiologists and military recruits are excluded: ACIP gives them no
+  infant row at all.
+  - Dose 1 at 2 months: 4-dose Menveo series (2, 4, 6, 12 months). No shortcut.
+  - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
+    at 7 months or later, the series completes in 3 doses — the last one ≥12 weeks
+    after dose 2 **and** after the first birthday. If dose 2 came earlier, or its age
+    is unknown, it stays a 4-dose series.
+  - Dose 1 at 7–23 months: 2-dose primary. Dose 2 must be both ≥12 weeks after dose 1
+    **and** not before 12 months old.
+  - The length is fixed by the age at dose 1 and never changes afterwards — a child who
+    started at 4 months is still on a 4-dose series at age 6.
+- **Booster cadence**, keyed off the age at the **last dose of the primary series** —
+  the dose that actually starts the clock. For a baby who began at 2 months that is
+  dose 4, not dose 2:
+  - Primary completed before age 7: first booster in **3 years**, then every 5 years.
+  - Primary completed at age 7 or older: first booster in **5 years**, then every 5 years.
+  - Completion age unknown: treated conservatively as "before 7" (3-year first booster).
+  - Only the *first* booster varies. Every booster after it is 5 years.
 
-### Single-dose indications (no ongoing booster)
-- **Military recruits** and **serogroup A/C/W/Y outbreak exposure**: one
-  documented dose (any age) satisfies the indication.
-- **First-year college students in dorms**: one dose satisfies the
-  requirement *only if given at ≥16 years old*. An earlier dose does not
-  count for this specific requirement — a fresh dose is needed at ≥16.
+### Single-dose indications (one primary dose, no standing countdown)
+"Single" means the *primary series* is one dose — not that the patient may never
+receive another.
+- **Military recruits**: one documented dose satisfies the recruitment requirement.
+  ACIP also gives recruits a booster every 5 years *on the basis of assignment*, and the
+  **Department of Defense** sets that requirement according to high-risk travel. The app
+  cannot see the assignment, so it computes no date; the card says to check the service's
+  current requirement rather than assume nothing further is due.
+- **Serogroup A/C/W/Y outbreak exposure**: one dose covers the outbreak. If the patient
+  is identified as being at increased risk in an outbreak *again*, a single **top-up**
+  dose is given once ≥3 years (under age 7 today) or ≥5 years (age 7 or older today)
+  have passed since the last dose. It is driven by re-exposure, not by a repeating
+  schedule. Note the clock: this threshold keys off the patient's age **today**, where
+  every other 3-vs-5-year rule keys off the age at the primary dose.
+- **First-year college students in dorms**: one dose satisfies the requirement *only if
+  given at ≥16 years old* — and then permanently. There is no 5-year expiry (owner
+  decision, 2026-09-15: ACIP's footnote governs, not immunize.org's enrolment-recency
+  job aid). An earlier dose does not count for this requirement; a fresh dose is needed
+  at ≥16.
 
 ### Single dose + ongoing booster
-- **Microbiologists** routinely handling *N. meningitidis*, and **travelers**
-  to hyperendemic/epidemic regions (including Hajj pilgrims, the
-  sub-Saharan "meningitis belt"): 1 dose, then re-vaccinate every 5 years
-  while the exposure continues.
+- **Travellers** to hyperendemic/epidemic regions (including Hajj pilgrims, the
+  sub-Saharan "meningitis belt"): 1 dose, then re-vaccinate while the risk continues.
+  The first booster is at **3 years** if the primary dose was given before age 7,
+  otherwise 5 years; every booster after that is 5 years.
+- **Microbiologists** routinely handling *N. meningitidis*: 1 dose, then every 5 years
+  while the exposure continues — a flat interval with no under-7 variation, because
+  ACIP's microbiologist table covers ages ≥10 only.
 
 ---
 

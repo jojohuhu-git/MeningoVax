@@ -119,3 +119,30 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterAtOrAfterAge7', url: ACIP_ANCHORS.boosterAtOrAfterAge7 });
   });
 });
+
+// L2-3 (2026-09-16): travel and microbiologist share the exposure booster branch
+// but not its citation. Found by the citation-integrity sweep, which caught the
+// note's [c] markers and its noteCites list out of step in both directions.
+describe('L2-3: the exposure first-booster note and its citation stay in step', () => {
+  const oneDoseSixYearsAgo = [{ date: '2020-09-15' }];
+
+  it('a traveller\'s first booster shows the age-split citation it claims', () => {
+    const r = run({ ageMonths: 204, riskIds: ['travel'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
+    const rec = acwy(r);
+    expect(rec.note).toContain('[c]');
+    expect(rec.note.split('[c]').length - 1).toBe(rec.noteCites.length);
+    expect(rec.noteCites[0].key).toBe('boosterAtOrAfterAge7');
+  });
+
+  it('a microbiologist\'s first booster claims no age split, and renders no empty superscript', () => {
+    const r = run({ ageMonths: 204, riskIds: ['microbiologist'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
+    const rec = acwy(r);
+    // ACIP Table 7 covers ">=10 yrs" with a flat 5-year interval and no under-7
+    // row, so his card must not imply the age split travellers get.
+    expect(rec.note).not.toContain('age 7 or older');
+    expect(rec.note).not.toContain('[c]');
+    expect(rec.noteCites).toHaveLength(0);
+    // The interval itself is unchanged by this fix.
+    expect(rec.doseLabel).toContain('5 years after the primary dose');
+  });
+});
