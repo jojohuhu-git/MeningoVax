@@ -213,6 +213,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above) —
   different from "invalid," no repeat needed, it's just not counted.
+- **Dated in the future:** not counted. The record lists doses the patient has
+  already received, so a date after today is a typo (usually a mistyped year)
+  or an appointment that has not happened yet. The app says the date is the
+  problem and asks for it to be corrected — it does **not** say to repeat the
+  dose, because no dose was given. A dose dated *today* counts normally.
 - Doses are re-evaluated in order against the doses already *kept* so far —
   so if an early dose is dropped, a later dose isn't wrongly flagged as "too
   soon" relative to the dropped one.

@@ -562,6 +562,20 @@ body {
   cursor: pointer;
 }
 .add-dose-btn:hover { border-color: var(--c); color: var(--c); background: var(--clt); }
+/* G3 (2026-09-16): a dose dated in the future, flagged on the row where it was
+   typed. Red is this app's error colour and is reserved for it (see --r). The
+   row is a wrap-flex, so this takes a full line of its own underneath. */
+.dose-row-problem {
+  flex-basis: 100%;
+  margin-top: var(--sp-8);
+  padding: var(--sp-8) var(--sp-12);
+  border-radius: var(--rads);
+  background: var(--rlt);
+  border-left: 3px solid var(--r);
+  font-size: var(--fs-base);
+  color: var(--r);
+}
+
 .family-note {
   margin-top: var(--sp-12);
   padding: var(--sp-8) var(--sp-12);
