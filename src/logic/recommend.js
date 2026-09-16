@@ -156,13 +156,17 @@ function menacwyRec(am, riskIds, doses, today) {
   // Age at the LAST primary dose — the dose that completed the series and so
   // started the booster clock.
   const primaryCompletionAge = ageAtDose(doses[menacwyPrimaryDoseTotal - 1] || null, am, today);
-  const dose2Age = primaryCompletionAge;
   const isFirstBooster = given === menacwyPrimaryDoseTotal;
   // First booster: <7y or unknown → 3y conservative; ≥7y → 5y.
-  const firstBoosterDays = (dose2Age == null || dose2Age < M.y7)
-    ? DAYS.years(3)
-    : DAYS.years(5);
-  const boostDays = isFirstBooster ? firstBoosterDays : DAYS.years(5);
+  //
+  // P0-5 (2026-09-15): the cadence is carried in YEARS and compared on the
+  // calendar. boostDays survives only for minIntervalDays, which the card
+  // prints as an approximate "~3 years". Comparing 1096 days rejected a booster
+  // given on its exact three-year anniversary whenever no 29 February fell in
+  // the window, and dated the next one a day early.
+  const firstBoosterYears = (primaryCompletionAge == null || primaryCompletionAge < M.y7) ? 3 : 5;
+  const boostYearsCount = isFirstBooster ? firstBoosterYears : 5;
+  const boostDays = DAYS.years(boostYearsCount);
 
   // ── Infant pathways (<2y), whatever the indication ───────────────────────
   // M10 (2026-09-15): this used to sit INSIDE the primary2 branch below, so it
@@ -224,16 +228,16 @@ function menacwyRec(am, riskIds, doses, today) {
     }
     // given >= 2: primary complete → ongoing boosters
     // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
-    const boostYears = boostDays === DAYS.years(3) ? '3' : '5';
+    const boostYears = String(boostYearsCount);
     const boostLabel = isFirstBooster
       ? `first booster, ${boostYears} years after primary`
       : 'every 5 years';
-    const elapsed = intervalElapsed(lastDate, boostDays, today);
+    const elapsed = calendarIntervalElapsed(lastDate, boostYearsCount * 12, today);
     return [rec({
       vaccine: 'MenACWY', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${boostLabel})`,
       doseNum: given + 1, seriesTotal: 2, boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)', dueToday: elapsed,
-      earliestNextDate: elapsed ? null : addDays(lastDate, boostDays),
+      earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boostYearsCount),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
       note: isFirstBooster
         ? `Primary series complete. This first booster is due ${boostYears} years after the primary series${boostYears === '3' ? ' (completed before age 7) [c]' : ' (primary completed at age 7 or older) [c]'}, then every 5 years while the high-risk condition persists.`
@@ -284,28 +288,27 @@ function menacwyRec(am, riskIds, doses, today) {
     const primaryDoseAge = ageAtDose(doses[0] || null, am, today);
     // Unknown age falls to the shorter 3-year interval, the same conservative
     // choice the high-risk branch above makes.
-    const exposureBoostDays = (isTravel && isFirstExposureBooster
-      && (primaryDoseAge == null || primaryDoseAge < M.y7))
-      ? DAYS.years(3)
-      : DAYS.years(5);
-    const exposureBoostLabel = exposureBoostDays === DAYS.years(3)
+    const exposureBoostYears = (isTravel && isFirstExposureBooster
+      && (primaryDoseAge == null || primaryDoseAge < M.y7)) ? 3 : 5;
+    const exposureBoostDays = DAYS.years(exposureBoostYears);
+    const exposureBoostLabel = exposureBoostYears === 3
       ? 'first booster, 3 years after the primary dose'
       : isFirstExposureBooster
         ? 'first booster, 5 years after the primary dose'
         : 'every 5 years';
-    const elapsed = intervalElapsed(lastDate, exposureBoostDays, today);
+    const elapsed = calendarIntervalElapsed(lastDate, exposureBoostYears * 12, today);
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
-      earliestNextDate: elapsed ? null : addDays(lastDate, exposureBoostDays),
+      earliestNextDate: elapsed ? null : addCalendarYears(lastDate, exposureBoostYears),
       minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
-      note: exposureBoostDays === DAYS.years(3)
+      note: exposureBoostYears === 3
         ? 'The primary dose was given before age 7, so the first booster is due 3 years after it, then every 5 years while the travel risk continues.'
         : isFirstExposureBooster
           ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it, then every 5 years while travel or occupational exposure continues.'
           : 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
       noteCites: (isTravel && isFirstExposureBooster) ? [
-        exposureBoostDays === DAYS.years(3)
+        exposureBoostYears === 3
           ? cite('boosterBeforeAge7')
           : cite('boosterAtOrAfterAge7'),
       ] : [],
@@ -409,12 +412,13 @@ function menacwyRec(am, riskIds, doses, today) {
     // deliberately unchanged: Table 10 really is a single dose for them.
     const isOutbreakACWY = riskIds.includes('outbreak_acwy');
     if (isOutbreakACWY && given >= 1) {
-      const topUpDays = am < M.y7 ? DAYS.years(3) : DAYS.years(5);
-      const elapsedTopUp = intervalElapsed(lastDate, topUpDays, today);
+      const topUpYears = am < M.y7 ? 3 : 5;
+      const topUpDays = DAYS.years(topUpYears);
+      const elapsedTopUp = calendarIntervalElapsed(lastDate, topUpYears * 12, today);
       if (!elapsedTopUp) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete for this outbreak', seriesTotal: 1,
-          earliestNextDate: addDays(lastDate, topUpDays),
+          earliestNextDate: addCalendarYears(lastDate, topUpYears),
           minIntervalDays: topUpDays,
           note: `The recorded dose covers this outbreak. If the patient is identified as being at increased risk in an outbreak again, a single further dose is given once it has been ${am < M.y7 ? 'three' : 'five'} years or more since the last one (${am < M.y7 ? 'under age 7' : 'age 7 or older'}) [c].`,
           noteCites: [cite('acip2020Table8')],
@@ -619,8 +623,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
     // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
     const isFirstInfantBooster = given === (d1WasInfant7to11 ? 2 : 4);
-    const boostDays = isFirstInfantBooster ? DAYS.years(3) : DAYS.years(5);
-    const elapsedBoost = intervalElapsed(lastDate, boostDays, today);
+    const infantBoostYears = isFirstInfantBooster ? 3 : 5;
+    const boostDays = DAYS.years(infantBoostYears);
+    const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? 'first booster, 3 years after primary' : 'every 5 years'})`,
       // F1 (2026-09-14): was hardcoded 2 for the d1WasInfant7to11 bucket —
@@ -628,7 +633,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       // be 3, matching the initial rec's total and menacwyInfantHighRiskTotal()).
       doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: 'Boosters: every 5 years while at risk (ongoing)',
       dueToday: elapsedBoost,
-      earliestNextDate: elapsedBoost ? null : addDays(lastDate, boostDays),
+      earliestNextDate: elapsedBoost ? null : addCalendarYears(lastDate, infantBoostYears),
       minIntervalDays: boostDays,
       brands: menacwyBrands(am),
       note: isFirstInfantBooster
@@ -910,12 +915,13 @@ function menbRec(am, riskIds, doses, today) {
     }
     // given >= 3: primary complete → boosters
     const firstBooster = given === 3;
-    const intervalDays = firstBooster ? DAYS.years(1) : DAYS.years(2);
-    const elapsed = intervalElapsed(lastDate, intervalDays, today);
+    const boosterYears = firstBooster ? 1 : 2;
+    const intervalDays = DAYS.years(boosterYears);
+    const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? '1 year after primary' : 'every 2–3 years'})`,
       doseNum: given + 1, seriesTotal: 3, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
-      earliestNextDate: elapsed ? null : addDays(lastDate, intervalDays), minIntervalDays: intervalDays,
+      earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       note: `High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.${menbPregnancyCaveat}`,
       noteCites: [cite('menbHighRiskBoosterCadenceBox')],

@@ -94,8 +94,17 @@ const MENACWY_HR_ADULT_MIN_INTERVAL    = DAYS.weeks(8);    // 56 d
 // MenACWY infant high-risk series: ≥4 weeks between primary doses
 const MENACWY_HR_INFANT_MIN_INTERVAL   = DAYS.weeks(4);    // 28 d
 // MenACWY high-risk boosters: every 5 years (or 3 years if last dose given <7y)
-const MENACWY_BOOSTER_5Y               = DAYS.years(5);    // 1826 d
-const MENACWY_BOOSTER_3Y               = DAYS.years(3);    // 1096 d
+// P0-5 (2026-09-15): these are now YEAR counts compared on the calendar. A
+// real three-year span is 1095 or 1096 days depending on whether a 29 February
+// falls inside it, and DAYS.years(3) demanded 1096 — so a booster given on its
+// exact three-year anniversary was voided as "too soon" roughly a quarter of
+// the time, and the card re-offered it the same day. DAYS.years(5) = 1826
+// happened to be safe (five-year spans are 1826-1827 days), but it moves to the
+// calendar helper too so it cannot drift. The *_DAYS twins are display only.
+const MENACWY_BOOSTER_5Y_YEARS         = 5;
+const MENACWY_BOOSTER_3Y_YEARS         = 3;
+const MENACWY_BOOSTER_5Y               = DAYS.years(5);    // 1826 d (display only)
+const MENACWY_BOOSTER_3Y               = DAYS.years(3);    // 1096 d (display only)
 // MenB high-risk: D2 ≥4 weeks after D1
 const MENB_HR_D2_MIN_INTERVAL          = DAYS.weeks(4);    // 28 d
 // MenB high-risk: D3 ≥6 months after D1 AND ≥4 months after D2
@@ -389,6 +398,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       if (riskClass && effectiveIdx >= primaryTotal) {
         const isFirstBooster = effectiveIdx === primaryTotal;
         let cadenceDays;
+        let cadenceYears;
         let cadenceLabel;
         if (isFirstBooster) {
           // M4: the first booster's cadence keys off the age at the LAST dose of
@@ -397,17 +407,19 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
           const lastPrimary = keptDated[primaryTotal - 1] || keptDated[keptDated.length - 1] || null;
           const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ageMonths, today);
           // Conservative: unknown age treated same as <7y → 3 years.
-          cadenceDays = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS)
-            ? MENACWY_BOOSTER_3Y
-            : MENACWY_BOOSTER_5Y;
-          cadenceLabel = cadenceDays === MENACWY_BOOSTER_3Y ? '3 years' : '5 years';
+          const threeYears = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS);
+          cadenceYears = threeYears ? MENACWY_BOOSTER_3Y_YEARS : MENACWY_BOOSTER_5Y_YEARS;
+          cadenceDays = threeYears ? MENACWY_BOOSTER_3Y : MENACWY_BOOSTER_5Y;
+          cadenceLabel = threeYears ? '3 years' : '5 years';
         } else {
           // Subsequent boosters: always 5 years
+          cadenceYears = MENACWY_BOOSTER_5Y_YEARS;
           cadenceDays = MENACWY_BOOSTER_5Y;
           cadenceLabel = '5 years';
         }
 
-        if (interval < cadenceDays) {
+        // P0-5: compare real calendar years, not `interval < 1096`.
+        if (!calendarIntervalElapsed(prevKeptDated.date, cadenceYears * 12, dose.date)) {
           return invalidResult(
             [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
             `Actual interval: ${fmtDays(interval)}. Required cadence: ${cadenceLabel}.`
