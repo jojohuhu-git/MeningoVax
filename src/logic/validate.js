@@ -52,6 +52,7 @@ import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, 
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
+import { cite } from '../data/refs.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -208,9 +209,16 @@ function validResult(reasons = []) {
 }
 
 // Build an 'invalid' result.
-function invalidResult(reasons, detail) {
+//
+// G4 (2026-09-16): `reasonCites` is an ORDERED list of citation objects, one
+// per literal "[c]" placeholder across `reasons`, in order — the same contract
+// recommend.js uses for a rec card's note. RecCard assigns the visible [N] at
+// render time. Only the age-based "this dose does not count" verdicts carry
+// one; see g4-discounting-verdicts-cite-source.test.js for the scope rule.
+function invalidResult(reasons, detail, reasonCites) {
   const r = { status: 'invalid', reasons };
   if (detail != null) r.detail = detail;
+  if (reasonCites && reasonCites.length) r.reasonCites = reasonCites;
   return r;
 }
 
@@ -320,7 +328,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
     return {
       status: 'valid',
-      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series.`],
+      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series. [c]`],
+      reasonCites: [cite('acwyBeforeAge10')],
       notAdolescentCount: true,
     };
   }
@@ -346,7 +355,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     if (riskAnswer === 'no' || riskAnswer === 'unsure') {
       return {
         status: 'valid',
-        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series.`],
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series. [c]`],
+        reasonCites: [cite('acwyBeforeAge10')],
         notAdolescentCount: true,
       };
     }
@@ -500,7 +510,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
     return {
       status: 'valid',
-      reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16.`],
+      reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16. [c]`],
+      reasonCites: [cite('acwyRoutine1112and16')],
       notAdolescentCount: true,
     };
   }
@@ -524,8 +535,9 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
         ? brand.replace(/\s*\(Men(?:B|ACWY|ABCWY)\).*/, '')
         : 'MenB';
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. This dose does not count.`],
-        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. [c] This dose does not count.`],
+        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`,
+        [cite('menbLicensedAge1025')]
       );
     }
     // P0-1: if the patient has no current MenB risk factor and is CURRENTLY under 16,
@@ -536,7 +548,8 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     if (!hasMenbRisk(riskIds) && ageMonths < MENB_HEALTHY_MIN_AGE_MONTHS) {
       return {
         status: 'valid',
-        reasons: [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years); MenB given before 16 is not counted for a patient without a high-risk indication.`],
+        reasons: [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years) [c]; MenB given before 16 is not counted for a patient without a high-risk indication.`],
+        reasonCites: [cite('menbHealthyPreferredAge1618')],
         notAdolescentCount: true,
       };
     }
@@ -561,8 +574,9 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
 
   if (ageAtDose !== null && ageAtDose < minAgeM) {
     return invalidResult(
-      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.`],
-      `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`
+      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products. [c]`],
+      `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
+      [cite('menbLicensedAge1025')]
     );
   }
 
@@ -576,7 +590,8 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
   if (!hasMenbRisk(riskIds) && ageAtDose !== null && ageAtDose < MENB_HEALTHY_MIN_AGE_MONTHS) {
     return {
       status: 'valid',
-      reasons: [`Given before age 16 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
+      reasons: [`Given before age 16 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c] MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
+      reasonCites: [cite('menbHealthyPreferredAge1618')],
       notAdolescentCount: true,
     };
   }
@@ -602,7 +617,8 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     if (riskAnswer === 'no' || riskAnswer === 'unsure') {
       return {
         status: 'valid',
-        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 16. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the high-risk series.`],
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 16. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the high-risk series. [c]`],
+        reasonCites: [cite('menbHealthyPreferredAge1618')],
         notAdolescentCount: true,
       };
     }

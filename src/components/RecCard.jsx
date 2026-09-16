@@ -117,10 +117,26 @@ export function doseRowsWithGroups(doses, doseValidations, primaryTotal) {
   return rows;
 }
 
-function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }) {
+// G4 (2026-09-16): one numbering sequence per CARD, not per block. The card's
+// note and the verdicts on its recorded doses both carry superscripts, so
+// numbering them separately would put two different [1]s in one card whenever
+// they cite different documents. The map is pre-seeded here, in the order the
+// reader meets them (recorded doses top to bottom, then the note), because
+// React runs a child component's body after its parent's — seeding on first
+// render would number the note before the verdicts above it.
+function cardCiteNumberer(doseValidations, noteCites) {
+  const numberFor = makeCiteNumberer();
+  for (const v of doseValidations || []) {
+    for (const c of v?.reasonCites || []) numberFor(c.page ?? c.key);
+  }
+  for (const c of noteCites || []) numberFor(c.page ?? c.key);
+  return numberFor;
+}
+
+function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
-  const { status, reasons, detail, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose } = result;
+  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose } = result;
 
   // Item 2 (2026-07-23 handoff): once answered, the validator's result no
   // longer carries needsInput/promptDate (see validate.js), so re-opening the
@@ -129,7 +145,7 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
     return (
       <div className="dose-val dose-val-pending" data-testid="dose-val-pending">
         <span className="dose-val-chip dose-val-needs-input">Needs input</span>
-        {showReasonsBlock(reasons, null)}
+        {showReasonsBlock(reasons, null, reasonCites, numberFor)}
         <div className="risk-at-dose-prompt" data-testid="risk-at-dose-prompt">
           <div className="risk-at-dose-question">
             Was this patient at high risk for meningococcal disease when this dose was given ({fmtDate(promptDate ?? doseDate)})?
@@ -195,7 +211,7 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
           Edit
         </button>
       )}
-      {showReasonsBlock(reasons, detail)}
+      {showReasonsBlock(reasons, detail, reasonCites, numberFor)}
     </div>
   );
 }
@@ -214,18 +230,27 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate }
 // still gets its OWN href (deep-linking to its own quoted sentence) and its
 // own hover title (that exact quote), so distinct sentences stay
 // individually reachable even when their numbers match.
-function renderNoteWithCites(note, noteCites) {
-  if (!noteCites || noteCites.length === 0) return note;
+//
+// G4 (2026-09-16): the numbering map is now optional-injectable, so a block
+// that renders SEVERAL cited strings (the record panel's dose verdicts) numbers
+// them as one sequence instead of restarting at [1] on every string.
+function makeCiteNumberer() {
   const numberByPage = new Map();
   let nextNumber = 1;
+  return (dedupeKey) => {
+    if (!numberByPage.has(dedupeKey)) numberByPage.set(dedupeKey, nextNumber++);
+    return numberByPage.get(dedupeKey);
+  };
+}
+
+function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
+  if (!noteCites || noteCites.length === 0) return note;
   const parts = note.split('[c]');
   return parts.flatMap((part, i) => {
     if (i === parts.length - 1) return [part];
     const c = noteCites[i];
     if (!c) return [part];
-    const dedupeKey = c.page ?? c.key;
-    if (!numberByPage.has(dedupeKey)) numberByPage.set(dedupeKey, nextNumber++);
-    const marker = `[${numberByPage.get(dedupeKey)}]`;
+    const marker = `[${numberFor(c.page ?? c.key)}]`;
     return [part, (
       <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={c.label}>
         {marker}
@@ -235,13 +260,27 @@ function renderNoteWithCites(note, noteCites) {
 }
 
 // Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
-function showReasonsBlock(reasons, detail) {
+// G4 (2026-09-16): a verdict that sets a recorded dose aside on age grounds
+// now carries the ACIP sentence it rests on, shown the same way as on the
+// cards above — a numbered superscript linking to that exact sentence, with
+// the quote on hover. `reasonCites` is one entry per literal "[c]" across the
+// whole reasons array, in order (validate.js). Reasons the walk appends
+// afterwards carry no marker, so they never disturb the pairing.
+function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumberer()) {
   if (!reasons || reasons.length === 0) return null;
+  let consumed = 0;
   return (
     <div className="dose-val-reasons">
-      {reasons.map((r, i) => (
-        <span key={i} className="dose-val-reason">{r}</span>
-      ))}
+      {reasons.map((r, i) => {
+        const markers = r.split('[c]').length - 1;
+        const cites = markers > 0 ? (reasonCites ?? []).slice(consumed, consumed + markers) : null;
+        consumed += markers;
+        return (
+          <span key={i} className="dose-val-reason">
+            {cites && cites.length ? renderNoteWithCites(r, cites, numberFor) : r}
+          </span>
+        );
+      })}
       {detail && <span className="dose-val-detail">{detail}</span>}
     </div>
   );
@@ -260,6 +299,7 @@ function timingClass(status, dueToday) {
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
   const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
+  const numberFor = cardCiteNumberer(doseValidations, noteCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -374,6 +414,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                       onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, row.index, answer)}
                       wasPrompted={riskAtDoseAnswers[row.index] !== undefined}
                       doseDate={row.dose?.date}
+                      numberFor={numberFor}
                     />
                   </li>
                 )
@@ -382,7 +423,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {note && <div className="rec-note">{renderNoteWithCites(note, noteCites)}</div>}
+        {note && <div className="rec-note">{renderNoteWithCites(note, noteCites, numberFor)}</div>}
 
         {citations && citations.length > 0 && (
           <div className="rec-citations">
