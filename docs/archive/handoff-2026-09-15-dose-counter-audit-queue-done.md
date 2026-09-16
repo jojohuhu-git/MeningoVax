@@ -11,7 +11,7 @@ Baseline was 534 passing tests; now **682 passing (64 files)**, all green,
 working tree clean at commit `33758b1`. Production build clean.
 
 Source queue: [.claude/prompts/fix-2026-09-15-dose-counter-audit.md](../../.claude/prompts/fix-2026-09-15-dose-counter-audit.md).
-**12 of its 13 items are done.** Only P2-3 remains, and it is a copy decision.
+**All 13 items are resolved**: 12 fixed in code, and P2-3 closed as correct-as-built (owner, 2026-09-15 — the booster language matches the MMWR reference).
 
 ## What's done (by item ID)
 
@@ -58,11 +58,16 @@ passed anyway. Commit messages carry the verbatim clinical quotes and URLs.
 
 ## What's NOT done
 
-- **P2-3 (owner copy decision, not a defect).** Routine 11y + 16y: the heading
-  calls the 16-year dose a booster (correct — routine primary total is 1) while
-  the chip says "Dose 2 of 2" (also correct — ACIP calls it a 2-dose series).
-  Both halves are right; together they read as a contradiction. **Ask which
-  wording she wants; do not pick one.**
+- **P2-3 — CLOSED, no change needed (owner decision 2026-09-15).** Routine
+  11y + 16y shows a "Boosters" heading over a "Dose 2 of 2" chip. The owner's
+  ruling: **the booster language is correct because that is how the MMWR
+  reference states it.** The heading stays as it is. Do not re-raise this, and
+  do not "harmonise" the heading with the chip — they describe two different
+  true things (the routine primary series is one dose; ACIP calls the routine
+  schedule a 2-dose series), and the MMWR wording governs the heading.
+
+  With P2-3 closed, **all 13 items of the audit queue are resolved** — 12 fixed,
+  1 decided as correct-as-built.
 
 - **CROSS-REPO — two vaxapp ports. The two apps disagree until these land.**
   Use the `vaccine-parity` skill; one PR in `~/Downloads/vaxapp-main`.
