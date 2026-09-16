@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import DoseEditor from './DoseEditor.jsx';
+import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 
-export default function StepHistory({ vaccine, doses, onChange, brandOptions }) {
+export default function StepHistory({ vaccine, doses, onChange, brandOptions, creditedDoses = [] }) {
   const [hasHistory, setHasHistory] = useState(doses.length > 0 ? true : null);
 
   // B7: Ctrl+A (Cmd+A on Mac) adds a dose row, overriding the browser's
@@ -58,6 +58,8 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
         Has the patient received any {vaccine} vaccine?
       </div>
 
+      <PentavalentCreditNote vaccine={vaccine} creditedDoses={creditedDoses} />
+
       <div className="history-toggle">
         <button
           className={`history-toggle-btn${hasHistory === false ? ' selected' : ''}`}
@@ -81,6 +83,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions }) 
           doses={doses}
           onChange={onChange}
           brandOptions={brandOptions}
+          creditedDoses={creditedDoses}
         />
       )}
 

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { recommend } from '../logic/recommend.js';
-import { analyzeHistory } from '../logic/validate.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
-import DoseEditor from './DoseEditor.jsx';
+import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
 
 const MENACWY_HISTORY_BRANDS = [
@@ -37,7 +36,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
     riskAtDoseAnswers,
   });
 
-  const { menacwy, menb, pentavalent, hct, excluded, exclusionMessage, exclusionCitations } = result;
+  const { menacwy, menb, pentavalent, hct, history, excluded, exclusionMessage, exclusionCitations } = result;
 
   if (excluded) {
     return (
@@ -68,8 +67,18 @@ export default function Results({ state, onReset, onChange, onBack }) {
   // by array index. analyzeHistory() sorts its perDose chronologically, so
   // the doses prop must come from the same sorted call, not raw entry order
   // (menacwyDoses/menbDoses), or the two arrays drift out of alignment.
-  const menacwyHistory = analyzeHistory('MenACWY', menacwyDoses, ageMonths ?? 0, riskIds, undefined, acwyRiskAnswers);
-  const menbHistory = analyzeHistory('MenB', menbDoses, ageMonths ?? 0, riskIds, undefined, bRiskAnswers);
+  //
+  // G1 (2026-09-16): that sorted call is now the engine's own. This screen used
+  // to re-run analyzeHistory() on the raw lists, which meant the panel and the
+  // recommendation above it each decided for themselves what the record said —
+  // and after G1 they would have disagreed outright, because only the engine
+  // credited a pentavalent to both families. One walk, read twice.
+  const menacwyHistory = history.MenACWY;
+  const menbHistory = history.MenB;
+  // G1: the doses each list is being credited from the other (pentavalents),
+  // read back off the engine's merged record rather than recomputed here.
+  const creditedAcwy = menacwyHistory.sortedDoses.filter((d) => d.creditedFrom);
+  const creditedB = menbHistory.sortedDoses.filter((d) => d.creditedFrom);
 
   // Provider answered the risk-at-dose "Needs input" prompt on a specific
   // dose. Recompute happens live via the normal onChange -> state -> re-render
@@ -254,9 +263,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
             {/* MenACWY doses */}
             <div className="dose-history-block">
               <div className="history-edit-section-title">MenACWY doses</div>
+              <PentavalentCreditNote vaccine="MenACWY" creditedDoses={creditedAcwy} />
               <DoseEditor
                 vaccine="MenACWY"
                 doses={menacwyDoses}
+                creditedDoses={creditedAcwy}
                 onChange={list => onChange?.({ menacwyDoses: list })}
                 brandOptions={MENACWY_HISTORY_BRANDS}
                 addDoseLabel="+ Add MenACWY dose"
@@ -270,9 +281,11 @@ export default function Results({ state, onReset, onChange, onBack }) {
             {/* MenB doses */}
             <div className="dose-history-block">
               <div className="history-edit-section-title">MenB doses</div>
+              <PentavalentCreditNote vaccine="MenB" creditedDoses={creditedB} />
               <DoseEditor
                 vaccine="MenB"
                 doses={menbDoses}
+                creditedDoses={creditedB}
                 onChange={list => onChange?.({ menbDoses: list })}
                 brandOptions={MENB_HISTORY_BRANDS}
                 addDoseLabel="+ Add MenB dose"

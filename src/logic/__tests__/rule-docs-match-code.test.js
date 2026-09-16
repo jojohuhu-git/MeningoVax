@@ -22,6 +22,7 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
+import { creditPentavalents } from '../pentavalentCredit.js';
 
 const read = (rel) => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8')
   // Normalise so a line wrap or an en-dash never decides whether a rule is documented.
@@ -171,6 +172,34 @@ describe('L2-4: the rule documents state the MenB schedules the code uses', () =
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
       expect(doc, why(path, 'a dose 2 given under 6 months after dose 1 still counts, and a third dose is then needed >=4 months after dose 2.'))
         .toMatch(/rescue/i);
+    }
+  });
+});
+
+describe('L2-4: the rule documents describe how a recorded pentavalent is counted', () => {
+  // G1 (2026-09-16). Derived from the code, not asserted as prose: credit a
+  // Penbraya recorded on the MenACWY step and check the MenB list really does
+  // receive it, then require both documents to say so.
+  it('a pentavalent recorded on one step is documented as counting for both vaccines', () => {
+    const { menb } = creditPentavalents([{ date: '2026-03-15', brand: 'Penbraya' }], []);
+    expect(menb).toHaveLength(1);
+    expect(menb[0].creditedFrom).toBe('MenACWY');
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'a Penbraya/Penmenvy already in the record counts as a MenACWY dose AND a MenB dose, whichever history step it was entered on.'))
+        .toMatch(/pentavalent[^.]{0,200}both (vaccines|families)/i);
+    }
+  });
+
+  it('the de-duplication of a shot recorded on both steps is documented', () => {
+    const one = [{ date: '2026-03-15', brand: 'Penbraya' }];
+    const { menacwy, menb } = creditPentavalents(one, one);
+    expect(menacwy).toHaveLength(1);
+    expect(menb).toHaveLength(1);
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'the same pentavalent recorded on BOTH history steps is counted once, matched on brand and date.'))
+        .toMatch(/counts? once|de-duplicates/i);
     }
   });
 });

@@ -28,6 +28,14 @@ import {
 import { menbFamily } from '../data/brands.js';
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
+import { creditPentavalents } from './pentavalentCredit.js';
+
+// An excluded patient (CAR-T / B-cell depletion hard stop) gets no history walk,
+// but callers read `result.history` unconditionally — give them the empty shape.
+const EMPTY_HISTORY = Object.freeze({
+  MenACWY: { perDose: [], effective: [], sortedDoses: [] },
+  MenB: { perDose: [], effective: [], sortedDoses: [] },
+});
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
@@ -1234,11 +1242,18 @@ export function recommend(input) {
       menb: [],
       pentavalent: { eligible: false },
       hct: null,
+      history: EMPTY_HISTORY,
       meta: { ageMonths: am, today, riskIds },
     };
   }
-  const rawMenacwyDoses = (input.menacwyDoses ?? []).filter(Boolean);
-  const rawMenbDoses = (input.menbDoses ?? []).filter(Boolean);
+  // G1 (2026-09-16): one pentavalent injection is a dose of BOTH families, but a
+  // chart entry only ever lands in one of the two history lists. Credit it to the
+  // other list here, once, before anything reads either history — so the engine,
+  // the validator walk and the record panel all see the same record. The row
+  // itself is not moved: the credited copy is tagged `creditedFrom`.
+  // See src/logic/pentavalentCredit.js for the ACIP sentences behind this.
+  const { menacwy: rawMenacwyDoses, menb: rawMenbDoses } =
+    creditPentavalents(input.menacwyDoses, input.menbDoses);
   // Risk-at-dose "Needs input" prompt answers (2026-07-23 handoff §2-§3),
   // keyed by vaccine then by the dose's post-sort index — same shape Results.jsx
   // threads to its own display-only analyzeHistory() calls, so a 'yes' answer
@@ -1251,8 +1266,14 @@ export function recommend(input) {
   // count toward series completion. The engine sees only the effective list.
   // The full raw list (with per-dose display results) is available via
   // analyzeHistory() in Results.jsx for the RECORDED panel.
-  const effectiveMenacwyDoses = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers).effective;
-  const effectiveMenbDoses    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers).effective;
+  //
+  // The whole analysis (not just `.effective`) is returned to the caller as
+  // `history` below: the record panel used to re-run these two calls for itself,
+  // which meant two places deciding what the record says. One call, one answer.
+  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers);
+  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers);
+  const effectiveMenacwyDoses = menacwyHistory.effective;
+  const effectiveMenbDoses    = menbHistory.effective;
 
   const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today);
   const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
@@ -1295,5 +1316,9 @@ export function recommend(input) {
       }
     : { eligible: false };
 
-  return { menacwy, menb, pentavalent, hct, meta: { ageMonths: am, today, riskIds } };
+  return {
+    menacwy, menb, pentavalent, hct,
+    history: { MenACWY: menacwyHistory, MenB: menbHistory },
+    meta: { ageMonths: am, today, riskIds },
+  };
 }

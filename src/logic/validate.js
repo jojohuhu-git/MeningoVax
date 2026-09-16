@@ -927,7 +927,10 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses
 // sort before all dated doses, preserving their relative input order.
-function sortDosesChronologically(doses) {
+// Exported because the MenB family-lock note in DoseEditor has to pick the same
+// "first dose in the series" this walk does — two copies of the ordering rule is
+// how the note and the engine would end up naming different families.
+export function sortDosesChronologically(doses) {
   return doses
     .map((d, i) => ({ d, i }))
     .sort((a, b) => {
