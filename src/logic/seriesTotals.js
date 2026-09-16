@@ -123,7 +123,32 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   }
   if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, primaryTotal: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
   if (riskClass === 'single+boost') return { total: MENACWY_SINGLE_TOTAL, primaryTotal: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
-  if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, primaryTotal: MENACWY_SINGLE_TOTAL, hasBoosterPhase: false };
+  // P0-2 (2026-09-15): this used to return hasBoosterPhase: false, which
+  // validate.js treats as licence to cap the series and DISCARD any dose past
+  // the total. The engine then re-planned against a history missing a dose the
+  // patient had actually received, and offered that same injection again today
+  // (a 4,000-patient sweep hit the pattern 115 times, all in this class).
+  //
+  // All three "single" indications legitimately accept a later dose:
+  //   college   ACIP 2020 MMWR 69(RR-9) Table 10 footnote -- a dose after the
+  //             16th birthday needs no booster, i.e. it is the dose that
+  //             SATISFIES the requirement (owner decision M17).
+  //   outbreak  Table 8 -- a top-up "if previously vaccinated and identified as
+  //             being at increased risk" (owner decision M12).
+  //   military  Table 10 -- the DoD booster every 5 years by assignment
+  //             (owner decision M18).
+  //
+  // "single" means the PRIMARY series is one dose, not that the patient may
+  // never receive another. Only "one dose and nothing ever again" earns the
+  // cap: routine MenACWY and healthy MenB, both below, which keep it.
+  //
+  // What the three do NOT share with 'single+boost' is a standing booster
+  // COUNTDOWN -- outbreak's top-up is re-exposure driven, and the military's is
+  // driven by assignment. That distinction lives in recommend.js's own
+  // branches, which decide what to offer; it was never this flag's job. This
+  // flag answers one question, for one caller: may a dose past the total be
+  // thrown away? For these three, no.
+  if (riskClass === 'single') return { total: MENACWY_SINGLE_TOTAL, primaryTotal: MENACWY_SINGLE_TOTAL, hasBoosterPhase: true };
   // Routine (no current MenACWY risk indication): 1 dose is enough when the
   // FIRST dose on record was given at ≥16y (ACIP: no booster needed);
   // otherwise the 16y booster is still owed, so the series isn't closed
