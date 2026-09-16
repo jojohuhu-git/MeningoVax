@@ -107,6 +107,16 @@ Eligible only when BOTH MenACWY and MenB are due the same visit AND age ≥10y. 
 
 **A pentavalent in the recorded history counts for BOTH vaccines** (G1, 2026-09-16). One entry, on either history step, is credited to the MenACWY series and the MenB series: `src/logic/pentavalentCredit.js` runs before any walk, adds a copy tagged `creditedFrom` to the other list, and de-duplicates a shot recorded on both steps (matched on brand + date). Dose numbers are independent per vaccine; the MenB antigen family locks from either step; the row is edited or deleted where it was entered. Do not re-implement this in a surface — both the engine and the record panel read the one merged history off `recommend().history`.
 
+## History Entry — Doses Dated in the Future
+
+A dose whose date is after today is rejected by `futureDatedProblem()` in
+`validate.js`, before any vaccine-specific rule runs: it does not count, it does
+not advance the series, and it carries `recordProblem: true` so the walk does not
+append the "repeat this dose only" advice (nothing was given to repeat). A dose
+dated today is not future-dated and counts normally. The date input's `max` uses
+`todayISO()`, not `new Date().toISOString()`, so it is not a day ahead of the
+clinician in a UTC-behind timezone.
+
 ## History Entry — Doses Without Dates
 
 Dose counting works by array length without dates. Dates are only used for:

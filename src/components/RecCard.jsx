@@ -147,7 +147,7 @@ function cardCiteNumberer(doseValidations, noteCites) {
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
-  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose } = result;
+  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose, recordProblem } = result;
 
   // Item 2 (2026-07-23 handoff): once answered, the validator's result no
   // longer carries needsInput/promptDate (see validate.js), so re-opening the
@@ -197,7 +197,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
           ? 'dose-val-chip dose-val-invalid'
           : 'dose-val-chip dose-val-unknown';
 
-  const chipLabel = notAdolescentCount
+  // G3 (2026-09-16): a dose dated in the future is not an invalid DOSE — it is
+  // an entry that cannot be right yet. "Invalid" sends the reader looking for a
+  // clinical mistake; the chip has to point at the date instead.
+  const chipLabel = recordProblem
+    ? 'Date is in the future — not counted'
+    : notAdolescentCount
     ? 'Off-window - repeat'
     : extraDose
       ? 'Extra dose — beyond the indicated series total'

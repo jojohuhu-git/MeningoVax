@@ -23,6 +23,8 @@ import {
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
 import { creditPentavalents } from '../pentavalentCredit.js';
+import { analyzeHistory } from '../validate.js';
+import { TEST_TODAY } from '../../test-today.js';
 
 const read = (rel) => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8')
   // Normalise so a line wrap or an en-dash never decides whether a rule is documented.
@@ -201,6 +203,31 @@ describe('L2-4: the rule documents describe how a recorded pentavalent is counte
       expect(doc, why(path, 'the same pentavalent recorded on BOTH history steps is counted once, matched on brand and date.'))
         .toMatch(/counts? once|de-duplicates/i);
     }
+  });
+});
+
+describe('L2-4: the rule documents describe what happens to a future-dated dose', () => {
+  // G3 (2026-09-16). Derived from the code first: grade a dose dated after the
+  // pinned today and confirm the walk drops it without repeat advice, then
+  // require both documents to say so.
+  it('a dose dated in the future is documented as not counting', () => {
+    const { perDose, effective } = analyzeHistory('MenACWY', [{ date: '2027-05-01', brand: '' }], 204, []);
+    expect(effective).toHaveLength(0);
+    expect(perDose[0].doesNotCount).toBe(true);
+    expect(perDose[0].reasons.join(' ')).not.toMatch(/repeat this dose/i);
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'a dose dated after today is not counted — the record lists doses already given, so a future date is a typo or an appointment.'))
+        .toMatch(/dated in the future|date(d)? (is )?(in the )?future/i);
+    }
+  });
+
+  it('the "today still counts" boundary is documented, not just the rejection', () => {
+    const { effective } = analyzeHistory('MenACWY', [{ date: TEST_TODAY, brand: '' }], 204, []);
+    expect(effective).toHaveLength(1);
+
+    expect(summary, why(SUMMARY_PATH, 'a dose dated TODAY counts normally — the cut-off is strictly after today, and a reader has to be told which side of the line today sits on.'))
+      .toMatch(/dated \*?today\*? counts|today (is not|counts)/i);
   });
 });
 

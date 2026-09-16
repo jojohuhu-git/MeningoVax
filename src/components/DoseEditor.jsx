@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { menbFamily } from '../data/brands.js';
 import { isPentavalentBrand } from '../logic/pentavalentCredit.js';
 import { sortDosesChronologically } from '../logic/validate.js';
+import { todayISO } from '../logic/dateUtils.js';
 import { newDoseRow } from '../logic/doseIdentity.js';
 
 // Shared row/note renderer for recorded-dose editing, used by both the
@@ -49,6 +50,7 @@ export default function DoseEditor({
 }) {
   const listRef = useRef(null);
   const prevLengthRef = useRef(doses.length);
+  const today = todayISO();
 
   // Item 1: focus the new row's date input, but only when a row was just
   // ADDED (length grew) -- not on mount and not on remove.
@@ -105,7 +107,10 @@ export default function DoseEditor({
               <input
                 type="date"
                 value={dose.date || ''}
-                max={new Date().toISOString().slice(0, 10)}
+                // G3: todayISO(), not new Date().toISOString() — the latter is
+                // UTC and is a day ahead of the clinician any evening in a
+                // UTC-behind timezone, so the picker would refuse today's date.
+                max={today}
                 onChange={e => updateDose(idx, 'date', e.target.value)}
               />
             </div>
@@ -132,6 +137,15 @@ export default function DoseEditor({
             >
               ×
             </button>
+            {/* G3: the `max` above stops the date PICKER offering a future day,
+                but a typed or pasted date walks straight past it. Say so where
+                the date was entered, not only on the results card. */}
+            {dose.date && dose.date > today && (
+              <div className="dose-row-problem" data-testid="dose-date-in-future">
+                This date is in the future, so this dose is not counted. Check the
+                date — if the patient has not had this dose yet, leave it out.
+              </div>
+            )}
           </div>
         ))}
       </div>

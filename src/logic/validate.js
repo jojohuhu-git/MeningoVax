@@ -54,6 +54,7 @@ import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
+import { fmtDate } from './format.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -207,6 +208,38 @@ function unknownResult(reasons) {
 // Build a 'valid' result.
 function validResult(reasons = []) {
   return { status: 'valid', reasons };
+}
+
+// Build a 'record problem' result: the entry itself is wrong, as opposed to a
+// real dose given at the wrong time.
+//
+// G3 (2026-09-16): these are graded like an invalid dose — not counted — but
+// they must NOT collect the walk's "repeat this dose only" advice. That advice
+// is for a dose that WAS given, too early or too close to the last one. When
+// the problem is the typing, repeating a shot nobody received is nonsense; the
+// fix is to correct the record.
+function recordProblemResult(reasons, detail) {
+  const r = { status: 'invalid', recordProblem: true, reasons };
+  if (detail != null) r.detail = detail;
+  return r;
+}
+
+/**
+ * G3: a dose dated after today. The record lists doses the patient has already
+ * received, so a future date is either a typo (a mistyped year, most often) or
+ * a scheduled appointment typed into the wrong place. Counting it would tell a
+ * clinician the patient is covered by a shot that is not in their arm.
+ *
+ * Checked once here for both vaccines rather than inside each validator —
+ * nothing about it is vaccine-specific, and a second copy is how rules drift.
+ * Returns null when the date is absent or is today or earlier.
+ */
+function futureDatedProblem(dose, today) {
+  if (!dose?.date || !today || dose.date <= today) return null;
+  return recordProblemResult(
+    [`This date is in the future — today is ${fmtDate(today)}. A dose cannot have been given yet, so it is not counted. Check the date: if the year is a typo, correct it; if this is an appointment the patient has not attended yet, take it out of the record, which lists doses already given.`],
+    `Recorded date: ${fmtDate(dose.date)}. Today: ${fmtDate(today)}.`
+  );
 }
 
 // Build an 'invalid' result.
@@ -796,8 +829,12 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
     const riskAnswer = riskAtDoseAnswers?.[doseAnswerKey(dose, rawIdx)];
 
     // Validate this dose against the current kept list.
-    let result;
-    if (vaccine === 'MenACWY') {
+    // G3: a date in the future is settled before any vaccine-specific rule
+    // runs — there is no dose to grade yet, whatever the schedule says.
+    let result = futureDatedProblem(dose, today);
+    if (result) {
+      // fall through to the invalid branch below
+    } else if (vaccine === 'MenACWY') {
       result = validateOneMenACWY(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
     } else if (vaccine === 'MenB') {
       result = validateOneMenB(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
@@ -818,10 +855,13 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         ...result,
         effectiveDoseNum: null,
         doesNotCount: true,
-        reasons: [
-          ...result.reasons,
-          'This dose does not count toward the series: repeat this dose only (do not restart the series).',
-        ],
+        reasons: result.recordProblem
+          // G3: the entry is wrong, not the vaccination — see recordProblemResult.
+          ? result.reasons
+          : [
+            ...result.reasons,
+            'This dose does not count toward the series: repeat this dose only (do not restart the series).',
+          ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
     } else if (result.notAdolescentCount) {
