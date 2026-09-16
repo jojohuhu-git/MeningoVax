@@ -61,7 +61,7 @@ const AGE_16Y_MONTHS = 192;
 // `given >= 4` default same as a standard start, so this function must
 // return 4 for them too, or the chip/headline total would stop matching
 // what recommend.js is actually still asking for.
-export function menacwyInfantHighRiskTotal({ d1AgeM }) {
+export function menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM = null }) {
   // M5 (2026-09-15): a series STARTED at 7–23 months is a 2-dose primary series.
   // This used to return 3 for a 7–11-month start and 4 for a 12–23-month one, so
   // the app asked for a third primary dose that CDC does not want and delayed the
@@ -75,7 +75,37 @@ export function menacwyInfantHighRiskTotal({ d1AgeM }) {
   // drifted apart; it aligned them on the wrong number. That guard moves to 2 as
   // well, so the two stay in step.
   const d1WasInfant7to23 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
-  return d1WasInfant7to23 ? 2 : 4;
+  if (d1WasInfant7to23) return 2;
+
+  // P1-3 (2026-09-15): the CDC "3- or 4-dose series" row. A series begun at
+  // 3-6 months whose dose 2 landed at 7 months or later completes in THREE
+  // doses -- recommend.js has offered exactly that as the "3-dose shortcut"
+  // for a long time, but this function kept answering 4, so the card promised
+  // "Dose 3 of 3" and the follow-up card then asked for a fourth. The
+  // validator, which reads this function, never believed the shortcut either.
+  //
+  // CDC child & adolescent schedule notes, MenACWY special situations, Menveo
+  // (fetched live 2026-09-15):
+  //   "Dose 1 at age 3-6 months: 3- or 4- dose series (dose 2 [and dose 3 if
+  //    applicable] at least 8 weeks after previous dose until a dose is
+  //    received at age 7 months or older, followed by an additional dose at
+  //    least 12 weeks later and after age 12 months)"
+  //
+  // The band is 3-6 months, NOT 2-6. The row above it is unconditional:
+  //   "Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6,
+  //    and 12 months)"
+  // recommend.js used to open the shortcut at d1AgeM >= 2, so a baby who
+  // started on time at 2 months was offered a three-dose series CDC does not
+  // describe. Owner decision 2026-09-15: follow CDC. vaxapp has the same
+  // 2-month behaviour and is to be brought into line in its own PR.
+  //
+  // An unknown dose-2 age falls back to 4, the conservative answer: the
+  // shortcut has to be earned by a dose actually given at >=7 months.
+  const d1WasEarly = d1AgeM != null && d1AgeM >= 3 && d1AgeM <= 6;
+  const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;
+  if (d1WasEarly && d2WasAt7Plus) return 3;
+
+  return 4;
 }
 
 /**
@@ -104,9 +134,11 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // module exists to make impossible. A series BEGUN under 2 years old keeps its
   // infant length for life (CDC: "Dose 1 at age 2 months: 4-dose series").
   const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+  const d2AgeM = doses[1] ? ageAtDose(doses[1], am, today) : null;
   const startedAsInfant = d1AgeM != null && d1AgeM < 24;
   if ((am < 24 || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
-    const infantTotal = menacwyInfantHighRiskTotal({ d1AgeM });
+    // P1-3: d2AgeM decides the 3-vs-4-dose answer for a 3-6-month start.
+    const infantTotal = menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
     return {
       total: infantTotal,
       // Every dose of an at-risk infant schedule is a PRIMARY dose. CDC,
@@ -232,7 +264,7 @@ export function menbSeriesInfo({ highRisk, doses }) {
  * @param {number|null} d1AgeM — age in months at dose 1 (null if unknown)
  * @returns {number} number of primary doses before the booster phase begins
  */
-export function menacwyPrimaryTotal({ riskClass, d1AgeM, infantSeries = false }) {
+export function menacwyPrimaryTotal({ riskClass, d1AgeM, d2AgeM = null, infantSeries = false }) {
   // M10 (2026-09-15): a series BEGUN under 2 years old is an infant series
   // whatever the indication, so its length comes from the age at dose 1 — not
   // from "1 dose" just because the reason was travel or an outbreak. Leaving
@@ -245,7 +277,7 @@ export function menacwyPrimaryTotal({ riskClass, d1AgeM, infantSeries = false })
   // from military ('single'), and ACIP gives microbiologists (Table 7, ">=10
   // yrs") and recruits (Table 10) no infant row at all.
   if (d1AgeM != null && d1AgeM < 24 && (riskClass === 'primary2' || infantSeries)) {
-    return menacwyInfantHighRiskTotal({ d1AgeM });
+    return menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
   }
   if (riskClass === 'primary2') return MENACWY_HIGHRISK_PRIMARY_TOTAL;
   // Exposure-risk classes take a single primary dose from 2 years old.

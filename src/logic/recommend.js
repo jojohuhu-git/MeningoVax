@@ -573,7 +573,12 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // When D1/D2 ages are unknown, fall back conservatively to the standard 4-dose series.
   const d1AgeM = given >= 1 ? ageAtDose(doses[0], am, today) : null;
   const d2AgeM = given >= 2 ? ageAtDose(doses[1], am, today) : null;
-  const d1WasEarly = d1AgeM != null && d1AgeM >= 2 && d1AgeM <= 6; // started at 2–6m
+  // P1-3 (2026-09-15): was `d1AgeM >= 2`. CDC gives a dose 1 at 2 months a flat
+  // 4-dose series and reserves the "3- or 4- dose series" wording for 3-6
+  // months, so a baby who started on time at 2 months was being offered a
+  // three-dose series CDC does not describe. Owner decision 2026-09-15: follow
+  // CDC. Must stay in step with seriesTotals.js's menacwyInfantHighRiskTotal().
+  const d1WasEarly = d1AgeM != null && d1AgeM >= 3 && d1AgeM <= 6; // started at 3–6m
   const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;             // D2 at ≥7m
   const on3DosePath = d1WasEarly && d2WasAt7Plus;
   // D5 fix: detect whether D1 was in the 7–23m band (D2 needs ≥12-week + ≥12m floor).
@@ -604,7 +609,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // (The 3-dose shortcut path is handled above at given === 2.)
   // M5: 2-dose primary for a 7–23-month start (was `given >= 3`, which asked for a
   // third primary dose CDC does not want and held the booster back behind it).
-  const seriesComplete = d1WasInfant7to11 ? given >= 2 : given >= 4;
+  // P1-3 (2026-09-15): was `d1WasInfant7to11 ? given >= 2 : given >= 4`, a
+  // hand-written restatement of the series length that omitted the 3-dose
+  // shortcut entirely -- so a patient handed "Dose 3 of 3" was asked for a
+  // fourth dose at their next visit. Deriving it from the one function that
+  // owns the answer makes card, follow-up card and validator agree by
+  // construction, which is the whole point of seriesTotals.js.
+  const infantSeriesTotal = menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
+  const seriesComplete = given >= infantSeriesTotal;
   if (seriesComplete && infantOutbreak) {
     // M10: ACIP Table 8 gives an outbreak contact a one-off top-up when they are
     // identified at risk in a NEW outbreak — "Boosters (if previously vaccinated
@@ -615,14 +627,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // 3-then-5-year booster cadence below, which travel and medical risk use.
     return rec({ vaccine: 'MenACWY', status: 'complete',
       doseLabel: 'Complete (infant outbreak series)',
-      seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }),
+      seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }),
       note: `The outbreak infant series is complete.${outbreakTopUp}`,
       brands: menacwyBrands(am), refs });
   }
   if (seriesComplete) {
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
     // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
-    const isFirstInfantBooster = given === (d1WasInfant7to11 ? 2 : 4);
+    const isFirstInfantBooster = given === infantSeriesTotal;
     const infantBoostYears = isFirstInfantBooster ? 3 : 5;
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
@@ -631,7 +643,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       // F1 (2026-09-14): was hardcoded 2 for the d1WasInfant7to11 bucket —
       // drifted from the `given >= 3` completion guard just above (should
       // be 3, matching the initial rec's total and menacwyInfantHighRiskTotal()).
-      doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: 'Boosters: every 5 years while at risk (ongoing)',
+      doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: 'Boosters: every 5 years while at risk (ongoing)',
       dueToday: elapsedBoost,
       earliestNextDate: elapsedBoost ? null : addCalendarYears(lastDate, infantBoostYears),
       minIntervalDays: boostDays,
@@ -655,7 +667,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // being asked for it because the `given >= 4` default guard above didn't
   // consider them complete at 3, so the total shown here must be 4 too, or
   // this dose's own doseNum would exceed it.
-  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM }), boosterSummary: boosterSummaryText,
+  return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
     earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
     minIntervalDays: nextIntervalDays,

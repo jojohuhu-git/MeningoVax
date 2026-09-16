@@ -93,11 +93,15 @@ describe('P0-1: menacwySeriesInfo keys off the age at dose 1, like menacwyPrimar
   });
 
   it('it agrees with the validator for the same patient', () => {
-    const info = menacwySeriesInfo({
-      riskClass: 'primary2', am: 96, today: TODAY,
-      doses: [{ date: '2018-12-03' }, { date: '2019-02-03' }, { date: '2019-04-03' }, { date: '2019-10-03' }],
-    });
-    expect(info.primaryTotal).toBe(menacwyPrimaryTotal({ riskClass: 'primary2', d1AgeM: 2 }));
+    // TODAY is 2026-06-03 and the patient is 96 months old, so their DOB is
+    // 2018-06-03 and these four doses fall at 2, 4, 6 and 12 months — the
+    // textbook series. (P1-3 note: an earlier draft of this fixture dated dose
+    // 1 at 2018-12-03, which is SIX months, with dose 2 at eight months — that
+    // is the 3-dose shortcut, not a 2-month start, so it stopped meaning what
+    // the test says once P1-3 taught the totals to tell the two apart.)
+    const doses = [{ date: '2018-08-03' }, { date: '2018-10-03' }, { date: '2018-12-03' }, { date: '2019-06-03' }];
+    const info = menacwySeriesInfo({ riskClass: 'primary2', am: 96, today: TODAY, doses });
+    expect(info.primaryTotal).toBe(menacwyPrimaryTotal({ riskClass: 'primary2', d1AgeM: 2, d2AgeM: 4 }));
     expect(info.primaryTotal).toBe(4);
   });
 

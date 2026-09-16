@@ -101,6 +101,10 @@ const MENACWY_HR_INFANT_MIN_INTERVAL   = DAYS.weeks(4);    // 28 d
 // the time, and the card re-offered it the same day. DAYS.years(5) = 1826
 // happened to be safe (five-year spans are 1826-1827 days), but it moves to the
 // calendar helper too so it cannot drift. The *_DAYS twins are display only.
+// P1-3 (2026-09-15): the dose that completes a 3-dose infant series must be
+// >=12 weeks after dose 2 AND after age 12 months (CDC, MenACWY special
+// situations, the 3-6-month row).
+const MENACWY_SHORTCUT_D3_MIN_INTERVAL = DAYS.weeks(12);
 const MENACWY_BOOSTER_5Y_YEARS         = 5;
 const MENACWY_BOOSTER_3Y_YEARS         = 3;
 const MENACWY_BOOSTER_5Y               = DAYS.years(5);    // 1826 d (display only)
@@ -394,7 +398,35 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // previous dose" against a 3-year cadence, and both were voided.
       const keptDated = kept.filter(d => d.date);
       const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
-      const primaryTotal = menacwyPrimaryTotal({ riskClass: menacwyRiskClass(riskIds), d1AgeM, infantSeries: menacwyInfantSeriesIndicated(riskIds) });
+      // P1-3: d2AgeM decides 3-vs-4 doses for a 3-6-month start, so the
+      // validator must read it too or it will disagree with the card again.
+      const d2AgeM = ageAtDoseFromDate(keptDated[1] || null, ageMonths, today);
+      const primaryTotal = menacwyPrimaryTotal({ riskClass: menacwyRiskClass(riskIds), d1AgeM, d2AgeM, infantSeries: menacwyInfantSeriesIndicated(riskIds) });
+      // P1-3 (2026-09-15): the 3-dose shortcut's FINAL dose has its own
+      // condition, and until now only the 4-week baseline was applied to it.
+      // That was tolerable while the series was 4 doses long (a premature dose
+      // 3 still left a dose 4 to come). Now that three doses can complete the
+      // series, an early third dose would close it, so the condition has to be
+      // enforced rather than merely promised by the card.
+      //
+      // CDC child & adolescent schedule notes, MenACWY special situations,
+      // Menveo (fetched live 2026-09-15), the 3-6-month row: "...followed by an
+      // additional dose at least 12 weeks later and after age 12 months".
+      if (riskClass && primaryTotal === 3 && effectiveIdx === 2) {
+        const tooSoon = interval < MENACWY_SHORTCUT_D3_MIN_INTERVAL;
+        const tooYoung = ageAtDose != null && ageAtDose < 12;
+        if (tooSoon || tooYoung) {
+          const why = [
+            tooSoon ? `only ${fmtDays(interval)} after dose 2 (minimum 12 weeks)` : null,
+            tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ageAtDose)})` : null,
+          ].filter(Boolean).join(', and ');
+          return invalidResult(
+            [`The dose completing a 3-dose infant series was given ${why}. CDC requires it at least 12 weeks after dose 2 AND after age 12 months. This dose does not count; repeat it.`],
+            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_SHORTCUT_D3_MIN_INTERVAL)} and after age 12 months.`
+          );
+        }
+      }
+
       if (riskClass && effectiveIdx >= primaryTotal) {
         const isFirstBooster = effectiveIdx === primaryTotal;
         let cadenceDays;
