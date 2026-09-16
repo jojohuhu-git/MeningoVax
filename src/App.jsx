@@ -6,6 +6,7 @@ import StepHistory from './components/StepHistory.jsx';
 import Results from './components/Results.jsx';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from './data/brands.js';
 import { hasExclusion } from './data/riskFactors.js';
+import { creditPentavalents } from './logic/pentavalentCredit.js';
 
 const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
 
@@ -93,6 +94,15 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.step, state.ageMonths]);
 
+  // G1 (2026-09-16): a pentavalent typed on one history step already counts on
+  // the other. Each step is told which doses it is being credited, so it can say
+  // so instead of letting the clinician record the same injection twice.
+  const merged = creditPentavalents(state.menacwyDoses, state.menbDoses);
+  const credited = {
+    menacwy: merged.menacwy.filter((d) => d.creditedFrom),
+    menb: merged.menb.filter((d) => d.creditedFrom),
+  };
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -132,6 +142,7 @@ export default function App() {
             doses={state.menacwyDoses}
             onChange={menacwyDoses => update({ menacwyDoses })}
             brandOptions={MENACWY_HISTORY_BRANDS}
+            creditedDoses={credited.menacwy}
           />
         )}
         {state.step === 3 && (
@@ -140,6 +151,7 @@ export default function App() {
             doses={state.menbDoses}
             onChange={menbDoses => update({ menbDoses })}
             brandOptions={MENB_HISTORY_BRANDS}
+            creditedDoses={credited.menb}
           />
         )}
         {state.step === 4 && (

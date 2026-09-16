@@ -169,6 +169,35 @@ on-the-table today).
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
 
+### A pentavalent already in the record counts for BOTH vaccines
+
+The rules above are about *giving* a pentavalent. This one is about a pentavalent
+the patient has **already had**. It is a single injection that counts as a MenACWY
+dose **and** a MenB dose, so the app credits both families no matter which history
+step it was typed into:
+
+- **Record it once, on either step.** The other step then says the dose is already
+  counted there and asks you not to enter it twice.
+- **Dose numbers stay separate per vaccine.** The same shot can be MenACWY dose 3
+  and MenB dose 1.
+- **It sets the MenB antigen family from either step** (Penbraya → FHbp,
+  Penmenvy → 4C). A Bexsero recorded after a Penbraya is flagged as a family
+  mismatch even when the Penbraya was entered on the MenACWY step.
+- **Editing or deleting the row moves both halves at once**, because there is only
+  ever one row — the copy shown in the other vaccine's record is marked
+  "one shot covering both — recorded under MenACWY/MenB" and is edited where it
+  was entered.
+- **The same shot recorded on both steps counts once**, not twice (matched on brand
+  and date).
+
+Why: CDC's child/adolescent schedule notes call a single Penbraya dose "an
+alternative to separate administration of MenACWY and MenB", and tell you that
+"if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered
+for dose 2 MenB" — that sentence only makes sense if the pentavalent dose *is*
+MenB dose 1. (Verified live 2026-09-16:
+https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html and
+ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
+
 ---
 
 ## 4. Dose-counting mechanics (applies to both vaccines)

@@ -1,16 +1,44 @@
 import React, { useRef, useEffect } from 'react';
 import { menbFamily } from '../data/brands.js';
+import { isPentavalentBrand } from '../logic/pentavalentCredit.js';
 
 // Shared row/note renderer for recorded-dose editing, used by both the
 // wizard (StepHistory) and the Results "Recorded doses" inline panel.
 // Item 5 (2026-07-23): these had drifted -- only StepHistory showed the
 // MenB family-lock guidance. Moving that detection here means both
 // surfaces get it automatically and can't drift again.
+// G1 (2026-09-16): a pentavalent (Penbraya/Penmenvy) is one injection covering
+// both vaccines, and it is only ever typed into ONE of the two history lists.
+// This note tells the other list that the dose is already counted there —
+// otherwise a clinician looking at an empty MenB list records the same shot a
+// second time. It lives outside DoseEditor because it must show even when the
+// list is collapsed or answered "No previous doses", which is exactly the case
+// where the double entry happens.
+export function PentavalentCreditNote({ vaccine, creditedDoses = [] }) {
+  const credited = creditedDoses.filter((d) => isPentavalentBrand(d?.brand));
+  if (credited.length === 0) return null;
+  const other = vaccine === 'MenB' ? 'MenACWY' : 'MenB';
+  const one = credited.length === 1;
+  return (
+    <div className="family-note" data-testid="pentavalent-credited-here">
+      {one
+        ? `A pentavalent dose recorded on the ${other} step counts as a ${vaccine} dose too, and is already included here.`
+        : `${credited.length} pentavalent doses recorded on the ${other} step count as ${vaccine} doses too, and are already included here.`}
+      {' '}Add a row below only for a different injection.
+    </div>
+  );
+}
+
 export default function DoseEditor({
   vaccine,
   doses,
   onChange,
   brandOptions,
+  // G1 (2026-09-16): pentavalent doses recorded on the OTHER vaccine's step,
+  // which already count here. They are not rows — they can't be edited from this
+  // list — but the clinician has to be told they're counted, or they will record
+  // the same injection twice.
+  creditedDoses = [],
   addDoseLabel = '+ Add dose',
   removeLabel,
   emptyMessage,
@@ -41,8 +69,27 @@ export default function DoseEditor({
     onChange(doses.map((d, i) => (i === idx ? { ...d, [field]: value } : d)));
   }
 
-  const firstBrand = vaccine === 'MenB' ? (doses[0]?.brand || '') : '';
+  // The MenB antigen family is set by the FIRST dose in the series, which may be
+  // a pentavalent recorded on the MenACWY step (G1) — so the lock is read from
+  // this list and the credited doses together, earliest date first. Undated doses
+  // sort first, matching analyzeHistory()'s own walk order.
+  const menbSeriesSoFar = [...doses, ...creditedDoses]
+    .filter(Boolean)
+    .map((d, i) => ({ d, i }))
+    .sort((a, b) => {
+      const da = a.d?.date || '';
+      const db = b.d?.date || '';
+      if (da && db) return da < db ? -1 : da > db ? 1 : a.i - b.i;
+      if (!da && db) return -1;
+      if (da && !db) return 1;
+      return a.i - b.i;
+    })
+    .map((x) => x.d);
+  const firstBrand = vaccine === 'MenB' ? (menbSeriesSoFar[0]?.brand || '') : '';
   const lockedFamily = vaccine === 'MenB' ? menbFamily(firstBrand) : null;
+  const otherVaccine = vaccine === 'MenB' ? 'MenACWY' : 'MenB';
+  const pentavalentHere = doses.some((d) => isPentavalentBrand(d?.brand));
+  const creditedHere = creditedDoses.filter((d) => isPentavalentBrand(d?.brand));
   const familyLabel = lockedFamily === '4C'
     ? 'Family locked: MenB-4C (continue with Bexsero or Penmenvy)'
     : lockedFamily === 'FHbp'
@@ -94,7 +141,15 @@ export default function DoseEditor({
         ))}
       </div>
 
-      {vaccine === 'MenB' && doses.length > 0 && familyLabel && (
+      {pentavalentHere && (
+        <div className="family-note" data-testid="pentavalent-covers-both">
+          Penbraya and Penmenvy are a single shot that covers both MenACWY and MenB.
+          This one entry counts as a {otherVaccine} dose as well — do not record it
+          again on the {otherVaccine} step.
+        </div>
+      )}
+
+      {vaccine === 'MenB' && (doses.length > 0 || creditedHere.length > 0) && familyLabel && (
         <div className="family-note">{familyLabel}</div>
       )}
 

@@ -61,12 +61,22 @@ function statusPillLabel(rec, pending) {
 // One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
 // D3: age at administration lets a clinician compare a recorded dose's timing
 // against the recommendation, not just its date.
+//
+// G1 (2026-09-16): a pentavalent (Penbraya/Penmenvy) is one injection that counts
+// in both families, and it is only ever typed into one of the two history lists.
+// The copy that appears in the other family's record says where it was typed, so
+// a clinician who counts the rows against the paper chart isn't left wondering
+// where a dose they never entered here came from — and knows to edit it on the
+// step that owns it.
 function describeDose(dose, idx, ageMonths, today) {
   const parts = [`D${idx + 1}`];
   parts.push(dose?.date ? fmtDate(dose.date) : 'date unknown');
   const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today) : null;
   parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose)}` : 'age unknown');
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
+  if (dose?.creditedFrom) {
+    parts.push(`one shot covering both — recorded under ${dose.creditedFrom}`);
+  }
   return parts.join(' · ');
 }
 
