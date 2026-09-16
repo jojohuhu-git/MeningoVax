@@ -1,3 +1,9 @@
+> **SUPERSEDED (2026-09-15).** Everything this file lists as open is resolved:
+> PR #12 merged, and F6/P1 were overtaken by the 2026-09-15 dose-counter audit.
+> The current state is
+> [handoff-2026-09-15-dose-counter-audit-queue-done.md](handoff-2026-09-15-dose-counter-audit-queue-done.md).
+> Do not resume the queue below.
+
 # MeningoVax — Handoff after F1-F5 (dose-counter fix) shipped (2026-09-14)
 
 Branch: `dose-counter-structural-fix`, off `main` at `94c7c81`. **Pushed** to
