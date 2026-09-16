@@ -1,0 +1,185 @@
+// L2-4 (2026-09-16): the document-versus-code tripwire.
+//
+// docs/agent/clinical-rules.md and docs/agent/meningococcal-rules-summary.md
+// describe the rules this app implements, and both carry an honour-system line
+// asking whoever changes a rule to update them in the same PR. That is exactly
+// what failed on 2026-09-15: six rules changed, both documents stayed behind,
+// and the owner-facing summary — labelled the source of truth, and copied into
+// vaxapp — went on describing the superseded behaviour.
+//
+// So the numbers stop being a promise and become an assertion. Each check below
+// reads the value out of the CODE and then requires the document to say it. If
+// someone changes a rule and not the prose, this fails and names the file and
+// the sentence.
+//
+// What this does NOT do: judge whether the rule is clinically right. That is the
+// owner's review (see the rule-review artifact) and verify-clinical-source. This
+// only guarantees the documents and the code tell the same story.
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import {
+  menacwyInfantHighRiskTotal, menbSeriesInfo,
+  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
+} from '../seriesTotals.js';
+import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
+
+const read = (rel) => readFileSync(new URL(`../../../${rel}`, import.meta.url), 'utf8')
+  // Normalise so a line wrap or an en-dash never decides whether a rule is documented.
+  .replace(/[‐-―]/g, '-')
+  .replace(/\s+/g, ' ');
+
+const SUMMARY_PATH = 'docs/agent/meningococcal-rules-summary.md';
+const CLINICAL_PATH = 'docs/agent/clinical-rules.md';
+const summary = read(SUMMARY_PATH);
+const clinical = read(CLINICAL_PATH);
+
+// A failure should tell a clinician what to do, not just what did not match.
+// True when `needle` appears within `window` characters of ANY occurrence of
+// `anchor`. Used instead of a single regex so a check tests that two facts are
+// stated together, not the order someone happened to write them in — a document
+// rule that fails on a rewording rather than on a changed number is a rule people
+// learn to delete.
+const statedNear = (doc, anchor, needle, window = 260) => {
+  const hay = doc.toLowerCase();
+  const a = anchor.toLowerCase();
+  const n = needle.toLowerCase();
+  for (let i = hay.indexOf(a); i !== -1; i = hay.indexOf(a, i + 1)) {
+    const from = Math.max(0, i - window);
+    if (hay.slice(from, i + a.length + window).includes(n)) return true;
+  }
+  return false;
+};
+
+const why = (path, what) =>
+  `${path} no longer matches the code: ${what}\n\n`
+  + 'The code is the behaviour patients see, so the document is what needs fixing — '
+  + 'unless the code change itself was wrong, in which case fix that instead. '
+  + 'This file is also copied into vaxapp; port the correction there too.';
+
+describe('L2-4: the rule documents state the dose counts the code uses', () => {
+  it('a series begun at 7-23 months is documented as the 2-dose series the code builds', () => {
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 8 })).toBe(2);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 18 })).toBe(2);
+    expect(summary, why(SUMMARY_PATH, 'the code gives a dose 1 at 7-23 months a 2-dose primary series.'))
+      .toMatch(/7-23 months[^.]{0,80}2-dose/i);
+  });
+
+  it('a series begun at 2 months is documented as 4 doses', () => {
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2 })).toBe(4);
+    expect(summary, why(SUMMARY_PATH, 'the code gives a dose 1 at 2 months a flat 4-dose series.'))
+      .toMatch(/4-dose/);
+  });
+
+  it('the 3-dose shortcut band is documented as 3-6 months, not 2-6', () => {
+    // The code's actual band: a 2-month start never shortcuts, a 3-month one can.
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 8 })).toBe(4);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 3, d2AgeM: 8 })).toBe(3);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 6, d2AgeM: 8 })).toBe(3);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'P1-3 moved the 3-dose shortcut to a dose 1 given at 3-6 months. A dose 1 at 2 months gets the flat 4-dose series.'))
+        .not.toMatch(/shortcut[^.]{0,120}2-6 ?m/i);
+      expect(
+        // The agent-facing doc abbreviates ("3-6m"), the owner-facing one spells it out.
+        statedNear(doc, 'shortcut', '3-6 month') || statedNear(doc, 'shortcut', '3-6m'),
+        why(path, 'the 3-dose shortcut needs dose 1 at 3-6 months and dose 2 at 7 months or later. The document must state that band alongside the shortcut.')
+      ).toBe(true);
+    }
+  });
+
+  it('the high-risk primary series from age 2 is documented as 2 doses', () => {
+    expect(MENACWY_HIGHRISK_PRIMARY_TOTAL).toBe(2);
+    expect(summary, why(SUMMARY_PATH, 'the high-risk MenACWY primary series from age 2 is 2 doses, >=8 weeks apart.'))
+      .toMatch(/2-dose primary series[^.]{0,60}8 weeks/i);
+  });
+});
+
+describe('L2-4: the rule documents state the booster timing the code uses', () => {
+  it('the booster clock is documented as running from the last primary dose, not dose 2', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'P1-1 moved the first-booster clock to the age at the LAST dose of the primary series. Keying it to dose 2 is only right for a series begun at 2 years or older; a baby with four infant doses was given a 5-year wait instead of 3.'))
+        .not.toMatch(/(keyed off|based on|at)[^.]{0,40}age (at|when) dose 2/i);
+      expect(doc, why(path, 'the first booster is timed from the last dose of the primary series.'))
+        .toMatch(/last dose of the primary series/i);
+    }
+  });
+
+  it('an A/C/W/Y outbreak is documented as a re-exposure top-up, not one-and-done', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'M12 gave an outbreak contact identified at risk again a single top-up dose once 3 years (under 7) or 5 years (7 and over) have passed. "One documented dose satisfies the indication" is the superseded rule.'))
+        .toMatch(/top-up/i);
+    }
+  });
+
+  it('military recruits are documented as the Department of Defense rule the card states', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'M18 changed the military card: ACIP gives recruits a booster every 5 years on the basis of assignment, and the Department of Defense sets that requirement. The app does not compute a date, and the document must not say nothing further is due.'))
+        .toMatch(/Department of Defense/i);
+    }
+  });
+
+  it('travel is documented as getting the 3-year first booster under age 7', () => {
+    expect(
+      statedNear(summary, 'traveller', '3 years') || statedNear(summary, 'travel', '3 years'),
+      why(SUMMARY_PATH, 'M9 gave travel the same under-7/over-7 split as medical high risk: first booster at 3 years if the primary dose was given before age 7. Microbiologists keep a flat 5 years - ACIP Table 7 has no under-7 row.')
+    ).toBe(true);
+    expect(
+      statedNear(summary, 'microbiologist', 'flat'),
+      why(SUMMARY_PATH, 'microbiologists get a FLAT 5-year booster interval, with no under-7 variation. The document must not describe them and travellers as having one shared rule.')
+    ).toBe(true);
+  });
+});
+
+describe('L2-4: the rule documents state the indications the code acts on', () => {
+  it('the infant series is documented as covering travel and outbreak babies too', () => {
+    expect(menacwyInfantSeriesIndicated(['travel'])).toBe(true);
+    expect(menacwyInfantSeriesIndicated(['outbreak_acwy'])).toBe(true);
+    expect(menacwyInfantSeriesIndicated(['microbiologist'])).toBe(false);
+    expect(menacwyInfantSeriesIndicated(['military'])).toBe(false);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'M10 put infants on the MenACWY infant series for travel and A/C/W/Y outbreak as well as medical high risk - ACIP prints the same "2-23 mos" row in Tables 4-6, 8 and 9. Microbiologists and recruits are excluded: they have no infant row at all.'))
+        .toMatch(/same infant series/i);
+    }
+  });
+});
+
+describe('L2-4: the rule documents state the MenB schedules the code uses', () => {
+  it('the healthy series is documented as 2 doses 6 months apart for BOTH brands', () => {
+    expect(menbSeriesInfo({ highRisk: false, doses: [] }).total).toBe(MENB_HEALTHY_TOTAL);
+    expect(MENB_HEALTHY_TOTAL).toBe(2);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'ACIP\'s October 2024 statement made the healthy schedule 0 and 6 months for both Bexsero and Trumenba. The old brand-split interval (Bexsero 0 + >=1 month) is superseded.'))
+        .not.toMatch(/Bexsero: 0\s*\+\s*>?=?\s*1\s*m/i);
+      expect(doc, why(path, 'the healthy MenB series is 2 doses at least 6 months apart, the same for both brands.'))
+        .toMatch(/2-dose[^.]{0,80}6 months|2 doses[^.]{0,80}6 months/i);
+    }
+  });
+
+  it('the high-risk series is documented as 3 doses with both dose-3 floors', () => {
+    expect(MENB_HIGHRISK_TOTAL).toBe(3);
+    expect(summary, why(SUMMARY_PATH, 'the high-risk MenB series is 3 doses at 0, 1-2 and 6 months.'))
+      .toMatch(/3-dose primary[^.]{0,60}0, 1-2/i);
+    expect(summary, why(SUMMARY_PATH, 'dose 3 needs BOTH >=6 months from dose 1 AND >=4 months from dose 2 - whichever is later.'))
+      .toMatch(/6 months after dose 1[^.]{0,80}4 months after dose 2/i);
+  });
+
+  it('the rescue dose after an early dose 2 is documented', () => {
+    const early = menbSeriesInfo({
+      highRisk: false,
+      doses: [{ date: '2026-01-15' }, { date: '2026-04-15' }],
+    });
+    expect(early.total).toBe(3);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'a dose 2 given under 6 months after dose 1 still counts, and a third dose is then needed >=4 months after dose 2.'))
+        .toMatch(/rescue/i);
+    }
+  });
+});
+
+describe('L2-4: both documents say when they were last checked against the code', () => {
+  it('each carries a verification stamp in YYYY-MM-DD form', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'it needs a dated "last verified against code" stamp so a reader can tell how much to trust it.'))
+        .toMatch(/verified against code:?\*{0,2}\s*\d{4}-\d{2}-\d{2}/i);
+    }
+  });
+});
