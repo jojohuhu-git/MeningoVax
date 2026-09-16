@@ -761,7 +761,11 @@ function menacwyRoutine(am, given, doses, last, today) {
     // is the booster it was owed — 2 total.
     return [rec({ vaccine: 'MenACWY', status: given === 0 ? 'catchup' : 'due',
       doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : 'Booster (16y)',
-      doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, dueToday: true, brands: menacwyBrands(am),
+      // P2-2 (2026-09-15): primaryTotal was omitted, so rec() defaulted it to
+      // seriesTotal (2 in the booster case) and RecCard's headings would have
+      // filed the 16-year BOOSTER under "Primary series". Routine MenACWY is the
+      // one schedule whose primary series is shorter than its total.
+      doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
       note: given === 0
         ? 'Unvaccinated adolescent ≥16 years: a single MenACWY dose; because it is given at ≥16y, no booster is required [c].'
         : 'Routine 16-year booster (the dose given at 11–12y does not count as the booster) [c].',
@@ -781,7 +785,8 @@ function menacwyRoutine(am, given, doses, last, today) {
         // F1 (2026-09-14): given===0 → this first-ever dose (at ≥19y) needs
         // no booster (1 total). given>=1 → an earlier <16y dose owes this
         // catch-up dose as its booster (2 total). Was hardcoded 1 for both.
-        doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, dueToday: true, brands: menacwyBrands(am),
+        // P2-2 (2026-09-15): same omission as the >=16y branch above.
+        doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
         note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended: when given at ≥16 years, no booster is needed [c]. Especially recommended for first-year college students living in residence halls.',
         noteCites: [cite('acwyCatchup1921')], refs })];
     }

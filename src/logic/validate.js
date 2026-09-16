@@ -121,7 +121,7 @@ const MENB_HR_D3_MIN_MONTHS_FROM_D2    = 4;
 const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(4);   // ~122 d (display only)
 // MenB high-risk booster: first booster ≥1 year after D3; subsequent ≥2 years
 const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(1);    // 365 d
-const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(2);    // 730 d
+const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(2);    // 731 d (display only)
 // MenB healthy 2-dose: D2 ≥6 months after D1 (early D2 triggers rescue)
 const MENB_HEALTHY_D2_MIN_MONTHS       = 6;
 const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(6);   // ~183 d (display only)

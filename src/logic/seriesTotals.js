@@ -250,5 +250,12 @@ export function menacwyPrimaryTotal({ riskClass, d1AgeM, infantSeries = false })
   if (riskClass === 'primary2') return MENACWY_HIGHRISK_PRIMARY_TOTAL;
   // Exposure-risk classes take a single primary dose from 2 years old.
   if (riskClass === 'single+boost' || riskClass === 'single') return MENACWY_SINGLE_TOTAL;
-  return MENACWY_HIGHRISK_PRIMARY_TOTAL;
+  // P2-1 (2026-09-15): riskClass === null is the ROUTINE patient, and this used
+  // to fall through to MENACWY_HIGHRISK_PRIMARY_TOTAL (2). The routine primary
+  // series is one dose — the 11-12y dose — with the 16y dose as the booster
+  // that closes it; menacwySeriesInfo() above already answers 1 here. It was
+  // harmless only because the single caller (validate.js) is gated on riskClass
+  // being truthy, so this line was unreachable. A second caller would have got
+  // the wrong answer with nothing to catch it.
+  return MENACWY_ROUTINE_PRIMARY_TOTAL;
 }
