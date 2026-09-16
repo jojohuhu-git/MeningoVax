@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
+import { newDoseRow } from '../logic/doseIdentity.js';
 
 export default function StepHistory({ vaccine, doses, onChange, brandOptions, creditedDoses = [] }) {
   const [hasHistory, setHasHistory] = useState(doses.length > 0 ? true : null);
@@ -12,7 +13,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions, cr
       const isAddDoseShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
       if (isAddDoseShortcut) {
         e.preventDefault();
-        onChange([...doses, { date: '', brand: '' }]);
+        onChange([...doses, newDoseRow()]);
       }
     }
     document.addEventListener('keydown', handleKeydown);

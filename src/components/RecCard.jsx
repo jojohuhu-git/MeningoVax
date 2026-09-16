@@ -3,6 +3,7 @@ import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
+import { doseAnswerKey } from '../logic/doseIdentity.js';
 
 // C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
 // instead of a terse status word that needed a legend to decode (the legend
@@ -421,8 +422,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                     <DoseValidation
                       result={doseValidations[row.index]}
                       seriesTotal={seriesTotal}
-                      onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, row.index, answer)}
-                      wasPrompted={riskAtDoseAnswers[row.index] !== undefined}
+                      onAnswer={answer => onRiskAtDoseAnswer?.(vaccine, doseAnswerKey(row.dose, row.index), answer)}
+                      wasPrompted={riskAtDoseAnswers[doseAnswerKey(row.dose, row.index)] !== undefined}
                       doseDate={row.dose?.date}
                       numberFor={numberFor}
                     />
