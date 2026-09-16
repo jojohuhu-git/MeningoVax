@@ -27,7 +27,7 @@
 // never import from either of them.
 // ─────────────────────────────────────────────────────────────────────────
 
-import { calendarMonthsBetween, daysBetween, DAYS } from './dateUtils.js';
+import { calendarMonthsBetween, calendarIntervalElapsed, daysBetween, DAYS } from './dateUtils.js';
 
 // Duplicated arithmetic from validate.js's ageAtDoseFromDate / recommend.js's
 // ageAtDose on purpose (avoids a circular import — see header). It's the
@@ -185,7 +185,11 @@ export function menbSeriesInfo({ highRisk, doses }) {
   // own needsRescue check (daysBetween(d1,d2) < DAYS.months(6)) exactly.
   const d1 = doses[0];
   const d2 = doses[1];
-  if (d1?.date && d2?.date && daysBetween(d1.date, d2.date) < DAYS.months(6)) {
+  // P0-4 (2026-09-15): was `daysBetween(d1,d2) < DAYS.months(6)`, i.e. 183 days.
+  // A real six-calendar-month gap is 181-184 days, so a correctly spaced 2-dose
+  // series flipped to a 3-dose "rescue" series roughly half the time, decided by
+  // nothing but the month the patient started in.
+  if (d1?.date && d2?.date && !calendarIntervalElapsed(d1.date, 6, d2.date)) {
     // The rescue dose is part of the primary series, not a booster. CDC child
     // & adolescent schedule notes, MenB shared clinical decision-making
     // (fetched live 2026-09-15): "2-dose series at least 6 months apart (if

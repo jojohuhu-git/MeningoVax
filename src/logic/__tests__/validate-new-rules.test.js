@@ -14,15 +14,22 @@ import { describe, it, expect } from 'vitest';
 import { validateHistory, analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 import { fmtAgeMonths } from '../format.js';
-import { addDays } from '../dateUtils.js';
+import { addDays, addCalendarMonths } from '../dateUtils.js';
 
 const TODAY = '2026-06-03';
 
 // ── date helpers ──────────────────────────────────────────────────────────
-function monthsAgo(m) { return addDays(TODAY, -Math.round(m * 30.4375)); }
+// P0-4 (2026-09-15): these were `addDays(TODAY, -Math.round(m * 30.4375))` and
+// `-Math.round(y * 365.25)` — the same averaged constants the production code
+// used, so a fixture written as "9 months ago" was really 274 days ago, which
+// is 6 months minus a day from a fixture written as "15 months ago". The tests
+// agreed with the code only because both were wrong in the same direction.
+// Now that the code compares real calendar dates, the fixtures must name real
+// calendar dates too, or a test says "9 months" and means something else.
+function monthsAgo(m) { return addCalendarMonths(TODAY, -m); }
 function weeksAgo(w)  { return addDays(TODAY, -(w * 7)); }
 function daysAgo(d)   { return addDays(TODAY, -d); }
-function yearsAgo(y)  { return addDays(TODAY, -Math.round(y * 365.25)); }
+function yearsAgo(y)  { return addCalendarMonths(TODAY, -y * 12); }
 
 function validate(vaccine, doses, ageMonths, riskIds = [], riskAtDoseAnswers) {
   return validateHistory(vaccine, doses, ageMonths, riskIds, TODAY, riskAtDoseAnswers);

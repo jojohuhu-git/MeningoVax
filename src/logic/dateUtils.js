@@ -53,6 +53,49 @@ export function calendarMonthsBetween(startISO, endISO) {
   return (ey - sy) * 12 + (em - sm) + (ed - sd) / daysInEndMonth;
 }
 
+// ── Calendar-exact intervals (P0-4/P0-5, 2026-09-15) ──────────────────────
+//
+// DAYS.months(6) is 183 and DAYS.years(3) is 1096, but a real six-month span is
+// 181-184 days and a real three-year span is 1095 or 1096. Used as a MINIMUM,
+// an averaged constant rejects perfectly correct doses depending on which month
+// the patient happened to start in: Bexsero on 2025-01-15 and 2025-07-15 is 181
+// days, so "at least 6 months apart" failed and a third injection was demanded.
+// A MenACWY booster on its exact three-year anniversary is 1095 days whenever no
+// 29 February falls inside the window, so it was voided as "too soon" and the
+// card re-offered it the same day.
+//
+// calendarMonthsBetween() above already documents this drift for AGE thresholds.
+// These two do the same job for intervals: they compare real calendar dates, so
+// "six months later" means the 15th six months on, whatever that month's length.
+//
+// Week-based minimums (4, 8, 12 weeks) are exact counts of days and must keep
+// using DAYS.weeks -- there is nothing approximate about them.
+
+// The same day-of-month `months` later, clamped to the last day when the target
+// month is shorter (31 Jan + 1 month = 28 Feb, or 29 Feb in a leap year).
+export function addCalendarMonths(iso, months) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const targetIdx = (m - 1) + months;               // 0-based month index from year 0
+  const ty = y + Math.floor(targetIdx / 12);
+  const tm = ((targetIdx % 12) + 12) % 12;          // 0-based month in ty
+  const daysInTargetMonth = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+  const td = Math.min(d, daysInTargetMonth);
+  return `${String(ty).padStart(4, '0')}-${String(tm + 1).padStart(2, '0')}-${String(td).padStart(2, '0')}`;
+}
+
+export function addCalendarYears(iso, years) {
+  return addCalendarMonths(iso, years * 12);
+}
+
+// True if `months` whole calendar months have passed from sinceISO by refISO.
+// The anniversary itself counts as elapsed: "at least 6 months apart" is
+// satisfied ON the six-month date, not the day after. ISO date strings compare
+// correctly with >=, so no parsing is needed here.
+export function calendarIntervalElapsed(sinceISO, months, refISO) {
+  if (!sinceISO) return true;
+  return refISO >= addCalendarMonths(sinceISO, months);
+}
+
 export const DAYS = {
   weeks: (w) => w * 7,
   months: (m) => Math.round(m * 30.4375),

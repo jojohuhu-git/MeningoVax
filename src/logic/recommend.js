@@ -26,7 +26,7 @@ import {
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import { menbFamily } from '../data/brands.js';
-import { todayISO, addDays, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
+import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
@@ -887,14 +887,16 @@ function menbRec(am, riskIds, doses, today) {
       // Now gate on both; earliestNextDate = later of the two floors.
       const d1Date = doses[0]?.date ?? null;
       const d2Date = doses[1]?.date ?? null;
-      const fromD1 = d1Date ? intervalElapsed(d1Date, DAYS.months(6), today) : true;
-      const fromD2 = d2Date ? intervalElapsed(d2Date, DAYS.months(4), today) : true;
+      // P0-4 (2026-09-15): calendar months, matching validate.js's gates for
+      // the same two rules.
+      const fromD1 = d1Date ? calendarIntervalElapsed(d1Date, 6, today) : true;
+      const fromD2 = d2Date ? calendarIntervalElapsed(d2Date, 4, today) : true;
       const elapsed = fromD1 && fromD2;
       // Compute the later of the two earliest dates (whichever constraint binds).
       let earliestNextDate = null;
       if (!elapsed) {
-        const e1 = d1Date ? addDays(d1Date, DAYS.months(6)) : null;
-        const e2 = d2Date ? addDays(d2Date, DAYS.months(4)) : null;
+        const e1 = d1Date ? addCalendarMonths(d1Date, 6) : null;
+        const e2 = d2Date ? addCalendarMonths(d2Date, 4) : null;
         if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
         else earliestNextDate = e1 ?? e2;
       }
@@ -946,9 +948,11 @@ function menbRec(am, riskIds, doses, today) {
         refs: refs([], ['mm7349a3']) })];
     }
     if (given === 1) {
-      const elapsed = intervalElapsed(lastDate, DAYS.months(6), today);
+      // P0-4 (2026-09-15): calendar months, not an averaged 183 days -- and the
+      // date shown is the real six-month anniversary, not lastDate + 183 days.
+      const elapsed = calendarIntervalElapsed(lastDate, 6, today);
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.months(6)), minIntervalDays: DAYS.months(6),
+        dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastDate, 6), minIntervalDays: DAYS.months(6),
         family, brands: menbBrands(family),
         note: `Healthy 2-dose schedule: dose 2 ≥6 months after dose 1 (applies to both Bexsero and Trumenba). Series complete after 2 doses given ≥6 months apart. If dose 2 is given earlier than 6 months, a third rescue dose will be needed ≥4 months after dose 2 [c].${menbPregnancyCaveat}`,
         noteCites: [cite('menbRescueDoseRule')],
@@ -960,14 +964,20 @@ function menbRec(am, riskIds, doses, today) {
       const d1d2Days = (dose1date && dose2date)
         ? daysBetween(dose1date, dose2date)
         : null;
-      const needsRescue = d1d2Days !== null && d1d2Days < DAYS.months(6);
+      // P0-4 (2026-09-15): was `d1d2Days < DAYS.months(6)` (183 days). A series
+      // exactly six calendar months apart is 181-184 days, so a correctly given
+      // 2-dose series was told it needed a third injection, decided by nothing
+      // but which month the patient started in. Must stay in step with
+      // seriesTotals.js's menbSeriesInfo(), which makes the same test.
+      const needsRescue = dose1date != null && dose2date != null
+        && !calendarIntervalElapsed(dose1date, 6, dose2date);
       if (needsRescue) {
-        const elapsed = intervalElapsed(dose2date, DAYS.months(4), today);
+        const elapsed = calendarIntervalElapsed(dose2date, 4, today);
         return [rec({
           vaccine: 'MenB', status: 'shared-decision',
           doseLabel: 'Dose 3 of 3 (rescue: dose 2 given early)',
           doseNum: 3, seriesTotal: 3, dueToday: elapsed,
-          earliestNextDate: elapsed ? null : addDays(dose2date, DAYS.months(4)),
+          earliestNextDate: elapsed ? null : addCalendarMonths(dose2date, 4),
           minIntervalDays: DAYS.months(4),
           family, brands: menbBrands(family),
           note: `Dose 2 was given less than 6 months after dose 1. A third rescue dose is needed ≥4 months after dose 2 to complete the series [c].${menbPregnancyCaveat}`,

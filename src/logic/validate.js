@@ -48,7 +48,7 @@
 //   • Penbraya MMWR 2023: https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm
 // ─────────────────────────────────────────────────────────────────────────
 
-import { daysBetween, calendarMonthsBetween, todayISO, DAYS } from './dateUtils.js';
+import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
@@ -99,15 +99,26 @@ const MENACWY_BOOSTER_3Y               = DAYS.years(3);    // 1096 d
 // MenB high-risk: D2 ≥4 weeks after D1
 const MENB_HR_D2_MIN_INTERVAL          = DAYS.weeks(4);    // 28 d
 // MenB high-risk: D3 ≥6 months after D1 AND ≥4 months after D2
-const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(6);   // ~183 d
-const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(4);   // ~122 d
+// P0-4 (2026-09-15): these four are now MONTH counts compared on the calendar,
+// not day counts compared against an averaged 30.4375-day month. DAYS.months(6)
+// is 183 days while a real six-month span is 181-184, so a dose given exactly
+// six calendar months later was rejected roughly half the time, depending only
+// on which month the patient started in. The *_DAYS twins below are kept
+// purely so the human-readable "(min ~6 months)" text keeps printing the same
+// approximate figure it always did.
+const MENB_HR_D3_MIN_MONTHS_FROM_D1    = 6;
+const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(6);   // ~183 d (display only)
+const MENB_HR_D3_MIN_MONTHS_FROM_D2    = 4;
+const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(4);   // ~122 d (display only)
 // MenB high-risk booster: first booster ≥1 year after D3; subsequent ≥2 years
 const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(1);    // 365 d
 const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(2);    // 730 d
 // MenB healthy 2-dose: D2 ≥6 months after D1 (early D2 triggers rescue)
-const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(6);   // ~183 d
+const MENB_HEALTHY_D2_MIN_MONTHS       = 6;
+const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(6);   // ~183 d (display only)
 // MenB healthy early-D2 rescue: D3 ≥4 months after early D2
-const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(4);   // ~122 d
+const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = 4;
+const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(4);   // ~122 d (display only)
 
 // Age band for infant-booster cadence check (7 years in months)
 const AGE_7Y_MONTHS = 84;
@@ -612,14 +623,14 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
 
       if (d1Date) {
         const fromD1 = daysBetween(d1Date, dose.date);
-        if (fromD1 < MENB_HR_D3_MIN_FROM_D1) {
+        if (!calendarIntervalElapsed(d1Date, MENB_HR_D3_MIN_MONTHS_FROM_D1, dose.date)) {
           reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months from D1.`);
           detail += `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}). `;
         }
       }
       if (d2Date) {
         const fromD2 = daysBetween(d2Date, dose.date);
-        if (fromD2 < MENB_HR_D3_MIN_FROM_D2) {
+        if (!calendarIntervalElapsed(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
           reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months from D2.`);
           detail += `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`;
         }
@@ -668,7 +679,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const prevKeptDated = [...kept].reverse().find(d => d.date);
     if (prevKeptDated) {
       const interval = daysBetween(prevKeptDated.date, dose.date);
-      if (interval < MENB_HEALTHY_D2_MIN_INTERVAL) {
+      if (!calendarIntervalElapsed(prevKeptDated.date, MENB_HEALTHY_D2_MIN_MONTHS, dose.date)) {
         return validResult([
           `Dose 2 was given ${fmtDays(interval)} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
         ]);
@@ -683,11 +694,10 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const d2Date = keptDated[1]?.date || null;
     // Only applies if effective D2 was early (i.e. d1→d2 < 6 months)
     if (d1Date && d2Date) {
-      const d1ToD2 = daysBetween(d1Date, d2Date);
-      if (d1ToD2 < MENB_HEALTHY_D2_MIN_INTERVAL) {
+      if (!calendarIntervalElapsed(d1Date, MENB_HEALTHY_D2_MIN_MONTHS, d2Date)) {
         // This is the rescue dose — check the D2→D3 interval.
         const fromD2 = daysBetween(d2Date, dose.date);
-        if (fromD2 < MENB_RESCUE_D3_MIN_FROM_D2) {
+        if (!calendarIntervalElapsed(d2Date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, dose.date)) {
           return invalidResult(
             [`Rescue dose given only ${fmtDays(fromD2)} after dose 2. Must be ≥4 months after the early dose 2.`],
             `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
