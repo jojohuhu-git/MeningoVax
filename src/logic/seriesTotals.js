@@ -96,8 +96,16 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // infantSeries is menacwyInfantSeriesIndicated(riskIds) — riskClass alone
   // cannot tell travel from microbiologist, or outbreak from military, and ACIP
   // gives the latter of each pair no infant row at all.
-  if (am < 24 && (riskClass === 'primary2' || infantSeries)) {
-    const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+  //
+  // P0-1 (2026-09-15): the gate used to be `am < 24` alone -- today's age. Its
+  // sibling menacwyPrimaryTotal() below already keys off the age at DOSE 1, so
+  // on a patient's second birthday this function answered 2 while the validator
+  // answered 4 for the same child: the exact engine/validator disagreement this
+  // module exists to make impossible. A series BEGUN under 2 years old keeps its
+  // infant length for life (CDC: "Dose 1 at age 2 months: 4-dose series").
+  const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+  const startedAsInfant = d1AgeM != null && d1AgeM < 24;
+  if ((am < 24 || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
     const infantTotal = menacwyInfantHighRiskTotal({ d1AgeM });
     return {
       total: infantTotal,

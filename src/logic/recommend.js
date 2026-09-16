@@ -152,7 +152,23 @@ function menacwyRec(am, riskIds, doses, today) {
   // by the single branch ("1 dose"). Hoisting it here routes all three to the
   // same series; menacwyInfantSeries varies only the WORDING by indication, and
   // the booster phase, which genuinely differs for outbreak (see there).
-  if (am < M.y2 && menacwyInfantSeriesIndicated(riskIds)) {
+  //
+  // P0-1 (2026-09-15): this door used to read `am < M.y2` alone — today's age.
+  // A child mid-series fell out of it on their second birthday and landed in
+  // the generic >=2y branch below, which hard-codes a 2-dose series, so the
+  // doses they still owed were re-labelled "boosters" three years away. The
+  // series length is set by the age at DOSE 1, permanently: CDC child &
+  // adolescent schedule notes, "Meningococcal serogroup A,C,W,Y vaccination",
+  // special situations, Menveo (fetched live 2026-09-15) -- "Dose 1 at age 2
+  // months: 4-dose series", "Dose 1 at age 7-23 months: 2-dose series",
+  // "Dose 1 at age 24 months or older: 2-dose series". So a patient whose dose
+  // 1 was given under 2 years stays on the infant pathway however old they are
+  // now; menacwyInfantSeries() already keys every total, interval and booster
+  // clock inside it off d1AgeM, so it handles the whole lifecycle correctly.
+  // An UNVACCINATED >=2y patient has no dose 1 and is unaffected.
+  const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+  const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < M.y2;
+  if ((am < M.y2 || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
     return [menacwyInfantSeries(am, given, doses, last, today, riskIds)];
   }
 
