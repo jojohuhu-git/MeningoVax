@@ -47,12 +47,19 @@ describe('M12 — the outbreak top-up', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2024-09-15']);
     expect(r.status).toBe('complete');
     expect(r.dueToday).toBeFalsy();
-    // 2027-09-16, not -15: DAYS.years(3) here is Math.round(3 * 365.25) = 1096,
-    // where vaxapp's MENACWY_BOOSTER_3Y is 1095. The two apps therefore date this
-    // top-up one day apart. That is the known cross-repo divergence queued as
-    // M19 ("align day-count conventions"); M12 uses each repo's own existing
-    // constant rather than changing one of them behind M19's back.
-    expect(r.earliestNextDate).toBe('2027-09-16');
+    // P0-5 (2026-09-15): this expected '2027-09-16' — a day after the real
+    // three-year anniversary — because DAYS.years(3) was Math.round(3 * 365.25)
+    // = 1096 and the date was computed as lastDate + 1096 days. Three years
+    // after 2024-09-15 is 2027-09-15. The date is now built with
+    // addCalendarYears(), so it lands on the anniversary itself.
+    //
+    // The comment that used to sit here said vaxapp's MENACWY_BOOSTER_3Y was
+    // 1095 and blamed the difference on that. That was wrong: vaxapp's constant
+    // is also 1096 (src/logic/stateHelpers.js:179, checked 2026-09-15), so both
+    // apps were a day late in the same way. MeningoVax is now right and vaxapp
+    // is not — porting this is a cross-repo obligation recorded in the handoff,
+    // and the vaccine-parity skill applies.
+    expect(r.earliestNextDate).toBe('2027-09-15');
   });
 
   it('at 7 or older the threshold is 5 years, keyed to the age TODAY', () => {

@@ -111,7 +111,17 @@ describe('MenACWY — where the primary series ends', () => {
     });
     expect(info.total).toBe(1);
     expect(info.primaryTotal).toBe(1);
-    expect(info.hasBoosterPhase).toBe(false);
+    // P0-2 (2026-09-15): this assertion used to read `.toBe(false)`, and that
+    // was the bug. hasBoosterPhase has exactly one consumer -- validate.js's
+    // cap -- where `false` means "throw away any dose past the total". All
+    // three 'single' indications legitimately accept a later dose (college:
+    // MMWR Table 10 footnote / M17; outbreak: Table 8 top-up / M12; military:
+    // the DoD 5-yearly booster / M18), so throwing one away made the engine
+    // re-offer an injection the patient had already had. What this test is
+    // really about -- that the single dose is a PRIMARY dose, not a booster --
+    // is unchanged and is asserted by the two lines above.
+    // See regression-p0-2-single-dose-schedules-keep-later-doses.test.js.
+    expect(info.hasBoosterPhase).toBe(true);
   });
 });
 

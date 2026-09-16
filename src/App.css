@@ -825,6 +825,20 @@ body {
   color: var(--gy2);
   margin-bottom: var(--sp-8);
 }
+/* P1-4 (2026-09-15): stands in for the dose label while any recorded dose is
+   still waiting on its risk-timing answer. Deliberately the SAME neutral gray
+   as the "Needs input" dose chip (.dose-val-needs-input) so the page reads as
+   one unfinished state rather than two unrelated ones, and deliberately not
+   green/amber -- this is not a recommendation, and must not look like one.
+   Normal weight, not 600: it is an instruction, not a verdict. */
+.rec-dose-label-pending {
+  font-weight: 400;
+  color: var(--gy2);
+  background: var(--gy6);
+  border: 1px dashed var(--gy4);
+  border-radius: var(--radp);
+  padding: var(--sp-8);
+}
 .rec-brands {
   margin-bottom: var(--sp-12);
 }
