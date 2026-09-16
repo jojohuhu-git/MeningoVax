@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { menbFamily } from '../data/brands.js';
 import { isPentavalentBrand } from '../logic/pentavalentCredit.js';
+import { sortDosesChronologically } from '../logic/validate.js';
 
 // Shared row/note renderer for recorded-dose editing, used by both the
 // wizard (StepHistory) and the Results "Recorded doses" inline panel.
@@ -71,21 +72,12 @@ export default function DoseEditor({
 
   // The MenB antigen family is set by the FIRST dose in the series, which may be
   // a pentavalent recorded on the MenACWY step (G1) — so the lock is read from
-  // this list and the credited doses together, earliest date first. Undated doses
-  // sort first, matching analyzeHistory()'s own walk order.
-  const menbSeriesSoFar = [...doses, ...creditedDoses]
-    .filter(Boolean)
-    .map((d, i) => ({ d, i }))
-    .sort((a, b) => {
-      const da = a.d?.date || '';
-      const db = b.d?.date || '';
-      if (da && db) return da < db ? -1 : da > db ? 1 : a.i - b.i;
-      if (!da && db) return -1;
-      if (da && !db) return 1;
-      return a.i - b.i;
-    })
-    .map((x) => x.d);
-  const firstBrand = vaccine === 'MenB' ? (menbSeriesSoFar[0]?.brand || '') : '';
+  // this list and the credited doses together, ordered by the validator's own
+  // sort rather than a second copy of it.
+  const menbSeriesSoFar = vaccine === 'MenB'
+    ? sortDosesChronologically([...doses, ...creditedDoses].filter(Boolean))
+    : [];
+  const firstBrand = menbSeriesSoFar[0]?.brand || '';
   const lockedFamily = vaccine === 'MenB' ? menbFamily(firstBrand) : null;
   const otherVaccine = vaccine === 'MenB' ? 'MenACWY' : 'MenB';
   const pentavalentHere = doses.some((d) => isPentavalentBrand(d?.brand));
