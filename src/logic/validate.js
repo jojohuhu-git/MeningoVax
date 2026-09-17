@@ -1034,7 +1034,31 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // historical dose is assumed to be the earlier dose — matching existing convention).
   const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [] };
-  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers), sortedDoses: filtered };
+  const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers);
+
+  // G8 (2026-09-16): a row with NO date must never take the place of a dose
+  // that has one. Undated rows sort first (above), so on a schedule with a
+  // series cap they fill the slots first and a DATED dose arriving later is
+  // the one thrown out as "extra" — the app then recommended a booster the
+  // patient demonstrably had, because a blank date field somewhere else in
+  // the record had claimed its place.
+  //
+  // The cap can only be judged once the walk has run, so this is decided by
+  // re-walking rather than by guessing an order up front: if the first pass
+  // dropped a DATED dose as an extra while an undated row was kept, walk
+  // again with the dated doses first. Each pass stays internally consistent
+  // (the alternative — reaching back into the finished pass to evict a row —
+  // would leave the earlier doses graded at positions they no longer hold).
+  const datedDoseDropped = firstPass.perDose.some((p, i) => p.extraDose && filtered[i]?.date);
+  const undatedRowKept = firstPass.effective.some((d) => !d.date);
+  if (datedDoseDropped && undatedRowKept) {
+    const datedFirst = [
+      ...filtered.filter((d) => d.date),
+      ...filtered.filter((d) => !d.date),
+    ];
+    return { ...runWalk(vaccine, datedFirst, ageMonths, riskIds, ref, riskAtDoseAnswers), sortedDoses: datedFirst };
+  }
+  return { ...firstPass, sortedDoses: filtered };
 }
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses

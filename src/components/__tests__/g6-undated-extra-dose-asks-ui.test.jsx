@@ -31,24 +31,28 @@ function rowsFor(menacwyDoses) {
   return Array.from(document.querySelectorAll('.rec-progress-dose-row'));
 }
 
+// G8 (2026-09-16) moved this fixture from two undated rows to three: the
+// routine series for a healthy 17-year-old is 2 doses while the 16-year
+// booster is unproven, and a row with no date cannot prove it. So the third
+// row is the one past the total. The chip wording under test is unchanged.
 describe('G6 (UI): an undated dose past the series total', () => {
   it('puts the question on the chip instead of asserting an extra dose', () => {
-    const rows = rowsFor([newDoseRow(), newDoseRow()]);
-    expect(rows).toHaveLength(2);
-    expect(rows[1].textContent).toMatch(/Extra dose\? — no date recorded/);
-    expect(rows[1].textContent).not.toMatch(/beyond the indicated series total/);
-    expect(rows[1].textContent).not.toMatch(/was already complete/);
+    const rows = rowsFor([newDoseRow(), newDoseRow(), newDoseRow()]);
+    expect(rows).toHaveLength(3);
+    expect(rows[2].textContent).toMatch(/Extra dose\? — no date recorded/);
+    expect(rows[2].textContent).not.toMatch(/beyond the indicated series total/);
+    expect(rows[2].textContent).not.toMatch(/was already complete/);
   });
 
   it('asks the owner\'s question in full, and says adding the date settles it', () => {
-    const rows = rowsFor([newDoseRow(), newDoseRow()]);
-    expect(rows[1].textContent).toMatch(/Do you mean this was an extra dose given\?/);
-    expect(rows[1].textContent).toMatch(/Adding the date settles it/);
+    const rows = rowsFor([newDoseRow(), newDoseRow(), newDoseRow()]);
+    expect(rows[2].textContent).toMatch(/Do you mean this was an extra dose given\?/);
+    expect(rows[2].textContent).toMatch(/Adding the date settles it/);
   });
 
   it('does not claim the row is counted and not counted in the same breath', () => {
-    const rows = rowsFor([newDoseRow(), newDoseRow()]);
-    expect(rows[1].textContent).not.toMatch(/Dose is counted in the series/);
+    const rows = rowsFor([newDoseRow(), newDoseRow(), newDoseRow()]);
+    expect(rows[2].textContent).not.toMatch(/Dose is counted in the series/);
   });
 
   // The dated-extra case is pinned on the card directly: at the ages where a

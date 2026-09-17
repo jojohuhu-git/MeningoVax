@@ -234,6 +234,14 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   statement ("Extra dose — beyond the indicated series total"), because there
   the app does know. Either way the dose is not counted, and the recommendation
   is the same with or without that row.
+- **An undated dose never closes a series, and never pushes out a dated dose.**
+  A blank date proves nothing, so it cannot be the ≥16-year dose that finishes
+  the routine MenACWY series — the booster stays owed until a date shows it was
+  given. And if counting the undated row would push a dose that *has* a date out
+  of the series, the dated dose keeps its place instead. Before this, one blank
+  row alongside a dose dated at 16 years 6 months made the app recommend that
+  same booster again. When no dose can be placed at 16 or older, the card says
+  the date is missing rather than claiming there is no such dose.
 - Doses are re-evaluated in order against the doses already *kept* so far —
   so if an early dose is dropped, a later dose isn't wrongly flagged as "too
   soon" relative to the dropped one.

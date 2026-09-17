@@ -18,7 +18,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
-  menacwyInfantHighRiskTotal, menbSeriesInfo,
+  menacwyInfantHighRiskTotal, menbSeriesInfo, menacwySeriesInfo,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
@@ -255,9 +255,12 @@ describe('L2-4: the rule documents describe the same dose recorded twice', () =>
 describe('L2-4: the rule documents describe an undated dose past the series total', () => {
   // G6 (2026-09-16). Behaviour read out of the code, then required of the prose.
   it('the undated case is documented as a question, and the dated case as a statement', () => {
-    const undated = analyzeHistory('MenACWY', [{ date: '', brand: '' }, { date: '', brand: '' }], 204, []);
-    expect(undated.perDose[1].extraDoseUnverified).toBe(true);
-    expect(undated.perDose[1].reasons.join(' ')).toMatch(/do you mean this was an extra dose given\?/i);
+    // G8 (2026-09-16): three undated rows, not two — a healthy 17-year-old's
+    // routine series is 2 doses while the 16-year booster is unproven, and an
+    // undated dose cannot prove it. The third row is the one past the total.
+    const undated = analyzeHistory('MenACWY', [{ date: '', brand: '' }, { date: '', brand: '' }, { date: '', brand: '' }], 204, []);
+    expect(undated.perDose[2].extraDoseUnverified).toBe(true);
+    expect(undated.perDose[2].reasons.join(' ')).toMatch(/do you mean this was an extra dose given\?/i);
 
     const dated = analyzeHistory('MenACWY', [
       { date: '2017-09-15', brand: 'Menveo' },
@@ -270,6 +273,34 @@ describe('L2-4: the rule documents describe an undated dose past the series tota
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
       expect(doc, why(path, 'an UNDATED dose past the series total asks "Do you mean this was an extra dose given?" rather than asserting the series was complete — while a DATED extra still states it plainly.'))
         .toMatch(/undated[^.]{0,400}(ask|question|do you mean)/i);
+    }
+  });
+});
+
+describe('L2-4: the rule documents describe what a missing date cannot do', () => {
+  // G8 (2026-09-16). Behaviour read out of the code, then required of the prose.
+  it('an undated dose neither closes the routine series nor displaces a dated dose', () => {
+    // 1. It cannot close the series: the 16-year booster stays owed.
+    const undatedOnly = menacwySeriesInfo({
+      riskClass: null, am: 204, doses: [{ date: '', brand: '' }], today: TEST_TODAY,
+    });
+    expect(undatedOnly.total).toBe(2);
+    // A DATE proving a dose at >=16y still closes it at one dose.
+    const datedAt16 = menacwySeriesInfo({
+      riskClass: null, am: 204, doses: [{ date: '2026-03-15', brand: '' }], today: TEST_TODAY,
+    });
+    expect(datedAt16.total).toBe(1);
+
+    // 2. It cannot take the place of a dose that has a date.
+    const mixed = analyzeHistory('MenACWY', [
+      { date: '', brand: '' },
+      { date: '2026-03-15', brand: '' },
+    ], 204, [], TEST_TODAY);
+    expect(mixed.effective.some((d) => d.date === '2026-03-15')).toBe(true);
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'a dose with no date cannot close a series (the 16-year MenACWY booster stays owed until a date proves it was given) and cannot take the place of a dose that has a date.'))
+        .toMatch(/undated[^.]{0,400}(close|displace|place of a dose|pushes out)/i);
     }
   });
 });

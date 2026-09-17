@@ -185,9 +185,21 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // FIRST dose on record was given at ≥16y (ACIP: no booster needed);
   // otherwise the 16y booster is still owed, so the series isn't closed
   // until 2 doses.
-  const hasDoseBefore16 = doses.some((d) => {
+  //
+  // G8 (2026-09-16): a dose with NO date proves nothing, so it cannot be the
+  // >=16y dose that closes the series. This used to ask only "is any dose on
+  // record before 16?" -- an undated dose is not, so the series was declared
+  // closed at 1 dose, while recommend.js (asking the opposite question, "is
+  // any dose PROVABLY at >=16y?") went on offering the 16-year booster on the
+  // same card. The same patient was told the series was full and owed a dose
+  // at once, and worse, the cap then discarded the patient's real dated dose
+  // in favour of the undated row that had taken the only slot.
+  //
+  // Both questions have to fall the same way on an unknown: the booster is
+  // still owed until a DATE shows it was given.
+  const boosterStillOwed = doses.some((d) => {
     const a = ageAtDose(d, am, today);
-    return a != null && a < AGE_16Y_MONTHS;
+    return a == null || a < AGE_16Y_MONTHS;
   });
   // The routine schedule is the ONE place where the primary series is shorter
   // than the total: the 11-12y dose is primary, the 16y dose is a booster that
@@ -195,7 +207,7 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // live 2026-09-15): adolescents get a dose at 11-12 years and "a MenACWY
   // booster dose at age 16 years". A first-ever dose at >=16y needs no booster,
   // so there total is 1 and that single dose is primary.
-  return { total: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, hasBoosterPhase: false };
+  return { total: boosterStillOwed ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, hasBoosterPhase: false };
 }
 
 /**
