@@ -19,7 +19,10 @@
 // whatever you print. Never restate it in English.
 
 import { menacwyInfantHighRiskTotal } from './seriesTotals.js';
-import { addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween } from './dateUtils.js';
+import {
+  addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween,
+  daysInMonthOf,
+} from './dateUtils.js';
 
 const DAY = 1;
 const WEEKS = (n) => n * 7 * DAY;
@@ -132,7 +135,25 @@ export function earliestGatedDate(lastDate, gate, today, ageMonths) {
   if (gate.minAgeMonths == null || ageMonths == null) return byInterval;
   const monthsToGo = gate.minAgeMonths - ageMonths;
   if (monthsToGo <= 0) return byInterval;
-  const byAge = addCalendarMonths(today, monthsToGo);
+
+  // P0-1a (2026-09-17): `monthsToGo` is almost never a whole number — ageMonths
+  // comes from calendarMonthsBetween(dob, today), which carries a day
+  // remainder. Handing that straight to addCalendarMonths() put the fraction
+  // into the date string ("2027-2.5-17"), and the card rendered "eligible
+  // undefined 17, 2027". Whole months are added as months; what is left over is
+  // added as days, scaled by the length of the month it lands in — the same
+  // convention calendarMonthsBetween uses to produce the fraction, so the two
+  // agree.
+  //
+  // The leftover rounds UP. This date is a MINIMUM: advertising it a day early
+  // would invite a dose given before the child is old enough. A day late costs
+  // nothing, and the 4-day grace rule (P1-1) covers the boundary anyway.
+  const wholeMonths = Math.floor(monthsToGo);
+  const base = addCalendarMonths(today, wholeMonths);
+  const leftover = monthsToGo - wholeMonths;
+  const byAge = leftover > 0
+    ? addDays(base, Math.ceil(leftover * daysInMonthOf(base)))
+    : base;
   return byAge > byInterval ? byAge : byInterval;
 }
 

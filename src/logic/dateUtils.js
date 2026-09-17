@@ -71,11 +71,25 @@ export function calendarMonthsBetween(startISO, endISO) {
 // Week-based minimums (4, 8, 12 weeks) are exact counts of days and must keep
 // using DAYS.weeks -- there is nothing approximate about them.
 
+/** How many days are in the month that `iso` falls in. */
+export function daysInMonthOf(iso) {
+  const [y, m] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
+
 // The same day-of-month `months` later, clamped to the last day when the target
 // month is shorter (31 Jan + 1 month = 28 Feb, or 29 Feb in a leap year).
+//
+// `months` is a WHOLE number of months. P0-1a (2026-09-17): it used to take
+// whatever it was given, and a fractional count flowed straight into the string
+// this builds -- `String(tm + 1).padStart(2, '0')` on a month index of 1.5
+// produced "2027-2.5-17", which fmtDate() then rendered as "undefined 17, 2027"
+// on a live card. Rounding here is a safety net that keeps the output a real
+// date; a caller passing a fraction is still a bug in that caller, and the one
+// that did (earliestGatedDate) now does its own whole-month arithmetic.
 export function addCalendarMonths(iso, months) {
   const [y, m, d] = iso.split('-').map(Number);
-  const targetIdx = (m - 1) + months;               // 0-based month index from year 0
+  const targetIdx = (m - 1) + Math.round(months);   // 0-based month index from year 0
   const ty = y + Math.floor(targetIdx / 12);
   const tm = ((targetIdx % 12) + 12) % 12;          // 0-based month in ty
   const daysInTargetMonth = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
