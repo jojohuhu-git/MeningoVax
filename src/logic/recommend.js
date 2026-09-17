@@ -38,6 +38,7 @@ const EMPTY_HISTORY = Object.freeze({
 });
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
+  MENB_HIGHRISK_RESCUE_TOTAL,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
@@ -1054,6 +1055,32 @@ function menbRec(am, riskIds, doses, today) {
         family, brands: menbBrands(family),
         note: `High-risk 3-dose schedule: dose 3 is given ≥6 months after dose 1 AND ≥4 months after dose 2 (0/1–2/6 month schedule) [c]. After completion, boost 1 year later, then every 2–3 years while at risk.${menbPregnancyCaveat}`,
         noteCites: [cite('menbHighRisk3DoseSchedule')],
+        refs: refs(['mm7349a3']) })];
+    }
+    // MenB dose-3 rescue (2026-09-17): dose 3 came earlier than 4 months after
+    // dose 2, so CDC credits it and owes the patient a FOURTH dose at least 4
+    // months after it. The app used to discard dose 3 and re-offer "Dose 3 of
+    // 3", which lost a dose CDC counts and never mentioned the extra one.
+    // CDC child & adolescent schedule notes, MenB special situations (fetched
+    // live 2026-09-17):
+    //   "...if dose 3 is administered earlier than 4 months after dose 2, a 4th
+    //    dose should be administered at least 4 months after dose 3"
+    // The total comes from menbSeriesInfo(), never a literal 4, so this card,
+    // the validator and the booster clock move together.
+    if (given === 3 && hrSeries.total === MENB_HIGHRISK_RESCUE_TOTAL) {
+      const d3Date = doses[2]?.date ?? null;
+      // P0-4: calendar months, not 122 days.
+      const elapsed = d3Date ? calendarIntervalElapsed(d3Date, 4, today) : true;
+      return [rec({ vaccine: 'MenB', status: 'risk-based',
+        doseLabel: `Dose 4 of 4 (extra dose: dose 3 given early${family ? `, ${family}` : ''})`,
+        doseNum: 4, seriesTotal: MENB_HIGHRISK_RESCUE_TOTAL,
+        boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk',
+        dueToday: elapsed,
+        earliestNextDate: elapsed || !d3Date ? null : addCalendarMonths(d3Date, 4),
+        minIntervalDays: DAYS.months(4),
+        family, brands: menbBrands(family),
+        note: `Dose 3 was given less than 4 months after dose 2. That dose still counts — do not repeat it — but a fourth dose is needed ≥4 months after dose 3 to complete the high-risk series [c]. Boosters then start 1 year after this fourth dose.${menbPregnancyCaveat}`,
+        noteCites: [cite('menbHighRiskEarlyD3ExtraDose')],
         refs: refs(['mm7349a3']) })];
     }
     // Primary complete → boosters. P1-2: "complete" is hrSeries.total, not a

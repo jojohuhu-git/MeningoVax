@@ -42,6 +42,9 @@ export const MENACWY_SINGLE_TOTAL = 1;           // military / college-dorm / ou
 export const MENB_HIGHRISK_TOTAL = 3;
 export const MENB_HEALTHY_TOTAL = 2;
 export const MENB_HEALTHY_RESCUE_TOTAL = 3;
+// The high-risk mirror of the rescue total: a dose 3 given earlier than 4
+// months after dose 2 still COUNTS, and CDC adds a fourth dose 4 months on.
+export const MENB_HIGHRISK_RESCUE_TOTAL = 4;
 // Routine MenACWY is the only schedule whose PRIMARY series is shorter than
 // its total: the 11-12y dose is primary, the 16y dose is the booster that
 // closes it. Exported so recommend.js's routine branches never hand-type it.
@@ -238,8 +241,26 @@ export function menbSeriesInfo({ highRisk, doses }) {
   if (highRisk) {
     const hr1 = doses[0];
     const hr2 = doses[1];
+    const hr3 = doses[2];
     if (hr1?.date && hr2?.date && calendarIntervalElapsed(hr1.date, 6, hr2.date)) {
       return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
+    }
+    // MenB dose-3 rescue (2026-09-17): the SECOND half of the same CDC bullet.
+    // "...if dose 3 is administered earlier than 4 months after dose 2, a 4th
+    // dose should be administered at least 4 months after dose 3". So an early
+    // dose 3 is not a wasted injection to repeat — it counts, and the series
+    // grows by one. The app used to discard it and ask for dose 3 again, which
+    // both lost a dose CDC credits and hid the extra dose the patient needs.
+    //
+    // NO 4-day grace on this comparison, for the same reason as the healthy
+    // mirror below: this decides how many doses the series HAS, and P1-1
+    // settled that grace never shortens a series.
+    if (hr2?.date && hr3?.date && !calendarIntervalElapsed(hr2.date, 4, hr3.date)) {
+      return {
+        total: MENB_HIGHRISK_RESCUE_TOTAL,
+        primaryTotal: MENB_HIGHRISK_RESCUE_TOTAL,
+        hasBoosterPhase: true,
+      };
     }
     return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
   }

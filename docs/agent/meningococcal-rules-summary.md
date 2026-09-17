@@ -186,6 +186,16 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     advising an injection some patients did not need. It is the same six-month
     test as the healthy rule above, read in the opposite direction, and it is
     compared on the calendar rather than as a fixed number of days.
+  - **If dose 3 was given earlier than 4 months after dose 2, that dose still
+    counts — do not repeat it — but a 4th dose is then owed at least 4 months
+    after dose 3** (corrected 2026-09-17). CDC says this in the second half of
+    the same sentence as the rule above. The app used to do the opposite: mark
+    the early dose 3 invalid, tell the clinician to repeat it, and then ask for
+    "dose 3 of 3" again — so it threw away a dose CDC credits and never
+    mentioned the extra dose the patient actually needs. The booster clock then
+    starts from that 4th dose, not from the third. As with the rule above, the
+    four months are compared on the calendar, and a dose a few days early still
+    earns the extra dose (the 4-day grace never shortens a series).
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT

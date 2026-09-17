@@ -249,6 +249,17 @@ export const CITATIONS = {
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-07-24',
   },
+  // MenB dose-3 rescue (2026-09-17). The one sentence that says an early dose 3
+  // is credited rather than repeated. It lives in the CDC schedule notes, not in
+  // mm7349a3, so it needs its own anchor — the adult notes carry the identical
+  // sentence for people at increased risk.
+  menbHighRiskEarlyD3ExtraDose: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    quote: 'if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3',
+    label: 'CDC Child/Adolescent Schedule, MenB special situations: an early dose 3 counts and adds a 4th dose',
+    short: 'CDC MenB Notes',
+    lastVerified: '2026-09-17',
+  },
   menbRescueDoseRule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose',
@@ -376,10 +387,21 @@ export const CITATIONS = {
 
 // Build a scroll-to-highlight URL (#:~:text=) from a citation's quote.
 // Falls back to the plain page URL for entries with no quote.
+//
+// 2026-09-17: the quote fragment is appended to the url with any EXISTING
+// fragment stripped first. Every quoted citation used to point at a bare MMWR
+// page, so this never came up; the first one that pointed at a CDC schedule-
+// notes section (".../child-adolescent-notes.html#note-mening-b") produced
+// "...#note-mening-b#:~:text=..." — two fragments in one URL, which no browser
+// honours, so the link silently stopped scrolling to the sentence. The section
+// anchor is kept on the citation itself, because the bottom-of-card chips use
+// it and it lands the reader in the right section.
 function highlightUrl(key) {
   const c = CITATIONS[key];
   if (!c) return undefined;
-  return c.quote ? `${c.url}#:~:text=${encodeURIComponent(c.quote)}` : c.url;
+  if (!c.quote) return c.url;
+  const page = c.url.split('#')[0];
+  return `${page}#:~:text=${encodeURIComponent(c.quote)}`;
 }
 
 // Resolve an array of citation keys to {url, label, short} chip objects for

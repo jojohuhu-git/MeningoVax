@@ -52,8 +52,10 @@ Engine brand strings carry an antigen suffix (`'Menveo (MenACWY)'`, `'Bexsero (M
 ### Booster Cadence — Keep recommend.js and validate.js in Sync
 MenACWY high-risk booster timing is keyed off age at Dose 2 in BOTH files. Changing one without the other will produce inconsistent results (the engine predicts one interval; the validator flags a different one as too soon).
 
-### MenB D3 — Both Floors Required
+### MenB D3 — Both Floors Required, but an early D3 is never discarded
 D3 is due after BOTH ≥6 months from D1 AND ≥4 months from D2. `earliestNextDate` = the later of the two. Enforced in both `recommend.js` and `validate.js`.
+
+A D3 that was ALREADY GIVEN earlier than 4 months after D2 still counts: CDC adds a 4th dose ≥4 months later instead of repeating it. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 
 ### Pentavalent — Dedicated Card Only
 Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standalone MenB brand list. Eligible only when both MenACWY AND MenB are due today AND age ≥10y.
