@@ -549,7 +549,11 @@ function menacwyRec(am, riskIds, doses, today) {
     if (given >= 1) {
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
-        note: 'A documented MenACWY dose satisfies the single-dose recruitment requirement. ACIP gives military recruits a booster every 5 years on the basis of assignment, and the U.S. Department of Defense sets those requirements according to high-risk travel \u2014 so check the service\'s current requirement rather than assuming nothing more is due. This app does not track that timing. A separate ongoing-risk indication would add its own schedule on top.',
+        // U4 (2026-09-17): the longest note on any card, and it spent its first
+        // two sentences on what the app knows and cannot do before reaching the
+        // thing the clinician has to go and do. Same facts, action first.
+        // Clinical content unchanged (M18's live-verified Table 10 + footnote).
+        note: 'Check the service\'s current requirement \u2014 do not assume nothing more is due. ACIP gives military recruits a booster every 5 years on the basis of assignment, and the U.S. Department of Defense sets that timing from high-risk travel, which this app cannot see. The dose on record satisfies the single-dose recruitment requirement, and a separate ongoing-risk indication would add its own schedule on top.',
         refs: refsExposure(),
       })];
     }

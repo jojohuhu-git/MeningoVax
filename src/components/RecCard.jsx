@@ -199,9 +199,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
   //     booster phase (routine MenACWY, single-dose exposure, healthy
   //     MenB) — analyzeHistory() capped it (extraDose:true, F2/F3). This is
   //     the reported bug's exact scenario (a 3rd routine MenACWY dose).
-  //   Recorded — not part of an indicated series — a dose recorded while
+  //   Given — not part of a series this patient needs — a dose recorded while
   //     this vaccine isn't currently indicated at all (no seriesTotal to
-  //     compare against).
+  //     compare against). U4 (2026-09-17): was "Recorded — not part of an
+  //     indicated series", which described the RECORD rather than the patient.
+  //     ("Off-window - repeat" below is left alone: that wording is an
+  //     owner-agreed design decision from the 2026-07-23 handoff.)
   const chipClass = notAdolescentCount
     ? 'dose-val-chip dose-val-offwindow'
     : extraDose
@@ -226,10 +229,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
     : extraDoseUnverified
       ? 'Extra dose? — no date recorded'
     : extraDose
-      ? 'Extra dose — beyond the indicated series total'
+      // U4: "the indicated series total" is `seriesTotal`, the code's own
+      // variable name, read out loud in the interface.
+      ? 'Extra dose — more than this series needs'
       : status === 'valid'
         ? (seriesTotal == null
-            ? 'Recorded — not part of an indicated series'
+            ? 'Given — not part of a series this patient needs'
             : effectiveDoseNum <= seriesTotal
               ? `Dose ${effectiveDoseNum} of ${seriesTotal}`
               : 'Booster')
