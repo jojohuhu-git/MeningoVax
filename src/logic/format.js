@@ -14,26 +14,46 @@ import { todayISO, calendarMonthsBetween } from './dateUtils.js';
  * Never outputs "72 months" — that becomes "6 years".
  * Mirrors the fmtAgeClinical thresholds in vaxapp's ageFormat.js.
  *
+ * Ages round DOWN, to the age the patient has COMPLETED -- nobody is 16 until
+ * their 16th birthday (U4, owner decision 2026-09-17). This used to round to
+ * the NEAREST unit, so a dose given in the last fortnight before a birthday
+ * displayed as if it had been given on it (191.7 months -> "16 years"), which
+ * put the record panel's verdicts at war with themselves: "Given at ~16 years,
+ * before the age-16 booster window." Seven sentences print this age immediately
+ * before an exact threshold claim, and the dose row prints it with no "~" at
+ * all, so the fix belongs here rather than in any of them.
+ *
+ * Display only. No interval, age floor or series total is computed from these
+ * strings -- the engine and the validator work in months (see ageMeetsMinimum).
+ *
  * e.g. 0 → "Birth", 1.5 → "6 weeks", 4 → "4 months", 72 → "6 years",
- *      78 → "6 years 6 months"
+ *      78 → "6 years 6 months", 191.7 → "15 years 11 months"
  */
+// An age is the difference of two dates, so one that IS exactly five years can
+// arrive as 59.9999999. Flooring that naively would print "4 years 11 months"
+// on a child's fifth birthday, so every floor below absorbs that much noise --
+// the same 1e-6 tolerance ageAtDose() already uses for the same reason.
+const FLOOR_EPS = 1e-6;
+const floorAge = (n) => Math.floor(n + FLOOR_EPS);
+
 export function fmtAgeMonths(am) {
   if (am == null) return '';
   if (am < 0.25) return 'Birth';               // < ~1 week → Birth
   // Very young infants (≤ ~8 weeks / 2 months): express in weeks
   if (am <= 2) {
-    const wks = Math.round(am * 4.348);        // 1 month ≈ 4.348 weeks
+    const wks = floorAge(am * 4.348);          // 1 month ≈ 4.348 weeks
     if (wks < 1) return 'Birth';
     return `${wks} week${wks === 1 ? '' : 's'}`;
   }
   if (am < 24) {
-    const mo = Math.round(am);
+    const mo = floorAge(am);
     return `${mo} month${mo === 1 ? '' : 's'}`;
   }
-  let years = Math.floor(am / 12);
-  let months = Math.round(am % 12);
-  // Rounding months independently of years can carry over (e.g. 59.88 -> 4y
-  // + round(11.88)=12mo) — normalize so it never displays "X years 12 months".
+  let years = floorAge(am / 12);
+  let months = floorAge(am % 12);
+  // Kept as a belt-and-braces guard. Flooring cannot reach 12 the way rounding
+  // could (59.88 -> 4y + round(11.88) = 12mo), but FLOOR_EPS means a months
+  // value of 11.9999999 still can, and "X years 12 months" must never print.
   if (months === 12) { years += 1; months = 0; }
   if (months === 0) return `${years} year${years === 1 ? '' : 's'}`;
   return `${years} year${years === 1 ? '' : 's'} ${months} month${months === 1 ? '' : 's'}`;

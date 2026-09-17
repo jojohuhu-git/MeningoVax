@@ -62,7 +62,7 @@ describe('U3 · a counted dose states only what is true of THAT dose', () => {
   it('keeps the one fact that differs between rows — the confirmed age', () => {
     const ages = infantRows().map((r) => (r.reasons || [])[0]);
     expect(ages).toHaveLength(4);
-    expect(ages[0]).toMatch(/9 weeks/);
+    expect(ages[0]).toMatch(/8 weeks/);   // U4: ages round down (8w 5d)
     expect(ages[1]).toMatch(/4 months/);
     expect(ages[2]).toMatch(/6 months/);
     expect(ages[3]).toMatch(/13 months/);
