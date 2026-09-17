@@ -1,6 +1,6 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-09-16.
+**Last verified against code:** 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
 `src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
@@ -26,11 +26,33 @@ started under 2y stays on the infant pathway however old they are now. Totals co
 `seriesTotals.js` → `menacwyInfantHighRiskTotal()`; never hand-type them.
 - D1 at 2m: 4-dose primary (2/4/6/12m). Unconditional — no shortcut (P1-3).
 - D1 at 3–6m: 3- **or** 4-dose. "3-dose shortcut": if D2 landed at ≥7m, D3 completes the
-  series (≥12wk after D2 AND ≥12mo age; enforced in `validate.js`, P1-3). Unknown D2 age
-  falls back to 4.
+  series. Unknown D2 age falls back to 4.
 - D1 at 7–23m: 2-dose primary, D2 ≥12 weeks after D1 AND at ≥12 months of age (M5 — this
   band was 3 doses before 2026-09-15).
 - ≥2y: 2-dose primary (D2 ≥8 weeks after D1)
+
+**Infant primary intervals (P0-1, 2026-09-17).** Two numbers, and they come from
+`intervals.js` → `menacwyInfantNextDoseGate()`. Never hand-type either, and never restate
+them in card text — interpolate.
+- **Early doses: ≥8 weeks apart.** This was `DAYS.weeks(4)` in four places and the English
+  "≥4 weeks" in the card sentence, all wrong. ACIP 2020 MMWR 69(RR-9), footnote to Tables
+  4–6: *"If MenACWY-CRM is initiated at ages 3–6 months, catch-up vaccination includes
+  doses at intervals of 8 weeks…"*; CDC child schedule notes, Menveo 3–6m row: *"at least
+  8 weeks after previous dose"*. The 4 weeks was ACIP's floor for **repeating an invalid
+  dose** — and in the MMWR that sentence appears only in the MenB section.
+- **The final primary dose: ≥12 weeks after the previous dose AND at ≥12 months of age.**
+  One rule for "the final infant dose" across every band, enforced in `validate.js` for
+  the 2-, 3- and 4-dose series alike. Before P0-1 only the 3-dose shortcut enforced it
+  (P1-3), so a 4-dose series offered its final dose 4 weeks on with no age floor at all —
+  a three-dose six-month-old was told the 12-month dose was due today.
+- **Owner decisions, 2026-09-17** (reasoned readings where CDC is silent, not quotes):
+  the **2-month band** gets the same 8-week early gap, because CDC prints its schedule but
+  states no minimum interval for it and the printed schedule is itself 8 weeks apart; and
+  the final-dose rule above is **one rule for both** the 2-month and 3–6-month bands.
+- **Edge case, deliberate:** D1 at exactly 3 months with every gap at the minimum puts D3
+  at ~6.7 months. Read hyper-literally CDC would want a fifth dose; CDC caps the series at
+  "3- or 4-dose", so it stops at four and the final dose (≥12 months) satisfies the ≥7-month
+  condition. Do not "correct" this back — it never gives fewer doses than CDC intends.
 
 **The infant series is not high-risk-only (M10).** `menacwyInfantSeriesIndicated()` also
 returns true for `travel` and `outbreak_acwy` — ACIP prints the same "2–23 mos" row in

@@ -56,7 +56,14 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
   });
 
   it('a completed outbreak infant series is complete, not on a 3-year countdown', () => {
-    const rec = acwyRec(14, ['outbreak_acwy'], ['2026-03-15', '2026-04-12', '2026-05-15', '2026-06-15']);
+    // P0-1 (2026-09-17): the old fixture's doses were 28 days apart, which the
+    // validator accepted only because the infant minimum was wrong. Its dose 1
+    // also landed at 8 months — the 7-23-month band, a TWO-dose series whose
+    // dose 2 needs 12 weeks AND the first birthday. Rebuilt as what it was
+    // always meant to be: a genuinely complete 4-dose series. Patient is 14
+    // months old, so DOB is 2025-07-15; dose 1 at 3 months, then 8 weeks,
+    // 8 weeks, and a final dose after the first birthday.
+    const rec = acwyRec(14, ['outbreak_acwy'], ['2025-10-15', '2025-12-10', '2026-02-04', '2026-07-20']);
     const { container } = show(rec);
     expect(rec.status).toBe('complete');
     // A "complete" card with no future booster collapses by default (the D5

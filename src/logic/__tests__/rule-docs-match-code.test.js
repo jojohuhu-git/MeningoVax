@@ -22,6 +22,7 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
+import { menacwyInfantNextDoseGate } from '../intervals.js';
 import { creditPentavalents } from '../pentavalentCredit.js';
 import { analyzeHistory } from '../validate.js';
 import { TEST_TODAY } from '../../test-today.js';
@@ -93,6 +94,41 @@ describe('L2-4: the rule documents state the dose counts the code uses', () => {
     expect(MENACWY_HIGHRISK_PRIMARY_TOTAL).toBe(2);
     expect(summary, why(SUMMARY_PATH, 'the high-risk MenACWY primary series from age 2 is 2 doses, >=8 weeks apart.'))
       .toMatch(/2-dose primary series[^.]{0,60}8 weeks/i);
+  });
+});
+
+describe('L2-4: the rule documents state the MenACWY infant intervals the code uses', () => {
+  // P0-1 (2026-09-17). The existing L2-4 checks covered dose COUNTS and booster
+  // timing; the infant primary INTERVAL was documented nowhere, which is part of
+  // why a wrong number survived a 65-rule review. These two checks read the real
+  // numbers out of intervals.js so the documents cannot drift from them.
+  it('both documents state the early-dose gap the gate actually enforces', () => {
+    const early = menacwyInfantNextDoseGate({ d1AgeM: 3, d2AgeM: null, given: 1 });
+    expect(early.minIntervalDays).toBe(56); // guards the test itself
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, 'infant', '8 weeks'), why(path,
+        'P0-1 corrected the gap between the early doses of a MenACWY infant series from 4 weeks to 8. ACIP RR-9 Tables 4-6 footnote: "doses at intervals of 8 weeks"; CDC child schedule notes, Menveo 3-6 month row: "at least 8 weeks after previous dose". The 4 weeks was ACIP\'s floor for REPEATING an invalid dose.'))
+        .toBe(true);
+    }
+  });
+
+  // A negative check ("no document still says 4 weeks") was written here and
+  // removed: 4 weeks is the CORRECT minimum for MenB high-risk dose 2, which
+  // both documents also state, and the explanation of where the wrong MenACWY
+  // number came from mentions it too. Any text rule loose enough to catch a
+  // revert also caught those. The positive checks above and below are the real
+  // guard — each asserts the live value out of intervals.js first, so putting
+  // the 4 weeks back fails them at that line, before any prose is read.
+
+  it('both documents state the final infant dose needs 12 weeks AND 12 months', () => {
+    const final = menacwyInfantNextDoseGate({ d1AgeM: 3, d2AgeM: 5, given: 3 });
+    expect(final.minIntervalDays).toBe(84);
+    expect(final.minAgeMonths).toBe(12);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, '12 weeks', '12 months', 400), why(path,
+        'P0-1 made the final dose of EVERY infant series (2-, 3- and 4-dose alike) due at >=12 weeks after the previous dose AND at >=12 months of age. Before it, only the 3-dose shortcut enforced that, so a 4-dose series offered its last dose 4 weeks on with no age floor.'))
+        .toBe(true);
+    }
   });
 });
 

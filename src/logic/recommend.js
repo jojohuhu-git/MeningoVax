@@ -41,6 +41,11 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
+// P0-1 (2026-09-17): the infant primary intervals used to be hand-typed here as
+// DAYS.weeks(4) — and again, separately, as the English "≥4 weeks" inside the
+// card text. Both were wrong. They now come from one module, and the sentences
+// interpolate the number rather than restating it.
+import { menacwyInfantNextDoseGate, weeksLabel, earliestGatedDate } from './intervals.js';
 
 // Age bands (months)
 const M = {
@@ -579,9 +584,22 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // impossible rather than merely fixed.
     const infantStartTotal = menacwyInfantHighRiskTotal({ d1AgeM: am });
     if (am <= 6) {
+      // The gap this card promises is the one before the NEXT dose (dose 2),
+      // so ask the gate what follows a single dose given at this age.
+      const startGate = menacwyInfantNextDoseGate({ d1AgeM: am, d2AgeM: null, given: 1 });
+      // P0-1: this sentence said "(≥4 weeks between primary doses)" and said
+      // nothing at all about the final dose's own conditions, which are now
+      // enforced. The interval is interpolated from the gate so the sentence
+      // and the validator cannot say different things.
+      //
+      // NOTE for the U4 copy pass: "at 2, 4, 6, and 12 months" is the 2-MONTH
+      // band's schedule, printed here to 3–6-month starts too, which CDC calls
+      // a "3- or 4-dose series" on no fixed months. Left alone deliberately —
+      // that is a wording inaccuracy, not this interval bug, and changing it
+      // here would mean editing a clinical assertion the regression tests pin.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why})`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(4),
-        note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
+        brands: MENACWY_INFANT, minIntervalDays: startGate.minIntervalDays,
+        note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months — at least ${weeksLabel(startGate.minIntervalDays)} between the early doses, and the final dose at 12 months or older and at least 12 weeks after the one before it [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
         noteCites: [cite('acwyInfantHighRisk2to6mo')], refs });
     }
     if (am <= 11) {
@@ -635,14 +653,19 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
-    const elapsed = intervalElapsed(lastDate, DAYS.weeks(12), today);
-    const ageFloor = am >= 12;
+    // P0-1: routed through the same gate as every other infant dose. The
+    // numbers are unchanged (this branch was already right); what changes is
+    // that they now come from one place, and the advertised date respects the
+    // age floor instead of showing the interval alone.
+    const shortcutGate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
+    const elapsed = intervalElapsed(lastDate, shortcutGate.minIntervalDays, today);
+    const ageFloor = am >= shortcutGate.minAgeMonths;
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
       doseLabel: `Dose 3 of 3 (${why}, 3-dose shortcut)`,
       doseNum: 3, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed && ageFloor,
-      earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
-      minIntervalDays: DAYS.weeks(12),
+      earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am),
+      minIntervalDays: shortcutGate.minIntervalDays,
       brands: MENACWY_INFANT,
       note: 'D6: Dose 2 was given at ≥7 months, so the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age [c]. After completion, a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.',
       noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')],
@@ -702,10 +725,19 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   }
 
   // Standard continuation for 2–6m start series (D2/D3 primary) or 7–11m start (D2)
-  const nextIntervalDays = d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4);
+  //
+  // P0-1 (2026-09-17): this line used to read
+  //   `d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4)`
+  // with the age floor keyed off the same flag, and it was wrong twice over.
+  // A 2–6-month start got 4 weeks between its early doses where CDC and ACIP
+  // both require 8; and its FINAL dose got the same 4 weeks with no age floor
+  // at all, so a three-dose six-month-old was told the 12-month dose was due
+  // today. The gate answers both questions from the series total, which is the
+  // only thing that actually distinguishes the bands.
+  const nextGate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
+  const nextIntervalDays = nextGate.minIntervalDays;
   const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
-  // For 7–11m D1, also enforce ≥12m age floor on D2
-  const ageFloorMetActual = !d1WasInfant7to11 || am >= 12;
+  const ageFloorMetActual = nextGate.minAgeMonths == null || am >= nextGate.minAgeMonths;
   // F1 (2026-09-14): total keyed off d1WasInfant7to11 alone (via
   // menacwyInfantHighRiskTotal), not on3DosePath — the D6 shortcut's own
   // "Dose 3 of 3" rec above already returns before reaching here; once a
@@ -715,12 +747,20 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // this dose's own doseNum would exceed it.
   return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
-    earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
+    // P0-1: the LATER of the interval and the age floor. This printed the
+    // interval alone, so a card that said "not before 12 months of age" still
+    // advertised a date months before the first birthday.
+    earliestNextDate: (elapsed && ageFloorMetActual) ? null : earliestGatedDate(lastDate, nextGate, today, am),
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
+    // P0-1: the number is interpolated from the gate the engine just used, so
+    // the sentence cannot promise one interval while the validator enforces
+    // another — which is exactly what "≥4 weeks between primary doses" did.
     note: d1WasInfant7to11
-      ? `Dose 2 of the 2-dose ${why} series: ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.`
-      : `Continue the ${why} Menveo series (≥4 weeks between primary doses; booster at ~12 months) [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
+      ? `Dose 2 of the 2-dose ${why} series: ≥${weeksLabel(nextIntervalDays)} after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.`
+      : nextGate.isFinalPrimary
+        ? `The final dose of the ${why} Menveo series: due ≥${weeksLabel(nextIntervalDays)} after the previous dose AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`
+        : `Continue the ${why} Menveo series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c]. The final dose comes at 12 months or older. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')]
       : [cite('acwyInfantHighRisk2to6mo'), cite('boosterBeforeAge7')],

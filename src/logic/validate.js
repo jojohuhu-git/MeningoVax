@@ -52,6 +52,10 @@ import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, 
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
+// P0-1 (2026-09-17): the infant primary intervals now come from one module,
+// shared with recommend.js, so the engine cannot recommend a dose the validator
+// then rejects (or, as here, accept one the engine's own card called too soon).
+import { menacwyInfantNextDoseGate } from './intervals.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
 import { fmtDate, stripAntigen } from './format.js';
@@ -94,8 +98,14 @@ const MENB_HEALTHY_MIN_AGE_MONTHS = 192;
 const MENACWY_BASELINE_MIN_INTERVAL    = DAYS.weeks(4);    // 28 d — minimum between any 2 doses
 // MenACWY high-risk 2-dose primary (≥2y): ≥8 weeks
 const MENACWY_HR_ADULT_MIN_INTERVAL    = DAYS.weeks(8);    // 56 d
-// MenACWY infant high-risk series: ≥4 weeks between primary doses
-const MENACWY_HR_INFANT_MIN_INTERVAL   = DAYS.weeks(4);    // 28 d
+// MenACWY infant high-risk series: the gaps are no longer a constant here.
+// P0-1 (2026-09-17): this was `DAYS.weeks(4)` and it was wrong — ACIP RR-9's
+// Tables 4-6 footnote and the CDC child schedule both require 8 weeks between
+// the early doses, and 12 weeks plus the first birthday before the final one.
+// The 4-week floor it had been given is ACIP's rule for REPEATING an invalid
+// dose, and in the MMWR it appears only in the MenB section. Both numbers now
+// come from menacwyInfantNextDoseGate() in intervals.js, which derives them
+// from the series total so they cannot drift from it again.
 // MenACWY high-risk boosters: every 5 years (or 3 years if last dose given <7y)
 // P0-5 (2026-09-15): these are now YEAR counts compared on the calendar. A
 // real three-year span is 1095 or 1096 days depending on whether a 29 February
@@ -107,7 +117,6 @@ const MENACWY_HR_INFANT_MIN_INTERVAL   = DAYS.weeks(4);    // 28 d
 // P1-3 (2026-09-15): the dose that completes a 3-dose infant series must be
 // >=12 weeks after dose 2 AND after age 12 months (CDC, MenACWY special
 // situations, the 3-6-month row).
-const MENACWY_SHORTCUT_D3_MIN_INTERVAL = DAYS.weeks(12);
 const MENACWY_BOOSTER_5Y_YEARS         = 5;
 const MENACWY_BOOSTER_3Y_YEARS         = 3;
 const MENACWY_BOOSTER_5Y               = DAYS.years(5);    // 1826 d (display only)
@@ -438,7 +447,6 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // This keeps the validator in sync with the engine's riskClass computation.
   // primary2 class = strict interval checks apply.
   const riskClass = isHighRiskNow;
-  const isInfant = ageAtDose !== null && ageAtDose < 24;
 
   if (effectiveIdx > 0) {
     // Find the last dated kept dose (walk backwards through kept)
@@ -447,16 +455,65 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     if (prevKeptDated) {
       const interval = daysBetween(prevKeptDated.date, dose.date);
 
-      // ── Primary-series interval: high-risk 2-dose primary ────────────
-      // Applies to effectiveIdx 1 (D2 in the primary series — positions 0 and 1).
-      // For effectiveIdx ≥ 2, the dose is a booster — handled below.
-      if (riskClass && effectiveIdx === 1) {
-        const minInterval = isInfant ? MENACWY_HR_INFANT_MIN_INTERVAL : MENACWY_HR_ADULT_MIN_INTERVAL;
-        const minLabel = isInfant ? '4 weeks (infant high-risk series)' : '8 weeks (high-risk primary series)';
-        if (interval < minInterval) {
+      // P0-1 (2026-09-17): the infant series' ages have to be read BEFORE the
+      // primary-interval check, not after it. They used to be computed further
+      // down, for the booster-cadence block alone, so the interval check had
+      // nothing to go on but "is this dose 2" and applied a single flat number
+      // to every position in the series.
+      const keptDated = kept.filter(d => d.date);
+      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
+      // P1-3: d2AgeM decides 3-vs-4 doses for a 3-6-month start, so the
+      // validator must read it too or it will disagree with the card again.
+      const d2AgeM = ageAtDoseFromDate(keptDated[1] || null, ageMonths, today);
+
+      // ── Primary-series interval ──────────────────────────────────────
+      // Two shapes. A series begun at 2 years or older is a flat 2-dose primary
+      // 8 weeks apart, and only dose 2 is a primary dose. An infant series runs
+      // to 2, 3 or 4 doses depending on when it started and when dose 2 landed,
+      // and the last of those doses has its own, stricter gate — so every
+      // position up to the total has to be checked, not just position 1.
+      // This is menacwyPrimaryTotal()'s own condition for routing a patient to
+      // the infant series, deliberately matched character for character: the
+      // validator must check the interval for exactly the population whose
+      // series length it reads from the infant helper — and whose card the
+      // engine drives down the infant path. menacwyInfantSeriesIndicated()
+      // already returns true for every 'primary2' patient, so it covers both
+      // medical risk and the M10 travel/outbreak infants.
+      const infantSeries = menacwyInfantSeriesIndicated(riskIds);
+      const onInfantPrimary = infantSeries && d1AgeM != null && d1AgeM < 24;
+
+      if (onInfantPrimary) {
+        const gate = menacwyInfantNextDoseGate({
+          d1AgeM: d1AgeM, d2AgeM: d2AgeM, given: effectiveIdx,
+        });
+        // effectiveIdx is 0-based, so this dose is number effectiveIdx + 1.
+        // Only grade it here while it is still inside the primary series;
+        // anything past the total is a booster and the cadence block owns it.
+        if (effectiveIdx < gate.total) {
+          const tooSoon = interval < gate.minIntervalDays;
+          const tooYoung = gate.minAgeMonths != null
+            && ageAtDose != null && ageAtDose < gate.minAgeMonths;
+          if (tooSoon || tooYoung) {
+            const weeks = gate.minIntervalDays / 7;
+            const why = [
+              tooSoon ? `only ${fmtDays(interval)} after the previous dose (minimum ${weeks} weeks)` : null,
+              tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ageAtDose)})` : null,
+            ].filter(Boolean).join(', and ');
+            const requirement = gate.isFinalPrimary
+              ? `CDC requires the dose completing an infant series at least ${weeks} weeks after the previous dose AND after age 12 months.`
+              : `CDC requires at least ${weeks} weeks between the early doses of an infant series.`;
+            return invalidResult(
+              [`This dose was given ${why}. ${requirement} This dose does not count; repeat it.`],
+              `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`
+            );
+          }
+        }
+      } else if (riskClass && effectiveIdx === 1) {
+        // ≥2y high-risk primary: 2 doses, ≥8 weeks apart.
+        if (interval < MENACWY_HR_ADULT_MIN_INTERVAL) {
           return invalidResult(
-            [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval is ${minLabel}.`],
-            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(minInterval)}.`
+            [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval is 8 weeks (high-risk primary series).`],
+            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL)}.`
           );
         }
       }
@@ -474,36 +531,16 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // 2 years or older. A baby with asplenia on the textbook 2/4/6/12-month
       // series had doses 3 and 4 graded as boosters given "~2 months after the
       // previous dose" against a 3-year cadence, and both were voided.
-      const keptDated = kept.filter(d => d.date);
-      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
-      // P1-3: d2AgeM decides 3-vs-4 doses for a 3-6-month start, so the
-      // validator must read it too or it will disagree with the card again.
-      const d2AgeM = ageAtDoseFromDate(keptDated[1] || null, ageMonths, today);
       const primaryTotal = menacwyPrimaryTotal({ riskClass: menacwyRiskClass(riskIds), d1AgeM, d2AgeM, infantSeries: menacwyInfantSeriesIndicated(riskIds) });
-      // P1-3 (2026-09-15): the 3-dose shortcut's FINAL dose has its own
-      // condition, and until now only the 4-week baseline was applied to it.
-      // That was tolerable while the series was 4 doses long (a premature dose
-      // 3 still left a dose 4 to come). Now that three doses can complete the
-      // series, an early third dose would close it, so the condition has to be
-      // enforced rather than merely promised by the card.
-      //
-      // CDC child & adolescent schedule notes, MenACWY special situations,
-      // Menveo (fetched live 2026-09-15), the 3-6-month row: "...followed by an
-      // additional dose at least 12 weeks later and after age 12 months".
-      if (riskClass && primaryTotal === 3 && effectiveIdx === 2) {
-        const tooSoon = interval < MENACWY_SHORTCUT_D3_MIN_INTERVAL;
-        const tooYoung = ageAtDose != null && ageAtDose < 12;
-        if (tooSoon || tooYoung) {
-          const why = [
-            tooSoon ? `only ${fmtDays(interval)} after dose 2 (minimum 12 weeks)` : null,
-            tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ageAtDose)})` : null,
-          ].filter(Boolean).join(', and ');
-          return invalidResult(
-            [`The dose completing a 3-dose infant series was given ${why}. CDC requires it at least 12 weeks after dose 2 AND after age 12 months. This dose does not count; repeat it.`],
-            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_SHORTCUT_D3_MIN_INTERVAL)} and after age 12 months.`
-          );
-        }
-      }
+      // P1-3 (2026-09-15) added a dedicated check here for the 3-dose
+      // shortcut's final dose (≥12 weeks after dose 2 AND after age 12 months).
+      // P0-1 (2026-09-17) generalised it: EVERY infant series has a final dose
+      // with that same gate, not just the 3-dose one, and the 4-dose series was
+      // missing it entirely — a three-dose six-month-old was told dose 4 was
+      // due today. The check now lives above, driven by
+      // menacwyInfantNextDoseGate(), and covers the 3-dose shortcut as one case
+      // of the general rule rather than as a special one. The P1-3 regression
+      // tests still pass against it unchanged.
 
       if (riskClass && effectiveIdx >= primaryTotal) {
         const isFirstBooster = effectiveIdx === primaryTotal;
