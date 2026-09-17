@@ -804,18 +804,34 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
       const reasons = [];
       let detail = '';
 
+      // MenB dose-3 rescue (2026-09-17): an early dose 3 is NOT thrown away.
+      // CDC child & adolescent schedule notes, MenB special situations, fetched
+      // live 2026-09-17 — the second half of the same bullet P1-2 implemented:
+      //   "...if dose 3 is administered earlier than 4 months after dose 2, a
+      //    4th dose should be administered at least 4 months after dose 3"
+      // The app used to mark this dose Invalid, tell the clinician to repeat it,
+      // and then re-offer "Dose 3 of 3" — discarding a dose CDC counts and
+      // hiding the extra dose the patient actually needs. This branch comes
+      // FIRST because it is CDC's explicit remedy for exactly this dose, and it
+      // replaces the old ≥4-months-from-D2 invalidity check entirely.
+      //
+      // P1-1: no 4-day grace here, on purpose — the same reasoning as the
+      // healthy early-dose-2 branch further down. Whether dose 3 was early
+      // decides how many doses the series HAS, and grace must never shorten a
+      // series. seriesTotals.js's menbSeriesInfo() makes the identical
+      // comparison so the card and this verdict cannot drift apart.
+      if (d2Date && !calendarIntervalElapsed(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
+        const fromD2 = daysBetween(d2Date, dose.date);
+        return validResult([
+          `Dose 3 was given ${fmtDays(fromD2)} after dose 2, less than the 4-month minimum for the high-risk schedule. The dose counts — do not repeat it — but a 4th dose is now required at least 4 months after this dose.`
+        ]);
+      }
+
       if (d1Date) {
         const fromD1 = daysBetween(d1Date, dose.date);
         if (!calendarIntervalMeetsMinimum(d1Date, MENB_HR_D3_MIN_MONTHS_FROM_D1, dose.date)) {
           reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months from D1.`);
-          detail += `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}). `;
-        }
-      }
-      if (d2Date) {
-        const fromD2 = daysBetween(d2Date, dose.date);
-        if (!calendarIntervalMeetsMinimum(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
-          reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months from D2.`);
-          detail += `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`;
+          detail += `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}).`;
         }
       }
 
@@ -825,14 +841,36 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     }
 
     // ── MenB high-risk booster cadence (Task 2): effectiveIdx ≥ 3 ────────
-    // First booster: ≥1 year after D3 (effectiveIdx === 3).
-    // Subsequent boosters: every ≥2 years (effectiveIdx > 3).
+    // First booster: ≥1 year after the LAST PRIMARY dose.
+    // Subsequent boosters: every ≥2 years.
     // Only flag too-soon; late boosters are acceptable catch-up.
+    //
+    // MenB dose-3 rescue (2026-09-17): where the primary series ends is no
+    // longer always dose 3. When dose 3 came earlier than 4 months after dose 2,
+    // CDC adds a FOURTH primary dose ≥4 months later, so for those patients
+    // effectiveIdx 3 is still a primary dose and the booster clock starts one
+    // dose later. The length comes from menbSeriesInfo() — the same function the
+    // card reads — so a dose the engine asks for cannot be rejected here.
     if (effectiveIdx >= 3) {
       const prevKeptDated = [...kept].reverse().find(d => d.date);
       if (prevKeptDated) {
         const interval = daysBetween(prevKeptDated.date, dose.date);
-        const isFirstBooster = effectiveIdx === 3;
+        const hrTotal = menbSeriesInfo({ highRisk: true, doses: kept }).total;
+
+        if (effectiveIdx < hrTotal) {
+          // The rescue 4th dose: ≥4 months after the early dose 3. Grace DOES
+          // apply here — this is a "does this dose count" question, not a
+          // series-length one (P1-1).
+          if (!calendarIntervalMeetsMinimum(prevKeptDated.date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
+            return invalidResult(
+              [`Given only ${fmtDays(interval)} after dose 3. The extra dose owed after an early dose 3 must be given at least 4 months after it.`],
+              `D3→D4: ${fmtDays(interval)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`
+            );
+          }
+          return validResult(answeredYesNote ? [answeredYesNote] : []);
+        }
+
+        const isFirstBooster = effectiveIdx === hrTotal;
         const minInterval = isFirstBooster
           ? MENB_HR_FIRST_BOOSTER_MIN
           : MENB_HR_SUBSEQUENT_BOOSTER_MIN;

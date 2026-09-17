@@ -245,6 +245,27 @@ describe('L2-4: the rule documents state the MenB schedules the code uses', () =
     }
   });
 
+  // MenB dose-3 rescue (2026-09-17): the other half of the same CDC bullet. The
+  // documents said an early dose 3 was invalid and had to be repeated, which is
+  // what the code used to do and what CDC does not say.
+  it('the high-risk "early dose 3 earns a 4th dose" rule is documented', () => {
+    const rescued = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2026-02-15' }, { date: '2026-04-15' }, { date: '2026-06-15' }], // D2->D3 = 2 months
+    });
+    expect(rescued.total).toBe(4);
+    const stillThree = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2026-02-15' }, { date: '2026-04-15' }, { date: '2026-08-15' }], // D2->D3 = 4 months
+    });
+    expect(stillThree.total).toBe(3);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, 'earlier than 4 months after dose 2', '4th dose', 400), why(path,
+        'CDC says "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3". menbSeriesInfo() returns a total of 4 for those patients and the card asks for dose 4 instead of repeating dose 3.'))
+        .toBe(true);
+    }
+  });
+
   it('the rescue dose after an early dose 2 is documented', () => {
     const early = menbSeriesInfo({
       highRisk: false,

@@ -200,49 +200,44 @@ describe('MenACWY high-risk: D2 with invalid interval, D3 valid', () => {
   });
 });
 
-// ── MENB HIGH-RISK: D3 too soon → does not count ─────────────────────────
-describe('MenB high-risk: D3 given too soon', () => {
-  it('D1, D2 valid; D3 too soon after D1 → effective count 2, status still "dose 3 due"', () => {
-    // D1: 8 months ago; D2: 6 months ago (valid, ≥4wk); D3: 2 months ago (only 6mo from D1, need ≥6)
+// ── MENB HIGH-RISK: D3 given early → counts, and a 4th dose is owed ──────
+//
+// MenB dose-3 rescue (2026-09-17). This block used to assert the opposite: that
+// an early dose 3 was Invalid, dropped from the effective list, and re-demanded
+// as "Dose 3". CDC child & adolescent schedule notes, MenB special situations
+// (fetched live 2026-09-17): "if dose 3 is administered earlier than 4 months
+// after dose 2, a 4th dose should be administered at least 4 months after dose
+// 3". So the dose counts and the series grows to four. Same fixture, corrected
+// expectations; the full case sits in
+// regression-menb-hr-early-dose3-counts.test.js.
+describe('MenB high-risk: D3 given early', () => {
+  it('D3 counts, stays in the effective list, and the card asks for dose 4', () => {
     const d1 = monthsAgo(8);
-    const d2 = monthsAgo(6); // 2 months after d1 = valid high-risk D2
-    const d3 = monthsAgo(2); // 6 months from d1 = exactly at boundary; but DAYS.months(6) ≈ 183d
-    // Let's make D3 clearly too soon: d1 was 8 months ago, d3 is 2 months ago = 6 months apart
-    // 6 months = 183 days; 6mo apart is exactly the minimum, so use a clearly-too-short gap:
-    const d3TooSoon = monthsAgo(3); // 5 months from D1 at monthsAgo(8) → only ~5 months
+    const d2 = monthsAgo(6);       // 2 months after D1 — a valid high-risk D2
+    const d3Early = monthsAgo(3);  // 3 months after D2, where the schedule wants 4
 
-    const { perDose, effective } = analyze(
-      'MenB',
-      [
-        { date: d1, brand: 'Bexsero (MenB)' },
-        { date: d2, brand: 'Bexsero (MenB)' },
-        { date: d3TooSoon, brand: 'Bexsero (MenB)' },
-      ],
-      360,
-      ['asplenia']
-    );
+    const menbDoses = [
+      { date: d1, brand: 'Bexsero (MenB)' },
+      { date: d2, brand: 'Bexsero (MenB)' },
+      { date: d3Early, brand: 'Bexsero (MenB)' },
+    ];
+
+    const { perDose, effective } = analyze('MenB', menbDoses, 360, ['asplenia']);
 
     expect(perDose[0].status).toBe('valid');
     expect(perDose[1].status).toBe('valid');
-    expect(perDose[2].status).toBe('invalid');
-    expect(perDose[2].doesNotCount).toBe(true);
+    expect(perDose[2].status).toBe('valid');
+    expect(perDose[2].doesNotCount).toBeFalsy();
+    expect(perDose[2].reasons.join(' ')).toMatch(/4th dose/i);
 
-    // Only 2 effective doses
-    expect(effective).toHaveLength(2);
+    // All three doses count.
+    expect(effective).toHaveLength(3);
 
-    // Engine should see 2 effective doses → D3 still needed
-    const r = run({
-      ageMonths: 360,
-      riskIds: ['asplenia'],
-      menbDoses: [
-        { date: d1, brand: 'Bexsero (MenB)' },
-        { date: d2, brand: 'Bexsero (MenB)' },
-        { date: d3TooSoon, brand: 'Bexsero (MenB)' },
-      ],
-    });
+    const r = run({ ageMonths: 360, riskIds: ['asplenia'], menbDoses });
     expect(menb(r).status).toBe('risk-based');
-    expect(menb(r).doseNum).toBe(3);
-    expect(menb(r).doseLabel).toMatch(/Dose 3/);
+    expect(menb(r).doseNum).toBe(4);
+    expect(menb(r).seriesTotal).toBe(4);
+    expect(menb(r).doseLabel).toMatch(/Dose 4 of 4/);
   });
 });
 

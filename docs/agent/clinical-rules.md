@@ -147,7 +147,19 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   this is the exact mirror of the healthy rescue rule below it — same 6-month test, other
   direction. `recommend.js` reads that total rather than a literal 3, so a patient whose
   D2 came six months on reaches the booster phase after two doses.
-- First booster: ≥1 year after series
+- **An early D3 is CREDITED, not repeated** (MenB dose-3 rescue, 2026-09-17).
+  CDC MenB special situations, same bullet as above, verbatim: *"...if dose 3 is
+  administered earlier than 4 months after dose 2, a 4th dose should be administered at
+  least 4 months after dose 3"*. `menbSeriesInfo()` returns a total of **4** for those
+  patients, `validate.js` marks the dose valid with a note saying a 4th dose is owed, and
+  `recommend.js` emits a "Dose 4 of 4 (extra dose: dose 3 given early)" card due ≥4
+  calendar months after D3. The old behaviour discarded the dose and re-offered "Dose 3 of
+  3". Note this clause fires on the D2→D3 gap alone — it takes precedence over the ≥6
+  months-from-D1 floor, which now only invalidates a D3 that is ≥4 months after D2 but
+  still under 6 months from D1. No 4-day grace on the "was D3 early?" test (P1-1: grace
+  never shortens a series); grace DOES apply to whether the 4th dose itself counts.
+- First booster: ≥1 year after the LAST PRIMARY dose — which is D4, not D3, for a patient
+  who got the extra dose above. Read from `menbSeriesInfo()`, never a literal 3.
 - Subsequent boosters: every 2 years
 
 ### Min Age ≥10y (120m)
