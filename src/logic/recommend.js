@@ -262,17 +262,35 @@ function menacwyRec(am, riskIds, doses, today) {
   }
 
   // ── Single dose with ongoing boosters (travel, microbiologist) ───────────
+  // G5 (2026-09-16): travellers and microbiologists share this branch, and the
+  // wording used to name BOTH indications to everybody — a microbiologist who
+  // has never left the country was told his boosters run "while travel or
+  // occupational exposure continues". Name only what the patient actually has.
+  // (L2-3 fixed the first-booster sentence this way; these lines were missed.)
   // W3 (2026-07-24 owner decision): status is 'exposure', not 'risk-based' --
   // that word is reserved for ongoing MEDICAL risk (asplenia, complement
   // deficiency, HIV, above). Travel/microbiologist re-exposure is a
   // different kind of "why," even though the schedule (1 dose + q5y
   // boosters) is structurally similar.
   if (riskClass === 'single+boost') {
+    // Only 'travel' and 'microbiologist' reach this branch (riskFactors.js).
+    const hasTravel = riskIds.includes('travel');
+    const hasMicro = riskIds.includes('microbiologist');
+    const exposurePhrase = hasTravel && hasMicro
+      ? 'travel or occupational exposure'
+      : hasMicro ? 'occupational exposure' : 'travel risk';
+    const boosterLine = `Boosters: every 5 years while ${exposurePhrase} continues (ongoing)`;
+    const firstDoseNote = hasTravel && hasMicro
+      ? 'Travel to hyperendemic/epidemic areas and routine occupational exposure (microbiologist): 1 dose now. Re-vaccinate every 5 years while either risk continues.'
+      : hasMicro
+        ? 'Routine occupational exposure to N. meningitidis (microbiologist): 1 dose now. Re-vaccinate every 5 years while the exposure continues.'
+        : 'Travel to hyperendemic/epidemic areas: 1 dose now. Re-vaccinate every 5 years while the travel risk continues.';
+
     if (given === 0) {
       return [rec({
         vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (ongoing-risk indication)',
-        doseNum: 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: true, brands: menacwyBrands(am),
-        note: 'Travel to hyperendemic/epidemic areas or routine occupational exposure (microbiologist): 1 dose now. Re-vaccinate every 5 years if risk continues.',
+        doseNum: 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: true, brands: menacwyBrands(am),
+        note: firstDoseNote,
         // C2/2026-07-24: cites whichever risk factor's own table anchor
         // (Table 7 microbiologist / Table 9 travel) applies -- see refsExposure.
         refs: refsExposure(),
@@ -291,7 +309,7 @@ function menacwyRec(am, riskIds, doses, today) {
     // Microbiologists share this branch and are deliberately unchanged: ACIP
     // Table 7 covers ages ">=10 yrs" only and gives them a flat 5 years, with no
     // <7-year row. isTravel keeps the 3-year rule to the travel indication.
-    const isTravel = riskIds.includes('travel');
+    const isTravel = hasTravel;
     const isFirstExposureBooster = given === 1;
     const primaryDoseAge = ageAtDose(doses[0] || null, am, today);
     // Unknown age falls to the shorter 3-year interval, the same conservative
@@ -307,7 +325,7 @@ function menacwyRec(am, riskIds, doses, today) {
     const elapsed = calendarIntervalElapsed(lastDate, exposureBoostYears * 12, today);
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
-      doseNum: given + 1, seriesTotal: 1, boosterSummary: 'Boosters: every 5 years while travel or occupational exposure continues (ongoing)', dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, exposureBoostYears),
       minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
       // L2-3 (2026-09-16): the two first-booster sentences carry a [c] marker, and
@@ -332,9 +350,9 @@ function menacwyRec(am, riskIds, doses, today) {
         ? 'The primary dose was given before age 7, so the first booster is due 3 years after it [c], then every 5 years while the travel risk continues.'
         : isFirstExposureBooster
           ? (isTravel
-            ? 'The primary dose was given at age 7 or older, so the first booster is due 5 years after it [c], then every 5 years while travel or occupational exposure continues.'
+            ? `The primary dose was given at age 7 or older, so the first booster is due 5 years after it [c], then every 5 years while ${exposurePhrase} continues.`
             : 'The first booster is due 5 years after the primary dose, then every 5 years while occupational exposure continues.')
-          : 'Re-vaccinate every 5 years while travel or occupational exposure continues.',
+          : `Re-vaccinate every 5 years while ${exposurePhrase} continues.`,
       noteCites: (isTravel && isFirstExposureBooster) ? [
         exposureBoostYears === 3
           ? cite('boosterBeforeAge7')
