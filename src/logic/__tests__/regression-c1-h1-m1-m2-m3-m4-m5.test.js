@@ -16,10 +16,16 @@ const menb = (r) => r.menb[0];
 describe('C1: MenB high-risk D3 dual-interval gate', () => {
   const RISKS = ['asplenia'];
 
-  it('D1 interval met (216d), D2 only 15d ago -> D3 not due (D2 binds)', () => {
-    // D1=2025-12-01 (216d >= 183d OK), D2=2026-06-20 (15d < 122d NOT OK)
+  it('D1 interval met, D2 only 15d ago -> D3 not due (D2 binds)', () => {
+    // P1-2 (2026-09-17): D1 moved from 2025-12-01 to 2026-01-01. The old
+    // fixture put dose 2 SIX MONTHS AND 19 DAYS after dose 1, which CDC says
+    // completes the high-risk series — so there is no dose 3 to gate and the
+    // fixture had stopped testing C1's rule. It is re-spaced to 5 months
+    // 19 days, keeping the scenario it was written for: the dose-1 floor
+    // (>=6 months before today) met, the dose-2 floor (>=4 months) not.
+    // D1=2026-01-01 (>=6mo before today), D2=2026-06-20 (15d ago, <4mo)
     const r = run({ ageMonths: 240, riskIds: RISKS,
-      menbDoses: [{ date: '2025-12-01' }, { date: '2026-06-20' }], menacwyDoses: [] });
+      menbDoses: [{ date: '2026-01-01' }, { date: '2026-06-20' }], menacwyDoses: [] });
     const b = menb(r);
     expect(b.doseNum).toBe(3);
     expect(b.dueToday).toBe(false);

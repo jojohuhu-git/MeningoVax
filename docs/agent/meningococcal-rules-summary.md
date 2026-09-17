@@ -151,6 +151,14 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
   - Dose 2: ≥4 weeks after dose 1.
   - Dose 3: ≥6 months after dose 1 **and** ≥4 months after dose 2 (both must
     be satisfied — whichever is later wins).
+  - **If dose 2 was already given 6 months or more after dose 1, dose 3 is not
+    needed** (corrected 2026-09-17). Those two doses are the 0-and-6-month
+    schedule, so the series is complete and the patient moves to boosters. CDC
+    states this in the same sentence as the 3-dose series itself. The app used
+    to ask every high-risk patient for a third dose regardless, which meant
+    advising an injection some patients did not need. It is the same six-month
+    test as the healthy rule above, read in the opposite direction, and it is
+    compared on the calendar rather than as a fixed number of days.
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT

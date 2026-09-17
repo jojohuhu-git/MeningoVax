@@ -110,6 +110,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - Both 4C (Bexsero/Penmenvy) and FHbp (Trumenba/Penbraya) families: 3-dose primary
 - D2: ≥4 weeks after D1 (high-risk) vs ≥6 months (healthy)
 - D3: ≥6 months from D1 AND ≥4 months from D2 (later of the two floors)
+- **D3 is NOT needed when D2 already landed ≥6 months after D1** (P1-2, 2026-09-17).
+  CDC MenB special situations, verbatim: *"3-dose series at 0, 1–2, 6 months (if dose 2
+  was administered at least 6 months after dose 1, dose 3 not needed; …)"*. The total
+  comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4), and
+  this is the exact mirror of the healthy rescue rule below it — same 6-month test, other
+  direction. `recommend.js` reads that total rather than a literal 3, so a patient whose
+  D2 came six months on reaches the booster phase after two doses.
 - First booster: ≥1 year after series
 - Subsequent boosters: every 2 years
 

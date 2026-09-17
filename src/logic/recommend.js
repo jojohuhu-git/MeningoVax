@@ -985,6 +985,12 @@ function menbRec(am, riskIds, doses, today) {
 
   // ── High-risk: 3-dose 0/1–2/6 primary + boosters ─────────────────────────
   if (highRisk) {
+    // P1-2 (2026-09-17): the length of this series is not always 3. If dose 2
+    // landed six months or more after dose 1, CDC says dose 3 is not needed.
+    // The total comes from the one function that owns it, so the card, the
+    // follow-up card and the validator agree by construction — the card used
+    // to hand a finished patient "Dose 3 of 3".
+    const hrSeries = menbSeriesInfo({ highRisk: true, doses });
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk', dueToday: true,
         family, brands: menbBrands(family),
@@ -1004,7 +1010,9 @@ function menbRec(am, riskIds, doses, today) {
         note: `High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.${menbPregnancyCaveat}`,
         refs: refs(['mm7349a3']) })];
     }
-    if (given === 2) {
+    // Only reachable while the series really is three doses long; a 2-dose
+    // high-risk series falls straight through to the booster branch below.
+    if (given === 2 && hrSeries.total === 3) {
       // C1: D3 requires BOTH ≥6 months from D1 AND ≥4 months from D2.
       // The earlier check (engine vs validator disagreement) only used D1.
       // Now gate on both; earliestNextDate = later of the two floors.
@@ -1031,14 +1039,16 @@ function menbRec(am, riskIds, doses, today) {
         noteCites: [cite('menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
-    // given >= 3: primary complete → boosters
-    const firstBooster = given === 3;
+    // Primary complete → boosters. P1-2: "complete" is hrSeries.total, not a
+    // literal 3, so a patient whose dose 2 came six months on reaches their
+    // first booster after two doses instead of being asked for a third.
+    const firstBooster = given === hrSeries.total;
     const boosterYears = firstBooster ? 1 : 2;
     const intervalDays = DAYS.years(boosterYears);
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? '1 year after primary' : 'every 2–3 years'})`,
-      doseNum: given + 1, seriesTotal: 3, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       note: `High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.${menbPregnancyCaveat}`,

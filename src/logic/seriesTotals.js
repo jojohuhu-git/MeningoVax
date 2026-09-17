@@ -223,7 +223,26 @@ export function menbSeriesInfo({ highRisk, doses }) {
   // people at increased risk get "A 3-dose primary series", then boosters
   // "1 year after series completion" and "Every 2 to 3 years thereafter".
   // All three doses are primary.
-  if (highRisk) return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
+  // P1-2 (2026-09-17): the high-risk series is three doses UNLESS dose 2
+  // happened to land six months or more after dose 1 — in which case the
+  // patient has had the 0/6-month schedule and the third dose is not needed.
+  // This branch was missing entirely, so a finished series kept asking for a
+  // dose the patient did not need. CDC child & adolescent schedule notes,
+  // MenB, Special situations (fetched live 2026-09-17):
+  //   "3-dose series at 0, 1-2, 6 months (if dose 2 was administered at least
+  //    6 months after dose 1, dose 3 not needed; ...)"
+  //
+  // Note this is the exact mirror of the healthy rule below, in the opposite
+  // direction, keyed off the same calendar comparison — and calendar months,
+  // not 183 days, for the P0-4 reason given there.
+  if (highRisk) {
+    const hr1 = doses[0];
+    const hr2 = doses[1];
+    if (hr1?.date && hr2?.date && calendarIntervalElapsed(hr1.date, 6, hr2.date)) {
+      return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
+    }
+    return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
+  }
   // Healthy 2-dose schedule becomes a 3-dose total only once a D1→D2
   // interval <6 months is on record (rescue dose) — mirrors recommend.js's
   // own needsRescue check (daysBetween(d1,d2) < DAYS.months(6)) exactly.

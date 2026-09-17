@@ -201,6 +201,27 @@ describe('L2-4: the rule documents state the MenB schedules the code uses', () =
       .toMatch(/6 months after dose 1[^.]{0,80}4 months after dose 2/i);
   });
 
+  // P1-2 (2026-09-17). Neither document mentioned that a high-risk MenB series
+  // can finish in TWO doses, which is part of why the branch was missing from
+  // the code at all. Derived from the function, not asserted as prose.
+  it('the high-risk "dose 3 not needed" exception is documented', () => {
+    const shortened = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2025-01-15' }, { date: '2025-08-15' }], // 7 months apart
+    });
+    expect(shortened.total).toBe(2);
+    const stillThree = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2025-01-15' }, { date: '2025-06-15' }], // 5 months apart
+    });
+    expect(stillThree.total).toBe(3);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, 'dose 3', 'not needed', 400), why(path,
+        'P1-2: CDC says "if dose 2 was administered at least 6 months after dose 1, dose 3 not needed". menbSeriesInfo() returns a total of 2 for those patients and the card offers a booster instead of a third dose.'))
+        .toBe(true);
+    }
+  });
+
   it('the rescue dose after an early dose 2 is documented', () => {
     const early = menbSeriesInfo({
       highRisk: false,
