@@ -56,6 +56,7 @@ import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './series
 // shared with recommend.js, so the engine cannot recommend a dose the validator
 // then rejects (or, as here, accept one the engine's own card called too soon).
 import { menacwyInfantNextDoseGate } from './intervals.js';
+import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
 import { fmtDate, stripAntigen } from './format.js';
@@ -178,25 +179,27 @@ function fmtDays(n) {
   return `~${+(n / 365.25).toFixed(1)} year${+(n / 365.25).toFixed(1) === 1 ? '' : 's'}`;
 }
 
-// Format an age in months using clinical units (weeks for young infants,
-// months for <24 months, years [+months] for ≥24 months). Never "72 months."
-// Mirrors fmtAgeClinical in vaxapp's ageFormat.js.
+// Format an age in months using clinical units, for the record panel's
+// sentences. This is NOT a second implementation: the units themselves come
+// from format.js's fmtAgeMonths(), the one canonical formatter.
+//
+// P1-3 (2026-09-17): it used to be a near-copy of fmtAgeMonths MINUS the
+// carry-over normalisation that function carries an explicit comment about, so
+// the app went on printing "15 years 12 months" — the exact string format.js
+// had been fixed never to emit — while the original stayed correct and its
+// regression test stayed green. Same one-rule-two-copies shape as the rest of
+// this queue, in the display layer.
+//
+// Two differences are deliberate and are kept here rather than pushed into
+// format.js, because they belong to THIS caller's sentences:
+//   - '?' rather than '' for an unknown age: every call site writes "~${age}",
+//     so an empty string would render "Given at ~, before age 10".
+//   - lower-case 'birth', for the same reason — it appears mid-sentence.
+// Both are pinned by regression-p1-3-one-age-formatter.test.js.
 function fmtAgeMClinical(m) {
   if (m == null) return '?';
   if (m < 0.5) return 'birth';
-  // ≤2 months (roughly ≤8 weeks): express in weeks for young infants
-  if (m <= 2) {
-    const wks = Math.round(m * 4.348);
-    return `${wks} week${wks === 1 ? '' : 's'}`;
-  }
-  if (m < 24) {
-    const mo = Math.round(m);
-    return `${mo} month${mo === 1 ? '' : 's'}`;
-  }
-  const years = Math.floor(m / 12);
-  const remMonths = Math.round(m % 12);
-  if (remMonths === 0) return `${years} year${years === 1 ? '' : 's'}`;
-  return `${years} year${years === 1 ? '' : 's'} ${remMonths} month${remMonths === 1 ? '' : 's'}`;
+  return fmtAgeMonths(m);
 }
 
 // Format a min-age threshold for human-readable messages.
