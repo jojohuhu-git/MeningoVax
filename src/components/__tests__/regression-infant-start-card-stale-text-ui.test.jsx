@@ -30,7 +30,9 @@ describe('the 9-month-old starting card', () => {
 
   it('tells the clinician the first booster is 3 years away, not at 12-23 months', () => {
     const { container } = show(startCard(9));
-    expect(container.textContent).toMatch(/first booster in 3 years/);
+    // U2 (2026-09-17): the same promise, now made once -- on the card's booster
+    // line rather than a second time in the note underneath it.
+    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
     expect(container.textContent).not.toMatch(/booster at 12–23 months/);
   });
 

@@ -83,7 +83,10 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     });
     const rec = acwy(r);
     expect(rec.status).toBe('complete');
-    expect(rec.noteCites[0].key).toBe('acwyRoutine1112and16');
+    // U2 (2026-09-17): this card's note no longer restates the age-16 booster
+    // (the dated banner and the booster line both already gave it), so the
+    // routine citation now hangs off the booster line instead.
+    expect(rec.boosterCites[0].key).toBe('acwyRoutine1112and16');
   });
 
   it('healthy patient still under 10 with NO dose recorded still correctly reads "Not yet due"', () => {

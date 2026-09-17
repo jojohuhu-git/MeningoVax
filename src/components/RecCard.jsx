@@ -135,8 +135,13 @@ export function doseRowsWithGroups(doses, doseValidations, primaryTotal) {
 // reader meets them (recorded doses top to bottom, then the note), because
 // React runs a child component's body after its parent's — seeding on first
 // render would number the note before the verdicts above it.
-function cardCiteNumberer(doseValidations, noteCites) {
+// U2 (2026-09-17): the booster line now carries cited text of its own (the
+// cadence sentence moved out of the note and into it), and it renders ABOVE the
+// recorded doses -- so it is seeded first, or its source would be numbered after
+// sources the reader meets later down the card.
+function cardCiteNumberer(doseValidations, noteCites, boosterCites) {
   const numberFor = makeCiteNumberer();
+  for (const c of boosterCites || []) numberFor(c.page ?? c.key);
   for (const v of doseValidations || []) {
     for (const c of v?.reasonCites || []) numberFor(c.page ?? c.key);
   }
@@ -330,8 +335,8 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
-  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
-  const numberFor = cardCiteNumberer(doseValidations, noteCites);
+  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
+  const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -423,7 +428,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             and how often. Replaces the rejected "+ boosters" header flag. */}
         {boosterSummary && !pending && (
           <div className="booster-summary-line" data-testid="booster-summary-line">
-            {boosterSummary}
+            {renderNoteWithCites(boosterSummary, boosterCites, numberFor)}
           </div>
         )}
 

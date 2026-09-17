@@ -24,7 +24,10 @@ describe('B6: routine MenACWY dose-1-complete, booster-due-at-16y carries an app
     // 16y - 12y1m = ~46.9 months away
     const expected = addDays(today, DAYS.months(192 - 145));
     expect(rec.boosterDueDate).toBe(expected);
-    expect(rec.note).toMatch(/approximate/i);
+    // U2 (2026-09-17): the note used to end "(see the approximate date above)",
+    // pointing at a banner two lines up on the same card. The date is the
+    // banner's job; the note no longer narrates it.
+    expect(rec.note).not.toMatch(/approximate/i);
   });
 
   it('does not set boosterDueDate for other complete states (e.g. dose given at >=16y already)', () => {
