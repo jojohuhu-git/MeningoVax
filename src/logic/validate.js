@@ -451,7 +451,13 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     }
     // riskAnswer === 'yes' → falls through to the high-risk interval checks
     // below as an effective primary-series dose.
-    answeredYesNote = `Counted toward the high-risk series: confirmed the patient was already high-risk on ~${fmtAgeMClinical(ageAtDose)} (this dose's date), in response to the risk-timing question.`;
+    // U3 (2026-09-17): this ran to 154 characters and was repeated verbatim on
+    // every counted row of the series, differing only in the age. Two of its
+    // three clauses were already on the row: "counted toward the series" is
+    // what the "Dose N of M" chip means, and "in response to the risk-timing
+    // question" is the "Edit" button sitting beside it. What is left is the
+    // part that actually varies.
+    answeredYesNote = `Counted — high risk confirmed at ~${fmtAgeMClinical(ageAtDose)}.`;
   }
 
   // ── Interval checks ───────────────────────────────────────────────────
@@ -747,7 +753,9 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     }
     // riskAnswer === 'yes' → falls through to the family-lock and high-risk
     // interval checks below as an effective high-risk-series dose.
-    answeredYesNote = `Counted toward the high-risk MenB series: confirmed the patient was already high-risk on ~${fmtAgeMClinical(ageAtDose)} (this dose's date), in response to the risk-timing question.`;
+    // U3: the MenB copy of the same sentence. Same reasoning as the MenACWY
+    // one above; the card this row sits on is already the MenB card.
+    answeredYesNote = `Counted — high risk confirmed at ~${fmtAgeMClinical(ageAtDose)}.`;
   }
 
   // ── MenB antigen-family mismatch (Task 4 — family lock anchor fix) ────
