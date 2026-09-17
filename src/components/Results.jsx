@@ -356,6 +356,14 @@ export default function Results({ state, onReset, onChange, onBack }) {
               ? 'Both are due today.'
               : 'MenACWY is due today; MenB is optional (shared clinical decision).'}{' '}
             Within each, choose one brand.
+            {/* P1-4: say WHY the combined shot is missing when the 6-month
+                Penbraya rule is what removed it, rather than dropping the
+                option with no explanation. */}
+            {pentavalent.unavailableReason && (
+              <div data-testid="pentavalent-unavailable-reason">
+                {pentavalent.unavailableReason}
+              </div>
+            )}
           </div>
         )}
 

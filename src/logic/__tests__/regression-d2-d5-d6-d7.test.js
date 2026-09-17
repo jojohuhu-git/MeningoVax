@@ -82,13 +82,19 @@ describe('D5: 7–11m and 12–23m high-risk D2 interval ≥12 weeks (was ≥8 w
     expect(acwy(r).note).toMatch(/12 weeks/i);
   });
 
-  it('2–6m start primary series remains at 4 weeks (unchanged)', () => {
+  // SUPERSEDED by P0-1 (2026-09-17), deliberately flipped rather than deleted.
+  // This read "2–6m start primary series remains at 4 weeks (unchanged)" and
+  // pinned 28 days. The 4 weeks was never right: ACIP RR-9's Tables 4-6
+  // footnote and the CDC child schedule both require 8 weeks between the early
+  // doses of an infant series. See
+  // regression-menacwy-infant-primary-intervals.test.js for the sourcing.
+  it('2–6m start primary series is 8 weeks between the early doses', () => {
     const r = run({ ageMonths: 3, riskIds: ['asplenia'] });
-    expect(acwy(r).minIntervalDays).toBe(DAYS_WEEKS_4);
+    expect(acwy(r).minIntervalDays).toBe(DAYS_WEEKS_8);
   });
 });
 
-const DAYS_WEEKS_4 = 4 * 7; // 28
+const DAYS_WEEKS_8 = 8 * 7; // 56
 
 // ── D6: 3-dose shortcut ──────────────────────────────────────────────────────
 

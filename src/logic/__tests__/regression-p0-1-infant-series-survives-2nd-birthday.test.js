@@ -53,7 +53,10 @@ describe('P0-1: an infant series stays an infant series after the 2nd birthday',
     expect(r.seriesTotal).toBe(4);
     expect(r.doseNum).toBe(3);
     expect(r.dueToday).toBe(true);
-    expect(r.minIntervalDays).toBe(28); // 4 weeks between primary infant doses
+    // P0-1 (2026-09-17): was 28. The early doses of an infant series are 8
+    // weeks apart, not 4 — this test pinned the wrong number in passing while
+    // testing something else (that the series survives the 2nd birthday).
+    expect(r.minIntervalDays).toBe(56);
     expect(r.doseLabel).not.toMatch(/booster/i);
   });
 

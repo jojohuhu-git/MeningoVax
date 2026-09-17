@@ -5,7 +5,8 @@ code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth** — MeningoVax is edited first; any change here must be
 carried over to vaxapp's copy at `docs/agent/meningococcal-rules-summary.md`.
 
-**Last verified against code:** 2026-09-16, after the 2026-09-15 dose-counter and
+**Last verified against code:** 2026-09-17 (P0-1, MenACWY infant primary intervals);
+before that 2026-09-16, after the 2026-09-15 dose-counter and
 primary/booster-boundary fixes (M5, M9, M10, M12, M16-M18, P0-1 to P0-5, P1-1 to P1-3).
 
 This file is no longer kept honest by memory alone. The test
@@ -19,6 +20,33 @@ either; where they disagree, AAP governs; never adopt a CDC revision recommendin
 doses or narrower eligibility than AAP; where AAP is silent, CDC/MMWR stands.
 CDSI "preferable" windows are ignored — only CDSI absolute min/max ages are
 enforced. Full citations live in `src/data/refs.js`.
+
+---
+
+## 0. A dose given a few days early still counts
+
+CDC's general rule, added to this app on 2026-09-17:
+
+> "Vaccine doses administered ≤4 days before the minimum age or interval are
+> considered valid. Doses of any vaccine administered ≥5 days earlier than the
+> minimum age or minimum interval should not be counted as valid and should be
+> repeated as age appropriate."
+
+So a MenACWY dose given three days before a patient's 16th birthday **counts** as
+the 16-year booster; one given five days before does not. The same four days
+apply to every interval in this document as well as every age. Until this was
+added, every age and every gap was a hard edge, and the app asked for repeat
+injections that ACIP counts.
+
+Two deliberate limits:
+
+- **It does not move the dates the app suggests.** If the next dose is due on the
+  9th, the app still says the 9th — it simply accepts a dose given on the 5th.
+  Accepting a dose that was given early is not the same as advising one.
+- **It never shortens a series.** Whether MenB dose 2 counts as "early" decides
+  whether a third rescue dose is owed; the four days are not applied there,
+  because that would take a dose out of the plan rather than accept one already
+  given.
 
 ---
 
@@ -55,13 +83,31 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
   infant row at all.
   - Dose 1 at 2 months: 4-dose Menveo series (2, 4, 6, 12 months). No shortcut.
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
-    at 7 months or later, the series completes in 3 doses — the last one ≥12 weeks
-    after dose 2 **and** after the first birthday. If dose 2 came earlier, or its age
-    is unknown, it stays a 4-dose series.
-  - Dose 1 at 7–23 months: 2-dose primary. Dose 2 must be both ≥12 weeks after dose 1
-    **and** not before 12 months old.
+    at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or
+    its age is unknown, it stays a 4-dose series.
+  - Dose 1 at 7–23 months: 2-dose primary.
   - The length is fixed by the age at dose 1 and never changes afterwards — a child who
     started at 4 months is still on a 4-dose series at age 6.
+  - **How far apart (corrected 2026-09-17).** Two numbers cover every infant series:
+    - The **early doses** are at least **8 weeks** apart. The app used to say 4 weeks,
+      in the rules *and* on the card. CDC's Menveo 3–6-month row says "at least 8 weeks
+      after previous dose", and ACIP's own footnote to Tables 4–6 says "doses at
+      intervals of 8 weeks". The 4 weeks came from a different ACIP rule — the minimum
+      gap when a dose has to be **repeated** — which in the ACIP report is stated only
+      about MenB.
+    - The **final dose of the series** is due when the child is **at least 12 months
+      old** and **at least 12 weeks** have passed since the dose before it. This holds
+      for the 2-, 3- and 4-dose versions alike. Until this was corrected only the
+      3-dose shortcut checked it, so a baby three doses into a 4-dose series could be
+      told the last dose was due at six months old.
+    - Two of these are **owner decisions** rather than quotes, because CDC does not say:
+      that the 2-month series also uses 8 weeks between its early doses, and that the
+      "12 months old and 12 weeks since the last dose" test applies to the final dose of
+      *both* the 2-month and the 3–6-month series.
+    - A deliberate edge case: a baby starting at exactly 3 months with every gap at the
+      bare minimum reaches dose 3 at about 6.7 months. Read absolutely literally CDC's
+      sentence would ask for a fifth dose; CDC caps the series at four, so the app stops
+      at four. It never gives fewer doses than CDC intends.
 - **Booster cadence**, keyed off the age at the **last dose of the primary series** —
   the dose that actually starts the clock. For a baby who began at 2 months that is
   dose 4, not dose 2:
@@ -132,6 +178,14 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
   - Dose 2: ≥4 weeks after dose 1.
   - Dose 3: ≥6 months after dose 1 **and** ≥4 months after dose 2 (both must
     be satisfied — whichever is later wins).
+  - **If dose 2 was already given 6 months or more after dose 1, dose 3 is not
+    needed** (corrected 2026-09-17). Those two doses are the 0-and-6-month
+    schedule, so the series is complete and the patient moves to boosters. CDC
+    states this in the same sentence as the 3-dose series itself. The app used
+    to ask every high-risk patient for a third dose regardless, which meant
+    advising an injection some patients did not need. It is the same six-month
+    test as the healthy rule above, read in the opposite direction, and it is
+    compared on the calendar rather than as a fixed number of days.
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
@@ -168,6 +222,19 @@ on-the-table today).
   established yet).
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
+- **Penbraya cannot be given again within 6 months of the last Penbraya**
+  (added 2026-09-17). CDC allows Penbraya for further doses only once at least
+  six months have passed since the most recent one. Before this, a patient who
+  had a Penbraya two months earlier was offered the combined shot again. If
+  that rules out the only pentavalent the patient's MenB family allows, the app
+  simply does not offer the combined injection and says why — **the vaccine
+  itself is still given**, as two separate shots the same day.
+- This six-month rule is for **Penbraya only**. CDC states it for Penbraya and
+  says nothing of the kind about Penmenvy, so nothing has been assumed for
+  Penmenvy.
+- **After a Penbraya, MenB dose 2 should be Trumenba.** The app already does
+  this, through the antigen-family rule — a Penbraya sets the family to FHbp and
+  only Trumenba is then offered. No change was needed.
 
 ### A pentavalent already in the record counts for BOTH vaccines
 

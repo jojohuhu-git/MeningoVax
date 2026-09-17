@@ -48,7 +48,8 @@ describe('M10 — an infant traveler is put on the infant series', () => {
     const r = acwy(run(4, ['travel'], []));
     expect(r.seriesTotal).toBe(4);                   // was: 1
     expect(r.doseLabel).toMatch(/Dose 1 of 4/);      // was: "1 dose (ongoing-risk indication)"
-    expect(r.minIntervalDays).toBe(DAYS.weeks(4));
+    // P0-1 (2026-09-17): was DAYS.weeks(4).
+    expect(r.minIntervalDays).toBe(DAYS.weeks(8));
   });
 
   it('a 14-month-old traveler whose only dose was at 9 months owes dose 2 now', () => {
@@ -94,14 +95,18 @@ describe('M10 — the validator must not eat the infant series it now prescribes
   // single dose at any age. Once M10 puts an outbreak INFANT on the 4-dose
   // series, every dose of that series is given before age 10 — so all of them
   // were discarded and the baby was told to start again at dose 1.
+  // P0-1 (2026-09-17): dose 2 moved from 2026-04-12 (28 days after dose 1, the
+  // old and incorrect minimum) to 2026-05-10 (56 days, the real one). These two
+  // tests are about the pre-age-10 rule not discarding an infant series, not
+  // about spacing — so the fixture is re-spaced and the assertions stand.
   it('an outbreak infant who has had 2 doses is offered dose 3, not dose 1', () => {
-    const r = acwy(run(8, ['outbreak_acwy'], ['2026-03-15', '2026-04-12']));
+    const r = acwy(run(8, ['outbreak_acwy'], ['2026-03-15', '2026-05-10']));
     expect(r.doseNum).toBe(3);                       // was: 1 — both doses discarded
     expect(r.seriesTotal).toBe(4);
   });
 
   it('a travel infant who has had 2 doses is likewise offered dose 3', () => {
-    const r = acwy(run(8, ['travel'], ['2026-03-15', '2026-04-12']));
+    const r = acwy(run(8, ['travel'], ['2026-03-15', '2026-05-10']));
     expect(r.doseNum).toBe(3);
     expect(r.seriesTotal).toBe(4);
   });

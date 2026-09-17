@@ -1,12 +1,42 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-09-16.
+**Last verified against code:** 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
 `src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
 file and the suite fails, naming the sentence. The plain-English, owner-facing version of
 the same rules is [meningococcal-rules-summary.md](meningococcal-rules-summary.md), which
 is the source of truth synced to vaxapp.
+
+## The 4-Day Grace Rule (P1-1, 2026-09-17)
+
+CDC general best practices, on the schedule-notes page the app already cites:
+
+> "Vaccine doses administered ≤4 days before the minimum age or interval are considered
+> valid. Doses of any vaccine administered ≥5 days earlier than the minimum age or minimum
+> interval should not be counted as valid and should be repeated as age appropriate."
+
+Applies to **every** minimum age and minimum interval, through one shared helper set in
+`intervals.js` — `intervalMeetsMinimum` (day counts), `calendarIntervalMeetsMinimum`
+(calendar months), `ageMeetsMinimum` (ages). Never re-implement the comparison inline.
+
+Ages are NOT converted with an averaged days-per-month constant: 4 days is 4/28 of a month
+in February and 4/31 in March, and P0-4/P0-5 are both bugs caused by that kind of
+averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days later.
+
+**Two places it deliberately does NOT apply:**
+1. **The scheduler.** `dueToday` and `earliestNextDate` keep the real minimum — granting
+   grace there would advertise a date 4 days early and actively advise giving doses before
+   the minimum interval, which the CDC sentence does not permit. The app says "eligible on
+   the 9th" and *accepts* a dose given on the 5th.
+2. **Series-length tests** (`seriesTotals.js`, and the MenB "was dose 2 early?" test that
+   decides whether a rescue dose is owed). Those decide how many doses a series HAS, not
+   whether a dose was valid; grace there would REMOVE a dose from the plan, which the
+   authority rule forbids.
+
+Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
+(e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
+panel counted a dose while the card went on asking for it.
 
 ## Source Priority
 
@@ -26,11 +56,33 @@ started under 2y stays on the infant pathway however old they are now. Totals co
 `seriesTotals.js` → `menacwyInfantHighRiskTotal()`; never hand-type them.
 - D1 at 2m: 4-dose primary (2/4/6/12m). Unconditional — no shortcut (P1-3).
 - D1 at 3–6m: 3- **or** 4-dose. "3-dose shortcut": if D2 landed at ≥7m, D3 completes the
-  series (≥12wk after D2 AND ≥12mo age; enforced in `validate.js`, P1-3). Unknown D2 age
-  falls back to 4.
+  series. Unknown D2 age falls back to 4.
 - D1 at 7–23m: 2-dose primary, D2 ≥12 weeks after D1 AND at ≥12 months of age (M5 — this
   band was 3 doses before 2026-09-15).
 - ≥2y: 2-dose primary (D2 ≥8 weeks after D1)
+
+**Infant primary intervals (P0-1, 2026-09-17).** Two numbers, and they come from
+`intervals.js` → `menacwyInfantNextDoseGate()`. Never hand-type either, and never restate
+them in card text — interpolate.
+- **Early doses: ≥8 weeks apart.** This was `DAYS.weeks(4)` in four places and the English
+  "≥4 weeks" in the card sentence, all wrong. ACIP 2020 MMWR 69(RR-9), footnote to Tables
+  4–6: *"If MenACWY-CRM is initiated at ages 3–6 months, catch-up vaccination includes
+  doses at intervals of 8 weeks…"*; CDC child schedule notes, Menveo 3–6m row: *"at least
+  8 weeks after previous dose"*. The 4 weeks was ACIP's floor for **repeating an invalid
+  dose** — and in the MMWR that sentence appears only in the MenB section.
+- **The final primary dose: ≥12 weeks after the previous dose AND at ≥12 months of age.**
+  One rule for "the final infant dose" across every band, enforced in `validate.js` for
+  the 2-, 3- and 4-dose series alike. Before P0-1 only the 3-dose shortcut enforced it
+  (P1-3), so a 4-dose series offered its final dose 4 weeks on with no age floor at all —
+  a three-dose six-month-old was told the 12-month dose was due today.
+- **Owner decisions, 2026-09-17** (reasoned readings where CDC is silent, not quotes):
+  the **2-month band** gets the same 8-week early gap, because CDC prints its schedule but
+  states no minimum interval for it and the printed schedule is itself 8 weeks apart; and
+  the final-dose rule above is **one rule for both** the 2-month and 3–6-month bands.
+- **Edge case, deliberate:** D1 at exactly 3 months with every gap at the minimum puts D3
+  at ~6.7 months. Read hyper-literally CDC would want a fifth dose; CDC caps the series at
+  "3- or 4-dose", so it stops at four and the final dose (≥12 months) satisfies the ≥7-month
+  condition. Do not "correct" this back — it never gives fewer doses than CDC intends.
 
 **The infant series is not high-risk-only (M10).** `menacwyInfantSeriesIndicated()` also
 returns true for `travel` and `outbreak_acwy` — ACIP prints the same "2–23 mos" row in
@@ -88,6 +140,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - Both 4C (Bexsero/Penmenvy) and FHbp (Trumenba/Penbraya) families: 3-dose primary
 - D2: ≥4 weeks after D1 (high-risk) vs ≥6 months (healthy)
 - D3: ≥6 months from D1 AND ≥4 months from D2 (later of the two floors)
+- **D3 is NOT needed when D2 already landed ≥6 months after D1** (P1-2, 2026-09-17).
+  CDC MenB special situations, verbatim: *"3-dose series at 0, 1–2, 6 months (if dose 2
+  was administered at least 6 months after dose 1, dose 3 not needed; …)"*. The total
+  comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4), and
+  this is the exact mirror of the healthy rescue rule below it — same 6-month test, other
+  direction. `recommend.js` reads that total rather than a literal 3, so a patient whose
+  D2 came six months on reaches the booster phase after two doses.
 - First booster: ≥1 year after series
 - Subsequent boosters: every 2 years
 
@@ -104,6 +163,28 @@ Once D1 brand is known, subsequent doses must stay in the same family. Family an
 ## Pentavalent (Penbraya/Penmenvy)
 
 Eligible only when BOTH MenACWY and MenB are due the same visit AND age ≥10y. Never appear in the standalone MenB brand list.
+
+**Penbraya may not be repeated inside 6 months** (P1-4, 2026-09-17). CDC, MenB special
+situations: *"Penbraya may be used for additional MenACWY and MenB doses (including booster
+doses) if both would be given on the same clinic day and **at least 6 months have elapsed
+since most recent Penbraya dose**."* The clock is read off the CREDITED history, so a
+Penbraya typed on either step counts (G1). When this rules out the only pentavalent the
+patient's antigen family allows, `pentavalent.eligible` goes false and
+`pentavalent.unavailableReason` says why — the card then shows the existing "two separate
+vaccines" banner plus that line. Withholding the combined shot never withholds the vaccine:
+the separate MenB card still offers Trumenba the same day.
+
+**Scoped to Penbraya, deliberately.** The CDC schedule-notes page states this for Penbraya
+(Pfizer) and does not mention Penmenvy at all (verified by fetching the page, 2026-09-17).
+Do NOT mirror the interval onto Penmenvy without a source — a test pins the asymmetry.
+
+**"Use Trumenba for MenB dose 2 after a Penbraya" needs no code** (P1-4, checked not
+assumed). CDC: *"if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be
+administered for dose 2 MenB."* The antigen-family lock already produces exactly that, and
+the pentavalent card cannot reintroduce Penbraya for such a patient because G1's crediting
+also completes their routine MenACWY series, so MenACWY is never due again. That chain is
+what makes this safe rather than lucky — it is pinned by tests, because narrowing G1 would
+silently turn it into a real defect.
 
 **A pentavalent in the recorded history counts for BOTH vaccines** (G1, 2026-09-16). One entry, on either history step, is credited to the MenACWY series and the MenB series: `src/logic/pentavalentCredit.js` runs before any walk, adds a copy tagged `creditedFrom` to the other list, and de-duplicates a shot recorded on both steps (matched on brand + date). Dose numbers are independent per vaccine; the MenB antigen family locks from either step; the row is edited or deleted where it was entered. Do not re-implement this in a surface — both the engine and the record panel read the one merged history off `recommend().history`.
 

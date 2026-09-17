@@ -41,6 +41,13 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
+// P0-1 (2026-09-17): the infant primary intervals used to be hand-typed here as
+// DAYS.weeks(4) — and again, separately, as the English "≥4 weeks" inside the
+// card text. Both were wrong. They now come from one module, and the sentences
+// interpolate the number rather than restating it.
+import {
+  menacwyInfantNextDoseGate, weeksLabel, earliestGatedDate, ageMeetsMinimum,
+} from './intervals.js';
 
 // Age bands (months)
 const M = {
@@ -397,9 +404,13 @@ function menacwyRec(am, riskIds, doses, today) {
     // never encountered it. Do not "restore" the 5-year expiry from P2018
     // without asking — it was removed knowingly, not overlooked.
     if (isCollege) {
+      // P1-1 (2026-09-17): allows CDC's 4-day grace, like every other
+      // "does this dose count" test. A college entrant whose dose came three
+      // days before their 16th birthday is covered.
       const dosesAt16Plus = doses
-        .map((d) => ({ a: ageAtDose(d, am, today) }))
-        .filter(({ a }) => a != null && a >= M.y16);
+        .map((d) => ({ a: ageAtDose(d, am, today), date: d.date || null }))
+        .filter(({ a, date }) => a != null
+          && ageMeetsMinimum(a, M.y16, { doseDate: date, ageMonths: am, today }));
       if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
@@ -579,9 +590,22 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // impossible rather than merely fixed.
     const infantStartTotal = menacwyInfantHighRiskTotal({ d1AgeM: am });
     if (am <= 6) {
+      // The gap this card promises is the one before the NEXT dose (dose 2),
+      // so ask the gate what follows a single dose given at this age.
+      const startGate = menacwyInfantNextDoseGate({ d1AgeM: am, d2AgeM: null, given: 1 });
+      // P0-1: this sentence said "(≥4 weeks between primary doses)" and said
+      // nothing at all about the final dose's own conditions, which are now
+      // enforced. The interval is interpolated from the gate so the sentence
+      // and the validator cannot say different things.
+      //
+      // NOTE for the U4 copy pass: "at 2, 4, 6, and 12 months" is the 2-MONTH
+      // band's schedule, printed here to 3–6-month starts too, which CDC calls
+      // a "3- or 4-dose series" on no fixed months. Left alone deliberately —
+      // that is a wording inaccuracy, not this interval bug, and changing it
+      // here would mean editing a clinical assertion the regression tests pin.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why})`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(4),
-        note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months (≥4 weeks between primary doses) [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
+        brands: MENACWY_INFANT, minIntervalDays: startGate.minIntervalDays,
+        note: `${whoAged('2–6 months')}: 4-dose Menveo series at 2, 4, 6, and 12 months — at least ${weeksLabel(startGate.minIntervalDays)} between the early doses, and the final dose at 12 months or older and at least 12 weeks after the one before it [c]. Only Menveo is licensed for infants ≥2 months.${outbreakTopUp}`,
         noteCites: [cite('acwyInfantHighRisk2to6mo')], refs });
     }
     if (am <= 11) {
@@ -635,14 +659,19 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
-    const elapsed = intervalElapsed(lastDate, DAYS.weeks(12), today);
-    const ageFloor = am >= 12;
+    // P0-1: routed through the same gate as every other infant dose. The
+    // numbers are unchanged (this branch was already right); what changes is
+    // that they now come from one place, and the advertised date respects the
+    // age floor instead of showing the interval alone.
+    const shortcutGate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
+    const elapsed = intervalElapsed(lastDate, shortcutGate.minIntervalDays, today);
+    const ageFloor = am >= shortcutGate.minAgeMonths;
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
       doseLabel: `Dose 3 of 3 (${why}, 3-dose shortcut)`,
       doseNum: 3, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed && ageFloor,
-      earliestNextDate: (elapsed && ageFloor) ? null : addDays(lastDate, DAYS.weeks(12)),
-      minIntervalDays: DAYS.weeks(12),
+      earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am),
+      minIntervalDays: shortcutGate.minIntervalDays,
       brands: MENACWY_INFANT,
       note: 'D6: Dose 2 was given at ≥7 months, so the series can complete in 3 doses. This final dose is due ≥12 weeks after dose 2 AND not before 12 months of age [c]. After completion, a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.',
       noteCites: [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')],
@@ -702,10 +731,19 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   }
 
   // Standard continuation for 2–6m start series (D2/D3 primary) or 7–11m start (D2)
-  const nextIntervalDays = d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4);
+  //
+  // P0-1 (2026-09-17): this line used to read
+  //   `d1WasInfant7to11 ? DAYS.weeks(12) : DAYS.weeks(4)`
+  // with the age floor keyed off the same flag, and it was wrong twice over.
+  // A 2–6-month start got 4 weeks between its early doses where CDC and ACIP
+  // both require 8; and its FINAL dose got the same 4 weeks with no age floor
+  // at all, so a three-dose six-month-old was told the 12-month dose was due
+  // today. The gate answers both questions from the series total, which is the
+  // only thing that actually distinguishes the bands.
+  const nextGate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
+  const nextIntervalDays = nextGate.minIntervalDays;
   const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
-  // For 7–11m D1, also enforce ≥12m age floor on D2
-  const ageFloorMetActual = !d1WasInfant7to11 || am >= 12;
+  const ageFloorMetActual = nextGate.minAgeMonths == null || am >= nextGate.minAgeMonths;
   // F1 (2026-09-14): total keyed off d1WasInfant7to11 alone (via
   // menacwyInfantHighRiskTotal), not on3DosePath — the D6 shortcut's own
   // "Dose 3 of 3" rec above already returns before reaching here; once a
@@ -715,12 +753,20 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // this dose's own doseNum would exceed it.
   return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
-    earliestNextDate: (elapsed && ageFloorMetActual) ? null : addDays(lastDate, nextIntervalDays),
+    // P0-1: the LATER of the interval and the age floor. This printed the
+    // interval alone, so a card that said "not before 12 months of age" still
+    // advertised a date months before the first birthday.
+    earliestNextDate: (elapsed && ageFloorMetActual) ? null : earliestGatedDate(lastDate, nextGate, today, am),
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT,
+    // P0-1: the number is interpolated from the gate the engine just used, so
+    // the sentence cannot promise one interval while the validator enforces
+    // another — which is exactly what "≥4 weeks between primary doses" did.
     note: d1WasInfant7to11
-      ? `Dose 2 of the 2-dose ${why} series: ≥12 weeks after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.`
-      : `Continue the ${why} Menveo series (≥4 weeks between primary doses; booster at ~12 months) [c], then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
+      ? `Dose 2 of the 2-dose ${why} series: ≥${weeksLabel(nextIntervalDays)} after dose 1 AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.`
+      : nextGate.isFinalPrimary
+        ? `The final dose of the ${why} Menveo series: due ≥${weeksLabel(nextIntervalDays)} after the previous dose AND not before 12 months of age [c]. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`
+        : `Continue the ${why} Menveo series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c]. The final dose comes at 12 months or older. Then a first booster in 3 years (primary series completed before age 7) [c], then every 5 years while at risk.${outbreakTopUp}`,
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo'), cite('boosterBeforeAge7')]
       : [cite('acwyInfantHighRisk2to6mo'), cite('boosterBeforeAge7')],
@@ -740,7 +786,13 @@ function menacwyRoutine(am, given, doses, last, today) {
   const refs = ['acip2020Table2'];
   const routineCite = [cite('acwyRoutine1112and16')];
   const lastDate = last?.date || null;
-  const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
+  // P1-1 (2026-09-17): a dose up to 4 days before the 16th birthday satisfies
+  // the routine booster. Before this the validator counted such a dose while
+  // this line did not, so the card went on asking for a booster the patient had.
+  const hasDoseAt16 = doses.some((d) => {
+    const a = ageAtDose(d, am, today);
+    return a != null && ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+  });
   // F1 (2026-09-14): the routine series is 2 doses (11-12y + the 16y
   // booster) whenever an earlier <16y dose is already on record and owes
   // that booster — otherwise (a dose was given directly at ≥16y, or none
@@ -748,7 +800,12 @@ function menacwyRoutine(am, given, doses, last, today) {
   // every routine branch, which is the reported bug: a patient with 2+
   // routine doses (e.g. an 82-year-old given 3 adult MenACWY doses) showed
   // "Dose 2 of 1" / "Dose 3 of 1" on the recorded-dose chips.
-  const hasDoseBefore16 = doses.some((d) => (ageAtDose(d, am, today) ?? Infinity) < M.y16);
+  // The complement of hasDoseAt16, and it must use the same test or a dose
+  // inside the grace window would count as both "at 16" and "before 16".
+  const hasDoseBefore16 = doses.some((d) => {
+    const a = ageAtDose(d, am, today);
+    return a != null && !ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+  });
   // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
   // filters out anything given before age 10 for a healthy patient — see
   // validate.js), so a recorded dose here whose age is <132mo (11y) was
@@ -945,6 +1002,12 @@ function menbRec(am, riskIds, doses, today) {
 
   // ── High-risk: 3-dose 0/1–2/6 primary + boosters ─────────────────────────
   if (highRisk) {
+    // P1-2 (2026-09-17): the length of this series is not always 3. If dose 2
+    // landed six months or more after dose 1, CDC says dose 3 is not needed.
+    // The total comes from the one function that owns it, so the card, the
+    // follow-up card and the validator agree by construction — the card used
+    // to hand a finished patient "Dose 3 of 3".
+    const hrSeries = menbSeriesInfo({ highRisk: true, doses });
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: 'Boosters: first in 1 year, then every 2–3 years while at risk', dueToday: true,
         family, brands: menbBrands(family),
@@ -964,7 +1027,9 @@ function menbRec(am, riskIds, doses, today) {
         note: `High-risk 3-dose schedule: dose 2 is given 1–2 months (≥4 weeks) after dose 1. Continue in the same antigen family as dose 1.${menbPregnancyCaveat}`,
         refs: refs(['mm7349a3']) })];
     }
-    if (given === 2) {
+    // Only reachable while the series really is three doses long; a 2-dose
+    // high-risk series falls straight through to the booster branch below.
+    if (given === 2 && hrSeries.total === 3) {
       // C1: D3 requires BOTH ≥6 months from D1 AND ≥4 months from D2.
       // The earlier check (engine vs validator disagreement) only used D1.
       // Now gate on both; earliestNextDate = later of the two floors.
@@ -991,14 +1056,16 @@ function menbRec(am, riskIds, doses, today) {
         noteCites: [cite('menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
-    // given >= 3: primary complete → boosters
-    const firstBooster = given === 3;
+    // Primary complete → boosters. P1-2: "complete" is hrSeries.total, not a
+    // literal 3, so a patient whose dose 2 came six months on reaches their
+    // first booster after two doses instead of being asked for a third.
+    const firstBooster = given === hrSeries.total;
     const boosterYears = firstBooster ? 1 : 2;
     const intervalDays = DAYS.years(boosterYears);
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? '1 year after primary' : 'every 2–3 years'})`,
-      doseNum: given + 1, seriesTotal: 3, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: 'Boosters: every 2–3 years while at high risk (ongoing)', dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       note: `High-risk MenB booster: 1 year after completing the primary series [c], then every 2–3 years while the high-risk condition persists. Stay in the same antigen family.${menbPregnancyCaveat}`,
@@ -1330,24 +1397,62 @@ export function recommend(input) {
   const bDueRec = menb.find((r) => r.dueToday);
   const bDueToday = !!bDueRec;
   const bRequiredToday = bDueToday && bDueRec.status !== 'shared-decision';
-  const pentavalentEligible = am >= M.y10 && acwyDueToday && bDueToday;
+  // P1-4 (2026-09-17): Penbraya may be used for ADDITIONAL doses only once at
+  // least 6 months have passed since the most recent Penbraya dose. Without
+  // this the app offered a second Penbraya two months after the first.
+  //
+  // CDC child & adolescent schedule notes, MenB special situations (fetched
+  // live 2026-09-17): "For age-eligible children at increased risk...,
+  // Penbraya may be used for additional MenACWY and MenB doses (including
+  // booster doses) if both would be given on the same clinic day and at least
+  // 6 months have elapsed since most recent Penbraya dose."
+  //
+  // Scoped to Penbraya alone, deliberately: the CDC page states this for
+  // Penbraya (Pfizer) and says nothing of the kind about Penmenvy — it does not
+  // mention Penmenvy at all. Verified by fetching the page and asking. Do not
+  // mirror it onto Penmenvy without a source.
+  //
+  // Read from the CREDITED histories, so a Penbraya recorded on either step
+  // counts (G1) — the injection is the same one whichever list it was typed on.
+  const penbrayaOnRecord = [...rawMenacwyDoses, ...rawMenbDoses]
+    .filter((d) => d?.date && /penbraya/i.test(d.brand || ''))
+    .map((d) => d.date);
+  const penbrayaTooRecent = penbrayaOnRecord.some(
+    (d) => !calendarIntervalElapsed(d, 6, today),
+  );
 
   // Determine which pentavalent matches the established/needed MenB family.
   const bFamily = menb.find((r) => r.family)?.family ?? null;
+  const pentavalentBrands = (bFamily === '4C'
+    ? ['Penmenvy (MenABCWY)']
+    : bFamily === 'FHbp'
+      ? ['Penbraya (MenABCWY)']
+      : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)']
+  ).filter((b) => !(penbrayaTooRecent && /penbraya/i.test(b)));
+
+  // If the 6-month rule rules out the only pentavalent this patient's antigen
+  // family allows, the combined injection is simply not an option today. The
+  // card falls back to the existing "two separate vaccines" banner, which is
+  // the clinically correct answer — plus a line saying why.
+  const pentavalentEligible =
+    am >= M.y10 && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
         note: bRequiredToday
           ? 'Both MenACWY and MenB are due today. A single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).'
           : 'MenACWY is due today. MenB is optional today (shared clinical decision) -- if you choose to give it, a single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).',
-        brands: bFamily === '4C'
-          ? ['Penmenvy (MenABCWY)']
-          : bFamily === 'FHbp'
-            ? ['Penbraya (MenABCWY)']
-            : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)'],
+        brands: pentavalentBrands,
         citations: resolveRefs(['pentavalentGSK2025', 'pentavalentPfizer2023']),
       }
-    : { eligible: false };
+    : {
+        eligible: false,
+        // Only set when the 6-month rule is what removed the option, so the
+        // card can say why instead of silently dropping it.
+        unavailableReason: (am >= M.y10 && acwyDueToday && bDueToday && penbrayaTooRecent)
+          ? 'A combined pentavalent shot is not an option today: Penbraya may only be repeated once 6 months have passed since the last Penbraya dose.'
+          : null,
+      };
 
   return {
     menacwy, menb, pentavalent, hct,

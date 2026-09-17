@@ -22,6 +22,7 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
+import { menacwyInfantNextDoseGate, GRACE_DAYS, intervalMeetsMinimum } from '../intervals.js';
 import { creditPentavalents } from '../pentavalentCredit.js';
 import { analyzeHistory } from '../validate.js';
 import { TEST_TODAY } from '../../test-today.js';
@@ -96,6 +97,64 @@ describe('L2-4: the rule documents state the dose counts the code uses', () => {
   });
 });
 
+describe('L2-4: the rule documents state the 4-day grace rule the code uses', () => {
+  // P1-1 (2026-09-17). The number is read out of intervals.js, so moving the
+  // grace without updating the documents fails here.
+  it('both documents state the grace CDC allows, and the code agrees', () => {
+    expect(GRACE_DAYS).toBe(4);
+    expect(intervalMeetsMinimum(56 - GRACE_DAYS, 56)).toBe(true);
+    expect(intervalMeetsMinimum(56 - GRACE_DAYS - 1, 56)).toBe(false);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, `${GRACE_DAYS} days`, 'valid', 320), why(path,
+        'P1-1: CDC counts a dose given up to 4 days before a minimum age or interval. It is applied through one shared helper in intervals.js, to every age and every interval.'))
+        .toBe(true);
+    }
+  });
+
+  it('both documents record that the grace does not move the suggested dates', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(/scheduler|dates the app suggests|advertis/i.test(doc), why(path,
+        'P1-1: the grace applies to grading a dose already given, NOT to dueToday/earliestNextDate. Leaving that out of the documents invites someone to "finish the job" and make the app advise early doses.'))
+        .toBe(true);
+    }
+  });
+});
+
+describe('L2-4: the rule documents state the MenACWY infant intervals the code uses', () => {
+  // P0-1 (2026-09-17). The existing L2-4 checks covered dose COUNTS and booster
+  // timing; the infant primary INTERVAL was documented nowhere, which is part of
+  // why a wrong number survived a 65-rule review. These two checks read the real
+  // numbers out of intervals.js so the documents cannot drift from them.
+  it('both documents state the early-dose gap the gate actually enforces', () => {
+    const early = menacwyInfantNextDoseGate({ d1AgeM: 3, d2AgeM: null, given: 1 });
+    expect(early.minIntervalDays).toBe(56); // guards the test itself
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, 'infant', '8 weeks'), why(path,
+        'P0-1 corrected the gap between the early doses of a MenACWY infant series from 4 weeks to 8. ACIP RR-9 Tables 4-6 footnote: "doses at intervals of 8 weeks"; CDC child schedule notes, Menveo 3-6 month row: "at least 8 weeks after previous dose". The 4 weeks was ACIP\'s floor for REPEATING an invalid dose.'))
+        .toBe(true);
+    }
+  });
+
+  // A negative check ("no document still says 4 weeks") was written here and
+  // removed: 4 weeks is the CORRECT minimum for MenB high-risk dose 2, which
+  // both documents also state, and the explanation of where the wrong MenACWY
+  // number came from mentions it too. Any text rule loose enough to catch a
+  // revert also caught those. The positive checks above and below are the real
+  // guard — each asserts the live value out of intervals.js first, so putting
+  // the 4 weeks back fails them at that line, before any prose is read.
+
+  it('both documents state the final infant dose needs 12 weeks AND 12 months', () => {
+    const final = menacwyInfantNextDoseGate({ d1AgeM: 3, d2AgeM: 5, given: 3 });
+    expect(final.minIntervalDays).toBe(84);
+    expect(final.minAgeMonths).toBe(12);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, '12 weeks', '12 months', 400), why(path,
+        'P0-1 made the final dose of EVERY infant series (2-, 3- and 4-dose alike) due at >=12 weeks after the previous dose AND at >=12 months of age. Before it, only the 3-dose shortcut enforced that, so a 4-dose series offered its last dose 4 weeks on with no age floor.'))
+        .toBe(true);
+    }
+  });
+});
+
 describe('L2-4: the rule documents state the booster timing the code uses', () => {
   it('the booster clock is documented as running from the last primary dose, not dose 2', () => {
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
@@ -163,6 +222,27 @@ describe('L2-4: the rule documents state the MenB schedules the code uses', () =
       .toMatch(/3-dose primary[^.]{0,60}0, 1-2/i);
     expect(summary, why(SUMMARY_PATH, 'dose 3 needs BOTH >=6 months from dose 1 AND >=4 months from dose 2 - whichever is later.'))
       .toMatch(/6 months after dose 1[^.]{0,80}4 months after dose 2/i);
+  });
+
+  // P1-2 (2026-09-17). Neither document mentioned that a high-risk MenB series
+  // can finish in TWO doses, which is part of why the branch was missing from
+  // the code at all. Derived from the function, not asserted as prose.
+  it('the high-risk "dose 3 not needed" exception is documented', () => {
+    const shortened = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2025-01-15' }, { date: '2025-08-15' }], // 7 months apart
+    });
+    expect(shortened.total).toBe(2);
+    const stillThree = menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2025-01-15' }, { date: '2025-06-15' }], // 5 months apart
+    });
+    expect(stillThree.total).toBe(3);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, 'dose 3', 'not needed', 400), why(path,
+        'P1-2: CDC says "if dose 2 was administered at least 6 months after dose 1, dose 3 not needed". menbSeriesInfo() returns a total of 2 for those patients and the card offers a booster instead of a third dose.'))
+        .toBe(true);
+    }
   });
 
   it('the rescue dose after an early dose 2 is documented', () => {
