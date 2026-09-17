@@ -81,6 +81,8 @@ import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
 import { menacwyInfantNextDoseGate } from '../intervals.js';
+import { fmtDate } from '../format.js';
+import { addCalendarMonths } from '../dateUtils.js';
 
 const allYes = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i, 'yes']));
 
@@ -193,6 +195,89 @@ describe('P0-1(b): the final primary dose needs 12 weeks AND the first birthday'
     const h = walk(TODAY, 12, ['2025-12-15', '2026-02-15', '2026-04-15', '2026-09-15']);
     expect(h.perDose[3].status).toBe('valid');
     expect(h.effective.length).toBe(4);
+  });
+});
+
+// P0-1a (2026-09-17, same day): the earliestNextDate this fix introduced was
+// MALFORMED for any patient whose age in months is not a whole number.
+//
+// earliestGatedDate() did `addCalendarMonths(today, minAgeMonths - ageMonths)`,
+// and that subtraction is fractional for almost every real patient — ageMonths
+// comes from calendarMonthsBetween(dob, today), which carries a day remainder.
+// addCalendarMonths() assumes a whole number of months, so the fraction
+// survived into the string it builds:
+//
+//   ageMonths 6.5  -> "2027-2.5-17"
+//   ageMonths 6.43 -> "2027-2.5700000000000003-17"
+//   ageMonths 8.2  -> "2026-12.8-17"
+//   ageMonths 7    -> "2027-02-17"   <- only whole ages were right
+//
+// fmtDate() then does months[m - 1], i.e. months[1.5] === undefined, and the
+// card rendered "Next dose not yet due - eligible undefined 17, 2027".
+//
+// The GATING was always correct — dueToday stayed false and the note still said
+// "not before 12 months of age". Only the printed date was wrong. But it shipped
+// to the live site on the exact card P0-1 was written to fix, and it hit nearly
+// every at-risk infant mid-series, because a whole-number age is the rare case.
+//
+// WHY THE ORIGINAL TESTS MISSED IT, worth keeping: the fixture above used
+// ageMonths 7 and the live check used a DOB exactly seven months before today.
+// Both are whole numbers — the one input shape that works. A fixture chosen for
+// arithmetic convenience tested the only case that could not fail. Every test
+// below uses a FRACTIONAL age on purpose.
+describe('P0-1a: the advertised date is a real date for a real patient', () => {
+  const doses = ['2026-05-04', '2026-07-04', '2026-09-04'];
+  const ISO = /^\d{4}-\d{2}-\d{2}$/;
+
+  it.each([6.5, 6.43, 8.2, 7, 11.97])('ageMonths %s yields a well-formed date', (am) => {
+    const c = card(TODAY, am, doses);
+    expect(c.earliestNextDate).toMatch(ISO);
+  });
+
+  it('the rendered date never reads "undefined"', () => {
+    for (const am of [6.5, 6.43, 8.2, 11.97]) {
+      expect(fmtDate(card(TODAY, am, doses).earliestNextDate)).not.toMatch(/undefined/);
+    }
+  });
+
+  it('the date is never advertised before the child turns 12 months', () => {
+    // A child 6.5 months old on TEST_TODAY (2026-09-15) reaches 12 months about
+    // 5.5 months from now: five whole months to 2027-02-15, then half of
+    // February's 28 days on top. Rounding the remainder DOWN would advertise a
+    // date before the birthday and invite a dose that does not count, so it
+    // rounds up.
+    const c = card(TODAY, 6.5, doses);
+    expect(c.earliestNextDate).toBe('2027-03-01');
+    expect(c.earliestNextDate > '2027-02-15').toBe(true);
+  });
+
+  it('the gating itself was never wrong and still is not', () => {
+    for (const am of [6.5, 6.43, 8.2]) {
+      const c = card(TODAY, am, doses);
+      expect(c.dueToday).toBe(false);
+      expect(c.doseNum).toBe(4);
+    }
+  });
+
+  it('a whole-number age still gives the same answer as before', () => {
+    // Guards against "fixing" the fraction by changing the whole-month case too.
+    // TEST_TODAY + 5 whole months. Measured from today, not from the last dose.
+    expect(card(TODAY, 7, doses).earliestNextDate).toBe('2027-02-15');
+  });
+});
+
+describe('P0-1a: addCalendarMonths can no longer emit a malformed date', () => {
+  // The real defect was one caller passing a fraction, but the function built a
+  // string out of it silently. It is a shared date primitive, so it now refuses
+  // to produce something that is not a date, whatever it is handed.
+  it('a fractional month count still yields a well-formed ISO date', () => {
+    expect(addCalendarMonths('2026-09-17', 5.5)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('whole month counts are completely unchanged', () => {
+    expect(addCalendarMonths('2026-09-17', 5)).toBe('2027-02-17');
+    expect(addCalendarMonths('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addCalendarMonths('2026-09-17', -5)).toBe('2026-04-17');
   });
 });
 
