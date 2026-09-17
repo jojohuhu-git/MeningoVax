@@ -22,7 +22,7 @@ import {
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL,
 } from '../seriesTotals.js';
 import { menacwyInfantSeriesIndicated } from '../../data/riskFactors.js';
-import { menacwyInfantNextDoseGate } from '../intervals.js';
+import { menacwyInfantNextDoseGate, GRACE_DAYS, intervalMeetsMinimum } from '../intervals.js';
 import { creditPentavalents } from '../pentavalentCredit.js';
 import { analyzeHistory } from '../validate.js';
 import { TEST_TODAY } from '../../test-today.js';
@@ -94,6 +94,29 @@ describe('L2-4: the rule documents state the dose counts the code uses', () => {
     expect(MENACWY_HIGHRISK_PRIMARY_TOTAL).toBe(2);
     expect(summary, why(SUMMARY_PATH, 'the high-risk MenACWY primary series from age 2 is 2 doses, >=8 weeks apart.'))
       .toMatch(/2-dose primary series[^.]{0,60}8 weeks/i);
+  });
+});
+
+describe('L2-4: the rule documents state the 4-day grace rule the code uses', () => {
+  // P1-1 (2026-09-17). The number is read out of intervals.js, so moving the
+  // grace without updating the documents fails here.
+  it('both documents state the grace CDC allows, and the code agrees', () => {
+    expect(GRACE_DAYS).toBe(4);
+    expect(intervalMeetsMinimum(56 - GRACE_DAYS, 56)).toBe(true);
+    expect(intervalMeetsMinimum(56 - GRACE_DAYS - 1, 56)).toBe(false);
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(statedNear(doc, `${GRACE_DAYS} days`, 'valid', 320), why(path,
+        'P1-1: CDC counts a dose given up to 4 days before a minimum age or interval. It is applied through one shared helper in intervals.js, to every age and every interval.'))
+        .toBe(true);
+    }
+  });
+
+  it('both documents record that the grace does not move the suggested dates', () => {
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(/scheduler|dates the app suggests|advertis/i.test(doc), why(path,
+        'P1-1: the grace applies to grading a dose already given, NOT to dueToday/earliestNextDate. Leaving that out of the documents invites someone to "finish the job" and make the app advise early doses.'))
+        .toBe(true);
+    }
   });
 });
 

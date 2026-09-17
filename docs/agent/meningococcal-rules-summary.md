@@ -23,6 +23,33 @@ enforced. Full citations live in `src/data/refs.js`.
 
 ---
 
+## 0. A dose given a few days early still counts
+
+CDC's general rule, added to this app on 2026-09-17:
+
+> "Vaccine doses administered ≤4 days before the minimum age or interval are
+> considered valid. Doses of any vaccine administered ≥5 days earlier than the
+> minimum age or minimum interval should not be counted as valid and should be
+> repeated as age appropriate."
+
+So a MenACWY dose given three days before a patient's 16th birthday **counts** as
+the 16-year booster; one given five days before does not. The same four days
+apply to every interval in this document as well as every age. Until this was
+added, every age and every gap was a hard edge, and the app asked for repeat
+injections that ACIP counts.
+
+Two deliberate limits:
+
+- **It does not move the dates the app suggests.** If the next dose is due on the
+  9th, the app still says the 9th — it simply accepts a dose given on the 5th.
+  Accepting a dose that was given early is not the same as advising one.
+- **It never shortens a series.** Whether MenB dose 2 counts as "early" decides
+  whether a third rescue dose is owed; the four days are not applied there,
+  because that would take a dose out of the plan rather than accept one already
+  given.
+
+---
+
 ## 1. MenACWY (serogroups A, C, W, Y)
 
 ### Routine schedule (no risk factor)

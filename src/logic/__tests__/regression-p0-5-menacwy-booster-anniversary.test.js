@@ -60,9 +60,12 @@ describe('P0-5: a booster on its exact three-year anniversary counts', () => {
     expect(r.earliestNextDate).toBe('2029-01-15');
   });
 
+  // P1-1 (2026-09-17): the control moved from ONE day short of three years to
+  // FIVE. CDC counts a dose given up to 4 days before a minimum interval, so
+  // one day short is now valid; five days is the real edge.
   it('control: a booster genuinely too soon is still voided', () => {
-    // One day short of three years.
-    const early = [{ date: '2020-11-15' }, { date: '2021-01-15' }, { date: '2024-01-14' }];
+    // Five days short of three years.
+    const early = [{ date: '2020-11-15' }, { date: '2021-01-15' }, { date: '2024-01-10' }];
     const perDose = analyzeHistory('MenACWY', early, 120, ['asplenia'], TODAY, allYes(3)).perDose;
     expect(perDose[2].status).toBe('invalid');
   });
@@ -113,13 +116,17 @@ describe('P0-5: no three-year anniversary is rejected, whatever the start date',
     expect(short).toBeGreaterThanOrEqual(17);
   });
 
-  it('control: one day short of the anniversary is still too soon, every time', () => {
+  // P1-1 (2026-09-17): -1 day became -5. Under CDC's grace rule a booster one
+  // day short of its anniversary COUNTS, so this sweep was asserting the
+  // opposite of the rule. At -5 it still guards what it was written to guard:
+  // that the calendar comparison has not been loosened into a free-for-all.
+  it('control: five days short of the anniversary is still too soon, every time', () => {
     const accepted = [];
     for (let y = 2018; y <= 2024; y += 1) {
       for (let m = 1; m <= 12; m += 1) {
         const d2 = `${y}-${String(m).padStart(2, '0')}-15`;
         const { history, today, ageMonths } = childCase(d2);
-        history[2] = { date: addDays(history[2].date, -1) };
+        history[2] = { date: addDays(history[2].date, -5) };
         const perDose = analyzeHistory('MenACWY', history, ageMonths, ['asplenia'], today, allYes(3)).perDose;
         if (perDose[2].status === 'valid') accepted.push(`${d2} -> ${history[2].date}`);
       }

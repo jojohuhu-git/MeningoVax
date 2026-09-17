@@ -52,8 +52,10 @@ describe('P0-5 (UI): a booster on its three-year anniversary is not sent back', 
     expect(show(ON_TIME).rec.earliestNextDate).toBe('2029-01-15');
   });
 
-  it('control: a booster one day early is still sent back', () => {
-    const { container } = show(['2020-11-15', '2021-01-15', '2024-01-14']);
+  // P1-1 (2026-09-17): one day early now COUNTS (CDC's 4-day grace), so the
+  // control moved to five days — the first genuinely too-soon value.
+  it('control: a booster five days early is still sent back', () => {
+    const { container } = show(['2020-11-15', '2021-01-15', '2024-01-10']);
     expect(container.textContent).toMatch(/too soon/i);
   });
 });

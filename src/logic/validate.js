@@ -55,7 +55,10 @@ import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './series
 // P0-1 (2026-09-17): the infant primary intervals now come from one module,
 // shared with recommend.js, so the engine cannot recommend a dose the validator
 // then rejects (or, as here, accept one the engine's own card called too soon).
-import { menacwyInfantNextDoseGate } from './intervals.js';
+import {
+  menacwyInfantNextDoseGate, ageMeetsMinimum, intervalMeetsMinimum,
+  calendarIntervalMeetsMinimum,
+} from './intervals.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
@@ -309,6 +312,12 @@ function invalidResult(reasons, detail, reasonCites) {
 // what enables correct re-evaluation when an earlier dose is dropped.
 
 function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
+  // P1-1 (2026-09-17): every age and interval below allows CDC's 4-day grace —
+  // "doses administered <=4 days before the minimum age or interval are
+  // considered valid". `whenGiven` carries what ageMeetsMinimum() needs to
+  // re-derive the age as if the dose were 4 days later. See intervals.js for
+  // the quote and for the two places the grace deliberately does NOT apply.
+  const whenGiven = { doseDate: dose.date || null, ageMonths, today };
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable: a past dose can never have been given later than today, so the
   // patient's CURRENT age is an upper bound on the age at administration.
@@ -319,7 +328,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!dose.date) {
     const brand = dose.brand || '';
     const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
-    if (knownBrandMin !== null && ageMonths < knownBrandMin) {
+    if (knownBrandMin !== null && !ageMeetsMinimum(ageMonths, knownBrandMin, { doseDate: today, ageMonths, today })) {
       const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
       return invalidResult(
         [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
@@ -342,7 +351,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   const brand = dose.brand || '';
   const minAgeM = brandMinAgeM(brand) ?? MIN_AGE_MENACWY_PERMISSIVE_MONTHS;
 
-  if (ageAtDose !== null && ageAtDose < minAgeM) {
+  if (ageAtDose !== null && !ageMeetsMinimum(ageAtDose, minAgeM, whenGiven)) {
     const brandLabel = brand
       ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
       : 'this brand';
@@ -405,7 +414,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // Military recruits and college residents keep the old treatment: they are
   // 'single' too, but Table 10 gives them no booster schedule to follow.
   const onOutbreakSchedule = riskIds.includes('outbreak_acwy');
-  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, AGE_10Y_MONTHS, whenGiven)) {
     return {
       status: 'valid',
       reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series. [c]`],
@@ -423,7 +432,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // high-risk-now patient with an ambiguous dated dose, not just "temporary"
   // risk types. Owner-confirmed design, 2026-07-23 handoff.
   let answeredYesNote = null;
-  if (isHighRiskNow && ageAtDose !== null && ageAtDose < AGE_10Y_MONTHS) {
+  if (isHighRiskNow && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, AGE_10Y_MONTHS, whenGiven)) {
     if (riskAnswer === undefined) {
       return {
         status: 'pending',
@@ -493,9 +502,9 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
         // Only grade it here while it is still inside the primary series;
         // anything past the total is a booster and the cadence block owns it.
         if (effectiveIdx < gate.total) {
-          const tooSoon = interval < gate.minIntervalDays;
+          const tooSoon = !intervalMeetsMinimum(interval, gate.minIntervalDays);
           const tooYoung = gate.minAgeMonths != null
-            && ageAtDose != null && ageAtDose < gate.minAgeMonths;
+            && ageAtDose != null && !ageMeetsMinimum(ageAtDose, gate.minAgeMonths, whenGiven);
           if (tooSoon || tooYoung) {
             const weeks = gate.minIntervalDays / 7;
             const why = [
@@ -513,7 +522,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
         }
       } else if (riskClass && effectiveIdx === 1) {
         // ≥2y high-risk primary: 2 doses, ≥8 weeks apart.
-        if (interval < MENACWY_HR_ADULT_MIN_INTERVAL) {
+        if (!intervalMeetsMinimum(interval, MENACWY_HR_ADULT_MIN_INTERVAL)) {
           return invalidResult(
             [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval is 8 weeks (high-risk primary series).`],
             `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL)}.`
@@ -569,7 +578,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
         }
 
         // P0-5: compare real calendar years, not `interval < 1096`.
-        if (!calendarIntervalElapsed(prevKeptDated.date, cadenceYears * 12, dose.date)) {
+        if (!calendarIntervalMeetsMinimum(prevKeptDated.date, cadenceYears * 12, dose.date)) {
           return invalidResult(
             [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
             `Actual interval: ${fmtDays(interval)}. Required cadence: ${cadenceLabel}.`
@@ -582,7 +591,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // The high-risk primary-series rule above already handles the D2 case with a
       // stricter threshold (8wk or 4wk infant); this baseline applies to all other pairs.
       // NOTE: position-based logic (routine 11-12y vs 16y booster) stays in the engine.
-      if (interval < MENACWY_BASELINE_MIN_INTERVAL) {
+      if (!intervalMeetsMinimum(interval, MENACWY_BASELINE_MIN_INTERVAL)) {
         return invalidResult(
           [`Given only ${fmtDays(interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks.`],
           `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_BASELINE_MIN_INTERVAL)}.`
@@ -615,7 +624,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // ongoingRiskNow): a baby with two correctly-spaced infant doses had the
   // second one set aside and was offered dose 1 again. onInfantSeriesNow is
   // scoped to patients still under 2 today — see its definition above.
-  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && ageAtDose < AGE_16Y_MONTHS) {
+  if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, AGE_16Y_MONTHS, whenGiven)) {
     return {
       status: 'valid',
       reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16. [c]`],
@@ -628,6 +637,12 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
 }
 
 function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
+  // P1-1 (2026-09-17): every age and interval below allows CDC's 4-day grace —
+  // "doses administered <=4 days before the minimum age or interval are
+  // considered valid". `whenGiven` carries what ageMeetsMinimum() needs to
+  // re-derive the age as if the dose were 4 days later. See intervals.js for
+  // the quote and for the two places the grace deliberately does NOT apply.
+  const whenGiven = { doseDate: dose.date || null, ageMonths, today };
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable using current age as an upper bound on age-at-administration
   // (see validateOneMenACWY). For MenB the permissive fallback is 120 months
@@ -638,7 +653,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const brand = dose.brand || '';
     const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
     const minAgeM = knownBrandMin ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
-    if (ageMonths < minAgeM) {
+    if (!ageMeetsMinimum(ageMonths, minAgeM, { doseDate: today, ageMonths, today })) {
       const brandLabel = brand
         ? brand.replace(/\s*\(Men(?:B|ACWY|ABCWY)\).*/, '')
         : 'MenB';
@@ -653,7 +668,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     // have been given later than today. So it does not count toward the healthy series.
     // (If the patient is currently ≥16 we can't tell when an undated dose was given, so
     // it falls through to the "counted / unknown" case below.)
-    if (!hasMenbRisk(riskIds) && ageMonths < MENB_HEALTHY_MIN_AGE_MONTHS) {
+    if (!hasMenbRisk(riskIds) && !ageMeetsMinimum(ageMonths, MENB_HEALTHY_MIN_AGE_MONTHS, { doseDate: today, ageMonths, today })) {
       return {
         status: 'valid',
         reasons: [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years) [c]; MenB given before 16 is not counted for a patient without a high-risk indication.`],
@@ -680,7 +695,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     : 'MenB';
   const minAgeM = brandMinAgeM(brand) ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
 
-  if (ageAtDose !== null && ageAtDose < minAgeM) {
+  if (ageAtDose !== null && !ageMeetsMinimum(ageAtDose, minAgeM, whenGiven)) {
     return invalidResult(
       [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products. [c]`],
       `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
@@ -695,7 +710,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
   // analog of MenACWY's pre-age-10 `notAdolescentCount` rule. High-risk patients
   // (hasMenbRisk) legitimately start at age 10 and must keep counting their doses.
   // Owner decision 2026-07-23 (Option 1). Source: ACIP 2020 MMWR RR-9.
-  if (!hasMenbRisk(riskIds) && ageAtDose !== null && ageAtDose < MENB_HEALTHY_MIN_AGE_MONTHS) {
+  if (!hasMenbRisk(riskIds) && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, MENB_HEALTHY_MIN_AGE_MONTHS, whenGiven)) {
     return {
       status: 'valid',
       reasons: [`Given before age 16 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c] MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
@@ -713,7 +728,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
   // for every high-risk-now patient with an ambiguous dated dose. Owner-
   // confirmed design, 2026-07-23 handoff.
   let answeredYesNote = null;
-  if (hasMenbRisk(riskIds) && ageAtDose !== null && ageAtDose < MENB_HEALTHY_MIN_AGE_MONTHS) {
+  if (hasMenbRisk(riskIds) && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, MENB_HEALTHY_MIN_AGE_MONTHS, whenGiven)) {
     if (riskAnswer === undefined) {
       return {
         status: 'pending',
@@ -772,7 +787,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
         return validResult(['Interval from D1 cannot be verified (D1 has no date).']);
       }
       const interval = daysBetween(prevKeptDated.date, dose.date);
-      if (interval < MENB_HR_D2_MIN_INTERVAL) {
+      if (!intervalMeetsMinimum(interval, MENB_HR_D2_MIN_INTERVAL)) {
         return invalidResult(
           [`Given only ${fmtDays(interval)} after dose 1. High-risk schedule requires ≥4 weeks between D1 and D2.`],
           `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`
@@ -791,14 +806,14 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
 
       if (d1Date) {
         const fromD1 = daysBetween(d1Date, dose.date);
-        if (!calendarIntervalElapsed(d1Date, MENB_HR_D3_MIN_MONTHS_FROM_D1, dose.date)) {
+        if (!calendarIntervalMeetsMinimum(d1Date, MENB_HR_D3_MIN_MONTHS_FROM_D1, dose.date)) {
           reasons.push(`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months from D1.`);
           detail += `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}). `;
         }
       }
       if (d2Date) {
         const fromD2 = daysBetween(d2Date, dose.date);
-        if (!calendarIntervalElapsed(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
+        if (!calendarIntervalMeetsMinimum(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, dose.date)) {
           reasons.push(`Given only ${fmtDays(fromD2)} after dose 2. High-risk D3 requires ≥4 months from D2.`);
           detail += `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`;
         }
@@ -825,7 +840,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
           ? '1 year after completing the primary series'
           : '2 years (every 2–3 years for high-risk boosters)';
 
-        if (interval < minInterval) {
+        if (!intervalMeetsMinimum(interval, minInterval)) {
           return invalidResult(
             [`MenB booster given only ${fmtDays(interval)} after the previous dose. Minimum is ${minLabel}. This dose does not count.`],
             `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(minInterval)}.`
@@ -847,6 +862,10 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const prevKeptDated = [...kept].reverse().find(d => d.date);
     if (prevKeptDated) {
       const interval = daysBetween(prevKeptDated.date, dose.date);
+      // P1-1: NO grace here on purpose. This decides whether dose 2 counts as
+      // EARLY and so whether a rescue dose 3 is owed — a series-length question,
+      // not a validity one. Granting grace would drop a dose from the plan, and
+      // the clinical authority rule forbids a reading that gives fewer doses.
       if (!calendarIntervalElapsed(prevKeptDated.date, MENB_HEALTHY_D2_MIN_MONTHS, dose.date)) {
         return validResult([
           `Dose 2 was given ${fmtDays(interval)} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
@@ -862,10 +881,11 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const d2Date = keptDated[1]?.date || null;
     // Only applies if effective D2 was early (i.e. d1→d2 < 6 months)
     if (d1Date && d2Date) {
+      // P1-1: NO grace — the same series-length question as above.
       if (!calendarIntervalElapsed(d1Date, MENB_HEALTHY_D2_MIN_MONTHS, d2Date)) {
         // This is the rescue dose — check the D2→D3 interval.
         const fromD2 = daysBetween(d2Date, dose.date);
-        if (!calendarIntervalElapsed(d2Date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, dose.date)) {
+        if (!calendarIntervalMeetsMinimum(d2Date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, dose.date)) {
           return invalidResult(
             [`Rescue dose given only ${fmtDays(fromD2)} after dose 2. Must be ≥4 months after the early dose 2.`],
             `D2→D3: ${fmtDays(fromD2)} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`

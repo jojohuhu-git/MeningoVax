@@ -38,13 +38,17 @@ describe('E1: a MenACWY dose given exactly on the 10th birthday counts normally'
     expect(perDose[0].effectiveDoseNum).toBe(1);
   });
 
-  it('a dose one day before the 10th birthday is still correctly excluded (boundary not over-corrected)', () => {
+  // P1-1 (2026-09-17): the control moved from ONE day before the birthday to
+  // FIVE. CDC counts a dose given up to 4 days before a minimum age, so one day
+  // early is now valid and this assertion would have been testing the opposite
+  // of the rule. Five days is where the real edge is.
+  it('a dose five days before the 10th birthday is still correctly excluded (boundary not over-corrected)', () => {
     const today = '2026-07-13';
     const ageMonths = dobToAgeMonths('2006-01-01', today);
 
     const perDose = analyzeHistory(
       'MenACWY',
-      [{ date: '2015-12-31' }],
+      [{ date: '2015-12-27' }],
       ageMonths,
       [],
       today

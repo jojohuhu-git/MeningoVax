@@ -45,7 +45,9 @@ import {
 // DAYS.weeks(4) — and again, separately, as the English "≥4 weeks" inside the
 // card text. Both were wrong. They now come from one module, and the sentences
 // interpolate the number rather than restating it.
-import { menacwyInfantNextDoseGate, weeksLabel, earliestGatedDate } from './intervals.js';
+import {
+  menacwyInfantNextDoseGate, weeksLabel, earliestGatedDate, ageMeetsMinimum,
+} from './intervals.js';
 
 // Age bands (months)
 const M = {
@@ -402,9 +404,13 @@ function menacwyRec(am, riskIds, doses, today) {
     // never encountered it. Do not "restore" the 5-year expiry from P2018
     // without asking — it was removed knowingly, not overlooked.
     if (isCollege) {
+      // P1-1 (2026-09-17): allows CDC's 4-day grace, like every other
+      // "does this dose count" test. A college entrant whose dose came three
+      // days before their 16th birthday is covered.
       const dosesAt16Plus = doses
-        .map((d) => ({ a: ageAtDose(d, am, today) }))
-        .filter(({ a }) => a != null && a >= M.y16);
+        .map((d) => ({ a: ageAtDose(d, am, today), date: d.date || null }))
+        .filter(({ a, date }) => a != null
+          && ageMeetsMinimum(a, M.y16, { doseDate: date, ageMonths: am, today }));
       if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
@@ -780,7 +786,13 @@ function menacwyRoutine(am, given, doses, last, today) {
   const refs = ['acip2020Table2'];
   const routineCite = [cite('acwyRoutine1112and16')];
   const lastDate = last?.date || null;
-  const hasDoseAt16 = doses.some((d) => (ageAtDose(d, am, today) ?? 0) >= M.y16);
+  // P1-1 (2026-09-17): a dose up to 4 days before the 16th birthday satisfies
+  // the routine booster. Before this the validator counted such a dose while
+  // this line did not, so the card went on asking for a booster the patient had.
+  const hasDoseAt16 = doses.some((d) => {
+    const a = ageAtDose(d, am, today);
+    return a != null && ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+  });
   // F1 (2026-09-14): the routine series is 2 doses (11-12y + the 16y
   // booster) whenever an earlier <16y dose is already on record and owes
   // that booster — otherwise (a dose was given directly at ≥16y, or none
@@ -788,7 +800,12 @@ function menacwyRoutine(am, given, doses, last, today) {
   // every routine branch, which is the reported bug: a patient with 2+
   // routine doses (e.g. an 82-year-old given 3 adult MenACWY doses) showed
   // "Dose 2 of 1" / "Dose 3 of 1" on the recorded-dose chips.
-  const hasDoseBefore16 = doses.some((d) => (ageAtDose(d, am, today) ?? Infinity) < M.y16);
+  // The complement of hasDoseAt16, and it must use the same test or a dose
+  // inside the grace window would count as both "at 16" and "before 16".
+  const hasDoseBefore16 = doses.some((d) => {
+    const a = ageAtDose(d, am, today);
+    return a != null && !ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+  });
   // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
   // filters out anything given before age 10 for a healthy patient — see
   // validate.js), so a recorded dose here whose age is <132mo (11y) was

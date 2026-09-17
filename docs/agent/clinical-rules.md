@@ -8,6 +8,36 @@ file and the suite fails, naming the sentence. The plain-English, owner-facing v
 the same rules is [meningococcal-rules-summary.md](meningococcal-rules-summary.md), which
 is the source of truth synced to vaxapp.
 
+## The 4-Day Grace Rule (P1-1, 2026-09-17)
+
+CDC general best practices, on the schedule-notes page the app already cites:
+
+> "Vaccine doses administered ≤4 days before the minimum age or interval are considered
+> valid. Doses of any vaccine administered ≥5 days earlier than the minimum age or minimum
+> interval should not be counted as valid and should be repeated as age appropriate."
+
+Applies to **every** minimum age and minimum interval, through one shared helper set in
+`intervals.js` — `intervalMeetsMinimum` (day counts), `calendarIntervalMeetsMinimum`
+(calendar months), `ageMeetsMinimum` (ages). Never re-implement the comparison inline.
+
+Ages are NOT converted with an averaged days-per-month constant: 4 days is 4/28 of a month
+in February and 4/31 in March, and P0-4/P0-5 are both bugs caused by that kind of
+averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days later.
+
+**Two places it deliberately does NOT apply:**
+1. **The scheduler.** `dueToday` and `earliestNextDate` keep the real minimum — granting
+   grace there would advertise a date 4 days early and actively advise giving doses before
+   the minimum interval, which the CDC sentence does not permit. The app says "eligible on
+   the 9th" and *accepts* a dose given on the 5th.
+2. **Series-length tests** (`seriesTotals.js`, and the MenB "was dose 2 early?" test that
+   decides whether a rescue dose is owed). Those decide how many doses a series HAS, not
+   whether a dose was valid; grace there would REMOVE a dose from the plan, which the
+   authority rule forbids.
+
+Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
+(e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
+panel counted a dose while the card went on asking for it.
+
 ## Source Priority
 
 **ACIP/CDC/AAP/immunize.org over FDA package inserts.** Sources are listed at the top of `recommend.js` and in `refs.js`. Never revert to FDA-labeled ages without explicit instruction.

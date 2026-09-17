@@ -43,14 +43,22 @@ const reasonFor = (doses, ageMonths, idx) =>
   analyzeHistory('MenACWY', doses.map((d) => ({ date: d })), ageMonths, [], TODAY, {})
     .perDose[idx].reasons?.[0] ?? '';
 
+// P1-1 (2026-09-17) landed after this test was written and changed its fixture.
+// The original used a dose 3 days before the 16th birthday — which CDC's 4-day
+// grace rule now COUNTS, so the "does not count" sentence disappears entirely
+// and there is no age string left to inspect. The dose moves to 8 days early,
+// which still does not count, and still computes to an age of 191.7 months —
+// the same "X years 12 months" carry-over the copy used to print.
+const D2_EIGHT_DAYS_EARLY = '2026-08-07';
+
 describe('P1-3: one age formatter, not two', () => {
   it('the record panel never prints "X years 12 months"', () => {
-    const reason = reasonFor(['2021-08-15', '2026-08-12'], 193, 1);
+    const reason = reasonFor(['2021-08-15', D2_EIGHT_DAYS_EARLY], 193, 1);
     expect(reason).not.toMatch(/\d+ years 12 months/);
   });
 
   it('it prints the age the canonical formatter gives (16 years)', () => {
-    const reason = reasonFor(['2021-08-15', '2026-08-12'], 193, 1);
+    const reason = reasonFor(['2021-08-15', D2_EIGHT_DAYS_EARLY], 193, 1);
     expect(fmtAgeMonths(191.9)).toBe('16 years'); // guards the test itself
     expect(reason).toContain('~16 years');
   });

@@ -132,8 +132,10 @@ describe('P0-4: week-based minimums are untouched', () => {
     expect(perDose.map((d) => d.status)).toEqual(['valid', 'valid']);
   });
 
-  it('a MenACWY high-risk dose 2 at 55 days is still too soon', () => {
-    const doses = [{ date: '2025-01-15' }, { date: '2025-03-11' }];
+  // P1-1 (2026-09-17): was 55 days. 8 weeks is 56, so 55 is one day early and
+  // CDC counts it. 51 days (56 - 5) is the first genuinely too-soon value.
+  it('a MenACWY high-risk dose 2 at 51 days is still too soon', () => {
+    const doses = [{ date: '2025-01-15' }, { date: '2025-03-07' }];
     const perDose = analyzeHistory('MenACWY', doses, 300, ['asplenia'], '2026-09-15', allYes(2)).perDose;
     expect(perDose[1].status).toBe('invalid');
   });

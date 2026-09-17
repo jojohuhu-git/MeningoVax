@@ -19,7 +19,7 @@
 // whatever you print. Never restate it in English.
 
 import { menacwyInfantHighRiskTotal } from './seriesTotals.js';
-import { addDays, addCalendarMonths } from './dateUtils.js';
+import { addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween } from './dateUtils.js';
 
 const DAY = 1;
 const WEEKS = (n) => n * 7 * DAY;
@@ -134,4 +134,89 @@ export function earliestGatedDate(lastDate, gate, today, ageMonths) {
   if (monthsToGo <= 0) return byInterval;
   const byAge = addCalendarMonths(today, monthsToGo);
   return byAge > byInterval ? byAge : byInterval;
+}
+
+// ── The 4-day grace rule (P1-1, 2026-09-17) ──────────────────────────────
+//
+// CDC, general best practices, on the same schedule-notes page this app already
+// cites (fetched live 2026-09-17):
+//
+//   "Vaccine doses administered <=4 days before the minimum age or interval are
+//    considered valid. Doses of any vaccine administered >=5 days earlier than
+//    the minimum age or minimum interval should not be counted as valid and
+//    should be repeated as age appropriate."
+//
+// This was implemented NOWHERE. Every age gate and every interval in the app
+// was a hard edge, so the app advised repeating doses ACIP counts. Reproduced:
+// a healthy patient whose MenACWY dose came 3 days before their 16th birthday
+// was told it "does not count toward the routine series" — an unnecessary
+// injection.
+//
+// WHAT THIS APPLIES TO, and what it deliberately does not.
+//
+// The rule is about whether a dose that was ALREADY GIVEN counts. It is a
+// validity rule, so it lives on the validator's thresholds. Two exclusions,
+// both deliberate:
+//
+//  1. NOT the scheduler. recommend.js's "due today" and "earliest next date"
+//     must keep using the real minimum. Granting grace there would make the app
+//     advertise a date 4 days early and actively advise giving doses before the
+//     minimum interval — which is not what CDC's sentence permits. The app
+//     therefore still says "eligible on the 9th" and still ACCEPTS a dose given
+//     on the 5th.
+//
+//  2. NOT the series-length tests in seriesTotals.js. Those decide how many
+//     doses a series HAS (e.g. MenB high-risk "if dose 2 was at least 6 months
+//     after dose 1, dose 3 not needed"). That 6 months is a condition for the
+//     series being complete, not a minimum interval for a dose to be valid, and
+//     granting grace there would REMOVE a dose from the plan. The clinical
+//     authority rule is explicit that we never adopt a reading that recommends
+//     fewer doses.
+
+/** Days a dose may precede a minimum age or interval and still count. */
+export const GRACE_DAYS = 4;
+
+/**
+ * Does an interval measured in DAYS clear its minimum, allowing the grace?
+ * Use for week-based minimums (4, 8, 12 weeks), which are exact day counts.
+ */
+export function intervalMeetsMinimum(actualDays, minDays) {
+  return actualDays >= minDays - GRACE_DAYS;
+}
+
+/**
+ * Does a CALENDAR-month interval clear its minimum, allowing the grace?
+ *
+ * The grace is applied by moving the LATER date forward, not by subtracting an
+ * averaged number of days from the minimum — the same reason P0-4/P0-5 moved
+ * these comparisons onto the calendar in the first place.
+ */
+export function calendarIntervalMeetsMinimum(sinceISO, months, refISO) {
+  if (!sinceISO || !refISO) return true;
+  return calendarIntervalElapsed(sinceISO, months, addDays(refISO, GRACE_DAYS));
+}
+
+/**
+ * Was the patient old enough at this dose, allowing the grace?
+ *
+ * Ages here are fractional months, and 4 days is not a fixed fraction of a
+ * month (it is 4/28 in February and 4/31 in March). Rather than pick an average
+ * and reintroduce exactly the drift P0-4 removed, this re-derives the age as if
+ * the dose had been given GRACE_DAYS later, using the same calendar arithmetic
+ * that produced the age in the first place.
+ *
+ * `when` carries the dose date and the reference point. Without it the check
+ * falls back to the exact comparison — never more lenient than it can justify.
+ *
+ * @param {?number} ageAtDoseMonths  age in months at the dose (null = unknown)
+ * @param {number}  minAgeMonths
+ * @param {{doseDate?: ?string, ageMonths?: ?number, today?: ?string}} [when]
+ */
+export function ageMeetsMinimum(ageAtDoseMonths, minAgeMonths, when = {}) {
+  if (ageAtDoseMonths == null) return false;
+  if (ageAtDoseMonths >= minAgeMonths) return true;
+  const { doseDate, ageMonths, today } = when;
+  if (!doseDate || ageMonths == null || !today) return false;
+  const asIfLater = ageMonths - calendarMonthsBetween(addDays(doseDate, GRACE_DAYS), today);
+  return asIfLater >= minAgeMonths;
 }
