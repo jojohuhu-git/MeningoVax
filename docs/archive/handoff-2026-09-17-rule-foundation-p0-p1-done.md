@@ -4,10 +4,13 @@ Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/Mening
 The app is a standalone client-side meningococcal advisor (MenACWY + MenB +
 pentavalent). No backend. Sibling of vaxapp/PediVax and PneumoVax.
 
-Branch: `fix/p0-1-menacwy-infant-primary-intervals`, off `main` (`1228f01`).
-**Pushed. PR #28 is OPEN with CI green** — the owner reviews PRs herself, so it is
-NOT merged. Baseline was 811 passing; now **882 passing (88 files), 0 failing**,
-working tree clean at `d34a94d`.
+**MERGED 2026-09-17** — PR #28 squashed to `2659c3a` on `main`, branch deleted.
+Tests and "Deploy to GitHub Pages" both green; spot-checked on the live site, not
+just the deploy status. Baseline was 811 passing; `main` is now **882 passing
+(88 files), 0 failing**.
+
+*(Written while the PR was open, then updated on merge. Everything below describes
+work that is now live.)*
 
 Source queue: `.claude/prompts/fix-2026-09-17-rule-foundation-and-copy.md`.
 Its per-item order was **P0-1 → P1-3 → P1-2 → P1-1 → P1-4 → U1/U2/U3 → P2-1**;
@@ -104,8 +107,8 @@ partial items.
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git checkout fix/p0-1-menacwy-infant-primary-intervals`
-   (or `main` once PR #28 merges — check `gh pr view 28` first, do not assume).
+1. `cd ~/Downloads/MeningoVax-main && git checkout main && git pull` — PR #28 is
+   merged and its branch is deleted, so `main` at `2659c3a` is the place to start.
 2. Run `npx vitest run` and confirm **882 passing** before any new work.
 3. **Ask, don't default** — two open owner decisions:
    - **U1 scope:** does the lead/detail split apply to **all 32** notes, or only the
@@ -121,7 +124,7 @@ partial items.
    `rule-docs-match-code.test.js` enforces it.
 5. **Push policy:** `main` is unprotected here, but the established habit (PRs
    #18–#28) is branch → PR for the owner's review. **Do not merge without her
-   say-so.**
+   say-so** — she gave it explicitly for #28.
 
 ## Two practical notes
 
