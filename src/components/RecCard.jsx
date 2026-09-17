@@ -135,8 +135,13 @@ export function doseRowsWithGroups(doses, doseValidations, primaryTotal) {
 // reader meets them (recorded doses top to bottom, then the note), because
 // React runs a child component's body after its parent's — seeding on first
 // render would number the note before the verdicts above it.
-function cardCiteNumberer(doseValidations, noteCites) {
+// U2 (2026-09-17): the booster line now carries cited text of its own (the
+// cadence sentence moved out of the note and into it), and it renders ABOVE the
+// recorded doses -- so it is seeded first, or its source would be numbered after
+// sources the reader meets later down the card.
+function cardCiteNumberer(doseValidations, noteCites, boosterCites) {
   const numberFor = makeCiteNumberer();
+  for (const c of boosterCites || []) numberFor(c.page ?? c.key);
   for (const v of doseValidations || []) {
     for (const c of v?.reasonCites || []) numberFor(c.page ?? c.key);
   }
@@ -194,9 +199,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
   //     booster phase (routine MenACWY, single-dose exposure, healthy
   //     MenB) — analyzeHistory() capped it (extraDose:true, F2/F3). This is
   //     the reported bug's exact scenario (a 3rd routine MenACWY dose).
-  //   Recorded — not part of an indicated series — a dose recorded while
+  //   Given — not part of a series this patient needs — a dose recorded while
   //     this vaccine isn't currently indicated at all (no seriesTotal to
-  //     compare against).
+  //     compare against). U4 (2026-09-17): was "Recorded — not part of an
+  //     indicated series", which described the RECORD rather than the patient.
+  //     ("Off-window - repeat" below is left alone: that wording is an
+  //     owner-agreed design decision from the 2026-07-23 handoff.)
   const chipClass = notAdolescentCount
     ? 'dose-val-chip dose-val-offwindow'
     : extraDose
@@ -221,10 +229,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
     : extraDoseUnverified
       ? 'Extra dose? — no date recorded'
     : extraDose
-      ? 'Extra dose — beyond the indicated series total'
+      // U4: "the indicated series total" is `seriesTotal`, the code's own
+      // variable name, read out loud in the interface.
+      ? 'Extra dose — more than this series needs'
       : status === 'valid'
         ? (seriesTotal == null
-            ? 'Recorded — not part of an indicated series'
+            ? 'Given — not part of a series this patient needs'
             : effectiveDoseNum <= seriesTotal
               ? `Dose ${effectiveDoseNum} of ${seriesTotal}`
               : 'Booster')
@@ -330,8 +340,8 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
-  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary } = rec;
-  const numberFor = cardCiteNumberer(doseValidations, noteCites);
+  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
+  const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -423,7 +433,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             and how often. Replaces the rejected "+ boosters" header flag. */}
         {boosterSummary && !pending && (
           <div className="booster-summary-line" data-testid="booster-summary-line">
-            {boosterSummary}
+            {renderNoteWithCites(boosterSummary, boosterCites, numberFor)}
           </div>
         )}
 

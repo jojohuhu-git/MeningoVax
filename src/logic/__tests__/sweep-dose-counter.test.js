@@ -72,9 +72,9 @@ function chipLabel(result, seriesTotal) {
   const { status, effectiveDoseNum, notAdolescentCount, extraDose } = result;
   if (status === 'pending') return 'Needs input';
   if (notAdolescentCount) return 'Off-window - repeat';
-  if (extraDose) return 'Extra dose — beyond the indicated series total';
+  if (extraDose) return 'Extra dose — more than this series needs';
   if (status === 'valid') {
-    if (seriesTotal == null) return 'Recorded — not part of an indicated series';
+    if (seriesTotal == null) return 'Given — not part of a series this patient needs';
     if (effectiveDoseNum <= seriesTotal) return `Dose ${effectiveDoseNum} of ${seriesTotal}`;
     return `Booster (dose ${effectiveDoseNum})`;
   }

@@ -57,10 +57,16 @@ describe('P1-3: one age formatter, not two', () => {
     expect(reason).not.toMatch(/\d+ years 12 months/);
   });
 
-  it('it prints the age the canonical formatter gives (16 years)', () => {
+  // U4 (2026-09-17, owner decision) changed the expected string, not the point
+  // of the test. P1-3's point is that the validator prints whatever the ONE
+  // canonical formatter says, rather than a private copy of it. What the
+  // canonical formatter says has since changed: ages round down, because
+  // "Given at ~16 years, before the age-16 booster window" -- this very
+  // sentence -- read as a contradiction for a dose eight days early.
+  it('it prints the age the canonical formatter gives', () => {
     const reason = reasonFor(['2021-08-15', D2_EIGHT_DAYS_EARLY], 193, 1);
-    expect(fmtAgeMonths(191.9)).toBe('16 years'); // guards the test itself
-    expect(reason).toContain('~16 years');
+    expect(fmtAgeMonths(191.9)).toBe('15 years 11 months'); // guards the test itself
+    expect(reason).toContain(`~${fmtAgeMonths(191.9)}`);
   });
 
   it('no age the formatter can produce ever carries over to 12 months', () => {

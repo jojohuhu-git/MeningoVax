@@ -44,7 +44,10 @@ function baseState(overrides = {}) {
   };
 }
 
-const CONFIRMED = /confirmed the patient was already high-risk/i;
+// U3 (2026-09-17): the row's verdict was shortened from 154 characters to a
+// single clause. Same meaning, same place on the row -- this test is about
+// WHICH dose the answer lands on, not how many words it takes to say so.
+const CONFIRMED = /high risk confirmed at ~/i;
 
 function acwyRows() {
   // The MenACWY card is the first card with a recorded-dose list.

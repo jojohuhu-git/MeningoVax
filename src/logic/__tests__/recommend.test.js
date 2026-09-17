@@ -109,7 +109,9 @@ describe('MenACWY single-dose indications', () => {
   it('travel adult, no doses → 1 dose with q5y booster framing', () => {
     const r = run({ ageMonths: 300, riskIds: ['travel'] });
     expect(acwy(r).doseLabel).toMatch(/ongoing-risk/);
-    expect(acwy(r).note).toMatch(/every 5 years/);
+    // U2 (2026-09-17): the q5y framing is the booster line's, not the note's --
+    // the note used to end with a second copy of it.
+    expect(acwy(r).boosterSummary).toMatch(/every 5 years/);
   });
 
   it('military recruit → single dose, no booster', () => {
@@ -601,11 +603,17 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
     expect(acwy(r).note).toMatch(/\[c\]/);
   });
 
-  it('Infant high-risk 12-23mo dose 1 note carries two [c] highlight-superscript placeholders', () => {
-    const r = run({ ageMonths: 15, riskIds: ['asplenia'] });
-    const matches = acwy(r).note.match(/\[c\]/g) || [];
-    expect(matches.length).toBe(2);
-    expect(acwy(r).noteCites.length).toBe(2);
+  // U2 (2026-09-17): still two cited claims on this card, but they no longer
+  // both sit in the note -- the booster one moved to the booster line with the
+  // sentence it supports. Every [c] on the card still has a source behind it,
+  // which is what this test exists to guarantee.
+  it('Infant high-risk 12-23mo dose 1 carries two cited claims, each paired with its source', () => {
+    const rec = acwy(run({ ageMonths: 15, riskIds: ['asplenia'] }));
+    const count = (s) => ((s || '').match(/\[c\]/g) || []).length;
+    expect(count(rec.note)).toBe(1);
+    expect(rec.noteCites.length).toBe(1);
+    expect(count(rec.boosterSummary)).toBe(1);
+    expect(rec.boosterCites.length).toBe(1);
   });
 });
 

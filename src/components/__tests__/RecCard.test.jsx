@@ -72,7 +72,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
   // fallback for a dose recorded while the vaccine isn't currently
   // indicated at all (no seriesTotal to compare against) — replaced with
   // an explicit, owner-approved label instead of inventing a number.
-  it('labels a plain valid dose with no current series "Recorded — not part of an indicated series" (green)', () => {
+  it('labels a plain valid dose with no current series "Given — not part of a series this patient needs" (green)', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -80,7 +80,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Recorded — not part of an indicated series');
+    const chip = screen.getByText('Given — not part of a series this patient needs');
     expect(chip.className).toMatch(/dose-val-valid/);
   });
 
@@ -114,7 +114,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', effectiveDoseNum: null, extraDose: true, reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Extra dose — beyond the indicated series total');
+    const chip = screen.getByText('Extra dose — more than this series needs');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     expect(screen.queryByText(/of 2/)).toBeNull();
   });

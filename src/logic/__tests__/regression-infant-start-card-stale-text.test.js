@@ -75,8 +75,11 @@ describe('Bug A - the 7-11-month starting card', () => {
     expect(r().note).not.toMatch(/booster at 12.23 months/i);
   });
 
-  it('the note puts the first booster 3 years after the series', () => {
-    expect(r().note).toMatch(/3 years/);
+  it('the card puts the first booster 3 years after the series', () => {
+    // U2 (2026-09-17): stated on the booster line, which owns the cadence; the
+    // note used to repeat it a few lines below.
+    expect(r().boosterSummary).toMatch(/first in 3 years/);
+    expect(r().note).not.toMatch(/3 years/);
   });
 
   it('the note keeps both real dose-2 floors', () => {

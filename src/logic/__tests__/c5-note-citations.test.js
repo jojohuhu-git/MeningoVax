@@ -36,11 +36,14 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
 
-  it('routine MenACWY dose-1 note cites the 11-12y/16y schedule', () => {
+  // U2 (2026-09-17): "A booster follows at 16 years" left the note -- the card's
+  // booster line was already saying it -- and took its citation with it. The
+  // source is still one click away, on the sentence that now makes the claim.
+  it('routine MenACWY dose-1 cites the 11-12y/16y schedule on its booster line', () => {
     const r = run({ ageMonths: 132, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = acwy(r);
-    expect(rec.note).toContain('[c]');
-    expect(rec.noteCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
+    expect(rec.boosterSummary).toContain('[c]');
+    expect(rec.boosterCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
 
   // M16 (2026-09-15) revised both of these. C5's original point was that the
@@ -72,11 +75,13 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
 
-  it('high-risk MenACWY dose-1 note cites both age-7 booster-cadence branches', () => {
+  // U2 (2026-09-17): both quotes moved to the booster line with the sentence
+  // they support, which now names 3 years or 5 rather than "3-5 years".
+  it('high-risk MenACWY dose-1 cites both age-7 booster-cadence branches on its booster line', () => {
     const r = run({ ageMonths: 132, riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [] });
     const rec = acwy(r);
-    expect(rec.noteCites).toHaveLength(2);
-    const urls = rec.noteCites.map((c) => c.url);
+    expect(rec.boosterCites).toHaveLength(2);
+    const urls = rec.boosterCites.map((c) => c.url);
     expect(urls).toContain(ACIP_ANCHORS.boosterBeforeAge7);
     expect(urls).toContain(ACIP_ANCHORS.boosterAtOrAfterAge7);
   });

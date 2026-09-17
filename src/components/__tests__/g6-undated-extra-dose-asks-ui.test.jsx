@@ -40,7 +40,7 @@ describe('G6 (UI): an undated dose past the series total', () => {
     const rows = rowsFor([newDoseRow(), newDoseRow(), newDoseRow()]);
     expect(rows).toHaveLength(3);
     expect(rows[2].textContent).toMatch(/Extra dose\? — no date recorded/);
-    expect(rows[2].textContent).not.toMatch(/beyond the indicated series total/);
+    expect(rows[2].textContent).not.toMatch(/more than this series needs/);
     expect(rows[2].textContent).not.toMatch(/was already complete/);
   });
 
@@ -79,7 +79,7 @@ describe('G6 (UI): an undated dose past the series total', () => {
       />
     );
     const rows = Array.from(document.querySelectorAll('.rec-progress-dose-row'));
-    expect(rows[2].textContent).toMatch(/Extra dose — beyond the indicated series total/);
+    expect(rows[2].textContent).toMatch(/Extra dose — more than this series needs/);
     expect(rows[2].textContent).not.toMatch(/Do you mean/);
   });
 
@@ -99,6 +99,6 @@ describe('G6 (UI): an undated dose past the series total', () => {
     );
     const rows = Array.from(document.querySelectorAll('.rec-progress-dose-row'));
     expect(rows[1].textContent).toMatch(/Extra dose\? — no date recorded/);
-    expect(rows[1].textContent).not.toMatch(/beyond the indicated series total/);
+    expect(rows[1].textContent).not.toMatch(/more than this series needs/);
   });
 });
