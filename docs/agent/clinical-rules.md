@@ -164,6 +164,28 @@ Once D1 brand is known, subsequent doses must stay in the same family. Family an
 
 Eligible only when BOTH MenACWY and MenB are due the same visit AND age ≥10y. Never appear in the standalone MenB brand list.
 
+**Penbraya may not be repeated inside 6 months** (P1-4, 2026-09-17). CDC, MenB special
+situations: *"Penbraya may be used for additional MenACWY and MenB doses (including booster
+doses) if both would be given on the same clinic day and **at least 6 months have elapsed
+since most recent Penbraya dose**."* The clock is read off the CREDITED history, so a
+Penbraya typed on either step counts (G1). When this rules out the only pentavalent the
+patient's antigen family allows, `pentavalent.eligible` goes false and
+`pentavalent.unavailableReason` says why — the card then shows the existing "two separate
+vaccines" banner plus that line. Withholding the combined shot never withholds the vaccine:
+the separate MenB card still offers Trumenba the same day.
+
+**Scoped to Penbraya, deliberately.** The CDC schedule-notes page states this for Penbraya
+(Pfizer) and does not mention Penmenvy at all (verified by fetching the page, 2026-09-17).
+Do NOT mirror the interval onto Penmenvy without a source — a test pins the asymmetry.
+
+**"Use Trumenba for MenB dose 2 after a Penbraya" needs no code** (P1-4, checked not
+assumed). CDC: *"if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be
+administered for dose 2 MenB."* The antigen-family lock already produces exactly that, and
+the pentavalent card cannot reintroduce Penbraya for such a patient because G1's crediting
+also completes their routine MenACWY series, so MenACWY is never due again. That chain is
+what makes this safe rather than lucky — it is pinned by tests, because narrowing G1 would
+silently turn it into a real defect.
+
 **A pentavalent in the recorded history counts for BOTH vaccines** (G1, 2026-09-16). One entry, on either history step, is credited to the MenACWY series and the MenB series: `src/logic/pentavalentCredit.js` runs before any walk, adds a copy tagged `creditedFrom` to the other list, and de-duplicates a shot recorded on both steps (matched on brand + date). Dose numbers are independent per vaccine; the MenB antigen family locks from either step; the row is edited or deleted where it was entered. Do not re-implement this in a surface — both the engine and the record panel read the one merged history off `recommend().history`.
 
 ## History Entry — Doses Dated in the Future

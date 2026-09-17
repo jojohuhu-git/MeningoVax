@@ -1397,24 +1397,62 @@ export function recommend(input) {
   const bDueRec = menb.find((r) => r.dueToday);
   const bDueToday = !!bDueRec;
   const bRequiredToday = bDueToday && bDueRec.status !== 'shared-decision';
-  const pentavalentEligible = am >= M.y10 && acwyDueToday && bDueToday;
+  // P1-4 (2026-09-17): Penbraya may be used for ADDITIONAL doses only once at
+  // least 6 months have passed since the most recent Penbraya dose. Without
+  // this the app offered a second Penbraya two months after the first.
+  //
+  // CDC child & adolescent schedule notes, MenB special situations (fetched
+  // live 2026-09-17): "For age-eligible children at increased risk...,
+  // Penbraya may be used for additional MenACWY and MenB doses (including
+  // booster doses) if both would be given on the same clinic day and at least
+  // 6 months have elapsed since most recent Penbraya dose."
+  //
+  // Scoped to Penbraya alone, deliberately: the CDC page states this for
+  // Penbraya (Pfizer) and says nothing of the kind about Penmenvy — it does not
+  // mention Penmenvy at all. Verified by fetching the page and asking. Do not
+  // mirror it onto Penmenvy without a source.
+  //
+  // Read from the CREDITED histories, so a Penbraya recorded on either step
+  // counts (G1) — the injection is the same one whichever list it was typed on.
+  const penbrayaOnRecord = [...rawMenacwyDoses, ...rawMenbDoses]
+    .filter((d) => d?.date && /penbraya/i.test(d.brand || ''))
+    .map((d) => d.date);
+  const penbrayaTooRecent = penbrayaOnRecord.some(
+    (d) => !calendarIntervalElapsed(d, 6, today),
+  );
 
   // Determine which pentavalent matches the established/needed MenB family.
   const bFamily = menb.find((r) => r.family)?.family ?? null;
+  const pentavalentBrands = (bFamily === '4C'
+    ? ['Penmenvy (MenABCWY)']
+    : bFamily === 'FHbp'
+      ? ['Penbraya (MenABCWY)']
+      : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)']
+  ).filter((b) => !(penbrayaTooRecent && /penbraya/i.test(b)));
+
+  // If the 6-month rule rules out the only pentavalent this patient's antigen
+  // family allows, the combined injection is simply not an option today. The
+  // card falls back to the existing "two separate vaccines" banner, which is
+  // the clinically correct answer — plus a line saying why.
+  const pentavalentEligible =
+    am >= M.y10 && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
         note: bRequiredToday
           ? 'Both MenACWY and MenB are due today. A single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).'
           : 'MenACWY is due today. MenB is optional today (shared clinical decision) -- if you choose to give it, a single pentavalent (MenABCWY) dose may be given instead of two separate injections. The two pentavalents are NOT interchangeable across the rest of the MenB series: Penmenvy = MenB-4C (continue with Bexsero/Penmenvy); Penbraya = MenB-FHbp (continue with Trumenba/Penbraya).',
-        brands: bFamily === '4C'
-          ? ['Penmenvy (MenABCWY)']
-          : bFamily === 'FHbp'
-            ? ['Penbraya (MenABCWY)']
-            : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)'],
+        brands: pentavalentBrands,
         citations: resolveRefs(['pentavalentGSK2025', 'pentavalentPfizer2023']),
       }
-    : { eligible: false };
+    : {
+        eligible: false,
+        // Only set when the 6-month rule is what removed the option, so the
+        // card can say why instead of silently dropping it.
+        unavailableReason: (am >= M.y10 && acwyDueToday && bDueToday && penbrayaTooRecent)
+          ? 'A combined pentavalent shot is not an option today: Penbraya may only be repeated once 6 months have passed since the last Penbraya dose.'
+          : null,
+      };
 
   return {
     menacwy, menb, pentavalent, hct,

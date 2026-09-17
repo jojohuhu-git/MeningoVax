@@ -222,6 +222,19 @@ on-the-table today).
   established yet).
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
+- **Penbraya cannot be given again within 6 months of the last Penbraya**
+  (added 2026-09-17). CDC allows Penbraya for further doses only once at least
+  six months have passed since the most recent one. Before this, a patient who
+  had a Penbraya two months earlier was offered the combined shot again. If
+  that rules out the only pentavalent the patient's MenB family allows, the app
+  simply does not offer the combined injection and says why — **the vaccine
+  itself is still given**, as two separate shots the same day.
+- This six-month rule is for **Penbraya only**. CDC states it for Penbraya and
+  says nothing of the kind about Penmenvy, so nothing has been assumed for
+  Penmenvy.
+- **After a Penbraya, MenB dose 2 should be Trumenba.** The app already does
+  this, through the antigen-family rule — a Penbraya sets the family to FHbp and
+  only Trumenba is then offered. No change was needed.
 
 ### A pentavalent already in the record counts for BOTH vaccines
 
