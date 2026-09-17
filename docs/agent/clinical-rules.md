@@ -125,6 +125,18 @@ appears on a **kept** row of the same vaccine: it carries `recordProblem:
 advice. Matched against `kept` rather than every row walked, so a row matching a
 dose that was itself dropped is graded normally. Brands that differ between the
 two rows are named in the reason, since one of them must be wrong.
+## History Entry — An Undated Dose Past the Series Total
+
+G6 (2026-09-16, owner decision "ask, don't assert"). In the series-total cap in
+`validate.js`, a row flagged `isExtra` that has **no date** carries
+`extraDoseUnverified: true` and replacement wording that asks the question
+("Do you mean this was an extra dose given?") instead of asserting the series
+was already complete; `RecCard` maps that flag to the chip "Extra dose? — no
+date recorded". A DATED extra keeps `extraDose` alone and the assertive chip.
+The reasons are replaced rather than appended for the undated case, because the
+base undated sentence ends "Dose is counted in the series" and would contradict
+the line below it. No answer is stored: an extra dose is excluded from `kept`,
+so the engine never sees the row and the recommendation is identical either way.
 
 ## History Entry — Doses Without Dates
 

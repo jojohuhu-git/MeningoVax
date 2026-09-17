@@ -225,6 +225,15 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   a dose the patient has had. Two doses of the same vaccine are never given on
   the same day. If the row it would duplicate was itself dropped, this rule does
   not apply — nothing counted on that date.
+- **An UNDATED dose past the series total: the app asks, it does not assert.**
+  With no date the dose cannot be placed in time, so the app cannot tell a
+  genuine extra dose from an ordinary series dose whose date is missing — and
+  old paper records often carry several undated doses. The row reads "Extra
+  dose? — no date recorded" and asks "Do you mean this was an extra dose
+  given?" A *dated* dose that genuinely exceeds the total keeps the plain
+  statement ("Extra dose — beyond the indicated series total"), because there
+  the app does know. Either way the dose is not counted, and the recommendation
+  is the same with or without that row.
 - Doses are re-evaluated in order against the doses already *kept* so far —
   so if an early dose is dropped, a later dose isn't wrongly flagged as "too
   soon" relative to the dropped one.
