@@ -54,7 +54,7 @@ import { menbFamily, ALL_BRANDS } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
-import { fmtDate } from './format.js';
+import { fmtDate, stripAntigen } from './format.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -211,15 +211,17 @@ function validResult(reasons = []) {
 }
 
 // Build a 'record problem' result: the entry itself is wrong, as opposed to a
-// real dose given at the wrong time.
+// real dose given at the wrong time. `kind` names which problem it is, so the
+// card can label the chip — the wording itself stays in RecCard with the rest
+// of the vocabulary, not down here in the rules.
 //
 // G3 (2026-09-16): these are graded like an invalid dose — not counted — but
 // they must NOT collect the walk's "repeat this dose only" advice. That advice
 // is for a dose that WAS given, too early or too close to the last one. When
 // the problem is the typing, repeating a shot nobody received is nonsense; the
 // fix is to correct the record.
-function recordProblemResult(reasons, detail) {
-  const r = { status: 'invalid', recordProblem: true, reasons };
+function recordProblemResult(kind, reasons, detail) {
+  const r = { status: 'invalid', recordProblem: kind, reasons };
   if (detail != null) r.detail = detail;
   return r;
 }
@@ -237,9 +239,41 @@ function recordProblemResult(reasons, detail) {
 function futureDatedProblem(dose, today) {
   if (!dose?.date || !today || dose.date <= today) return null;
   return recordProblemResult(
+    'future',
     [`This date is in the future — today is ${fmtDate(today)}. A dose cannot have been given yet, so it is not counted. Check the date: if the year is a typo, correct it; if this is an appointment the patient has not attended yet, take it out of the record, which lists doses already given.`],
     `Recorded date: ${fmtDate(dose.date)}. Today: ${fmtDate(today)}.`
   );
+}
+
+/**
+ * G7 (2026-09-16): the same shot recorded on two rows.
+ *
+ * Two doses of the same vaccine are never given on the same day, so a date
+ * that already appears on a COUNTED row means the row was typed twice — the
+ * commonest slip when a paper record is being copied in.
+ *
+ * The grading was already right (it does not count). What was wrong was the
+ * explanation: the interval rule got there first and said "Given only 0 days
+ * after the previous dose. Minimum interval … is 4 weeks", then the walk added
+ * "repeat this dose only" — telling a clinician to give a shot the patient has
+ * already had, to fix a problem that only exists in the typing.
+ *
+ * Matched against `kept`, not against every row walked so far: if the row this
+ * one would duplicate was itself dropped, nothing counted on that date and this
+ * row is the first real one.
+ */
+function duplicateEntryProblem(dose, kept) {
+  if (!dose?.date) return null;
+  const twin = kept.find((k) => k?.date === dose.date);
+  if (!twin) return null;
+
+  const reasons = [
+    `The same date is already recorded on an earlier row (${fmtDate(dose.date)}), so this looks like one dose entered twice. It is not counted. Two doses of the same vaccine are never given on the same day — if the patient really did receive another dose, correct its date; otherwise remove this row.`,
+  ];
+  if (dose.brand && twin.brand && dose.brand !== twin.brand) {
+    reasons.push(`The two rows name different brands (${stripAntigen(twin.brand)} and ${stripAntigen(dose.brand)}), so at least one of them is wrong.`);
+  }
+  return recordProblemResult('duplicate', reasons, `Same date as a dose already recorded: ${fmtDate(dose.date)}.`);
 }
 
 // Build an 'invalid' result.
@@ -831,7 +865,9 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
     // Validate this dose against the current kept list.
     // G3: a date in the future is settled before any vaccine-specific rule
     // runs — there is no dose to grade yet, whatever the schedule says.
-    let result = futureDatedProblem(dose, today);
+    // G7: and a date already sitting on a counted row is a row typed twice,
+    // which the interval rule would otherwise explain as a 0-day interval.
+    let result = futureDatedProblem(dose, today) || duplicateEntryProblem(dose, kept);
     if (result) {
       // fall through to the invalid branch below
     } else if (vaccine === 'MenACWY') {

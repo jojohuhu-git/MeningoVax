@@ -144,6 +144,16 @@ function cardCiteNumberer(doseValidations, noteCites) {
   return numberFor;
 }
 
+// The chip wording for a row whose PROBLEM IS THE ENTRY, keyed by the `kind`
+// validate.js attaches (G3/G7, 2026-09-16). Each says plainly that this row is
+// not counted, because that is the question a reader has when a row is greyed
+// out. The dose itself may well be fine — in the duplicate case it is counted,
+// once, on the row above.
+const RECORD_PROBLEM_LABELS = {
+  future: 'Date is in the future — not counted',
+  duplicate: 'Entered twice — this row not counted',
+};
+
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
@@ -197,11 +207,11 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
           ? 'dose-val-chip dose-val-invalid'
           : 'dose-val-chip dose-val-unknown';
 
-  // G3 (2026-09-16): a dose dated in the future is not an invalid DOSE — it is
-  // an entry that cannot be right yet. "Invalid" sends the reader looking for a
-  // clinical mistake; the chip has to point at the date instead.
+  // G3/G7 (2026-09-16): some rows are not an invalid DOSE at all — they are an
+  // entry that cannot be right. "Invalid" sends the reader looking for a
+  // clinical mistake instead of a typo, so the chip names the entry problem.
   const chipLabel = recordProblem
-    ? 'Date is in the future — not counted'
+    ? RECORD_PROBLEM_LABELS[recordProblem]
     : notAdolescentCount
     ? 'Off-window - repeat'
     : extraDose
