@@ -130,6 +130,31 @@ base undated sentence ends "Dose is counted in the series" and would contradict
 the line below it. No answer is stored: an extra dose is excluded from `kept`,
 so the engine never sees the row and the recommendation is identical either way.
 
+## History Entry — An Undated Dose Cannot Close the Routine Series
+
+G8 (2026-09-16). Two rules, both saying that a blank date is the weakest thing
+in the record:
+
+1. **It cannot close the series.** In `seriesTotals.js`, the routine MenACWY
+   total asks whether the 16-year booster is still owed, and an undated dose
+   cannot prove it was given: `boosterStillOwed` is true when a dose's age is
+   `null` (no date) *or* below 16 years. It used to ask only "is any dose
+   before 16?", so an undated dose closed the series at 1 dose while
+   `recommend.js` — asking the opposite question, "is any dose provably at
+   ≥16y?" — went on offering the booster on the same card.
+2. **It cannot take the place of a dose that has a date.** Undated rows sort
+   first, so under a series cap they filled the slots and a DATED dose was the
+   one dropped as "extra" — the app then re-offered a booster the record
+   showed the patient had. `analyzeHistory()` re-walks with the dated doses
+   first if the first pass dropped a dated dose while an undated row was kept.
+   Each walk stays internally consistent; the finished pass is never edited.
+
+When no dose on record can be placed at ≥16y and at least one has no date, the
+card says so ("…recorded doses have no date, so a dose given at age 16 years or
+older cannot be confirmed from this record. Adding the date may remove this
+recommendation.") and the 19–21y catch-up label reads "≥16y dose not confirmed"
+rather than "no dose at ≥16y", which the record cannot support.
+
 ## History Entry — Doses Without Dates
 
 Dose counting works by array length without dates. Dates are only used for:

@@ -738,6 +738,16 @@ function menacwyRoutine(am, given, doses, last, today) {
   // is valid for adolescent dose 1 — no repeat is needed. This only matters
   // for THIS one recorded dose (given === 1); once a second dose exists the
   // schedule has already moved past the single-dose-1 question.
+  // G8 (2026-09-16): a dose with no date cannot be placed on or after the
+  // 16th birthday, so the booster keeps being recommended -- correctly, since
+  // nothing here proves it was given. What the card must NOT do is state as
+  // fact that there is no such dose when the record simply cannot say. The
+  // sentence names the missing date and what filling it in would change.
+  const undatedCount = doses.filter((d) => !d.date).length;
+  const sixteenUnconfirmed = undatedCount > 0 && !hasDoseAt16;
+  const undatedNote = sixteenUnconfirmed
+    ? ` ${undatedCount === 1 ? 'One recorded dose has no date' : `${undatedCount} recorded doses have no date`}, so a dose given at age 16 years or older cannot be confirmed from this record. Adding the date may remove this recommendation.`
+    : '';
   const doseAgesM = doses.map((d) => ageAtDose(d, am, today));
   const doseAtAge10 = given === 1 && doseAgesM[0] != null && doseAgesM[0] < M.y11;
 
@@ -808,7 +818,7 @@ function menacwyRoutine(am, given, doses, last, today) {
       doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
       note: given === 0
         ? 'Unvaccinated adolescent ≥16 years: a single MenACWY dose; because it is given at ≥16y, no booster is required [c].'
-        : 'Routine 16-year booster (the dose given at 11–12y does not count as the booster) [c].',
+        : `Routine 16-year booster (the dose given at 11–12y does not count as the booster) [c].${undatedNote}`,
       noteCites: given === 0 ? [cite('acwyFirstDoseAfter16NoBooster')] : routineCite, refs })];
   }
   // 19–21y: catch-up if no dose at ≥16y; otherwise not indicated
@@ -821,13 +831,18 @@ function menacwyRoutine(am, given, doses, last, today) {
       // routine 11-12y/16y schedule the [c] previously pointed to
       // (citation audit W2 finding).
       return [rec({ vaccine: 'MenACWY', status: 'catchup',
-        doseLabel: given === 0 ? 'Dose 1 of 1 (catch-up, 19–21y)' : 'Dose (catch-up, no dose at ≥16y)',
+        // G8: "no dose at ≥16y" is a claim the record cannot support when a
+        // recorded dose has no date — it may well BE that dose. Say what is
+        // true instead: the app cannot confirm one.
+        doseLabel: given === 0
+          ? 'Dose 1 of 1 (catch-up, 19–21y)'
+          : sixteenUnconfirmed ? 'Dose (catch-up, ≥16y dose not confirmed)' : 'Dose (catch-up, no dose at ≥16y)',
         // F1 (2026-09-14): given===0 → this first-ever dose (at ≥19y) needs
         // no booster (1 total). given>=1 → an earlier <16y dose owes this
         // catch-up dose as its booster (2 total). Was hardcoded 1 for both.
         // P2-2 (2026-09-15): same omission as the >=16y branch above.
         doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
-        note: 'No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended: when given at ≥16 years, no booster is needed [c]. Especially recommended for first-year college students living in residence halls.',
+        note: `No MenACWY dose confirmed on or after the 16th birthday. A single catch-up dose is recommended: when given at ≥16 years, no booster is needed [c]. Especially recommended for first-year college students living in residence halls.${undatedNote}`,
         noteCites: [cite('acwyCatchup1921')], refs })];
     }
     // Has a dose at ≥16y → complete
