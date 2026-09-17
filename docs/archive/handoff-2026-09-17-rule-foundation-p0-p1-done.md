@@ -1,3 +1,11 @@
+> **SUPERSEDED — 2026-09-17.** The queue moved on after this was written. U2, U3
+> and U4 are now **done, merged and deployed** (PR #31, squash `eed35a6`; main at
+> **951 passing, 97 files**), and both open owner decisions this file asks about
+> have been answered: the MenB dose-3 finding got its own fix (PR #30) and U1's
+> scope is **all 32 notes**. Only **U1** and **P2-1** remain. Read
+> `handoff-2026-09-17b-copy-block-u2-u3-u4-merged.md` instead — do not resume
+> from this file.
+
 # MeningoVax — Handoff after the rule-foundation queue's P0/P1 block (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
