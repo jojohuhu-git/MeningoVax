@@ -891,14 +891,47 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         && candidateKept.length > seriesInfo.total;
 
       if (isExtra) {
+        // G6 (2026-09-16, owner decision): ASK, don't assert — but only for an
+        // UNDATED row. A dose with no date cannot be placed in time, so the app
+        // cannot tell a genuine extra dose from an ordinary series dose whose
+        // date is missing, and old paper records routinely carry several
+        // undated doses. On a healthy 17-year-old the assertion also
+        // contradicts the card it sits on, which says the age-16 booster is
+        // still due: the series cannot be both complete and owed a dose.
+        //
+        // A DATED dose that genuinely exceeds the total keeps the assertion —
+        // there the app really does know (several regression tests pin it).
+        //
+        // The question needs no answer stored: an extra dose is excluded from
+        // `kept`, so the engine never sees this row and the recommendation is
+        // identical with or without it. Nothing downstream depends on which
+        // reading is true, which is why this is wording rather than state.
+        //
+        // The undated reasons are REPLACED, not appended to: the base sentence
+        // for an undated dose ends "Dose is counted in the series", which would
+        // sit directly above a line saying it is not counted.
+        const undatedExtra = !dose.date;
         perDose.push({
           ...result,
           effectiveDoseNum: null,
           extraDose: true,
-          reasons: [
-            ...result.reasons,
-            `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
-          ],
+          ...(undatedExtra ? { extraDoseUnverified: true } : {}),
+          reasons: undatedExtra
+            ? [
+              'No date recorded, so this dose cannot be placed in time.',
+              // Deliberately says nothing about the series being COMPLETE.
+              // The cap that lands a row here is a counting rule, not a verdict
+              // on the patient: a healthy 17-year-old with two undated MenACWY
+              // doses is capped at a 1-dose total while the card above still
+              // says the age-16 booster is due. Claiming completeness here
+              // would contradict the card the row sits in. (Live-observed
+              // 2026-09-16; raised separately — the cap itself is not G6's.)
+              'Do you mean this was an extra dose given? With no date recorded, the app cannot tell whether this is a dose beyond the series or a series dose whose date is missing, so it is not counted. Whichever it is, the recommendation above is the same with or without this row. Adding the date settles it.',
+            ]
+            : [
+              ...result.reasons,
+              `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
+            ],
         });
         // Do NOT add to kept; do NOT increment effectiveCount.
       } else {

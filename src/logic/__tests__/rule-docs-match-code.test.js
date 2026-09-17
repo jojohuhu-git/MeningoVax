@@ -231,6 +231,28 @@ describe('L2-4: the rule documents describe what happens to a future-dated dose'
   });
 });
 
+describe('L2-4: the rule documents describe an undated dose past the series total', () => {
+  // G6 (2026-09-16). Behaviour read out of the code, then required of the prose.
+  it('the undated case is documented as a question, and the dated case as a statement', () => {
+    const undated = analyzeHistory('MenACWY', [{ date: '', brand: '' }, { date: '', brand: '' }], 204, []);
+    expect(undated.perDose[1].extraDoseUnverified).toBe(true);
+    expect(undated.perDose[1].reasons.join(' ')).toMatch(/do you mean this was an extra dose given\?/i);
+
+    const dated = analyzeHistory('MenACWY', [
+      { date: '2017-09-15', brand: 'Menveo' },
+      { date: '2022-09-15', brand: 'Menveo' },
+      { date: '2025-09-15', brand: 'Menveo' },
+    ], 240, []);
+    expect(dated.perDose[2].extraDose).toBe(true);
+    expect(dated.perDose[2].extraDoseUnverified).toBeUndefined();
+
+    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
+      expect(doc, why(path, 'an UNDATED dose past the series total asks "Do you mean this was an extra dose given?" rather than asserting the series was complete — while a DATED extra still states it plainly.'))
+        .toMatch(/undated[^.]{0,400}(ask|question|do you mean)/i);
+    }
+  });
+});
+
 describe('L2-4: both documents say when they were last checked against the code', () => {
   it('each carries a verification stamp in YYYY-MM-DD form', () => {
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
