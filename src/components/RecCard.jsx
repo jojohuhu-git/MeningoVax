@@ -157,7 +157,7 @@ const RECORD_PROBLEM_LABELS = {
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
-  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose, recordProblem } = result;
+  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose, extraDoseUnverified, recordProblem } = result;
 
   // Item 2 (2026-07-23 handoff): once answered, the validator's result no
   // longer carries needsInput/promptDate (see validate.js), so re-opening the
@@ -214,6 +214,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
     ? RECORD_PROBLEM_LABELS[recordProblem]
     : notAdolescentCount
     ? 'Off-window - repeat'
+    // G6 (2026-09-16): an UNDATED row past the series total is a question, not
+    // a finding — with no date the app cannot tell an extra dose from a series
+    // dose whose date is missing. The assertive chip below stays for dated
+    // doses, where it really is known.
+    : extraDoseUnverified
+      ? 'Extra dose? — no date recorded'
     : extraDose
       ? 'Extra dose — beyond the indicated series total'
       : status === 'valid'
