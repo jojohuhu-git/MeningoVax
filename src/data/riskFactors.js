@@ -21,6 +21,29 @@
 // menbClass:
 //   'highrisk' — 3-dose 0/1–2/6mo primary + boosters; undefined = no MenB indication
 //
+// `minPlausibleAgeMonths` (impossible P1-2, 2026-09-18) — the age below which
+// ticking this box is worth QUESTIONING, never blocking. Only four entries have
+// one; absence means "never question", which is the safe default and why it is
+// opt-in rather than a number every factor carries.
+//
+// For microbiologist, military and college_dorm the floor is ACIP's own: the
+// 2020 MMWR 69(RR-9) prints each of those indications in a table with a single
+// age-group row, ">=10 yrs" (Table 7 for microbiologists, Table 10 for college
+// freshmen and military recruits) — read from the MMWR PDF on 2026-09-18,
+// because the HTML page's text conversion drops the tables. Compare Table 4
+// (persistent complement deficiency), which prints THREE rows — "2-23 mos",
+// "2-9 yrs", ">=10 yrs" — which is exactly why an infant with complement
+// deficiency must never be questioned. The difference is real, not an omission.
+//
+// A missing row is NOT a contraindication. Nothing in ACIP forbids vaccinating
+// a younger microbiologist, so a floor here can only ever raise a question;
+// blocking would invent guidance ACIP never wrote (owner decision 2026-09-17).
+//
+// Pregnancy has no ACIP table at all, so its floor is an openly-admitted
+// plausibility judgement and its note does not claim a source (owner decision
+// 2026-09-18).
+const MENINGO_TABLE_MIN_AGE_MONTHS = 120;  // ">=10 yrs"
+
 // `group` is DISPLAY ONLY (which StepRisks.jsx section a checkbox renders
 // under) — mirrors PneumoVax's grouping (owner decision, 2026-09-13):
 //   'IC'       — immunocompromising/medical risk conditions
@@ -86,6 +109,8 @@ export const RISK_FACTORS = [
     menacwyClass: 'single+boost',
     menbClass: 'highrisk',
     group: 'exposure',
+    // Table 7's only age-group row is ">=10 yrs" — see the header note.
+    minPlausibleAgeMonths: MENINGO_TABLE_MIN_AGE_MONTHS,
     // C2/2026-07-24: table anchor within acip2020 (Table 7), not the
     // generic whole-document chip.
     refs: ['acip2020Table7'],
@@ -108,6 +133,8 @@ export const RISK_FACTORS = [
     menacwyClass: 'single',
     menbClass: undefined,
     group: 'exposure',
+    // Table 10's only age-group row is ">=10 yrs" — see the header note.
+    minPlausibleAgeMonths: MENINGO_TABLE_MIN_AGE_MONTHS,
     refs: ['acip2020Table10'],
   },
   {
@@ -116,6 +143,8 @@ export const RISK_FACTORS = [
     menacwyClass: 'single',
     menbClass: undefined,
     group: 'exposure',
+    // Table 10's only age-group row is ">=10 yrs" — see the header note.
+    minPlausibleAgeMonths: MENINGO_TABLE_MIN_AGE_MONTHS,
     refs: ['acip2020Table10'],
   },
   {
@@ -146,11 +175,36 @@ export const RISK_FACTORS = [
     menbClass: undefined,
     group: 'other',
     deferMenB: true,
+    // No ACIP table covers pregnancy as a meningococcal indication, so this
+    // floor is a judgement, not a rule — and the note says so by not citing.
+    minPlausibleAgeMonths: 108,  // 9 years
     refs: ['cdcAdultMening'],
   },
 ];
 
 export const RISK_BY_ID = Object.fromEntries(RISK_FACTORS.map((r) => [r.id, r]));
+
+// impossible P1-2: which of the ticked risk factors are worth questioning at
+// this age? Returns the catalog ENTRIES (so the caller has the label, the floor
+// and the refs without a second lookup), in catalog order, so the note's lines
+// read in the same order as the tick-boxes that produced them.
+//
+// This is the ONLY place the floor is applied. Nothing here changes a
+// recommendation — the caller turns the result into a note and nothing else.
+//
+// Two ages deliberately produce no question:
+//   • an unknown age (null/undefined), because the app would be guessing; and
+//   • a negative age, which is impossible rather than implausible and belongs
+//     to P1-3 ("Before birth"). Questioning the tick-box there would point at
+//     the wrong mistake.
+export function ageImplausibleRisks(riskIds = [], ageMonths) {
+  if (ageMonths == null || !Number.isFinite(ageMonths) || ageMonths < 0) return [];
+  return RISK_FACTORS.filter(
+    (r) => riskIds.includes(r.id)
+      && r.minPlausibleAgeMonths != null
+      && ageMonths < r.minPlausibleAgeMonths,
+  );
+}
 
 // Highest-priority MenACWY class among the patient's selected risks.
 // primary2 > single+boost > single. Returns null if no MenACWY risk.

@@ -23,6 +23,7 @@ import {
   shouldDeferMenB,
   hasExclusion,
   hasHCT,
+  ageImplausibleRisks,
   RISK_BY_ID,
 } from '../data/riskFactors.js';
 import {
@@ -40,6 +41,10 @@ import {
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
   MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
 } from './ages.js';
+// impossible P1-2: the note prints the patient's age in the same words the
+// results header uses, so the two cannot disagree. format.js imports only
+// dateUtils, so there is no cycle back into the engine.
+import { fmtAgeMonths } from './format.js';
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 // Calendar P1-3: one rule for how old the patient is — the date of birth wins
 // over a stored ageMonths, which is only ever a snapshot of it.
@@ -1699,6 +1704,59 @@ const PENTAVALENT_FAMILY_LOCK = 'The two pentavalents are not interchangeable '
   + 'Bexsero or Penmenvy; Penbraya is MenB-FHbp, so continue with Trumenba or '
   + 'Penbraya.';
 
+// ── impossible P1-2: questioning a tick-box the age makes unlikely ───────
+//
+// A newborn could be ticked as a first-year college student in a residence
+// hall, and the app answered "1 dose", due today, with no product listed at
+// all (no MenACWY vaccine is licensed under 2 months). The app already knew
+// these were adult indications — it excludes them from the infant series for
+// exactly that reason — and used that knowledge to pick a schedule but never
+// to question the tick.
+//
+// Owner decision 2026-09-17, reconfirmed 2026-09-18: a quiet note, NEVER a
+// block. ACIP prints no age floor in the recommendation text for any of these
+// indications, so refusing to answer would invent guidance ACIP never wrote.
+// The dose still shows as due; this note sits beside it and says nothing more
+// than "check the age".
+//
+// The floors, and which of them may cite a source, live in riskFactors.js
+// beside the tick-box definitions. This function only turns them into English.
+function riskAgeCheck(riskIds, am) {
+  const doubted = ageImplausibleRisks(riskIds, am);
+  if (doubted.length === 0) return { note: null, cites: [] };
+
+  const lines = [];
+  const cites = [];
+  for (const r of doubted) {
+    // Only the ACIP-table indications carry a citation; pregnancy's floor is a
+    // plausibility judgement, so its line claims no source. The cited ones
+    // point at the very table the tick-box already cites, which is where the
+    // ">=10 yrs" row is.
+    const tableRef = r.refs?.find((k) => k.startsWith('acip2020Table'));
+    const years = Math.round(r.minPlausibleAgeMonths / 12);
+    if (tableRef) {
+      lines.push(`ACIP lists "${r.label}" only for ages ${years} years and over [c].`);
+      cites.push(cite(tableRef));
+    } else {
+      lines.push(`"${r.label}" is very unusual below ${years} years.`);
+    }
+  }
+  return {
+    note: {
+      lines,
+      // The age is stated ONCE, in the footer, rather than at the end of every
+      // line: it does not change between lines, and fmtAgeMonths returns words
+      // as well as numbers ("Birth", "3 weeks"), which no "...and this patient
+      // is X" sentence can absorb grammatically. Driving the live app is what
+      // caught that — the first version printed "this patient is Birth."
+      footer: `This patient's age is recorded as ${fmtAgeMonths(am)}. `
+        + 'Nothing has been withheld and no recommendation has changed. '
+        + 'Check that the age and the tick-boxes are both right.',
+    },
+    cites,
+  };
+}
+
 // ── Public API ───────────────────────────────────────────────────────────
 // The date of the patient's 16th birthday, for the routine MenACWY booster.
 //
@@ -1734,6 +1792,11 @@ export function recommend(input) {
       menb: [],
       pentavalent: { eligible: false },
       hct: null,
+      // impossible P1-2: the hard stop wins, the same way it hides the HCT
+      // advisory. Every result carries the field so no caller has to tell
+      // "no doubt" apart from "this branch forgot to say".
+      riskAgeNote: null,
+      riskAgeNoteCites: [],
       history: EMPTY_HISTORY,
       meta: { ageMonths: am, today, riskIds },
     };
@@ -1856,8 +1919,15 @@ export function recommend(input) {
           : null,
       };
 
+  const { note: riskAgeNote, cites: riskAgeNoteCites } = riskAgeCheck(riskIds, am);
+
   return {
     menacwy, menb, pentavalent, hct,
+    // impossible P1-2: a doubt about the INPUT, not about the recommendation.
+    // It sits outside the cards because the cards are answers, and because the
+    // one indication with no card of its own (pregnancy, which only defers
+    // MenB) would otherwise have nowhere to be said.
+    riskAgeNote, riskAgeNoteCites,
     history: { MenACWY: menacwyHistory, MenB: menbHistory },
     meta: { ageMonths: am, today, riskIds },
   };

@@ -1300,3 +1300,31 @@ body {
   font-size: var(--fs-sm);
   color: var(--gy3);
 }
+
+/* ── impossible P1-2: age-plausibility note ────────────────────────
+   A question about the tick-boxes, shown directly under the risk chips
+   in the results header. Amber, the app's "pay attention" family — not
+   red, which is reserved for errors and invalid doses, and this is
+   neither: nothing is wrong with the recommendation, and nothing has
+   been withheld. Quiet by design, per the owner's 2026-09-17 decision
+   that this must never read as a block: a tinted block with a left
+   rule, no banner heading, no icon. */
+.risk-age-note {
+  width: 100%;
+  margin-top: var(--sp-8);
+  padding: var(--sp-8) var(--sp-12);
+  background: var(--alt);
+  border: 1px solid var(--amd);
+  border-left: 3px solid var(--a);
+  border-radius: var(--rads);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--gy);
+}
+.risk-age-note-line + .risk-age-note-line {
+  margin-top: var(--sp-4);
+}
+.risk-age-note-footer {
+  margin-top: var(--sp-4);
+  color: var(--gy2);
+}
