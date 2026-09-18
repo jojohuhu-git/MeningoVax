@@ -25,6 +25,9 @@
 export const RECORD_PROBLEM_LABELS = {
   future: 'Date is in the future — not counted',
   duplicate: 'Entered twice — this row not counted',
+  // Impossible-entries P1-1: same shape as the future-dated chip, because it is
+  // the same mistake pointing the other way.
+  'before-birth': 'Dated before birth — not counted',
 };
 
 /** The chip on a dose still waiting on the risk-at-dose question. */

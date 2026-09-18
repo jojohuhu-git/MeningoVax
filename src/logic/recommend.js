@@ -1742,8 +1742,8 @@ export function recommend(input) {
   // The whole analysis (not just `.effective`) is returned to the caller as
   // `history` below: the record panel used to re-run these two calls for itself,
   // which meant two places deciding what the record says. One call, one answer.
-  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers);
-  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers);
+  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers, input.dob);
+  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers, input.dob);
   const effectiveMenacwyDoses = menacwyHistory.effective;
   const effectiveMenbDoses    = menbHistory.effective;
 

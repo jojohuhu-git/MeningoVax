@@ -264,6 +264,46 @@ function recordProblemResult(kind, reasons, detail) {
 }
 
 /**
+ * Impossible-entries P1-1 (2026-09-17): a dose dated before the patient was
+ * born.
+ *
+ * It used to be blamed on the patient's AGE — "Given at ~birth, below the
+ * minimum age of 2 months for this brand ... repeat this dose only" — because
+ * the computed age at the dose comes out negative, and a negative age is below
+ * every product's minimum. So a mistyped year (1926 for 2026) produced advice to
+ * put a needle in a child's arm for a dose they had already had.
+ *
+ * The future-dated dose, which is the same mistake in the other direction,
+ * already says the DATE is the problem and names a mistyped year as the likely
+ * cause. This says the same thing, in the same house style, and advises nothing.
+ *
+ * Two ways to know, because the app has two kinds of patient:
+ *   - a date of birth was entered (kept since calendar P1-3): the dose is dated
+ *     before it. Exact.
+ *   - years/months only: the app does not know the birthday, so the test is that
+ *     the computed age at the dose is negative. That catches the same cases and
+ *     is the most the app can honestly claim.
+ *
+ * Checked here, once, for both vaccines — nothing about it is vaccine-specific,
+ * and a second copy is how rules drift.
+ */
+function beforeBirthProblem(dose, dob, ageMonths, today) {
+  if (!dose?.date) return null;
+  const knownFromDob = dob && dose.date < dob;
+  const knownFromAge = !dob && ageMonths != null
+    && ageAtDoseFromDate(dose, ageMonths, today) < 0;
+  if (!knownFromDob && !knownFromAge) return null;
+  const because = dob
+    ? `The date of birth recorded is ${fmtDate(dob)}.`
+    : 'The age entered puts this date before the patient was born.';
+  return recordProblemResult(
+    'before-birth',
+    [`This date is before the patient was born, so it is not counted. Check the date — a mistyped year is the usual cause. No repeat dose is needed on the strength of it: correct the date, or take the row out if it does not belong to this patient.`],
+    `Recorded date: ${fmtDate(dose.date)}. ${because}`
+  );
+}
+
+/**
  * G3: a dose dated after today. The record lists doses the patient has already
  * received, so a future date is either a typo (a mistyped year, most often) or
  * a scheduled appointment typed into the wrong place. Counting it would tell a
@@ -981,7 +1021,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
 // The effective count advances ONLY on kept doses, so a dose that follows a
 // dropped one is re-evaluated at the correct effective position.
 //
-function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers) {
+function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers, dob) {
   const kept = [];           // doses kept so far (the "effective" list being built)
   const perDose = [];        // one entry per raw dose (display results)
   let effectiveCount = 0;    // number of kept doses so far (including unknown)
@@ -997,7 +1037,13 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
     // runs — there is no dose to grade yet, whatever the schedule says.
     // G7: and a date already sitting on a counted row is a row typed twice,
     // which the interval rule would otherwise explain as a 0-day interval.
-    let result = futureDatedProblem(dose, today) || duplicateEntryProblem(dose, kept);
+    // P1-1: and a date before the patient was born is settled here too, for the
+    // same reason a future date is — there is no dose to GRADE, the date is
+    // wrong. Ordered after `future` so a wild year that is also in the future
+    // keeps reporting as future, which is the more useful thing to say.
+    let result = futureDatedProblem(dose, today)
+      || beforeBirthProblem(dose, dob, ageMonths, today)
+      || duplicateEntryProblem(dose, kept);
     if (result) {
       // fall through to the invalid branch below
     } else if (vaccine === 'MenACWY') {
@@ -1151,7 +1197,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
  *   sortedDoses: Array<{date?, brand?}>
  * }}
  */
-export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers) {
+export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers, dob) {
   // todayISO(), not new Date().toISOString() — the latter is UTC and can be a
   // day ahead of the caller's local date (e.g. any evening in a UTC-behind
   // timezone), which breaks the exact cancellation ageAtDoseFromDate relies on
@@ -1164,7 +1210,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // historical dose is assumed to be the earlier dose — matching existing convention).
   const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [] };
-  const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers);
+  const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob);
 
   // G8 (2026-09-16): a row with NO date must never take the place of a dose
   // that has one. Undated rows sort first (above), so on a schedule with a
@@ -1186,7 +1232,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
       ...filtered.filter((d) => d.date),
       ...filtered.filter((d) => !d.date),
     ];
-    return { ...runWalk(vaccine, datedFirst, ageMonths, riskIds, ref, riskAtDoseAnswers), sortedDoses: datedFirst };
+    return { ...runWalk(vaccine, datedFirst, ageMonths, riskIds, ref, riskAtDoseAnswers, dob), sortedDoses: datedFirst };
   }
   return { ...firstPass, sortedDoses: filtered };
 }
@@ -1225,6 +1271,6 @@ export function sortDosesChronologically(doses) {
  *
  * @returns {Array<{status: 'valid'|'invalid'|'unknown', reasons: string[], detail?: string}>}
  */
-export function validateHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers) {
-  return analyzeHistory(vaccine, doses, ageMonths, riskIds, today, riskAtDoseAnswers).perDose;
+export function validateHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers, dob) {
+  return analyzeHistory(vaccine, doses, ageMonths, riskIds, today, riskAtDoseAnswers, dob).perDose;
 }
