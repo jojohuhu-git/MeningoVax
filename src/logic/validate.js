@@ -217,6 +217,12 @@ function fmtDays(n) {
 // Both are pinned by regression-p1-3-one-age-formatter.test.js.
 function fmtAgeMClinical(m) {
   if (m == null) return '?';
+  // P1-3 (impossible-entries, 2026-09-17): this guard used to read `m < 0.5`,
+  // which swallowed every negative age into the word "birth" -- so a dose dated
+  // before the patient was born was reported as "Given at ~birth" and blamed on
+  // the patient's age. Negatives are separated out first; lower case, like
+  // 'birth' below, because these strings appear mid-sentence after "~".
+  if (m < 0) return 'before birth';
   if (m < 0.5) return 'birth';
   return fmtAgeMonths(m);
 }

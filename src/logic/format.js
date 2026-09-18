@@ -38,6 +38,14 @@ const floorAge = (n) => Math.floor(n + FLOOR_EPS);
 
 export function fmtAgeMonths(am) {
   if (am == null) return '';
+  // Impossible-entries P1-3 (2026-09-17): a negative age used to fall into the
+  // "Birth" branch below, so -52 months and 0 months printed the same word. A
+  // value that cannot exist looked exactly like a newborn -- which is how a dose
+  // dated before the patient was born came to read "Given at ~birth", and why
+  // the month-end negative age fixed in #38 stayed invisible for so long.
+  // A negative age is a bug or a typo, never a patient, so it must not be
+  // mistakable for one.
+  if (am < 0) return 'Before birth';
   if (am < 0.25) return 'Birth';               // < ~1 week → Birth
   // Very young infants (≤ ~8 weeks / 2 months): express in weeks
   if (am <= 2) {
@@ -86,6 +94,10 @@ export function fmtDate(iso) {
  */
 export function ageGroup(am) {
   if (am == null) return null;
+  // P1-3: no band fits an age that cannot exist. Returning null hands the
+  // decision back to the caller rather than handing it a plausible-looking
+  // "Infant (<2y)"; every caller already renders a null group as nothing.
+  if (am < 0) return null;
   if (am < 24) return 'Infant (<2y)';
   if (am < 132) return 'Child (2–10y)';   // 132m = 11y; a 10-year-old (120–131m) is Child
   if (am < 228) return 'Adolescent (11–18y)';  // 228m = 19y; 18-year-old (216–227m) is Adolescent
