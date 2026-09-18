@@ -1,3 +1,11 @@
+> **SUPERSEDED (2026-09-18) — do not work this file's queue.**
+> Two of its five remaining items shipped: the unnamed "item 2" (the 6-7 month card, now
+> **B1**, PR #43) and calendar **P2-2** (PR #44). Both turned out to be larger than
+> described — B1 had three symptoms including an extra injection, and P2-2 was a dose-count
+> bug, not a display one. The current queue, the current test count and the current owner
+> decisions are in
+> [`handoff-2026-09-18b-band-edges-and-exact-age-at-dose.md`](handoff-2026-09-18b-band-edges-and-exact-age-at-dose.md).
+
 # MeningoVax — Handoff after six queue items shipped (2026-09-18)
 
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor (MenACWY + MenB +
