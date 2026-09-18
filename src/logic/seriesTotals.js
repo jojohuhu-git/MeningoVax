@@ -40,6 +40,7 @@ import {
 // `AGE_16Y_MONTHS = 192` and hand-typed the second birthday in four places.
 import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
 } from './ages.js';
 
@@ -63,6 +64,36 @@ export const MENB_HIGHRISK_RESCUE_TOTAL = 4;
 // its total: the 11-12y dose is primary, the 16y dose is the booster that
 // closes it. Exported so recommend.js's routine branches never hand-type it.
 export const MENACWY_ROUTINE_PRIMARY_TOTAL = 1;
+
+/**
+ * Is this patient on CDC's "3- or 4- dose" shortcut — the one that finishes the
+ * series in three doses rather than four?
+ *
+ * It has to be earned, not assumed: dose 1 must fall inside the 3-6-month band
+ * AND a dose must actually have been given at 7 months or older. An unknown age
+ * answers no, which is the conservative direction — a fourth dose is offered.
+ *
+ * B1 (2026-09-17): this question used to be written out twice, here and in
+ * recommend.js, both times as `d1AgeM >= 3 && d1AgeM <= 6`. Both copies put the
+ * top of the band at 6 rather than below 7, so a dose 1 given at six months and
+ * two weeks was refused the shortcut and the child was booked a FOURTH
+ * injection — while a start two weeks either side of them needed three doses or
+ * two. Asking it once, against the shared constants, is what stops the two
+ * copies drifting apart again; recommend.js's own comments record this class of
+ * bug being fixed twice already (F1, M5).
+ *
+ * @param {{d1AgeM: number|null, d2AgeM: number|null}} ages — age in months at
+ *   dose 1 and at dose 2, or null where that age is not known.
+ * @returns {boolean}
+ */
+export function menacwyOn3DoseShortcut({ d1AgeM, d2AgeM }) {
+  const d1WasEarly = d1AgeM != null
+    && d1AgeM >= MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS
+    && d1AgeM < MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS;
+  const d2WasLateEnough = d2AgeM != null
+    && d2AgeM >= MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS;
+  return d1WasEarly && d2WasLateEnough;
+}
 
 // MenACWY infant/early-childhood high-risk primary total — mirrors
 // recommend.js's menacwyInfantSeries() completion threshold EXACTLY
@@ -118,9 +149,7 @@ export function menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM = null }) {
   //
   // An unknown dose-2 age falls back to 4, the conservative answer: the
   // shortcut has to be earned by a dose actually given at >=7 months.
-  const d1WasEarly = d1AgeM != null && d1AgeM >= 3 && d1AgeM <= 6;
-  const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;
-  if (d1WasEarly && d2WasAt7Plus) return 3;
+  if (menacwyOn3DoseShortcut({ d1AgeM, d2AgeM })) return 3;
 
   return 4;
 }

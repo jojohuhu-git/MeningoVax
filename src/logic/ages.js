@@ -90,8 +90,23 @@ export function ageYears(months) {
 export const MENACWY_INFANT_SERIES_MAX_AGE_MONTHS = years(2);
 
 /**
+ * The floor of CDC's "dose 1 at age 3-6 months" band — the start that can
+ * finish in three doses instead of four, if a dose lands at 7 months or later.
+ *
+ * Below this age the row above governs and is unconditional: "Dose 1 at age 2
+ * months: 4-dose series (additional 3 doses at age 4, 6, and 12 months)".
+ */
+export const MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS = 3;
+
+/**
  * The start of CDC's "dose 1 at age 7-23 months" band — the late-infant start
  * that completes in two doses rather than three or four.
+ *
+ * B1 (2026-09-17): CDC states these bands in COMPLETED months, so the test
+ * against this number must be `< 7`, never `<= 6`. Three call sites asked
+ * `<= 6` instead, and every patient whose age fell between the two — which,
+ * since the app began keeping the date of birth, is most of them — was answered
+ * from the wrong band. See regression-b1-infant-band-edges.test.js.
  */
 export const MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS = 7;
 

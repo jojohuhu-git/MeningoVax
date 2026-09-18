@@ -54,7 +54,7 @@ const EMPTY_HISTORY = Object.freeze({
   MenB: { perDose: [], effective: [], sortedDoses: [] },
 });
 import {
-  menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
+  menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut,
   MENB_HIGHRISK_RESCUE_TOTAL,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
@@ -762,7 +762,15 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // contradicted its own total. Deriving both from one call makes that
     // impossible rather than merely fixed.
     const infantStartTotal = menacwyInfantHighRiskTotal({ d1AgeM: am });
-    if (am <= 6) {
+    // B1 (2026-09-17): was `am <= 6`. CDC's bands are stated in COMPLETED
+    // months ("Dose 1 at age 3-6 months" / "at age 7-23 months"), so the door
+    // into the later band opens at 7, not just above 6. A baby of six months
+    // and two weeks failed `am <= 6`, fell into the 7-11-month branch below,
+    // and was handed that branch's wording over THIS branch's dose total: the
+    // heading read "Dose 1 of 4 (infant high-risk 7-11mo)" directly above
+    // "Start the 2-dose Menveo series". The total was the right one; the card
+    // around it was not.
+    if (am < MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS) {
       // The gap this card promises is the one before the NEXT dose (dose 2),
       // so ask the gate what follows a single dose given at this age.
       const startGate = menacwyInfantNextDoseGate({ d1AgeM: am, d2AgeM: null, given: 1 });
@@ -785,7 +793,16 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         boosterCites: infantBoosterCites, refs });
     }
-    if (am <= 11) {
+    // B1 (2026-09-17): was `am <= 11`, same mistake at the next band edge —
+    // and here it made the card assert something untrue. CDC does not split
+    // "7-23 months" at all; the 12-23-month card below exists only because,
+    // once the patient is already 12 months old, dose 2's "after age 12
+    // months" condition cannot bite and saying so would be noise. An
+    // 11-and-a-half-month-old was given that card anyway, so the app dropped
+    // the condition and told them "Both fall after the first birthday, so the
+    // 12-month age floor ... is already met" — five weeks before that
+    // birthday. The split belongs on the floor it is reasoning about.
+    if (am < MENACWY_INFANT_FINAL_MIN_AGE_MONTHS) {
       // D5: D2 must be ≥12 weeks after D1 AND not before 12 months of age.
       // This card used to say "Dose 1 of 2 + booster" and promise "a booster at
       // 12–23 months", both left over from F1 (2026-09-14), which made this a
@@ -833,9 +850,12 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // months, so a baby who started on time at 2 months was being offered a
   // three-dose series CDC does not describe. Owner decision 2026-09-15: follow
   // CDC. Must stay in step with seriesTotals.js's menacwyInfantHighRiskTotal().
-  const d1WasEarly = d1AgeM != null && d1AgeM >= 3 && d1AgeM <= 6; // started at 3–6m
-  const d2WasAt7Plus = d2AgeM != null && d2AgeM >= 7;             // D2 at ≥7m
-  const on3DosePath = d1WasEarly && d2WasAt7Plus;
+  // B1 (2026-09-17): this was a second hand-written copy of the band test, and
+  // it had the same off-by-a-fraction top edge as the one in seriesTotals.js
+  // (`<= 6` where CDC's band runs to just under 7). The two now ask one
+  // function, so a child cannot be offered the shortcut by one module and
+  // refused it by the other.
+  const on3DosePath = menacwyOn3DoseShortcut({ d1AgeM, d2AgeM });
   // D5 fix: detect whether D1 was in the 7–23m band (D2 needs ≥12-week + ≥12m floor).
   // M5 (2026-09-15): the band is 7–23 months, not 7–11, and it is a 2-dose primary
   // series. CDC: "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12
