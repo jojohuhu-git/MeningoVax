@@ -1,5 +1,13 @@
 # MeningoVax — Handoff after the copy block (U2, U3, U4) merged (2026-09-17)
 
+> **SUPERSEDED — 2026-09-17.** U1 and P2-1, listed below as the remaining queue, are
+> both done: **U1 merged as PR #32** (squash `91d7136`, deployed) and **P2-1 built and
+> CI-green in PR #33**, awaiting the owner's review. Do not resume this file's queue.
+> Current state and resuming instructions:
+> `docs/archive/handoff-2026-09-17c-u1-merged-p2-1-open.md`.
+
+
+
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
 The app is a standalone client-side meningococcal advisor (MenACWY + MenB +
 pentavalent). No backend. Sibling of vaxapp/PediVax and PneumoVax.
