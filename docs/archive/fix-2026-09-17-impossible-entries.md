@@ -162,21 +162,88 @@ because — as the rulebook puts it — "those tables have no infant row at all"
 microbiologist table covers ages 10 and up only. That knowledge is used to pick a
 schedule and not used to question the tick-box.
 
-**Expected.** This is a judgement call and needs an owner decision, so it is written up
-rather than specified. Three options, in increasing strength:
+### OWNER DECISION, 2026-09-17 (evening): build it, as a quiet note. Never a block.
 
-1. **Say nothing, change nothing** — treat it as the clinician's business.
-2. **Add a quiet note** on the card: "This indication is described for ages 10 and up;
-   check the age is right." Nothing is blocked.
-3. **Query at the risk step**, like the risk-at-dose prompt already does: "This patient is
-   7 months old — is the college-dorm indication right?"
+Asked directly, the owner ruled: **"Yes a risk factor can be questioned if it doesn't
+apply at that age - such as an infant microbiologist."** Shown the full set of examples,
+she chose **option 2 — a note on the card, nothing blocked.**
 
-The house pattern elsewhere (the "Needs input" prompt) is option 3, and the honesty rule
-argues for at least option 2. **Do not implement any of them without asking.**
+**Why never a block.** The ACIP 2020 MMWR was fetched live on 2026-09-17 to find the age
+floor for these three indications. **There isn't one.** The recommendations read, verbatim:
 
-**Suspected location.** `src/data/riskFactors.js` (the tick-box definitions — a minimum
-age per indication would live naturally beside them), surfaced in
-`src/components/StepRisks.jsx` or on the card in `recommend.js`.
+> "microbiologists routinely exposed to isolates of *Neisseria meningitidis*"
+> "unvaccinated or incompletely vaccinated first-year college students living in
+> residence halls"
+> "military recruits"
+
+No age wording at all. So any floor the app applies is a **plausibility judgement, not a
+clinical rule** — which makes blocking, or refusing to answer, the app inventing guidance
+ACIP did not write. It must ask, and then get out of the way. This also rules out the
+third option originally sketched (a "Needs input" prompt that gates the recommendation):
+the owner wants it softer than that unless someone is actually seen mis-ticking one.
+
+### The four tick-boxes in scope, and the eight that must NOT be touched
+
+Measured against the engine on 2026-09-17. **Getting the second list wrong would be a
+clinical error, so it is written out in full.**
+
+| In scope | What the app does today at a young age | Note it from below |
+|---|---|---|
+| `microbiologist` | **"Dose due today — 1 dose (ongoing-risk indication)"** at newborn, 6 months, 3 years, 8 years | ~16 years |
+| `military` | **"Dose due today — 1 dose"** at every age tested | 17 years |
+| `college_dorm` | **"Dose due today — 1 dose"** at every age tested | ~16 years |
+| `pregnancy` | *Nothing visible* — but it is tickable for a 3-year-old and silently sets `deferMenB` | ~9 years |
+
+Only the first three currently instruct anyone to vaccinate. Pregnancy is latent: at those
+ages MenB is not due anyway, so nothing shows. Fix it at the same time; do not rank it
+higher than it is.
+
+**The thresholds above are deliberately conservative** — early-entrance college students
+at 16 and high-school lab interns are real, and the note must not cry wolf on them. They
+are plausibility floors for a *question*, not eligibility floors for a *dose*.
+
+| Must NOT be questioned | Why |
+|---|---|
+| `asplenia`, `complement`, `hiv` | Infants genuinely have all three. The app correctly puts them on the infant series. A note here would be a clinical error. |
+| `travel`, `outbreak_acwy` | ACIP prints an infant row for both. A 4-month-old going to the meningitis belt is exactly who that row is for. |
+| `outbreak_b` | Already handled by the MenB product floor — the card reads "Not yet age-eligible". |
+| `hct` | A baby can have a transplant. Advisory only; correct as it stands. |
+| `hct_cart_bcell_exclude` | Hard stop at every age; correct. |
+
+### The spec
+
+- A **minimum plausible age per indication**, stored beside the tick-box definitions in
+  `src/data/riskFactors.js` — the file that already owns what each indication means.
+  Four entries only; every other risk factor has none, and absence means "never question".
+- Below that age, the card carries one extra line. Draft copy, in the house style of the
+  future-dated-dose message (name the doubt, explain it, do not overrule):
+
+  > "This indication is usually an adolescent or adult one. Check the age is right."
+
+  Word the final version against `design-review`; it is clinician-facing copy.
+- **Nothing is blocked, nothing is withheld, no recommendation changes.** The dose still
+  shows as due. This is a note, not a gate.
+- Surface it wherever the note lands — `recommend.js` builds the card note, so the line
+  belongs in the note's `detail`, not in a component.
+
+### One thing to verify first
+
+`src/logic/recommend.js` (the microbiologist booster branch) and the clinician rulebook
+both assert that **"ACIP's microbiologist table covers ages 10 and up only"**, and that is
+what justifies the flat 5-year booster interval with no under-7 variation. The live fetch
+on 2026-09-17 **could not confirm it** — the summariser found no such table. That is not
+proof it is wrong (the tables may not have survived the page-to-text conversion), but it
+is an unsourced-looking claim currently justifying real behaviour. **Check it against the
+MMWR PDF before writing the 16-year floor for microbiologists**, since if the table does
+say 10 and up, that is a sourced floor and the note for that one indication can cite it.
+
+**Suspected location.** `src/data/riskFactors.js` (the four minimum ages), read in
+`src/logic/recommend.js` where the card note is built.
+
+**Suggested fixture.** Each of the four indications at an age below its floor: the note
+appears, the recommendation is unchanged, and the dose still shows as due. Each of the
+eight others at newborn and 6 months: **no note appears** — that assertion is the one that
+stops a future tidy-up from generalising this to every risk factor.
 
 ---
 

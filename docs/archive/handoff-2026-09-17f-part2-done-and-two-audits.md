@@ -1,3 +1,11 @@
+> **SUPERSEDED, same evening — see
+> [handoff-2026-09-17g-what-needs-doing-next.md](handoff-2026-09-17g-what-needs-doing-next.md).**
+> This file left one owner decision open (the impossible-entries P1-2 question, whether the
+> app should query a risk factor that cannot apply at that age). It has since been answered
+> — yes, as a note on the card, never a block — and the newer handoff carries it along with
+> the queue in the order to work it. Everything this file says about what was *done* is
+> still accurate; do not resume from it.
+
 # MeningoVax — Handoff after finishing Part 2 and running both remaining audits (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor, browser-only,
