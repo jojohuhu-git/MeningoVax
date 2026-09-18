@@ -1,3 +1,10 @@
+> **SUPERSEDED (2026-09-17)** — see
+> [`handoff-2026-09-17c-u5-stale-collapse-state-merged.md`](handoff-2026-09-17c-u5-stale-collapse-state-merged.md).
+> `main` has moved on twice since this file was written: PR #32 (U1) and PR #34
+> (U5). The test count quoted below (**951**) is the count at PR #31 and is no
+> longer the baseline — `main` is now **1201 passing (99 files)**. Do not resume
+> from this file.
+
 # MeningoVax — Handoff after the copy block (U2, U3, U4) merged (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
