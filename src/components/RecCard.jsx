@@ -301,6 +301,46 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
   });
 }
 
+// U1 (2026-09-17): the card shows the note's `lead` — what to do for this
+// patient — and puts `detail` behind a "Why this" disclosure. Before this the
+// note was one paragraph that ran to a median of 128 characters and a longest
+// of 530, reciting a whole ACIP schedule to a reader who needed one line.
+//
+// `noteCites` is ONE ordered list across both halves (the contract `rec()`
+// documents): the `[c]` markers in `lead` consume the first entries, and
+// `detail` takes the rest. The card's citation numbers are seeded from the
+// whole list by cardCiteNumberer, so a source keeps the same [N] whether the
+// disclosure happens to be open or shut.
+export function RecNote({ note, noteCites = [], numberFor, className = 'rec-note' }) {
+  const [open, setOpen] = useState(false);
+  const leadCiteCount = (note.lead.match(/\[c\]/g) || []).length;
+  return (
+    <div className={className}>
+      <div className="rec-note-lead">
+        {renderNoteWithCites(note.lead, noteCites.slice(0, leadCiteCount), numberFor)}
+      </div>
+      {note.detail && (
+        <>
+          <button
+            type="button"
+            className="rec-note-toggle"
+            onClick={() => setOpen(o => !o)}
+            aria-expanded={open}
+            data-testid="rec-note-toggle"
+          >
+            Why this<Chevron open={open} />
+          </button>
+          {open && (
+            <div className="rec-note-detail" data-testid="rec-note-detail">
+              {renderNoteWithCites(note.detail, noteCites.slice(leadCiteCount), numberFor)}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
 // G4 (2026-09-16): a verdict that sets a recorded dose aside on age grounds
 // now carries the ACIP sentence it rests on, shown the same way as on the
@@ -465,7 +505,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {note && <div className="rec-note">{renderNoteWithCites(note, noteCites, numberFor)}</div>}
+        {note && <RecNote note={note} noteCites={noteCites} numberFor={numberFor} />}
 
         {citations && citations.length > 0 && (
           <div className="rec-citations">

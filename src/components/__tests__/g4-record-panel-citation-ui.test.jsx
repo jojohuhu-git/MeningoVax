@@ -67,7 +67,7 @@ describe('G4: record-panel verdicts render their citation', () => {
         rec={{
           ...baseRec,
           vaccine: 'MenB',
-          note: 'Healthy 2-dose series at 0 and 6 months. [c]',
+          note: { lead: 'Healthy 2-dose series at 0 and 6 months. [c]', detail: 'Supporting detail.' },
           noteCites: [cite('menbHealthy2Dose0and6')],            // Oct 2024 MMWR
         }}
         doses={[{ date: '2024-06-01', brand: '' }]}

@@ -12,6 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { cite } from '../../data/refs.js';
+import { noteText } from '../../test-note-text.js';
 
 const ACIP_ANCHORS = {
   acwyRoutine1112and16: cite('acwyRoutine1112and16').url,
@@ -31,7 +32,7 @@ describe('C5 note-citation anchors', () => {
   it('routine MenACWY "not yet due" note cites the 11-12y/16y schedule', () => {
     const r = run({ ageMonths: 96, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = acwy(r);
-    expect(rec.note).toContain('[c]');
+    expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites).toHaveLength(1);
     expect(rec.noteCites[0]).toMatchObject({ key: 'acwyRoutine1112and16', url: ACIP_ANCHORS.acwyRoutine1112and16 });
   });
@@ -60,8 +61,15 @@ describe('C5 note-citation anchors', () => {
     const rec = menb(r);
     expect(rec.status).toBe('shared-decision');
     expect(rec.noteCites).toHaveLength(2);
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
-    expect(rec.noteCites[1]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
+    // U1 (2026-09-17): the note split into { lead, detail } and the two claims
+    // changed places -- the 0/6-month schedule is the lead's sentence now and
+    // the preferred age the detail's. noteCites is ordered lead-first, so the
+    // schedule source comes first. Still one source per claim, which is what
+    // this test is really guarding.
+    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
+    expect(rec.noteCites[1]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
+    expect(rec.note.lead).toContain('[c]');
+    expect(rec.note.detail).toContain('[c]');
     // The thing C5 was actually guarding against:
     expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
@@ -69,8 +77,8 @@ describe('C5 note-citation anchors', () => {
   it('healthy MenB "not yet due" (before 16) note cites Table 2 and names the preferred age', () => {
     const r = run({ ageMonths: 120, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
-    expect(rec.note).toContain('[c]');
-    expect(rec.note).toMatch(/16 through 18/);
+    expect(noteText(rec)).toContain('[c]');
+    expect(noteText(rec)).toMatch(/16 through 18/);
     expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
     expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
@@ -105,7 +113,7 @@ describe('C5 note-citation anchors', () => {
     });
     const rec = acwy(r);
     expect(rec.doseLabel).toMatch(/first booster/);
-    expect(rec.note).toContain('[c]');
+    expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterBeforeAge7', url: ACIP_ANCHORS.boosterBeforeAge7 });
   });
 
@@ -120,7 +128,7 @@ describe('C5 note-citation anchors', () => {
     });
     const rec = acwy(r);
     expect(rec.doseLabel).toMatch(/first booster/);
-    expect(rec.note).toContain('[c]');
+    expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterAtOrAfterAge7', url: ACIP_ANCHORS.boosterAtOrAfterAge7 });
   });
 });
@@ -134,8 +142,8 @@ describe('L2-3: the exposure first-booster note and its citation stay in step', 
   it('a traveller\'s first booster shows the age-split citation it claims', () => {
     const r = run({ ageMonths: 204, riskIds: ['travel'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
     const rec = acwy(r);
-    expect(rec.note).toContain('[c]');
-    expect(rec.note.split('[c]').length - 1).toBe(rec.noteCites.length);
+    expect(noteText(rec)).toContain('[c]');
+    expect(noteText(rec).split('[c]').length - 1).toBe(rec.noteCites.length);
     expect(rec.noteCites[0].key).toBe('boosterAtOrAfterAge7');
   });
 
@@ -144,8 +152,8 @@ describe('L2-3: the exposure first-booster note and its citation stay in step', 
     const rec = acwy(r);
     // ACIP Table 7 covers ">=10 yrs" with a flat 5-year interval and no under-7
     // row, so his card must not imply the age split travellers get.
-    expect(rec.note).not.toContain('age 7 or older');
-    expect(rec.note).not.toContain('[c]');
+    expect(noteText(rec)).not.toContain('age 7 or older');
+    expect(noteText(rec)).not.toContain('[c]');
     expect(rec.noteCites).toHaveLength(0);
     // The interval itself is unchanged by this fix.
     expect(rec.doseLabel).toContain('5 years after the primary dose');

@@ -9,6 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { MENACWY_BRANDS } from '../../data/brands.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-06-05';
 function run(input) {
@@ -37,12 +38,12 @@ describe('D2: 17–21y MenACWY catch-up — no dose at ≥16y → catchup (not n
 
   it('catch-up rec note mentions college/residence halls', () => {
     const r = run({ ageMonths: 228, riskIds: [] });
-    expect(acwy(r).note).toMatch(/college|residence/i);
+    expect(noteText(acwy(r))).toMatch(/college|residence/i);
   });
 
   it('note says no booster when given at ≥16y', () => {
     const r = run({ ageMonths: 228, riskIds: [] });
-    expect(acwy(r).note).toMatch(/no booster|booster.*not|not.*booster/i);
+    expect(noteText(acwy(r))).toMatch(/no booster|booster.*not|not.*booster/i);
   });
 
   it('≥22y (264m), no doses, no risk → not-indicated', () => {
@@ -67,8 +68,8 @@ describe('D5: 7–11m and 12–23m high-risk D2 interval ≥12 weeks (was ≥8 w
 
   it('7–11m start: note mentions ≥12 weeks AND ≥12 months', () => {
     const r = run({ ageMonths: 8, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/12 weeks/i);
-    expect(acwy(r).note).toMatch(/12 months|12 month/i);
+    expect(noteText(acwy(r))).toMatch(/12 weeks/i);
+    expect(noteText(acwy(r))).toMatch(/12 months|12 month/i);
   });
 
   it('12–23m start: D1 rec has minIntervalDays 84 (12 weeks)', () => {
@@ -79,7 +80,7 @@ describe('D5: 7–11m and 12–23m high-risk D2 interval ≥12 weeks (was ≥8 w
 
   it('12–23m start: note mentions ≥12 weeks', () => {
     const r = run({ ageMonths: 14, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/12 weeks/i);
+    expect(noteText(acwy(r))).toMatch(/12 weeks/i);
   });
 
   // SUPERSEDED by P0-1 (2026-09-17), deliberately flipped rather than deleted.
@@ -111,7 +112,12 @@ describe('D6: 3-dose shortcut when high-risk infant D2 at ≥7m', () => {
     });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseLabel).toMatch(/3 of 3|3-dose/i);
-    expect(acwy(r).note).toMatch(/3 doses|shortcut|D6/i);
+    // U1 (2026-09-17): the card explains the shortcut in words now -- "completes
+    // in three doses rather than four" -- and no longer opens with the internal
+    // marker "D6:", which was this repo's own vocabulary showing up on a
+    // clinical surface. The test still asks the same question: does the card
+    // say why this series ends at three?
+    expect(noteText(acwy(r))).toMatch(/3 doses|three doses|shortcut/i);
   });
 
   it('D1 at 3m, D2 at 4m (NOT ≥7m) → D3 is NOT the completing dose (standard 4-dose path)', () => {

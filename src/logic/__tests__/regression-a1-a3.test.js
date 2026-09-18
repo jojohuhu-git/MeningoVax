@@ -9,6 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
+import { noteText } from '../../test-note-text.js';
 
 const acwy = (r) => r.menacwy[0];
 
@@ -24,7 +25,7 @@ describe('A1: ≥22y with a valid ≥16y dose → complete, not "not routinely i
       ],
     });
     expect(acwy(r).status).toBe('complete');
-    expect(acwy(r).note).not.toMatch(/not routinely indicated/i);
+    expect(noteText(acwy(r))).not.toMatch(/not routinely indicated/i);
   });
 
   it('≥22y with NO dose at ≥16y still falls to not-indicated (guard against over-fix)', () => {

@@ -13,11 +13,20 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import RecCard from '../RecCard.jsx';
 import { recommend } from '../../logic/recommend.js';
+import { openWhyThis } from '../../test-why-this.js';
 
 const TODAY = '2026-09-15';
 const acwyRec = (ageMonths, riskIds, dates) =>
   recommend({ today: TODAY, ageMonths, riskIds, menacwyDoses: dates.map((d) => ({ date: d })), menbDoses: [] }).menacwy[0];
-const show = (rec) => render(<RecCard rec={rec} doses={[]} doseValidations={[]} />);
+// U1 (2026-09-17): every assertion below is about what the card SAYS, and half
+// of a note now sits behind its "Why this" button, so the helper opens the
+// disclosure as part of rendering. The disclosure's own behaviour is tested in
+// RecCard.test.jsx, not here.
+const show = (rec) => {
+  const r = render(<RecCard rec={rec} doses={[]} doseValidations={[]} />);
+  openWhyThis();
+  return r;
+};
 
 describe('M10 (UI): an infant exposure indication shows the infant series', () => {
   it('a 4-month-old traveler sees the 4-dose infant series', () => {
@@ -70,6 +79,9 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     // design decision: neutral cards stay out of the way). Open it the way a
     // clinician would to read the reasoning underneath.
     fireEvent.click(container.querySelector('.rec-card-head-toggle'));
+    // A collapsed card renders no note at all, so show()'s openWhyThis() found
+    // no button to click. Open the disclosure now that the card itself is open.
+    openWhyThis();
     expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i);
     expect(container.textContent).toMatch(/identified at risk in a NEW outbreak/i);
   });

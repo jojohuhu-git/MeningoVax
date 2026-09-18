@@ -29,6 +29,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
 const menbAt = (ageMonths, riskIds = []) =>
@@ -38,20 +39,20 @@ describe('M16 — the healthy MenB card states the preferred age, not just the w
   it('a 17-year-old is told 16 through 18 is preferred', () => {
     const r = menbAt(204);                       // 17y, healthy
     expect(r.status).toBe('shared-decision');
-    expect(r.note).toMatch(/16 through 18|16–18|16-18/);
-    expect(r.note).toMatch(/prefer/i);
+    expect(noteText(r)).toMatch(/16 through 18|16–18|16-18/);
+    expect(noteText(r)).toMatch(/prefer/i);
   });
 
   it('still states the full 16-23 eligibility window alongside it', () => {
     // The preference must not replace the window -- a 22-year-old is still
     // eligible, and the card has to keep saying so.
-    expect(menbAt(204).note).toMatch(/16\D{1,3}23/);
+    expect(noteText(menbAt(204))).toMatch(/16\D{1,3}23/);
   });
 
   it('a 22-year-old is past the preferred age but still offered the series', () => {
     const r = menbAt(264);                       // 22y, healthy
     expect(r.status).toBe('shared-decision');
-    expect(r.note).toMatch(/prefer/i);
+    expect(noteText(r)).toMatch(/prefer/i);
   });
 
   it('control: a high-risk patient is not given the shared-decision preference', () => {
@@ -59,6 +60,6 @@ describe('M16 — the healthy MenB card states the preferred age, not just the w
     // "preferred age" -- it is driven by the risk factor, at any age from 10.
     const r = menbAt(204, ['asplenia']);
     expect(r.status).toBe('risk-based');
-    expect(r.note || '').not.toMatch(/preferred age/i);
+    expect(noteText(r) || '').not.toMatch(/preferred age/i);
   });
 });

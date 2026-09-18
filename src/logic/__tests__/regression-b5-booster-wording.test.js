@@ -18,6 +18,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const acwy = (r) => r.menacwy[0];
 
@@ -36,9 +37,9 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 3 years after primary/);
-    expect(acwy(r).note).toMatch(/first booster is due 3 years/i);
+    expect(noteText(acwy(r))).toMatch(/first booster is due 3 years/i);
     expect(acwy(r).doseLabel).not.toMatch(/3–5 years/);
-    expect(acwy(r).note).not.toMatch(/3–5 years/);
+    expect(noteText(acwy(r))).not.toMatch(/3–5 years/);
   });
 
   it('states "5 years" (not "3-5 years") once dose 2 is known to have been given at/after age 7', () => {
@@ -55,9 +56,9 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 5 years after primary/);
-    expect(acwy(r).note).toMatch(/first booster is due 5 years/i);
+    expect(noteText(acwy(r))).toMatch(/first booster is due 5 years/i);
     expect(acwy(r).doseLabel).not.toMatch(/3–5 years/);
-    expect(acwy(r).note).not.toMatch(/3–5 years/);
+    expect(noteText(acwy(r))).not.toMatch(/3–5 years/);
   });
 
   it('subsequent boosters (after the first) say "every 5 years", not "3-5 years"', () => {

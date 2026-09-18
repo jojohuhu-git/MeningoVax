@@ -298,7 +298,7 @@ describe('RecCard note-citation hover quote', () => {
       <RecCard
         rec={{
           ...baseRec,
-          note: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [c].',
+          note: { lead: 'Routine adolescent dose at 11–12 years. A booster follows at 16 years [c].', detail: 'Supporting detail.' },
           noteCites: [{ key: 'acwyRoutine1112and16', url: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7527029/#:~:text=${encodeURIComponent(quote)}`, label: quote }],
         }}
       />
@@ -309,7 +309,7 @@ describe('RecCard note-citation hover quote', () => {
   });
 
   it('note text with no noteCites renders as plain text, no link', () => {
-    render(<RecCard rec={{ ...baseRec, note: 'Plain note, no citation.' }} />);
+    render(<RecCard rec={{ ...baseRec, note: { lead: 'Plain note, no citation.', detail: 'Supporting detail.' } }} />);
     expect(screen.getByText('Plain note, no citation.')).toBeTruthy();
     expect(screen.queryByRole('link')).toBeNull();
   });

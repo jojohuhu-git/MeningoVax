@@ -11,11 +11,12 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { TEST_TODAY } from '../../test-today.js';
+import { noteText } from '../../test-note-text.js';
 
-const note = () => recommend({
+const note = () => noteText(recommend({
   today: TEST_TODAY, ageMonths: 240, riskIds: ['military'],
   menacwyDoses: [{ date: '2024-09-15', ageMonths: 228 }], menbDoses: [],
-}).menacwy[0].note;
+}).menacwy[0]);
 
 describe('U4 · the military-recruit card leads with the action', () => {
   it('opens by telling the clinician to check the service requirement', () => {

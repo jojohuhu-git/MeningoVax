@@ -83,6 +83,7 @@ import { analyzeHistory } from '../validate.js';
 import { menacwyInfantNextDoseGate } from '../intervals.js';
 import { fmtDate } from '../format.js';
 import { addCalendarMonths } from '../dateUtils.js';
+import { noteText } from '../../test-note-text.js';
 
 const allYes = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i, 'yes']));
 
@@ -289,21 +290,21 @@ describe('P0-1: the card states the number the validator enforces', () => {
       card(TODAY, 7, ['2026-04-15', '2026-06-15', '2026-08-15']), // final dose
     ];
     for (const c of cards) {
-      expect(c.note).not.toMatch(/4 weeks between primary doses/);
-      expect(c.note).not.toMatch(/≥4 weeks/);
+      expect(noteText(c)).not.toMatch(/4 weeks between primary doses/);
+      expect(noteText(c)).not.toMatch(/≥4 weeks/);
     }
   });
 
   it('the start card and the continuation card both say 8 weeks', () => {
-    expect(card(TODAY, 3, []).note).toMatch(/8 weeks/);
-    expect(card(TODAY, 12, [D1_AT_3MO, PLUS_56D]).note).toMatch(/8 weeks/);
+    expect(noteText(card(TODAY, 3, []))).toMatch(/8 weeks/);
+    expect(noteText(card(TODAY, 12, [D1_AT_3MO, PLUS_56D]))).toMatch(/8 weeks/);
   });
 
   it('the note number is interpolated from the same gate the engine uses', () => {
     const gate = menacwyInfantNextDoseGate({ d1AgeM: 3, d2AgeM: null, given: 1 });
     const c = card(TODAY, 12, [D1_AT_3MO, PLUS_56D]);
     expect(c.minIntervalDays).toBe(gate.minIntervalDays);
-    expect(c.note).toContain(`${gate.minIntervalDays / 7} weeks`);
+    expect(noteText(c)).toContain(`${gate.minIntervalDays / 7} weeks`);
   });
 });
 

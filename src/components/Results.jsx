@@ -3,7 +3,7 @@ import { recommend } from '../logic/recommend.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
-import RecCard from './RecCard.jsx';
+import RecCard, { RecNote } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
@@ -413,7 +413,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
             </div>
             <div className="penta-body">
               <div className="penta-replaces">Replaces both shots above: do not give both.</div>
-              <div className="penta-note">{pentavalent.note}</div>
+              <RecNote note={pentavalent.note} className="penta-note" />
               <div className="penta-brands">
                 {(pentavalent.brands || []).map((b, i) => (
                   <div key={i} className="penta-brand">

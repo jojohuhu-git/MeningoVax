@@ -14,12 +14,19 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import RecCard from '../RecCard.jsx';
 import { recommend } from '../../logic/recommend.js';
+import { openWhyThis } from '../../test-why-this.js';
 
 const TODAY = '2026-09-15';
 const startCard = (ageMonths, riskIds = ['asplenia']) =>
   recommend({ today: TODAY, ageMonths, riskIds, menacwyDoses: [], menbDoses: [] }).menacwy[0];
 
-const show = (rec) => render(<RecCard rec={rec} doses={[]} doseValidations={[]} />);
+// U1 (2026-09-17): the note's supporting half is behind "Why this", and these
+// assertions are about what the card says, so open it when rendering.
+const show = (rec) => {
+  const r = render(<RecCard rec={rec} doses={[]} doseValidations={[]} />);
+  openWhyThis();
+  return r;
+};
 
 describe('the 9-month-old starting card', () => {
   it('reads "Dose 1 of 2" with no "+ booster" tacked on', () => {
@@ -56,6 +63,9 @@ describe('what must NOT change', () => {
   it('a 3-month-old still sees the 4-dose infant series', () => {
     const { container } = show(startCard(3));
     expect(screen.getByText(/Dose 1 of 4 \(infant high-risk\)/)).toBeTruthy();
-    expect(container.textContent).toMatch(/4-dose Menveo series at 2, 4, 6, and 12 months/);
+    // U1 (2026-09-17): same claim, re-worded when the note split into a lead and
+    // a detail (see the logic twin for the matching change).
+    expect(container.textContent).toMatch(/4-dose Menveo series/);
+    expect(container.textContent).toMatch(/2, 4, 6 and 12 months/);
   });
 });

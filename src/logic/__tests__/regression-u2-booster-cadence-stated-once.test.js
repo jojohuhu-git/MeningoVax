@@ -17,6 +17,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { TEST_TODAY } from '../../test-today.js';
+import { noteText } from '../../test-note-text.js';
 
 const yes = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i, 'yes']));
 function run({ ageMonths, riskIds = [], menacwyDoses = [], menbDoses = [] }) {
@@ -68,11 +69,11 @@ describe('U2 · the booster cadence is stated once per card', () => {
   for (const [name, patient] of PATIENTS) {
     it(`${name}: no note repeats the ongoing cadence its booster line already gives`, () => {
       for (const card of allCards(run(patient))) {
-        if (!card.boosterSummary || !card.note) continue;
+        if (!card.boosterSummary || !noteText(card)) continue;
         expect(
-          card.note,
+          noteText(card),
           `"${card.doseLabel}" states the ongoing booster cadence twice:\n` +
-          `  booster line: ${card.boosterSummary}\n  note:         ${card.note}`,
+          `  booster line: ${card.boosterSummary}\n  note:         ${noteText(card)}`,
         ).not.toMatch(ONGOING_CADENCE);
       }
     });
@@ -81,8 +82,8 @@ describe('U2 · the booster cadence is stated once per card', () => {
   it('the routine adolescent cards name the age-16 booster once, not three times', () => {
     for (const [name, patient] of PATIENTS) {
       for (const card of allCards(run(patient))) {
-        if (!/at age 16/i.test(card.boosterSummary || '') || !card.note) continue;
-        expect(card.note, `${name} — "${card.doseLabel}" repeats the age-16 booster in its note`)
+        if (!/at age 16/i.test(card.boosterSummary || '') || !noteText(card)) continue;
+        expect(noteText(card), `${name} — "${card.doseLabel}" repeats the age-16 booster in its note`)
           .not.toMatch(/\b(?:at|by|follows at|due at)\s+(?:age\s+)?16\b/i);
       }
     }
@@ -97,8 +98,8 @@ describe('U2 · an outbreak card does not promise a booster schedule it then den
   for (const ageMonths of OUTBREAK_AGES) {
     it(`${ageMonths}-month-old in an ACWY outbreak`, () => {
       for (const card of allCards(run({ ageMonths, riskIds: ['outbreak_acwy'] }))) {
-        if (!card.note || !/no standing booster schedule/i.test(card.note)) continue;
-        expect(card.note, `"${card.doseLabel}" promises a booster countdown and then denies it exists`)
+        if (!noteText(card) || !/no standing booster schedule/i.test(noteText(card))) continue;
+        expect(noteText(card), `"${card.doseLabel}" promises a booster countdown and then denies it exists`)
           .not.toMatch(/first booster in \d+ year|booster in \d+ years|every \d+ years while at risk/i);
       }
     });

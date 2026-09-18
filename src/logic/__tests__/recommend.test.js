@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { DAYS } from '../../logic/dateUtils.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-06-03';
 function run(input) {
@@ -128,13 +129,13 @@ describe('MenACWY single-dose indications', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ ageMonths: 132 }] });
     expect(acwy(r).status).toBe('exposure');
     expect(acwy(r).dueToday).toBe(true);
-    expect(acwy(r).note).toMatch(/before age 16/i);
+    expect(noteText(acwy(r))).toMatch(/before age 16/i);
   });
 
   it('college dorm with a prior dose of unknown age → due, note flags unconfirmed', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ brand: 'Menveo' }] });
     expect(acwy(r).status).toBe('exposure');
-    expect(acwy(r).note).toMatch(/cannot be confirmed/i);
+    expect(noteText(acwy(r))).toMatch(/cannot be confirmed/i);
     // C5: "does this old dose count" is a messy practical judgment call --
     // immunize.org's Ask the Experts leads the citation list here.
     expect(acwy(r).citations[0].url).toMatch(/immunize\.org/);
@@ -159,7 +160,7 @@ describe('MenACWY single-dose indications', () => {
     const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
     expect(acwy(r).status).toBe('complete');
     expect(acwy(r).dueToday).not.toBe(true);
-    expect(acwy(r).note || '').not.toMatch(/more than 5 years/i);
+    expect(noteText(acwy(r)) || '').not.toMatch(/more than 5 years/i);
   });
 
   it('college dorm with a dose at 16y exactly 5 years ago → complete (unchanged by M17)', () => {
@@ -282,7 +283,7 @@ describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
     const r = run({ ageMonths: 204, riskIds: [], menbDoses: [{ date: '2026-03-03', brand: 'Bexsero' }] });
     expect(menb(r).minIntervalDays).toBe(183); // ~6 months (6 * 30.4375 rounded)
     expect(menb(r).dueToday).toBe(false); // only 3 months elapsed
-    expect(menb(r).note).toMatch(/6 months/);
+    expect(noteText(menb(r))).toMatch(/6 months/);
   });
 
   it('healthy 2-dose series complete', () => {
@@ -588,19 +589,19 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
 
   it('Pregnancy deferral note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 240, riskIds: ['pregnancy'] });
-    expect(menb(r).note).toMatch(/\[c\]/);
+    expect(noteText(menb(r))).toMatch(/\[c\]/);
     expect(menb(r).noteCites[0].key).toBe('menbPregnancyDeferral');
   });
 
   it('Infant high-risk 2-6mo dose 1 note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 4, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/\[c\]/);
+    expect(noteText(acwy(r))).toMatch(/\[c\]/);
     expect(acwy(r).noteCites.length).toBeGreaterThan(0);
   });
 
   it('Infant high-risk 7-11mo dose 1 note carries a [c] highlight-superscript placeholder', () => {
     const r = run({ ageMonths: 9, riskIds: ['asplenia'] });
-    expect(acwy(r).note).toMatch(/\[c\]/);
+    expect(noteText(acwy(r))).toMatch(/\[c\]/);
   });
 
   // U2 (2026-09-17): still two cited claims on this card, but they no longer
@@ -610,7 +611,7 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
   it('Infant high-risk 12-23mo dose 1 carries two cited claims, each paired with its source', () => {
     const rec = acwy(run({ ageMonths: 15, riskIds: ['asplenia'] }));
     const count = (s) => ((s || '').match(/\[c\]/g) || []).length;
-    expect(count(rec.note)).toBe(1);
+    expect(count(noteText(rec))).toBe(1);
     expect(rec.noteCites.length).toBe(1);
     expect(count(rec.boosterSummary)).toBe(1);
     expect(rec.boosterCites.length).toBe(1);

@@ -37,6 +37,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { DAYS } from '../dateUtils.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
 const run = (ageMonths, riskIds, dates) =>
@@ -70,7 +71,7 @@ describe('M10 — an infant traveler is put on the infant series', () => {
 
   it('the copy names travel, not a medical condition the infant does not have', () => {
     const r = acwy(run(4, ['travel'], []));
-    expect(r.note).not.toMatch(/asplenia|complement deficiency|HIV/i);
+    expect(noteText(r)).not.toMatch(/asplenia|complement deficiency|HIV/i);
   });
 });
 
@@ -83,8 +84,8 @@ describe('M10 — an infant at risk in an A/C/W/Y outbreak gets the same series'
 
   it('the copy names the outbreak, not travel and not a medical condition', () => {
     const r = acwy(run(4, ['outbreak_acwy'], []));
-    expect(r.note).not.toMatch(/asplenia|complement deficiency|HIV/i);
-    expect(r.note).toMatch(/outbreak/i);
+    expect(noteText(r)).not.toMatch(/asplenia|complement deficiency|HIV/i);
+    expect(noteText(r)).toMatch(/outbreak/i);
   });
 });
 

@@ -31,6 +31,7 @@ import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 import { menacwySeriesInfo } from '../seriesTotals.js';
 import { TEST_TODAY } from '../../test-today.js';
+import { noteText } from '../../test-note-text.js';
 
 const undated = () => ({ date: '', brand: '' });
 const TEEN = 204;      // 17y  (born 2009-09-15 against TEST_TODAY)
@@ -95,20 +96,20 @@ describe('G8: the card says why it still wants the booster', () => {
   it('names the missing date when no dose on record can be placed at ≥16y', () => {
     const card = acwyCard(TEEN, [undated(), undated()]);
     expect(card.status).toBe('due');
-    expect(card.note).toMatch(/no date/i);
-    expect(card.note).toMatch(/16 years/);
+    expect(noteText(card)).toMatch(/no date/i);
+    expect(noteText(card)).toMatch(/16 years/);
   });
 
   it('19-21y catch-up says the ≥16y dose is unconfirmed, not absent', () => {
     const card = acwyCard(ADULT19, [undated()]);
     expect(card.doseLabel).not.toMatch(/no dose at ≥16y/);
     expect(card.doseLabel).toMatch(/not confirmed/i);
-    expect(card.note).toMatch(/no date/i);
+    expect(noteText(card)).toMatch(/no date/i);
   });
 
   it('says nothing about missing dates when every dose has one', () => {
     const card = acwyCard(TEEN, [{ date: DOSE_AT_12, brand: '' }]);
     expect(card.status).toBe('due');
-    expect(card.note).not.toMatch(/no date/i);
+    expect(noteText(card)).not.toMatch(/no date/i);
   });
 });
