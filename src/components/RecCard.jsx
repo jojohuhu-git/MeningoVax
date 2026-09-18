@@ -331,7 +331,7 @@ function timingClass(status, dueToday) {
 }
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
-  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
+  const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, boosterDueDateExact, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
   const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
@@ -418,7 +418,10 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             that isn't due yet. Bold weight still keeps it prominent. */}
         {boosterDueDate && !pending && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            Booster not yet due - ~{fmtDate(boosterDueDate)}
+            {/* Calendar P1-3: "~" only when the date really is approximate.
+                With a date of birth this IS the patient's 16th birthday; with
+                years/months the app does not know their birthday and says so. */}
+            Booster not yet due - {boosterDueDateExact ? '' : '~'}{fmtDate(boosterDueDate)}
           </div>
         )}
 

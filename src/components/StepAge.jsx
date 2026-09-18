@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { ageGroup as deriveGroup, dobToAgeMonths, fmtAgeMonths } from '../logic/format.js';
+// Impossible-entries P0-1: what counts as an age a human being can be. Both
+// entry boxes ask the same module, so the two doors cannot drift apart.
+import { ageEntryProblem } from '../logic/ageEntry.js';
 
 // A2: date of birth is the primary, recommended entry — it lets the engine
 // compute a dose's age precisely (e.g. "was this MenACWY dose given on/after
@@ -12,41 +15,55 @@ export default function StepAge({ ageMonths, error, onChange }) {
   const [years, setYears] = useState('');
   const [months, setMonths] = useState('');
   const [dob, setDob] = useState('');
+  // P0-1: what is wrong with what has been typed, shown as it is typed. Kept
+  // apart from the `error` prop, which App sets when Next is pressed with
+  // nothing entered at all — a different situation needing a different sentence.
+  const [entryError, setEntryError] = useState(null);
+
+  // P0-1: an impossible age is refused as it is typed, not waved through to a
+  // card that looks ordinary. When there is a problem the age is cleared as well
+  // as reported, so Next stays shut and no recommendation can be built from it.
+  function applyPrecise(y, m) {
+    const problem = ageEntryProblem({ mode: 'precise', years: y, months: m });
+    setEntryError(problem);
+    const yn = parseFloat(y);
+    const mn = parseFloat(m);
+    if (problem || (isNaN(yn) && isNaN(mn))) {
+      onChange({ ageMonths: null, ageGroup: null, dob: null });
+      return;
+    }
+    const am = (isNaN(yn) ? 0 : yn) * 12 + (isNaN(mn) ? 0 : mn);
+    // No date of birth in this mode: the app genuinely does not know it, and
+    // must not print dates as though it did (calendar P1-3).
+    onChange({ ageMonths: am, ageGroup: deriveGroup(am), dob: null });
+  }
 
   function handleYearsChange(v) {
     setYears(v);
-    const y = parseFloat(v);
-    const m = parseFloat(months) || 0;
-    if (!isNaN(y) && y >= 0) {
-      const am = y * 12 + m;
-      onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
-    } else {
-      onChange({ ageMonths: null, ageGroup: null });
-    }
+    applyPrecise(v, months);
   }
 
   function handleMonthsChange(v) {
     setMonths(v);
-    const y = parseFloat(years) || 0;
-    const m = parseFloat(v);
-    if (!isNaN(m) && m >= 0) {
-      const am = y * 12 + m;
-      onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
-    }
+    applyPrecise(years, v);
   }
 
   function handleDobChange(v) {
     setDob(v);
-    if (v) {
+    const problem = ageEntryProblem({ mode: 'dob', dob: v });
+    setEntryError(problem);
+    if (v && !problem) {
       const am = dobToAgeMonths(v);
       if (am != null && am >= 0) {
-        onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
-      } else {
-        onChange({ ageMonths: null, ageGroup: null });
+        // Calendar P1-3: the date of birth is KEPT, not converted and discarded.
+        // It is what lets the 16th-birthday date be the real one, lets the
+        // patient go on ageing while the tab stays open, and lets the app know
+        // what "before birth" means for a recorded dose.
+        onChange({ ageMonths: am, ageGroup: deriveGroup(am), dob: v });
+        return;
       }
-    } else {
-      onChange({ ageMonths: null, ageGroup: null });
     }
+    onChange({ ageMonths: null, ageGroup: null, dob: null });
   }
 
   const derivedGroup = ageMonths != null ? deriveGroup(ageMonths) : null;
@@ -61,14 +78,14 @@ export default function StepAge({ ageMonths, error, onChange }) {
         <button
           className={`history-toggle-btn${mode === 'dob' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
-          onClick={() => { setMode('dob'); setYears(''); setMonths(''); onChange({ ageMonths: null, ageGroup: null }); }}
+          onClick={() => { setMode('dob'); setYears(''); setMonths(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}
         >
           Date of Birth
         </button>
         <button
           className={`history-toggle-btn${mode === 'precise' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
-          onClick={() => { setMode('precise'); setDob(''); onChange({ ageMonths: null, ageGroup: null }); }}
+          onClick={() => { setMode('precise'); setDob(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}
         >
           Years / Months (if DOB unknown)
         </button>
@@ -133,7 +150,9 @@ export default function StepAge({ ageMonths, error, onChange }) {
         </div>
       )}
 
-      {error && <div className="age-error">{error}</div>}
+      {/* The specific message wins: "check the year" is more use than "enter a
+          valid age", and showing both at once would be noise. */}
+      {(entryError || error) && <div className="age-error">{entryError || error}</div>}
     </div>
   );
 }

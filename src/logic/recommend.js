@@ -41,6 +41,9 @@ import {
   MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
 } from './ages.js';
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
+// Calendar P1-3: one rule for how old the patient is — the date of birth wins
+// over a stored ageMonths, which is only ever a snapshot of it.
+import { patientAgeMonths } from './patientAge.js';
 import { analyzeHistory } from './validate.js';
 import { creditPentavalents } from './pentavalentCredit.js';
 
@@ -138,6 +141,13 @@ function rec(o) {
     // (an approximate ISO date), so the UI can show it prominently instead
     // of reading as a quiet, fully-done state.
     boosterDueDate: o.boosterDueDate ?? null,
+    // Calendar P1-3: true when that date is the patient's actual birthday,
+    // because a date of birth was entered — as opposed to a date inferred from
+    // an age in months, which is 1-3 days out roughly two thirds of the time.
+    // The card drops its "~" when this is set: the Age step promised precision
+    // in exchange for the date of birth, so when it has one it should stop
+    // hedging, and when it does not it still should.
+    boosterDueDateExact: o.boosterDueDateExact ?? false,
     // C4: a short structured summary of FUTURE boosters beyond what's due
     // today (count/cadence). null when no further booster is expected.
     boosterSummary: o.boosterSummary ?? null,
@@ -160,7 +170,7 @@ function ageAtDose(dose, am, today) {
 }
 
 // ── MenACWY ────────────────────────────────────────────────────────────────
-function menacwyRec(am, riskIds, doses, today) {
+function menacwyRec(am, riskIds, doses, today, dob) {
   const given = doses.length;
   const last = doses[given - 1] || null;
   const lastDate = last?.date || null;
@@ -658,7 +668,7 @@ function menacwyRec(am, riskIds, doses, today) {
   }
 
   // ── No MenACWY risk → routine adolescent schedule ────────────────────────
-  return menacwyRoutine(am, given, doses, last, today);
+  return menacwyRoutine(am, given, doses, last, today, dob);
 }
 
 function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
@@ -716,6 +726,34 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   const outbreakTopUp = infantOutbreak
     ? ` There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥${MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7} years have passed since the last dose (≥${MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7} years from age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}).`
     : '';
+  // Nothing can be due before any MenACWY product is licensed. Found 2026-09-17
+  // during the calendar P1-1 sweep: an at-risk NEWBORN was told "Dose 1 (infant
+  // high-risk series)", due today, with a Menveo chip to pick. The minimum age
+  // was tested on the branch below and nowhere else, so a patient who failed
+  // that test fell through to the CONTINUE-the-series fallback at the end of
+  // this function -- which is written for someone who already has doses, and
+  // with none recorded printed "Dose 1" and called it due today.
+  //
+  // Checking it here, before any card is built, means the answer cannot depend
+  // on which branch a too-young patient happens to land in.
+  //
+  // CDC child & adolescent schedule notes, verified live 2026-09-17:
+  // MenACWY-CRM (Menveo) "minimum age: 2 months"; MenACWY-TT (MenQuadfi)
+  // "minimum age: 2 years"; "Dose 1 at age 2 months: 4-dose series (additional
+  // 3 doses at age 4, 6, and 12 months)".
+  //
+  // No date is promised. The app stores an age, not a date of birth (calendar
+  // P1-3), so a date here would claim a precision it does not have.
+  if (am < MENACWY_MIN_AGE_MONTHS) {
+    return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
+      dueToday: false,
+      note: {
+        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        detail: `This patient has an indication that calls for the infant ${why} series, so track them and start it at ${monthsLabel(MENACWY_MIN_AGE_MONTHS)}. Only Menveo is licensed that young; the other MenACWY brands start later.`,
+      },
+      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      refs });
+  }
   if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_MIN_AGE_MONTHS) {
     // start series; Menveo only.
     // One total for BOTH the printed label and seriesTotal. They used to be
@@ -961,7 +999,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
 // analyzeHistory()-filtered "effective" list, which excludes those doses when
 // the patient has no current high-risk indication — see validate.js. This
 // function only needs the ordinary routine schedule logic.
-function menacwyRoutine(am, given, doses, last, today) {
+function menacwyRoutine(am, given, doses, last, today, dob) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   // C2/2026-07-24: upgraded from the whole-document chip to the Table 2
@@ -1014,13 +1052,13 @@ function menacwyRoutine(am, given, doses, last, today) {
   // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
-    const monthsUntil16 = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am;
-    const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
+    const boosterDueDate = routineBoosterDate(dob, am, today);
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
       boosterDueDate,
+      boosterDueDateExact: !!dob,
       // U2: the age-16 booster was stated three times on this card -- the dated
       // banner, the booster line, and this sentence. The banner carries the
       // date, the line carries the fact; the note keeps only what is unique to
@@ -1058,13 +1096,13 @@ function menacwyRoutine(am, given, doses, last, today) {
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
     // an approximate due date (the patient's 16th birthday) so it's not just
     // "complete" with no further information.
-    const monthsUntil16 = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am;
-    const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
+    const boosterDueDate = routineBoosterDate(dob, am, today);
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
       boosterDueDate,
+      boosterDueDateExact: !!dob,
       // U2: same three-way repeat as the under-11 card above.
       note: doseAtAge10
         ? {
@@ -1642,8 +1680,24 @@ const PENTAVALENT_FAMILY_LOCK = 'The two pentavalents are not interchangeable '
   + 'Penbraya.';
 
 // ── Public API ───────────────────────────────────────────────────────────
+// The date of the patient's 16th birthday, for the routine MenACWY booster.
+//
+// Calendar P1-3 (2026-09-17): this used to be today plus (16 years minus the
+// patient's age) converted through an averaged 30.4375-day month. Over 8,400
+// (date of birth x today) pairs that landed on the real birthday only 37% of
+// the time — one day out in half of all cases, and up to three days out.
+//
+// When the clinician gave a date of birth, the app now prints the actual
+// birthday, which is what the Age step promised in exchange for it. When they
+// gave years and months instead, the app genuinely does not know the birthday,
+// so the old approximation stands rather than inventing a date that looks exact.
+function routineBoosterDate(dob, am, today) {
+  if (dob) return addCalendarYears(dob, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS / 12);
+  return addDays(today, DAYS.months(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am));
+}
+
 export function recommend(input) {
-  const am = input.ageMonths ?? 0;
+  const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
   const today = todayISO(input.today);
 
@@ -1688,12 +1742,12 @@ export function recommend(input) {
   // The whole analysis (not just `.effective`) is returned to the caller as
   // `history` below: the record panel used to re-run these two calls for itself,
   // which meant two places deciding what the record says. One call, one answer.
-  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers);
-  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers);
+  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers, input.dob);
+  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers, input.dob);
   const effectiveMenacwyDoses = menacwyHistory.effective;
   const effectiveMenbDoses    = menbHistory.effective;
 
-  const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today);
+  const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob);
   const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
 
   // ── HCT advisory block (prominent at top; standard recs still shown) ──
