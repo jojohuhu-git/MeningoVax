@@ -125,6 +125,88 @@ export function menacwyInfantNextDoseGate({ d1AgeM, d2AgeM = null, given }) {
 // corrected.
 export const MENACWY_HIGHRISK_PRIMARY_GAP = WEEKS(8);
 
+// ── Booster cadences ────────────────────────────────────
+//
+// P2-1 group 2 (2026-09-17). FOUR branches each decided how long until the next
+// MenACWY booster with their own `? 3 : 5` — the >=2y high-risk branch, the
+// travel/microbiologist branch, the infant branch, and the outbreak top-up —
+// and five more places spelled the answer out in English on the card. The
+// numbers all agreed; nothing made them agree. No number changes here.
+//
+// ACIP 2020 MMWR 69(RR-9), Tables 4-10, through the `boosterBeforeAge7` and
+// `boosterAtOrAfterAge7` citations the cards already carry.
+
+// Age at which the first-booster interval changes, in months.
+const BOOSTER_AGE_SPLIT_MONTHS = 84; // 7 years
+
+/** First MenACWY booster when the primary series completed before age 7. */
+export const MENACWY_FIRST_BOOSTER_YEARS_UNDER_7 = 3;
+/** First MenACWY booster when it completed at age 7 or older. */
+export const MENACWY_FIRST_BOOSTER_YEARS_FROM_7 = 5;
+/** Every booster after the first, whatever the completion age. */
+export const MENACWY_BOOSTER_CADENCE_YEARS = 5;
+
+/**
+ * Years until the FIRST MenACWY booster.
+ *
+ * An unknown completion age falls to the SHORTER interval on purpose: bringing
+ * a booster forward is the conservative error, and every branch that had its
+ * own copy of this rule already made that choice.
+ *
+ * @param {?number} primaryCompletionAgeMonths age at the last primary dose
+ */
+export function menacwyFirstBoosterYears(primaryCompletionAgeMonths) {
+  return (primaryCompletionAgeMonths == null || primaryCompletionAgeMonths < BOOSTER_AGE_SPLIT_MONTHS)
+    ? MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
+    : MENACWY_FIRST_BOOSTER_YEARS_FROM_7;
+}
+
+/** Years until this patient's next MenACWY booster, first or later. */
+export function menacwyBoosterYears({ isFirstBooster, primaryCompletionAgeMonths }) {
+  return isFirstBooster
+    ? menacwyFirstBoosterYears(primaryCompletionAgeMonths)
+    : MENACWY_BOOSTER_CADENCE_YEARS;
+}
+
+// The outbreak top-up looks like the first-booster rule and is NOT the same
+// rule. ACIP Table 8 gives an outbreak contact a single further dose when they
+// are identified at risk AGAIN, and it keys off the patient's age NOW, not the
+// age at which their series was completed. Kept as its own named export so a
+// future tidy-up cannot merge the two on the strength of them sharing a 3 and
+// a 5 (owner-confirmed 2026-09-15: a top-up, not a standing countdown).
+export const MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7 = 3;
+export const MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7 = 5;
+
+/** Years before an outbreak contact may be topped up again, by age TODAY. */
+export function menacwyOutbreakTopUpYears(currentAgeMonths) {
+  return currentAgeMonths < BOOSTER_AGE_SPLIT_MONTHS
+    ? MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7
+    : MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7;
+}
+
+/** First MenB booster for a high-risk patient: 1 year after the primary series. */
+export const MENB_HIGHRISK_FIRST_BOOSTER_YEARS = 1;
+/**
+ * Later MenB high-risk boosters. CDC says "every 2-3 years"; 2 is the FLOOR the
+ * validator enforces and "2-3 years" is what the card says. The two live side
+ * by side so nobody tidies the range in the prose down to the floor — they are
+ * not the same claim.
+ */
+export const MENB_HIGHRISK_BOOSTER_CADENCE_YEARS = 2;
+export const MENB_HIGHRISK_BOOSTER_CADENCE_LABEL = '2–3 years';
+
+/** Years until this patient's next MenB high-risk booster. */
+export function menbHighRiskBoosterYears(isFirstBooster) {
+  return isFirstBooster
+    ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS
+    : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS;
+}
+
+/** "1 year" / "3 years" — for interpolating a cadence into card text. */
+export function yearsLabel(years) {
+  return `${years} year${years === 1 ? '' : 's'}`;
+}
+
 /** "8 weeks" / "12 weeks" — for interpolating a gate into card text. */
 export function weeksLabel(days) {
   return `${days / 7} weeks`;

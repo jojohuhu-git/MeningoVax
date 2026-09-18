@@ -23,7 +23,12 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
-import { MENACWY_HIGHRISK_PRIMARY_GAP, weeksLabel } from '../intervals.js';
+import {
+  MENACWY_HIGHRISK_PRIMARY_GAP, weeksLabel, yearsLabel,
+  MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_FIRST_BOOSTER_YEARS_FROM_7,
+  MENACWY_BOOSTER_CADENCE_YEARS,
+  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
+} from '../intervals.js';
 import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
@@ -51,6 +56,12 @@ function code(name) {
 // and the export that owns it now.
 const MIGRATED = [
   ['DAYS.weeks(8)', 'MENACWY_HIGHRISK_PRIMARY_GAP'],
+  // Group 2 — booster cadences. The bare year counts moved too, so the
+  // validator can no longer keep a 3 and a 5 of its own.
+  ['DAYS.years(3)', 'MENACWY_FIRST_BOOSTER_YEARS_UNDER_7'],
+  ['DAYS.years(5)', 'MENACWY_BOOSTER_CADENCE_YEARS'],
+  ['DAYS.years(1)', 'MENB_HIGHRISK_FIRST_BOOSTER_YEARS'],
+  ['DAYS.years(2)', 'MENB_HIGHRISK_BOOSTER_CADENCE_YEARS'],
 ];
 
 describe('P2-1 · a migrated interval is written down once', () => {
@@ -99,5 +110,75 @@ describe('P2-1 · the MenACWY >=2y high-risk primary gap', () => {
       60, ['asplenia'], TODAY, allYes(2),
     ).perDose;
     expect(tooSoon[1].status).not.toBe('valid');
+  });
+});
+
+// ── Group 2 · booster cadences ───────────────────────────────────────────
+//
+// Four places decided how long until the next MenACWY booster (the >=2y
+// high-risk branch, the travel/microbiologist branch, the infant branch and the
+// outbreak top-up), each with its own `? 3 : 5`, and five more places spelled
+// the answer out in English on the card. The numbers agreed; nothing made them.
+describe('P2-1 · the MenACWY booster cadence', () => {
+  // Primary series completed at age 5 (before 7) -> first booster at 3 years.
+  const completedYoung = () => acwy(
+    120, ['2021-09-15', '2021-11-15'], ['asplenia'],
+  );
+  // Primary completed at age 12 (from 7) -> first booster at 5 years.
+  const completedOlder = () => acwy(
+    204, ['2021-09-15', '2021-11-15'], ['asplenia'],
+  );
+
+  it('a series completed before age 7 puts the first booster at the module\'s short interval', () => {
+    const card = completedYoung();
+    expect(card.doseLabel).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7));
+    expect(noteText(card)).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7));
+  });
+
+  it('a series completed at 7 or older puts it at the long one', () => {
+    const card = completedOlder();
+    expect(card.doseLabel).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7));
+    expect(noteText(card)).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7));
+  });
+
+  it('the booster LINE on a primary card states all three intervals, interpolated', () => {
+    // The line is the one place the cadence is stated (U2), so it is the one
+    // place that must not drift from the constants. On a PRIMARY card it has
+    // to cover both first-booster branches plus the ongoing cadence, because
+    // the patient's completion age is not known yet.
+    const line = acwy(60, [], ['asplenia']).boosterSummary;
+    expect(line).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7));
+    expect(line).toContain(yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7));
+    expect(line).toContain(yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS));
+  });
+
+  it('the booster LINE on a booster card states the ongoing cadence only', () => {
+    // By now the first booster is behind them or being offered, so the line
+    // states one number — still the module's.
+    expect(completedYoung().boosterSummary)
+      .toContain(`every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}`);
+  });
+});
+
+describe('P2-1 · the MenB high-risk booster cadence', () => {
+  const menb = (dates) => recommend({
+    today: TODAY, ageMonths: 300, riskIds: ['asplenia'],
+    menacwyDoses: [], menbDoses: dates.map((d) => ({ date: d })),
+    riskAtDoseAnswers: { MenB: allYes(dates.length) },
+  }).menb[0];
+
+  it('the first booster comes at the module\'s interval, and the card says so', () => {
+    const card = menb(['2022-01-15', '2022-03-15', '2022-07-15']);
+    expect(card.doseLabel).toContain(yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS));
+    expect(noteText(card)).toContain(yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS));
+  });
+
+  it('later boosters print the cadence label the module owns', () => {
+    // "2-3 years" is a RANGE whose floor (2) is what the validator enforces.
+    // Label and floor live side by side in intervals.js precisely so nobody
+    // "tidies" the prose into the floor.
+    const card = menb(['2020-01-15', '2020-03-15', '2020-07-15', '2021-07-15']);
+    expect(card.doseLabel + ' ' + card.boosterSummary)
+      .toContain(MENB_HIGHRISK_BOOSTER_CADENCE_LABEL);
   });
 });

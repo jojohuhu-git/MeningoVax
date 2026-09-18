@@ -58,6 +58,8 @@ import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './series
 import {
   menacwyInfantNextDoseGate, ageMeetsMinimum, intervalMeetsMinimum,
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
+  MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
+  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
 } from './intervals.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
@@ -123,10 +125,13 @@ const MENACWY_HR_ADULT_MIN_INTERVAL    = MENACWY_HIGHRISK_PRIMARY_GAP;
 // P1-3 (2026-09-15): the dose that completes a 3-dose infant series must be
 // >=12 weeks after dose 2 AND after age 12 months (CDC, MenACWY special
 // situations, the 3-6-month row).
-const MENACWY_BOOSTER_5Y_YEARS         = 5;
-const MENACWY_BOOSTER_3Y_YEARS         = 3;
-const MENACWY_BOOSTER_5Y               = DAYS.years(5);    // 1826 d (display only)
-const MENACWY_BOOSTER_3Y               = DAYS.years(3);    // 1096 d (display only)
+// P2-1 group 2 (2026-09-17): the two year counts now come from intervals.js,
+// the same module the engine reads, so the validator cannot keep a 3 and a 5
+// that quietly disagree with the cadence the card advertises.
+const MENACWY_BOOSTER_5Y_YEARS         = MENACWY_BOOSTER_CADENCE_YEARS;
+const MENACWY_BOOSTER_3Y_YEARS         = MENACWY_FIRST_BOOSTER_YEARS_UNDER_7;
+const MENACWY_BOOSTER_5Y               = DAYS.years(MENACWY_BOOSTER_5Y_YEARS);  // display only
+const MENACWY_BOOSTER_3Y               = DAYS.years(MENACWY_BOOSTER_3Y_YEARS);  // display only
 // MenB high-risk: D2 ≥4 weeks after D1
 const MENB_HR_D2_MIN_INTERVAL          = DAYS.weeks(4);    // 28 d
 // MenB high-risk: D3 ≥6 months after D1 AND ≥4 months after D2
@@ -142,8 +147,8 @@ const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(6);   // ~183 d (display on
 const MENB_HR_D3_MIN_MONTHS_FROM_D2    = 4;
 const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(4);   // ~122 d (display only)
 // MenB high-risk booster: first booster ≥1 year after D3; subsequent ≥2 years
-const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(1);    // 365 d
-const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(2);    // 731 d (display only)
+const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(MENB_HIGHRISK_FIRST_BOOSTER_YEARS);
+const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS); // display only
 // MenB healthy 2-dose: D2 ≥6 months after D1 (early D2 triggers rescue)
 const MENB_HEALTHY_D2_MIN_MONTHS       = 6;
 const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(6);   // ~183 d (display only)
