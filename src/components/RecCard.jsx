@@ -363,7 +363,7 @@ function timingClass(status, dueToday) {
   return 'timing-neutral';
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, dob = null, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, dob = null, onRiskAtDoseAnswer, riskAtDoseAnswers = {}, today: todayProp }) {
   const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, boosterDueDateExact, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
   const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
@@ -387,7 +387,10 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
   // deliberately collapsing a quiet card survives unrelated re-renders.
   const showBody = !collapsible || expanded;
   const given = doses.length;
-  const today = todayISO();
+  // calendar P2-1: Results.jsx passes the render's one `today` (the same
+  // value recommend() built the card from); the fallback is only for a test
+  // that mounts RecCard on its own.
+  const today = todayProp || todayISO();
 
   return (
     <div

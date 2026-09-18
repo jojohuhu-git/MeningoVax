@@ -22,12 +22,12 @@ const MENB_HISTORY_BRANDS = [
   { key: '', label: 'Unknown brand' },
 ];
 
-export default function Results({ state, onReset, onChange, onBack }) {
+export default function Results({ state, onReset, onChange, onBack, today }) {
   const { riskIds, menacwyDoses, menbDoses, riskAtDoseAnswers, dob } = state;
   // Calendar P1-3/P2-1: derived at render from the date of birth when there is
   // one, so the patient goes on ageing while the tab is open instead of being
   // frozen at the moment the Age step was filled in.
-  const ageMonths = patientAgeMonths(state);
+  const ageMonths = patientAgeMonths(state, today);
   const acwyRiskAnswers = riskAtDoseAnswers?.MenACWY ?? {};
   const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
@@ -41,10 +41,16 @@ export default function Results({ state, onReset, onChange, onBack }) {
     menacwyDoses,
     menbDoses,
     riskAtDoseAnswers,
+    today,
   });
 
   const { menacwy, menb, pentavalent, hct, history, excluded, exclusionMessage, exclusionCitations,
-          riskAgeNote, riskAgeNoteCites } = result;
+          riskAgeNote, riskAgeNoteCites, meta } = result;
+  // calendar P2-1: recommend() is the one place that resolves "no today
+  // passed" to the real clock (`meta.today`); everything below that draws a
+  // "today" reads it from here, so the card text and the editors below agree
+  // with the engine even when App.jsx isn't the caller (e.g. a test render).
+  const resolvedToday = meta.today;
 
   if (excluded) {
     return (
@@ -294,6 +300,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
                 emptyMessage="No MenACWY doses recorded."
                 rowClassName="dose-history-row"
                 onFocusCapture={() => setActiveDoseSection('acwy')}
+                today={resolvedToday}
               />
             </div>
 
@@ -312,6 +319,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
                 emptyMessage="No MenB doses recorded."
                 rowClassName="dose-history-row"
                 onFocusCapture={() => setActiveDoseSection('menb')}
+                today={resolvedToday}
               />
             </div>
 
@@ -394,6 +402,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               dob={dob ?? null}
               onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
               riskAtDoseAnswers={acwyRiskAnswers}
+              today={resolvedToday}
             />
           ))}
         </div>
@@ -411,6 +420,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               dob={dob ?? null}
               onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
               riskAtDoseAnswers={bRiskAnswers}
+              today={resolvedToday}
             />
           ))}
         </div>
