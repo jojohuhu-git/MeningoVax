@@ -50,7 +50,9 @@
 
 import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
-import { menbFamily, ALL_BRANDS } from '../data/brands.js';
+import {
+  menbFamily, ALL_BRANDS, MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
+} from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 // P0-1 (2026-09-17): the infant primary intervals now come from one module,
 // shared with recommend.js, so the engine cannot recommend a dose the validator
@@ -64,6 +66,17 @@ import {
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
 } from './intervals.js';
+// P2-3 (2026-09-17): the age thresholds. This file used to keep FIVE private
+// copies -- AGE_7Y_MONTHS, AGE_16Y_MONTHS, a function-local AGE_10Y_MONTHS,
+// MENB_HEALTHY_MIN_AGE_MONTHS, and two "most permissive product floor"
+// constants that restated brands.js -- plus a hand-typed second birthday in
+// two more places. The engine kept its own copies of the same numbers, and
+// nothing compared them.
+import {
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
+  MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+  MENB_HEALTHY_MIN_AGE_MONTHS,
+} from './ages.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
 import { doseAnswerKey } from './doseIdentity.js';
@@ -84,20 +97,13 @@ function brandMinAgeM(brandStr) {
   return null;
 }
 
-// Most permissive MenACWY min age (Menveo, 2 months). Used when brand is
-// unknown so we don't false-flag on a dose whose brand we can't identify.
-const MIN_AGE_MENACWY_PERMISSIVE_MONTHS = 2;
-
-// Most permissive MenB min age (Bexsero/Trumenba, 120 months). Used when brand
-// is unknown for MenB — all products require ≥10 years, so even permissive is 120.
-const MIN_AGE_MENB_PERMISSIVE_MONTHS = 120;
-
-// P0-1: the healthy MenB 2-dose series is recommended at 16–23y. For a patient with
-// NO current MenB risk factor, a MenB dose given before 16 is validly administered
-// (≥ the 120-month product floor) but does NOT count toward the healthy series —
-// MenB antibody wanes within ~1 year, so an early dose is not protective at 16.
-// Mirrors MenACWY's pre-age-10 exclusion. Owner decision 2026-07-23 (Option 1).
-const MENB_HEALTHY_MIN_AGE_MONTHS = 192;
+// The most permissive product floor for each vaccine, used when a recorded
+// dose's brand is unknown so we don't false-flag a dose we can't identify.
+// P2-3 (2026-09-17): these used to be typed out here as 2 and 120, under a
+// comment explaining which products they came from. They now come from the
+// product table itself, so adding a product cannot leave them behind.
+const MIN_AGE_MENACWY_PERMISSIVE_MONTHS = MENACWY_MIN_AGE_MONTHS;
+const MIN_AGE_MENB_PERMISSIVE_MONTHS = MENB_MIN_AGE_MONTHS;
 
 // ── Interval constants — reuse the recommend.js patterns ─────────────────
 // MenACWY: baseline minimum between ANY two doses regardless of risk class
@@ -160,9 +166,9 @@ const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = MENB_HEALTHY_RESCUE_MONTHS;
 const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2); // display only
 
 // Age band for infant-booster cadence check (7 years in months)
-const AGE_7Y_MONTHS = 84;
+const AGE_7Y_MONTHS = MENACWY_BOOSTER_AGE_SPLIT_MONTHS;
 // Routine (non-high-risk) MenACWY booster age floor (16 years in months)
-const AGE_16Y_MONTHS = 192;
+const AGE_16Y_MONTHS = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS;
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -389,7 +395,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // for "1 dose (ongoing-risk indication)" today: the dose they already had.
   // 'single' (military, college dorm, ACWY outbreak) is NOT spared — those are
   // one-and-done indications with no booster schedule to follow.
-  const AGE_10Y_MONTHS = 120;
+  const AGE_10Y_MONTHS = MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS;
   const isHighRiskNow = menacwyRiskClass(riskIds) === 'primary2';
   // 'single+boost' is travel and microbiologist: one primary dose, then boosters
   // for as long as the risk lasts. They follow a booster schedule, so their
@@ -409,7 +415,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // on the infant series. Whether those infant doses should also count toward
   // the adolescent series years later is the separate risk-at-dose question the
   // owner has parked (queue item 21), and this does not answer it.
-  const onInfantSeriesNow = ageMonths < 24 && menacwyInfantSeriesIndicated(riskIds);
+  const onInfantSeriesNow = ageMonths < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS
+    && menacwyInfantSeriesIndicated(riskIds);
   // M12 (2026-09-15): an A/C/W/Y outbreak contact follows a booster schedule too,
   // so their earlier doses count at ANY age, not only under 2. ACIP 2020 MMWR
   // 69(RR-9) Table 8 gives a previously-vaccinated patient identified at risk
@@ -508,7 +515,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // already returns true for every 'primary2' patient, so it covers both
       // medical risk and the M10 travel/outbreak infants.
       const infantSeries = menacwyInfantSeriesIndicated(riskIds);
-      const onInfantPrimary = infantSeries && d1AgeM != null && d1AgeM < 24;
+      const onInfantPrimary = infantSeries && d1AgeM != null
+        && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
 
       if (onInfantPrimary) {
         const gate = menacwyInfantNextDoseGate({

@@ -140,3 +140,67 @@ export const ALL_BRANDS = [
   ...MENB_BRANDS,
   ...PENTAVALENT_BRANDS,
 ];
+
+// ── Product age floors, derived from the table above ─────────────────────
+//
+// `maxAgeM: 999` is the table's sentinel for "no hard upper limit" (see the
+// header), not a real cap at 83 years. Anything reading maxAgeM has to say so
+// explicitly, or it will quietly stop offering every vaccine to the oldest
+// patients — which is exactly what happened the first time this helper was
+// written.
+//
+// These are LICENCE floors — how young a product may be given — and they are
+// not schedule ages. The age at which a dose is DUE, or counts toward a
+// series, lives in `src/logic/ages.js`.
+//
+// They are derived rather than typed because both were previously hand-typed
+// somewhere else: validate.js kept its own "most permissive" 2 and 120 under a
+// comment explaining that they matched this table, and recommend.js decided
+// which MenACWY brands to offer with its own 24 and 120. Those are the same
+// numbers as `minAgeM` above, with nothing making them agree.
+
+const NO_MAX_AGE = 999;
+
+/** The youngest age any MenACWY product may be given (Menveo 2-vial, 2 months). */
+export const MENACWY_MIN_AGE_MONTHS = Math.min(...MENACWY_BRANDS.map((b) => b.minAgeM));
+
+/**
+ * The youngest age any MenB-containing product may be given (10 years).
+ * CDC child & adolescent schedule notes, MenB (fetched live 2026-09-17):
+ * "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba;
+ * MenACWY-TT/MenB-FHbp, Penbraya]".
+ */
+export const MENB_MIN_AGE_MONTHS = Math.min(
+  ...[...MENB_BRANDS, ...PENTAVALENT_BRANDS].map((b) => b.minAgeM),
+);
+
+/** The youngest age any pentavalent (MenABCWY) product may be given (10 years). */
+export const PENTAVALENT_MIN_AGE_MONTHS = Math.min(
+  ...PENTAVALENT_BRANDS.map((b) => b.minAgeM),
+);
+
+/**
+ * The MenACWY brands that may be given at this age, in table order.
+ *
+ * Discontinued products are excluded: they remain selectable when RECORDING a
+ * dose given in the past, but are never offered for a dose to be given now.
+ */
+export function menacwyBrandLabelsForAge(ageMonths) {
+  return MENACWY_BRANDS
+    .filter((b) => b.active
+      && ageMonths >= b.minAgeM
+      && (b.maxAgeM === NO_MAX_AGE || ageMonths <= b.maxAgeM))
+    .map((b) => b.label);
+}
+
+/**
+ * The MenACWY products an INFANT series may use: whatever is licensed at the
+ * youngest age any MenACWY product may be given. Today that is Menveo 2-vial
+ * alone, which is why every infant card says "the Menveo series".
+ *
+ * Derived rather than typed so that a product licensed from infancy in future
+ * appears on those cards automatically. Note this does NOT re-check the
+ * patient's own age: the infant cards state what the SERIES is, and a patient
+ * too young for any product is handled by the engine's own age gate.
+ */
+export const MENACWY_INFANT_SERIES_BRANDS = menacwyBrandLabelsForAge(MENACWY_MIN_AGE_MONTHS);

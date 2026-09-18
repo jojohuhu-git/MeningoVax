@@ -19,18 +19,23 @@
 // __tests__/regression-p2-1-intervals-in-one-place.test.js fails the build if
 // any of them is hand-typed again outside this file.
 //
-// What is NOT here yet: AGE thresholds — the age at which a dose becomes due or
-// a patient ages out of a series, as opposed to the gap BETWEEN two doses. They
-// have the same two-copies problem this module was built to end, and it is
-// already visible: recommend.js keeps a map of them (`M`, around :65) while
-// validate.js hand-types `ageMonths < 24` (around :412) rather than asking for
-// it. That is the next group. Do it the same way: one group at a time, full
-// suite green in between.
+// AGE thresholds — the age at which a dose becomes due or a patient ages out
+// of a series, as opposed to the gap BETWEEN two doses — were the last group
+// still written down twice. They now live in `ages.js`, a sibling module (P2-3,
+// 2026-09-17). They are not in THIS file for one mechanical reason: this module
+// imports seriesTotals.js, seriesTotals.js needs those ages, and putting them
+// here would make the two import each other. ages.js imports nothing.
+//
+// Product licence floors — how young a given product may be given — are a
+// third thing again, and belong to `src/data/brands.js`.
 //
 // The rule for callers: ask this module for the number and INTERPOLATE it into
 // whatever you print. Never restate it in English.
 
 import { menacwyInfantHighRiskTotal } from './seriesTotals.js';
+import {
+  MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+} from './ages.js';
 import {
   addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween,
   daysInMonthOf,
@@ -70,9 +75,6 @@ export const MENACWY_INFANT_EARLY_GAP = WEEKS(8);
 
 /** Gap before the FINAL dose of an infant primary series. */
 export const MENACWY_INFANT_FINAL_GAP = WEEKS(12);
-
-/** The final infant primary dose may not be given before this age. */
-export const MENACWY_INFANT_FINAL_MIN_AGE_MONTHS = 12;
 
 /**
  * The gate the NEXT MenACWY dose in an infant primary series must clear.
@@ -148,9 +150,6 @@ export const MENACWY_HIGHRISK_PRIMARY_GAP = WEEKS(8);
 // ACIP 2020 MMWR 69(RR-9), Tables 4-10, through the `boosterBeforeAge7` and
 // `boosterAtOrAfterAge7` citations the cards already carry.
 
-// Age at which the first-booster interval changes, in months.
-const BOOSTER_AGE_SPLIT_MONTHS = 84; // 7 years
-
 /** First MenACWY booster when the primary series completed before age 7. */
 export const MENACWY_FIRST_BOOSTER_YEARS_UNDER_7 = 3;
 /** First MenACWY booster when it completed at age 7 or older. */
@@ -168,7 +167,7 @@ export const MENACWY_BOOSTER_CADENCE_YEARS = 5;
  * @param {?number} primaryCompletionAgeMonths age at the last primary dose
  */
 export function menacwyFirstBoosterYears(primaryCompletionAgeMonths) {
-  return (primaryCompletionAgeMonths == null || primaryCompletionAgeMonths < BOOSTER_AGE_SPLIT_MONTHS)
+  return (primaryCompletionAgeMonths == null || primaryCompletionAgeMonths < MENACWY_BOOSTER_AGE_SPLIT_MONTHS)
     ? MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
     : MENACWY_FIRST_BOOSTER_YEARS_FROM_7;
 }
@@ -191,7 +190,7 @@ export const MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7 = 5;
 
 /** Years before an outbreak contact may be topped up again, by age TODAY. */
 export function menacwyOutbreakTopUpYears(currentAgeMonths) {
-  return currentAgeMonths < BOOSTER_AGE_SPLIT_MONTHS
+  return currentAgeMonths < MENACWY_BOOSTER_AGE_SPLIT_MONTHS
     ? MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7
     : MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7;
 }

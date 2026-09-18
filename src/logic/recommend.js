@@ -25,7 +25,21 @@ import {
   hasHCT,
   RISK_BY_ID,
 } from '../data/riskFactors.js';
-import { menbFamily } from '../data/brands.js';
+import {
+  menbFamily, menacwyBrandLabelsForAge, MENACWY_INFANT_SERIES_BRANDS,
+  MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS, PENTAVALENT_MIN_AGE_MONTHS,
+} from '../data/brands.js';
+// P2-3 (2026-09-17): the age thresholds used to live in a local `M` map here,
+// with validate.js and seriesTotals.js each keeping their own copies of the
+// same numbers. ages.js is their single home; see its header for why 192 gets
+// two names rather than one.
+import {
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
+  MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
+  MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+  MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
+} from './ages.js';
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 import { analyzeHistory } from './validate.js';
 import { creditPentavalents } from './pentavalentCredit.js';
@@ -39,7 +53,7 @@ const EMPTY_HISTORY = Object.freeze({
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal,
   MENB_HIGHRISK_RESCUE_TOTAL,
-  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL,
+  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
 // P0-1 (2026-09-17): the infant primary intervals used to be hand-typed here as
@@ -52,32 +66,27 @@ import {
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_FIRST_BOOSTER_YEARS_FROM_7,
   MENACWY_BOOSTER_CADENCE_YEARS, menacwyFirstBoosterYears, menacwyBoosterYears,
   menacwyOutbreakTopUpYears,
+  MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7, MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
   menbHighRiskBoosterYears,
   MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
-  MENACWY_INFANT_FINAL_GAP, MENACWY_INFANT_FINAL_MIN_AGE_MONTHS,
+  MENACWY_INFANT_FINAL_GAP,
 } from './intervals.js';
-
-// Age bands (months)
-const M = {
-  y2: 24, y7: 84, y10: 120, y11: 132, y16: 192, y18: 216, y19: 228, y22: 264, y23: 276, y24: 288, y26: 312,
-};
+import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
 
 // ── brand option builders ─────────────────────────────────────────────────
-// D7: Menveo 2-vial (≥2 months) vs Menveo 1-vial (≥10 years) — distinct formulations.
-// Both are valid per ACIP at ≥10y; only the 2-vial is licensed below 10y.
-// MenQuadfi is licensed ≥2 years.
-const MENACWY_INFANT = ['Menveo 2-vial (MenACWY)'];   // <2y: 2-vial only
-const MENACWY_CHILD  = ['Menveo 2-vial (MenACWY)', 'MenQuadfi (MenACWY)'];  // 2–9y
-const MENACWY_STD    = ['Menveo 2-vial (MenACWY)', 'Menveo 1-vial (≥10y) (MenACWY)', 'MenQuadfi (MenACWY)'];  // ≥10y
-
-function menacwyBrands(am) {
-  if (am < M.y2) return MENACWY_INFANT;         // <24m: 2-vial only
-  if (am < M.y10) return MENACWY_CHILD;         // 24–119m: 2-vial + MenQuadfi
-  return MENACWY_STD;                           // ≥120m: 2-vial + 1-vial + MenQuadfi
-}
+// D7: Menveo 2-vial (≥2 months) vs Menveo 1-vial (≥10 years) — distinct
+// formulations. Both are valid per ACIP at ≥10y; only the 2-vial is licensed
+// below 10y, and MenQuadfi from 2 years.
+//
+// P2-3 (2026-09-17): those three ages used to be written out here as a second
+// copy of `minAgeM` in brands.js — three hard-coded lists behind two hard-coded
+// age tests, which agreed with the product table only because nobody had
+// changed either. The lists are now derived from the table itself, so adding a
+// product or correcting its licensed age cannot leave this function behind.
+const menacwyBrands = (am) => menacwyBrandLabelsForAge(am);
 
 // MenB brand options given the established family (from dose 1) and dose number.
 // Pentavalents are NOT included here — they are surfaced only via the dedicated
@@ -233,7 +242,7 @@ function menacwyRec(am, riskIds, doses, today) {
   // same series; menacwyInfantSeries varies only the WORDING by indication, and
   // the booster phase, which genuinely differs for outbreak (see there).
   //
-  // P0-1 (2026-09-15): this door used to read `am < M.y2` alone — today's age.
+  // P0-1 (2026-09-15): this door used to read today's age alone.
   // A child mid-series fell out of it on their second birthday and landed in
   // the generic >=2y branch below, which hard-codes a 2-dose series, so the
   // doses they still owed were re-labelled "boosters" three years away. The
@@ -247,8 +256,8 @@ function menacwyRec(am, riskIds, doses, today) {
   // clock inside it off d1AgeM, so it handles the whole lifecycle correctly.
   // An UNVACCINATED >=2y patient has no dose 1 and is unaffected.
   const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
-  const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < M.y2;
-  if ((am < M.y2 || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
+  const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
+  if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
     return [menacwyInfantSeries(am, given, doses, last, today, riskIds)];
   }
 
@@ -501,7 +510,7 @@ function menacwyRec(am, riskIds, doses, today) {
       const dosesAt16Plus = doses
         .map((d) => ({ a: ageAtDose(d, am, today), date: d.date || null }))
         .filter(({ a, date }) => a != null
-          && ageMeetsMinimum(a, M.y16, { doseDate: date, ageMonths: am, today }));
+          && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: date, ageMonths: am, today }));
       if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
@@ -582,7 +591,7 @@ function menacwyRec(am, riskIds, doses, today) {
           minIntervalDays: topUpDays,
           note: {
             lead: 'The recorded dose covers this outbreak.',
-            detail: `If the patient is identified as being at increased risk in another outbreak, a single further dose is given once ${am < M.y7 ? 'three' : 'five'} years or more have passed since the last one (${am < M.y7 ? 'under age 7' : 'age 7 or older'}) [c].`,
+            detail: `If the patient is identified as being at increased risk in another outbreak, a single further dose is given once ${menacwyOutbreakTopUpYears(am)} years or more have passed since the last one (${am < MENACWY_BOOSTER_AGE_SPLIT_MONTHS ? `under age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}` : `age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} or older`}) [c].`,
           },
           noteCites: [cite('acip2020Table8')],
           refs: refsExposure(),
@@ -594,7 +603,7 @@ function menacwyRec(am, riskIds, doses, today) {
         minIntervalDays: topUpDays,
         note: {
           lead: 'A single dose now, to top up protection for this outbreak [c].',
-          detail: `More than ${am < M.y7 ? 'three' : 'five'} years have passed since the last MenACWY dose (${am < M.y7 ? 'under age 7' : 'age 7 or older'}), which is the interval at which ACIP gives a further dose to someone identified at increased risk in an outbreak. It does not start a repeating schedule.`,
+          detail: `More than ${menacwyOutbreakTopUpYears(am)} years have passed since the last MenACWY dose (${am < MENACWY_BOOSTER_AGE_SPLIT_MONTHS ? `under age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}` : `age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} or older`}), which is the interval at which ACIP gives a further dose to someone identified at increased risk in an outbreak. It does not start a repeating schedule.`,
         },
         noteCites: [cite('acip2020Table8')],
         refs: refsExposure(),
@@ -705,9 +714,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // before saying no such countdown exists.
   const infantBoosterCites = infantOutbreak ? [] : [cite('boosterBeforeAge7')];
   const outbreakTopUp = infantOutbreak
-    ? ' There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥3 years have passed since the last dose (≥5 years from age 7).'
+    ? ` There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥${MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7} years have passed since the last dose (≥${MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7} years from age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}).`
     : '';
-  if (am < M.y2 && given === 0 && am >= 2) {
+  if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_MIN_AGE_MONTHS) {
     // start series; Menveo only.
     // One total for BOTH the printed label and seriesTotal. They used to be
     // written out separately, so when M5 changed the helper (a 7-23-month start
@@ -730,7 +739,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       // that is a wording inaccuracy, not this interval bug, and changing it
       // here would mean editing a clinical assertion the regression tests pin.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why})`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: startGate.minIntervalDays,
+        brands: MENACWY_INFANT_SERIES_BRANDS, minIntervalDays: startGate.minIntervalDays,
         note: {
           lead: `Start the 4-dose Menveo series — doses at 2, 4, 6 and 12 months, the early ones at least ${weeksLabel(startGate.minIntervalDays)} apart [c].`,
           detail: `${whoAged('2–6 months')} need four doses. The final dose comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it. Only Menveo is licensed for infants from 2 months.${outbreakTopUp}`,
@@ -750,7 +759,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       // Single dose at 3 yrs after primary vaccination and every 5 yrs
       // thereafter". This now matches the 12–23-month card below.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why} 7–11mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: MENACWY_INFANT_FINAL_GAP,
+        brands: MENACWY_INFANT_SERIES_BRANDS, minIntervalDays: MENACWY_INFANT_FINAL_GAP,
         note: {
           lead: `Start the 2-dose Menveo series — dose 2 at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 1, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
           detail: `${whoAged('7–11 months')} need two doses, not the four a younger infant needs. Only Menveo is licensed for infants from 2 months.${outbreakTopUp}`,
@@ -793,7 +802,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // M5 (2026-09-15): the band is 7–23 months, not 7–11, and it is a 2-dose primary
   // series. CDC: "Dose 1 at age 7–23 months: 2-dose series (dose 2 at least 12
   // weeks after dose 1 and after age 12 months)".
-  const d1WasInfant7to11 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
+  const d1WasInfant7to11 = d1AgeM != null
+    && d1AgeM >= MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS
+    && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
@@ -810,7 +821,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       dueToday: elapsed && ageFloor,
       earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am),
       minIntervalDays: shortcutGate.minIntervalDays,
-      brands: MENACWY_INFANT,
+      brands: MENACWY_INFANT_SERIES_BRANDS,
       note: {
         lead: `This final dose is due at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 2, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
         detail: 'Dose 2 was given at 7 months or older, so this series completes in three doses rather than four. No fourth dose is needed.',
@@ -917,7 +928,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // advertised a date months before the first birthday.
     earliestNextDate: (elapsed && ageFloorMetActual) ? null : earliestGatedDate(lastDate, nextGate, today, am),
     minIntervalDays: nextIntervalDays,
-    brands: MENACWY_INFANT,
+    brands: MENACWY_INFANT_SERIES_BRANDS,
     // P0-1: the number is interpolated from the gate the engine just used, so
     // the sentence cannot promise one interval while the validator enforces
     // another — which is exactly what "≥4 weeks between primary doses" did.
@@ -963,7 +974,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // this line did not, so the card went on asking for a booster the patient had.
   const hasDoseAt16 = doses.some((d) => {
     const a = ageAtDose(d, am, today);
-    return a != null && ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+    return a != null && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today });
   });
   // F1 (2026-09-14): the routine series is 2 doses (11-12y + the 16y
   // booster) whenever an earlier <16y dose is already on record and owes
@@ -976,7 +987,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // inside the grace window would count as both "at 16" and "before 16".
   const hasDoseBefore16 = doses.some((d) => {
     const a = ageAtDose(d, am, today);
-    return a != null && !ageMeetsMinimum(a, M.y16, { doseDate: d.date || null, ageMonths: am, today });
+    return a != null && !ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today });
   });
   // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
   // filters out anything given before age 10 for a healthy patient — see
@@ -996,14 +1007,14 @@ function menacwyRoutine(am, given, doses, last, today) {
     ? ` ${undatedCount === 1 ? 'One recorded dose has no date' : `${undatedCount} recorded doses have no date`}, so a dose given at age 16 years or older cannot be confirmed from this record. Adding the date may remove this recommendation.`
     : '';
   const doseAgesM = doses.map((d) => ageAtDose(d, am, today));
-  const doseAtAge10 = given === 1 && doseAgesM[0] != null && doseAgesM[0] < M.y11;
+  const doseAtAge10 = given === 1 && doseAgesM[0] != null && doseAgesM[0] < MENACWY_ROUTINE_DOSE1_AGE_MONTHS;
 
   // Under 11, with a dose already on file: it can only be the age-10 dose
   // above (nothing younger survives the A3 filter) — route to the same
   // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
-  if (am < M.y11 && given >= 1) {
-    const monthsUntil16 = M.y16 - am;
+  if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
+    const monthsUntil16 = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
@@ -1020,7 +1031,7 @@ function menacwyRoutine(am, given, doses, last, today) {
       },
       noteCites: [cite('acwyAge10CountsAsDose1')], refs })];
   }
-  if (am < M.y11) {
+  if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS) {
     return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet due',
       note: {
         lead: 'No routine MenACWY dose is due at this age without a risk factor.',
@@ -1030,7 +1041,7 @@ function menacwyRoutine(am, given, doses, last, today) {
       refs })];
   }
   // 11–15y
-  if (am < M.y16) {
+  if (am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     if (given === 0) {
       return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
         brands: menacwyBrands(am),
@@ -1047,7 +1058,7 @@ function menacwyRoutine(am, given, doses, last, today) {
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
     // an approximate due date (the patient's 16th birthday) so it's not just
     // "complete" with no further information.
-    const monthsUntil16 = M.y16 - am;
+    const monthsUntil16 = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am;
     const boosterDueDate = addDays(today, DAYS.months(monthsUntil16));
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
@@ -1067,7 +1078,7 @@ function menacwyRoutine(am, given, doses, last, today) {
       noteCites: doseAtAge10 ? [cite('acwyAge10CountsAsDose1')] : [], refs })];
   }
   // 16–18y
-  if (am < M.y19) {
+  if (am < MENACWY_CATCHUP_MIN_AGE_MONTHS) {
     if (hasDoseAt16) {
       return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
         note: {
@@ -1105,7 +1116,7 @@ function menacwyRoutine(am, given, doses, last, today) {
   // D2: Job aid rule — all patients 17–21y with no MenACWY on/after the 16th birthday
   // should receive catch-up Dose 1 of 1. No booster needed when given at ≥16y.
   // Especially important for first-year college students living in residence halls.
-  if (am < M.y22) { // <22y — through 21st birthday (264m = 22y); 'through 21 years' is inclusive to 22nd birthday
+  if (am < MENACWY_CATCHUP_MAX_AGE_MONTHS) { // <22y — through 21st birthday (264m = 22y); 'through 21 years' is inclusive to 22nd birthday
     if (!hasDoseAt16) {
       // C5/2026-07-24: cites the 19-21y catch-up sentence, not the generic
       // routine 11-12y/16y schedule the [c] previously pointed to
@@ -1182,18 +1193,18 @@ function menbRec(am, riskIds, doses, today) {
   const refs = (extra = [], base = highRisk ? ['acip2020'] : ['cdcChildMenB']) => collectRefs(riskIds, extra, base);
 
   // MenB is only licensed ≥10y.
-  if (am < M.y10) {
+  if (am < MENB_MIN_AGE_MONTHS) {
     if (highRisk) {
       return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
         note: {
-          lead: 'MenB is licensed from age 10 years, so nothing is due yet.',
-          detail: 'This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series once they reach age 10.',
+          lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
+          detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)}.`,
         }, refs: refs() })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
       note: {
         lead: 'MenB is not indicated at this age without a qualifying risk factor.',
-        detail: 'MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age 10 years [c]. From 16 through 23 years MenB may be given under shared clinical decision-making. Between 10 and 15 years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, or microbiologist exposure.',
+        detail: `MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c]. From ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)} through ${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years MenB may be given under shared clinical decision-making. Between ${ageYears(MENB_MIN_AGE_MONTHS)} and ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS) - 1} years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, or microbiologist exposure.`,
       },
       // C5/2026-07-24: consolidate — replace the lone "CDC MenB Notes"
       // whole-page chip with the exact 2020 MMWR licensure sentence
@@ -1349,7 +1360,7 @@ function menbRec(am, riskIds, doses, today) {
   }
 
   // ── Healthy 16–23y shared clinical decision-making: 2-dose 0/6 ───────────
-  if (am >= M.y16 && am < M.y24) {
+  if (am >= MENB_HEALTHY_MIN_AGE_MONTHS && am < MENB_HEALTHY_MAX_AGE_MONTHS) {
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
@@ -1450,7 +1461,7 @@ function menbRec(am, riskIds, doses, today) {
   // shared-decision recs above), not the mislabeled Penmenvy page; the
   // "preferably 16-18" claim isn't in mm7349a3 so was dropped.
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
-    note: am < M.y16
+    note: am < MENB_HEALTHY_MIN_AGE_MONTHS
       // M16: the pre-16 card names the preferred age too, so a clinician
       // planning ahead knows the conversation is best had at 16-18 rather than
       // only that it becomes possible at 16.
@@ -1549,7 +1560,7 @@ function collectRefs(riskIds, extra, defaults) {
 //  unaffected — ASCO's own text still gives it the unconditional 16-23
 //  age path, so `menbTransplantAloneBand` stays as-is.
 function hctAdvisory(am, riskIds = []) {
-  const menbTransplantAloneBand = am >= M.y16 && am < M.y24; // 16 through 23 years
+  const menbTransplantAloneBand = am >= MENB_HEALTHY_MIN_AGE_MONTHS && am < MENB_HEALTHY_MAX_AGE_MONTHS; // 16 through 23 years
   const highRisk = riskIds.some((id) => id === 'asplenia' || id === 'complement');
 
   const lines = [];
@@ -1573,7 +1584,7 @@ function hctAdvisory(am, riskIds = []) {
 
   // MenB — floor is age 10 (its minimum licensed age); below that, no line
   // at all, regardless of risk factor — the vaccine truly cannot be given yet.
-  if (am >= M.y10) {
+  if (am >= MENB_MIN_AGE_MONTHS) {
     if (menbTransplantAloneBand) {
       lines.push({
         label: 'MenB',
@@ -1742,7 +1753,7 @@ export function recommend(input) {
   // card falls back to the existing "two separate vaccines" banner, which is
   // the clinically correct answer — plus a line saying why.
   const pentavalentEligible =
-    am >= M.y10 && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
+    am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
@@ -1766,7 +1777,7 @@ export function recommend(input) {
         eligible: false,
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
-        unavailableReason: (am >= M.y10 && acwyDueToday && bDueToday && penbrayaTooRecent)
+        unavailableReason: (am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && penbrayaTooRecent)
           ? 'A combined pentavalent shot is not an option today: Penbraya may only be repeated once 6 months have passed since the last Penbraya dose.'
           : null,
       };
