@@ -36,6 +36,12 @@ import {
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS,
 } from './intervals.js';
+// P2-3 (2026-09-17): the same reasoning for AGES. This module kept its own
+// `AGE_16Y_MONTHS = 192` and hand-typed the second birthday in four places.
+import {
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
+} from './ages.js';
 
 // Duplicated arithmetic from validate.js's ageAtDoseFromDate / recommend.js's
 // ageAtDose on purpose (avoids a circular import — see header). It's the
@@ -57,8 +63,6 @@ export const MENB_HIGHRISK_RESCUE_TOTAL = 4;
 // its total: the 11-12y dose is primary, the 16y dose is the booster that
 // closes it. Exported so recommend.js's routine branches never hand-type it.
 export const MENACWY_ROUTINE_PRIMARY_TOTAL = 1;
-
-const AGE_16Y_MONTHS = 192;
 
 // MenACWY infant/early-childhood high-risk primary total — mirrors
 // recommend.js's menacwyInfantSeries() completion threshold EXACTLY
@@ -85,7 +89,9 @@ export function menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM = null }) {
   // recommend.js's `given >= 3` completion guard. F1 was right that the two had
   // drifted apart; it aligned them on the wrong number. That guard moves to 2 as
   // well, so the two stay in step.
-  const d1WasInfant7to23 = d1AgeM != null && d1AgeM >= 7 && d1AgeM < 24;
+  const d1WasInfant7to23 = d1AgeM != null
+    && d1AgeM >= MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS
+    && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if (d1WasInfant7to23) return 2;
 
   // P1-3 (2026-09-15): the CDC "3- or 4-dose series" row. A series begun at
@@ -146,8 +152,8 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // infant length for life (CDC: "Dose 1 at age 2 months: 4-dose series").
   const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
   const d2AgeM = doses[1] ? ageAtDose(doses[1], am, today) : null;
-  const startedAsInfant = d1AgeM != null && d1AgeM < 24;
-  if ((am < 24 || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
+  const startedAsInfant = d1AgeM != null && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
+  if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
     // P1-3: d2AgeM decides the 3-vs-4-dose answer for a 3-6-month start.
     const infantTotal = menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
     return {
@@ -210,7 +216,7 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // still owed until a DATE shows it was given.
   const boosterStillOwed = doses.some((d) => {
     const a = ageAtDose(d, am, today);
-    return a == null || a < AGE_16Y_MONTHS;
+    return a == null || a < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS;
   });
   // The routine schedule is the ONE place where the primary series is shorter
   // than the total: the 11-12y dose is primary, the 16y dose is a booster that
@@ -336,7 +342,7 @@ export function menacwyPrimaryTotal({ riskClass, d1AgeM, d2AgeM = null, infantSe
   // cannot separate travel from microbiologist ('single+boost') or outbreak
   // from military ('single'), and ACIP gives microbiologists (Table 7, ">=10
   // yrs") and recruits (Table 10) no infant row at all.
-  if (d1AgeM != null && d1AgeM < 24 && (riskClass === 'primary2' || infantSeries)) {
+  if (d1AgeM != null && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && (riskClass === 'primary2' || infantSeries)) {
     return menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
   }
   if (riskClass === 'primary2') return MENACWY_HIGHRISK_PRIMARY_TOTAL;
