@@ -392,12 +392,22 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
   const pending = hasPendingDoses(doseValidations);
   const collapsible = isNeutral && !boosterDueDate && !pending;
   const [expanded, setExpanded] = useState(!collapsible);
+  // U5 (2026-09-17): `expanded` is seeded ONCE, at mount. When props change so
+  // that a neutral card becomes a due one, `collapsible` flips true -> false and
+  // the header stops rendering the toggle button -- so a stale `expanded: false`
+  // left the card with no body and no control to open it (reproduced live by
+  // pressing "Adjust age" on a results page). What is SHOWN is therefore derived
+  // from `collapsible`, which is computed from the current props every render:
+  // a card that cannot be collapsed is always shown. `expanded` still holds the
+  // clinician's own choice, and is only consulted while the toggle exists, so
+  // deliberately collapsing a quiet card survives unrelated re-renders.
+  const showBody = !collapsible || expanded;
   const given = doses.length;
   const today = todayISO();
 
   return (
     <div
-      className={`rec-card ${timingClass(status, pending ? false : dueToday)}${collapsible && !expanded ? ' rec-card-collapsed' : ''}`}
+      className={`rec-card ${timingClass(status, pending ? false : dueToday)}${!showBody ? ' rec-card-collapsed' : ''}`}
       data-testid="rec-card"
     >
       {collapsible ? (
@@ -405,13 +415,13 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           type="button"
           className="rec-card-head rec-card-head-toggle"
           onClick={() => setExpanded(e => !e)}
-          aria-expanded={expanded}
+          aria-expanded={showBody}
         >
           <span className="rec-vaccine-name">{vaccine}</span>
-          {!expanded && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
+          {!showBody && <span className="rec-card-collapsed-reason">{doseLabel}</span>}
           <span className="rec-card-head-trailing">
             <span className={`status-badge ${status}`}>{statusPillLabel(rec, pending)}</span>
-            <Chevron open={expanded} />
+            <Chevron open={showBody} />
           </span>
         </button>
       ) : (
@@ -423,7 +433,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         </div>
       )}
 
-      {expanded && (
+      {showBody && (
       <div className="rec-card-inner">
         {/* D4: today's action first — dose due + brands, then booster/next-date,
             then recorded history (history supports the decision, it doesn't
