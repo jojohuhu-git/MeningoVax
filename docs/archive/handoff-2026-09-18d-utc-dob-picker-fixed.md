@@ -1,5 +1,7 @@
 # MeningoVax — Handoff after the UTC date-of-birth picker bug was fixed (2026-09-18)
 
+**SUPERSEDED by `handoff-2026-09-18e-calendar-p2-1-shipped.md`.** Read that one instead.
+
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor (MenACWY + MenB +
 pentavalent), browser-only, no backend, live at https://jojohuhu-git.github.io/MeningoVax/.
 Its core promise is **honesty**: a silently wrong answer is worse than a crash.
