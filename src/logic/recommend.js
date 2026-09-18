@@ -54,6 +54,10 @@ import {
   menacwyOutbreakTopUpYears,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
   menbHighRiskBoosterYears,
+  MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
+  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
+  MENACWY_INFANT_FINAL_GAP, MENACWY_INFANT_FINAL_MIN_AGE_MONTHS,
 } from './intervals.js';
 
 // Age bands (months)
@@ -729,7 +733,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
         brands: MENACWY_INFANT, minIntervalDays: startGate.minIntervalDays,
         note: {
           lead: `Start the 4-dose Menveo series — doses at 2, 4, 6 and 12 months, the early ones at least ${weeksLabel(startGate.minIntervalDays)} apart [c].`,
-          detail: `${whoAged('2–6 months')} need four doses. The final dose comes at 12 months or older, and at least 12 weeks after the one before it. Only Menveo is licensed for infants from 2 months.${outbreakTopUp}`,
+          detail: `${whoAged('2–6 months')} need four doses. The final dose comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it. Only Menveo is licensed for infants from 2 months.${outbreakTopUp}`,
         },
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         boosterCites: infantBoosterCites, refs });
@@ -746,9 +750,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       // Single dose at 3 yrs after primary vaccination and every 5 yrs
       // thereafter". This now matches the 12–23-month card below.
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why} 7–11mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-        brands: MENACWY_INFANT, minIntervalDays: DAYS.weeks(12),
+        brands: MENACWY_INFANT, minIntervalDays: MENACWY_INFANT_FINAL_GAP,
         note: {
-          lead: 'Start the 2-dose Menveo series — dose 2 at least 12 weeks after dose 1, and not before 12 months of age [c].',
+          lead: `Start the 2-dose Menveo series — dose 2 at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 1, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
           detail: `${whoAged('7–11 months')} need two doses, not the four a younger infant needs. Only Menveo is licensed for infants from 2 months.${outbreakTopUp}`,
         },
         noteCites: [cite('acwyInfantHighRisk7to23mo')],
@@ -761,9 +765,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
     // 7–23 months: 2-dose series (dose 2 at least 12 weeks after dose 1 and
     // after age 12 months)".
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${whyShort} 12–23mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
-      brands: menacwyBrands(am), minIntervalDays: DAYS.weeks(12),
+      brands: menacwyBrands(am), minIntervalDays: MENACWY_INFANT_FINAL_GAP,
       note: {
-        lead: 'Start the 2-dose primary series — the two doses at least 12 weeks apart [c].',
+        lead: `Start the 2-dose primary series — the two doses at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} apart [c].`,
         detail: `${whoKidsAged('12–23 months')} who are unvaccinated need two doses. Both fall after the first birthday, so the 12-month age floor that gates a younger infant's final dose is already met.${outbreakTopUp}`,
       },
       noteCites: [cite('acwyInfantHighRisk7to23mo')],
@@ -808,7 +812,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
       minIntervalDays: shortcutGate.minIntervalDays,
       brands: MENACWY_INFANT,
       note: {
-        lead: 'This final dose is due at least 12 weeks after dose 2, and not before 12 months of age [c].',
+        lead: `This final dose is due at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 2, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
         detail: 'Dose 2 was given at 7 months or older, so this series completes in three doses rather than four. No fourth dose is needed.',
       },
       noteCites: [cite('acwyInfantHighRisk7to23mo')],
@@ -932,7 +936,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
         }
         : {
           lead: `Continue the ${why} Menveo series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
-          detail: `The final dose of the series comes at 12 months or older, and at least 12 weeks after the one before it.${outbreakTopUp}`,
+          detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
         },
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo')]
@@ -1245,12 +1249,12 @@ function menbRec(am, riskIds, doses, today) {
         refs: refs(['cdcComplementInhibitor', 'mm7349a3']) })];
     }
     if (given === 1) {
-      const elapsed = intervalElapsed(lastDate, DAYS.weeks(4), today);
+      const elapsed = intervalElapsed(lastDate, MENB_HIGHRISK_D2_GAP, today);
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: `Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`,
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(4)), minIntervalDays: DAYS.weeks(4),
+        dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, MENB_HIGHRISK_D2_GAP), minIntervalDays: MENB_HIGHRISK_D2_GAP,
         family, brands: menbBrands(family),
         note: {
-          lead: 'Dose 2 is given 1–2 months after dose 1, and no sooner than 4 weeks.',
+          lead: `Dose 2 is given 1–2 months after dose 1, and no sooner than ${weeksLabel(MENB_HIGHRISK_D2_GAP)}.`,
           detail: `Continue in the same antigen family as dose 1 — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable. The series then completes with a third dose about 6 months after dose 1.${menbPregnancyCaveat}`,
         },
         refs: refs(['mm7349a3']) })];
@@ -1265,25 +1269,25 @@ function menbRec(am, riskIds, doses, today) {
       const d2Date = doses[1]?.date ?? null;
       // P0-4 (2026-09-15): calendar months, matching validate.js's gates for
       // the same two rules.
-      const fromD1 = d1Date ? calendarIntervalElapsed(d1Date, 6, today) : true;
-      const fromD2 = d2Date ? calendarIntervalElapsed(d2Date, 4, today) : true;
+      const fromD1 = d1Date ? calendarIntervalElapsed(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, today) : true;
+      const fromD2 = d2Date ? calendarIntervalElapsed(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, today) : true;
       const elapsed = fromD1 && fromD2;
       // Compute the later of the two earliest dates (whichever constraint binds).
       let earliestNextDate = null;
       if (!elapsed) {
-        const e1 = d1Date ? addCalendarMonths(d1Date, 6) : null;
-        const e2 = d2Date ? addCalendarMonths(d2Date, 4) : null;
+        const e1 = d1Date ? addCalendarMonths(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
+        const e2 = d2Date ? addCalendarMonths(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2) : null;
         if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
         else earliestNextDate = e1 ?? e2;
       }
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: `Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`,
         dueToday: elapsed, earliestNextDate,
-        minIntervalDays: DAYS.months(4), // min from D2 (D1 floor shown in note)
+        minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
         // U2: the "boost 1 year later, then every 2-3 years" tail is the booster
       // line's sentence, four lines above it on the same card.
       note: {
-          lead: 'Dose 3 is due at least 6 months after dose 1, and at least 4 months after dose 2 [c].',
+          lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,
           detail: `That is the 0 / 1–2 / 6-month schedule ACIP gives a high-risk MenB series. Both intervals have to be met, so the dose falls on whichever comes later.${menbPregnancyCaveat}`,
         },
         noteCites: [cite('menbHighRisk3DoseSchedule')],
@@ -1302,22 +1306,22 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 3 && hrSeries.total === MENB_HIGHRISK_RESCUE_TOTAL) {
       const d3Date = doses[2]?.date ?? null;
       // P0-4: calendar months, not 122 days.
-      const elapsed = d3Date ? calendarIntervalElapsed(d3Date, 4, today) : true;
+      const elapsed = d3Date ? calendarIntervalElapsed(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS, today) : true;
       return [rec({ vaccine: 'MenB', status: 'risk-based',
         doseLabel: `Dose 4 of 4 (extra dose: dose 3 given early${family ? `, ${family}` : ''})`,
         doseNum: 4, seriesTotal: MENB_HIGHRISK_RESCUE_TOTAL,
         boosterSummary: 'Boosters: first 1 year after the fourth dose, then every 2–3 years while at risk',
         dueToday: elapsed,
-        earliestNextDate: elapsed || !d3Date ? null : addCalendarMonths(d3Date, 4),
-        minIntervalDays: DAYS.months(4),
+        earliestNextDate: elapsed || !d3Date ? null : addCalendarMonths(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
+        minIntervalDays: DAYS.months(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
         family, brands: menbBrands(family),
         // U2: "Boosters then start 1 year after this fourth dose" said the same
         // thing as the booster line. The line was the vaguer of the two, so it
         // takes on the precise version -- which dose the clock runs from -- and
         // the note drops the sentence.
         note: {
-          lead: 'Dose 3 counts — do not repeat it — but a fourth dose is needed at least 4 months after it [c].',
-          detail: `Dose 3 was given less than 4 months after dose 2. CDC credits that dose and completes the high-risk series with one further dose 4 months or more later.${menbPregnancyCaveat}`,
+          lead: `Dose 3 counts — do not repeat it — but a fourth dose is needed at least ${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} after it [c].`,
+          detail: `Dose 3 was given less than ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2. CDC credits that dose and completes the high-risk series with one further dose ${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} or more later.${menbPregnancyCaveat}`,
         },
         noteCites: [cite('menbHighRiskEarlyD3ExtraDose')],
         refs: refs(['mm7349a3']) })];
@@ -1379,13 +1383,13 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 1) {
       // P0-4 (2026-09-15): calendar months, not an averaged 183 days -- and the
       // date shown is the real six-month anniversary, not lastDate + 183 days.
-      const elapsed = calendarIntervalElapsed(lastDate, 6, today);
+      const elapsed = calendarIntervalElapsed(lastDate, MENB_HEALTHY_D2_MONTHS, today);
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastDate, 6), minIntervalDays: DAYS.months(6),
+        dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastDate, MENB_HEALTHY_D2_MONTHS), minIntervalDays: DAYS.months(MENB_HEALTHY_D2_MONTHS),
         family, brands: menbBrands(family),
         note: {
-          lead: 'Dose 2 is due at least 6 months after dose 1.',
-          detail: `Two doses 6 months apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third rescue dose is needed at least 4 months after it [c].${menbPregnancyCaveat}`,
+          lead: `Dose 2 is due at least ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
+          detail: `Two doses ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third rescue dose is needed at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
         },
         noteCites: [cite('menbRescueDoseRule')],
         refs: refs([], ['mm7349a3']) })];
@@ -1402,19 +1406,19 @@ function menbRec(am, riskIds, doses, today) {
       // but which month the patient started in. Must stay in step with
       // seriesTotals.js's menbSeriesInfo(), which makes the same test.
       const needsRescue = dose1date != null && dose2date != null
-        && !calendarIntervalElapsed(dose1date, 6, dose2date);
+        && !calendarIntervalElapsed(dose1date, MENB_HEALTHY_D2_MONTHS, dose2date);
       if (needsRescue) {
-        const elapsed = calendarIntervalElapsed(dose2date, 4, today);
+        const elapsed = calendarIntervalElapsed(dose2date, MENB_HEALTHY_RESCUE_MONTHS, today);
         return [rec({
           vaccine: 'MenB', status: 'shared-decision',
           doseLabel: 'Dose 3 of 3 (rescue: dose 2 given early)',
           doseNum: 3, seriesTotal: 3, dueToday: elapsed,
-          earliestNextDate: elapsed ? null : addCalendarMonths(dose2date, 4),
-          minIntervalDays: DAYS.months(4),
+          earliestNextDate: elapsed ? null : addCalendarMonths(dose2date, MENB_HEALTHY_RESCUE_MONTHS),
+          minIntervalDays: DAYS.months(MENB_HEALTHY_RESCUE_MONTHS),
           family, brands: menbBrands(family),
           note: {
-            lead: 'A third dose is needed, at least 4 months after dose 2 [c].',
-            detail: `Dose 2 was given less than 6 months after dose 1, so the 2-dose schedule is not complete. This further dose finishes the series — dose 2 itself is not repeated.${menbPregnancyCaveat}`,
+            lead: `A third dose is needed, at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].`,
+            detail: `Dose 2 was given less than ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1, so the 2-dose schedule is not complete. This further dose finishes the series — dose 2 itself is not repeated.${menbPregnancyCaveat}`,
           },
           // C5: an interrupted/off-schedule series is a "does this old dose
           // count" practical judgment call -- immunize.org's Ask the

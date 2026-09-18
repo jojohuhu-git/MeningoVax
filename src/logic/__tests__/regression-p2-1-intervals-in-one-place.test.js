@@ -28,6 +28,9 @@ import {
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_FIRST_BOOSTER_YEARS_FROM_7,
   MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
+  MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HEALTHY_D2_MONTHS,
+  MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
 } from '../intervals.js';
 import { noteText } from '../../test-note-text.js';
 
@@ -62,6 +65,14 @@ const MIGRATED = [
   ['DAYS.years(5)', 'MENACWY_BOOSTER_CADENCE_YEARS'],
   ['DAYS.years(1)', 'MENB_HIGHRISK_FIRST_BOOSTER_YEARS'],
   ['DAYS.years(2)', 'MENB_HIGHRISK_BOOSTER_CADENCE_YEARS'],
+  // Group 3 — the MenB month floors, and the 4-week floor for REPEATING an
+  // invalid MenACWY dose (which is where P0-1's wrong number came from).
+  ['DAYS.weeks(4)', 'MENB_HIGHRISK_D2_GAP / MENACWY_REPEAT_DOSE_FLOOR'],
+  ['DAYS.months(4)', 'MENB_HIGHRISK_D3_MONTHS_FROM_D2'],
+  ['DAYS.months(6)', 'MENB_HIGHRISK_D3_MONTHS_FROM_D1'],
+  // The infant final-dose gap, which intervals.js has owned since P0-1 but two
+  // cards were still typing out for themselves.
+  ['DAYS.weeks(12)', 'MENACWY_INFANT_FINAL_GAP'],
 ];
 
 describe('P2-1 · a migrated interval is written down once', () => {
@@ -180,5 +191,49 @@ describe('P2-1 · the MenB high-risk booster cadence', () => {
     const card = menb(['2020-01-15', '2020-03-15', '2020-07-15', '2021-07-15']);
     expect(card.doseLabel + ' ' + card.boosterSummary)
       .toContain(MENB_HIGHRISK_BOOSTER_CADENCE_LABEL);
+  });
+});
+
+// ── Group 3 · the MenB month floors ──────────────────────────────────────
+//
+// Six month-counts, each written in the engine as a bare number passed to a
+// calendar helper, again in validate.js as a named constant, again in
+// seriesTotals.js for the rescue test, and once more in English on the card.
+describe('P2-1 · the MenB high-risk series intervals', () => {
+  const menb = (dates, ageMonths = 180) => recommend({
+    today: TODAY, ageMonths, riskIds: ['asplenia'],
+    menacwyDoses: [], menbDoses: dates.map((d) => ({ date: d })),
+    riskAtDoseAnswers: { MenB: allYes(dates.length) },
+  }).menb[0];
+
+  it('dose 2 advertises the module\'s gap, and says it', () => {
+    const card = menb(['2026-09-01']);
+    expect(card.minIntervalDays).toBe(MENB_HIGHRISK_D2_GAP);
+    expect(noteText(card)).toContain(weeksLabel(MENB_HIGHRISK_D2_GAP));
+  });
+
+  it('dose 3 states BOTH floors, each interpolated', () => {
+    const card = menb(['2026-01-15', '2026-03-15']);
+    expect(noteText(card)).toContain(monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1));
+    expect(noteText(card)).toContain(monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2));
+  });
+});
+
+describe('P2-1 · the healthy 2-dose MenB intervals', () => {
+  const menb = (dates) => recommend({
+    today: TODAY, ageMonths: 204, riskIds: [],
+    menacwyDoses: [], menbDoses: dates.map((d) => ({ date: d })),
+    riskAtDoseAnswers: { MenB: allYes(dates.length) },
+  }).menb[0];
+
+  it('dose 2 states the module\'s interval', () => {
+    expect(noteText(menb(['2026-08-15']))).toContain(monthsLabel(MENB_HEALTHY_D2_MONTHS));
+  });
+
+  it('the rescue dose states the module\'s interval', () => {
+    // Dose 2 given one month after dose 1 -> a third dose is owed.
+    const card = menb(['2026-01-15', '2026-02-15']);
+    expect(card.doseLabel).toContain('rescue');
+    expect(noteText(card)).toContain(monthsLabel(MENB_HEALTHY_RESCUE_MONTHS));
   });
 });

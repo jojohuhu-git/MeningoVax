@@ -28,6 +28,14 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { calendarMonthsBetween, calendarIntervalElapsed, daysBetween, DAYS } from './dateUtils.js';
+// P2-1 group 3 (2026-09-17): the month floors these tests compare against are
+// the engine's and the validator's, not a third private copy. seriesTotals.js
+// decides how many doses a series HAS, so it must ask the same question with
+// the same number -- that agreement is the whole point of both modules.
+import {
+  MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
+  MENB_HEALTHY_D2_MONTHS,
+} from './intervals.js';
 
 // Duplicated arithmetic from validate.js's ageAtDoseFromDate / recommend.js's
 // ageAtDose on purpose (avoids a circular import — see header). It's the
@@ -242,7 +250,7 @@ export function menbSeriesInfo({ highRisk, doses }) {
     const hr1 = doses[0];
     const hr2 = doses[1];
     const hr3 = doses[2];
-    if (hr1?.date && hr2?.date && calendarIntervalElapsed(hr1.date, 6, hr2.date)) {
+    if (hr1?.date && hr2?.date && calendarIntervalElapsed(hr1.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, hr2.date)) {
       return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
     }
     // MenB dose-3 rescue (2026-09-17): the SECOND half of the same CDC bullet.
@@ -255,7 +263,7 @@ export function menbSeriesInfo({ highRisk, doses }) {
     // NO 4-day grace on this comparison, for the same reason as the healthy
     // mirror below: this decides how many doses the series HAS, and P1-1
     // settled that grace never shortens a series.
-    if (hr2?.date && hr3?.date && !calendarIntervalElapsed(hr2.date, 4, hr3.date)) {
+    if (hr2?.date && hr3?.date && !calendarIntervalElapsed(hr2.date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, hr3.date)) {
       return {
         total: MENB_HIGHRISK_RESCUE_TOTAL,
         primaryTotal: MENB_HIGHRISK_RESCUE_TOTAL,
@@ -273,7 +281,7 @@ export function menbSeriesInfo({ highRisk, doses }) {
   // A real six-calendar-month gap is 181-184 days, so a correctly spaced 2-dose
   // series flipped to a 3-dose "rescue" series roughly half the time, decided by
   // nothing but the month the patient started in.
-  if (d1?.date && d2?.date && !calendarIntervalElapsed(d1.date, 6, d2.date)) {
+  if (d1?.date && d2?.date && !calendarIntervalElapsed(d1.date, MENB_HEALTHY_D2_MONTHS, d2.date)) {
     // The rescue dose is part of the primary series, not a booster. CDC child
     // & adolescent schedule notes, MenB shared clinical decision-making
     // (fetched live 2026-09-15): "2-dose series at least 6 months apart (if

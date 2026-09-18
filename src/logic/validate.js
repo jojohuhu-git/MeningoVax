@@ -60,6 +60,9 @@ import {
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
+  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
+  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
 } from './intervals.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
@@ -101,7 +104,7 @@ const MENB_HEALTHY_MIN_AGE_MONTHS = 192;
 // (duplicate-dose detection, Task 3). The high-risk rule (8wk) is stricter
 // and wins when it applies. NOTE: this baseline only catches interval
 // violations; routine 11-12y vs 16y *position* logic stays in the engine.
-const MENACWY_BASELINE_MIN_INTERVAL    = DAYS.weeks(4);    // 28 d — minimum between any 2 doses
+const MENACWY_BASELINE_MIN_INTERVAL    = MENACWY_REPEAT_DOSE_FLOOR;
 // MenACWY high-risk 2-dose primary (≥2y): P2-1 (2026-09-17) moved this to
 // intervals.js, so the validator and the engine ask the same function instead
 // of each keeping their own 56.
@@ -133,7 +136,7 @@ const MENACWY_BOOSTER_3Y_YEARS         = MENACWY_FIRST_BOOSTER_YEARS_UNDER_7;
 const MENACWY_BOOSTER_5Y               = DAYS.years(MENACWY_BOOSTER_5Y_YEARS);  // display only
 const MENACWY_BOOSTER_3Y               = DAYS.years(MENACWY_BOOSTER_3Y_YEARS);  // display only
 // MenB high-risk: D2 ≥4 weeks after D1
-const MENB_HR_D2_MIN_INTERVAL          = DAYS.weeks(4);    // 28 d
+const MENB_HR_D2_MIN_INTERVAL          = MENB_HIGHRISK_D2_GAP;
 // MenB high-risk: D3 ≥6 months after D1 AND ≥4 months after D2
 // P0-4 (2026-09-15): these four are now MONTH counts compared on the calendar,
 // not day counts compared against an averaged 30.4375-day month. DAYS.months(6)
@@ -142,19 +145,19 @@ const MENB_HR_D2_MIN_INTERVAL          = DAYS.weeks(4);    // 28 d
 // on which month the patient started in. The *_DAYS twins below are kept
 // purely so the human-readable "(min ~6 months)" text keeps printing the same
 // approximate figure it always did.
-const MENB_HR_D3_MIN_MONTHS_FROM_D1    = 6;
-const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(6);   // ~183 d (display only)
-const MENB_HR_D3_MIN_MONTHS_FROM_D2    = 4;
-const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(4);   // ~122 d (display only)
+const MENB_HR_D3_MIN_MONTHS_FROM_D1    = MENB_HIGHRISK_D3_MONTHS_FROM_D1;
+const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(MENB_HR_D3_MIN_MONTHS_FROM_D1); // display only
+const MENB_HR_D3_MIN_MONTHS_FROM_D2    = MENB_HIGHRISK_D3_MONTHS_FROM_D2;
+const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(MENB_HR_D3_MIN_MONTHS_FROM_D2); // display only
 // MenB high-risk booster: first booster ≥1 year after D3; subsequent ≥2 years
 const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(MENB_HIGHRISK_FIRST_BOOSTER_YEARS);
 const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS); // display only
 // MenB healthy 2-dose: D2 ≥6 months after D1 (early D2 triggers rescue)
-const MENB_HEALTHY_D2_MIN_MONTHS       = 6;
-const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(6);   // ~183 d (display only)
+const MENB_HEALTHY_D2_MIN_MONTHS       = MENB_HEALTHY_D2_MONTHS;
+const MENB_HEALTHY_D2_MIN_INTERVAL     = DAYS.months(MENB_HEALTHY_D2_MIN_MONTHS); // display only
 // MenB healthy early-D2 rescue: D3 ≥4 months after early D2
-const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = 4;
-const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(4);   // ~122 d (display only)
+const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = MENB_HEALTHY_RESCUE_MONTHS;
+const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2); // display only
 
 // Age band for infant-booster cadence check (7 years in months)
 const AGE_7Y_MONTHS = 84;

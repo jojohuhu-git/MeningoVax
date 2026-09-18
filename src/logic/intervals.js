@@ -207,6 +207,59 @@ export function yearsLabel(years) {
   return `${years} year${years === 1 ? '' : 's'}`;
 }
 
+// ── MenB series intervals ─────────────────────────────────
+//
+// P2-1 group 3 (2026-09-17). Six floors, each written as a bare number passed
+// to a calendar helper in recommend.js, again as a named constant in
+// validate.js, again in seriesTotals.js for the rescue test, and once more in
+// English on the card. No number changes here.
+//
+// Month counts are MONTHS on purpose, compared on the calendar. P0-4 found the
+// cost of treating them as days: DAYS.months(6) is 183 while a real six-month
+// span is 181-184, so a correctly given 2-dose series was told it needed a
+// third injection depending on nothing but which month the patient started in.
+//
+// ACIP Oct 2024 MMWR (mm7349a3) for the high-risk schedule and the 2-dose
+// interval; CDC child & adolescent schedule notes, MenB special situations,
+// for the rescue rules — the citations the cards already carry.
+
+/** MenB high-risk dose 2: at least 4 weeks after dose 1 (the 0/1-2/6 schedule). */
+export const MENB_HIGHRISK_D2_GAP = WEEKS(4);
+/** MenB high-risk dose 3: at least 6 months after dose 1... */
+export const MENB_HIGHRISK_D3_MONTHS_FROM_D1 = 6;
+/** ...AND at least 4 months after dose 2. Both must be met. */
+export const MENB_HIGHRISK_D3_MONTHS_FROM_D2 = 4;
+/**
+ * A high-risk dose 3 given sooner than MENB_HIGHRISK_D3_MONTHS_FROM_D2 still
+ * COUNTS; CDC owes the patient a fourth dose this long after it.
+ */
+export const MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS = 4;
+
+/** Healthy 2-dose MenB: dose 2 at least 6 months after dose 1. */
+export const MENB_HEALTHY_D2_MONTHS = 6;
+/**
+ * Healthy series where dose 2 came early: a third dose this long after dose 2.
+ * Dose 2 is not repeated.
+ */
+export const MENB_HEALTHY_RESCUE_MONTHS = 4;
+
+/**
+ * ACIP's floor for REPEATING a dose that did not count, and the baseline the
+ * validator uses to spot two MenACWY doses entered impossibly close together.
+ *
+ * P0-1 (2026-09-17) is the reason this carries a name and a warning: this
+ * 4-week floor had become the MenACWY infant PRIMARY interval, which is 8
+ * weeks. In the MMWR the 4-week repeat rule appears only in the MenB section.
+ * It is not a primary-series interval for any schedule. See
+ * MENACWY_INFANT_EARLY_GAP and MENACWY_HIGHRISK_PRIMARY_GAP for those.
+ */
+export const MENACWY_REPEAT_DOSE_FLOOR = WEEKS(4);
+
+/** "4 months" / "6 months" — for interpolating a floor into card text. */
+export function monthsLabel(months) {
+  return `${months} month${months === 1 ? '' : 's'}`;
+}
+
 /** "8 weeks" / "12 weeks" — for interpolating a gate into card text. */
 export function weeksLabel(days) {
   return `${days / 7} weeks`;
