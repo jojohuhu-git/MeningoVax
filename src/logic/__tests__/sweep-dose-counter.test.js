@@ -20,6 +20,7 @@ import { describe, it, expect } from 'vitest';
 import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 import { addDays } from '../dateUtils.js';
+import { doseChipLabel } from '../../components/doseChipLabel.js';
 
 const TODAY = '2026-09-14';
 
@@ -64,22 +65,13 @@ function makeDoses(am, count, brand, minAgeM) {
   return doses;
 }
 
-// Mirrors RecCard.jsx's DoseValidation chip logic exactly (F5) — the
-// invariant under test is about what the CHIP would show, not just the raw
-// data shape, so this must stay in lockstep with that component.
-function chipLabel(result, seriesTotal) {
-  if (!result) return null;
-  const { status, effectiveDoseNum, notAdolescentCount, extraDose } = result;
-  if (status === 'pending') return 'Needs input';
-  if (notAdolescentCount) return 'Off-window - repeat';
-  if (extraDose) return 'Extra dose — more than this series needs';
-  if (status === 'valid') {
-    if (seriesTotal == null) return 'Given — not part of a series this patient needs';
-    if (effectiveDoseNum <= seriesTotal) return `Dose ${effectiveDoseNum} of ${seriesTotal}`;
-    return `Booster (dose ${effectiveDoseNum})`;
-  }
-  return status === 'invalid' ? 'Invalid' : 'Unknown';
-}
+// The chip label comes from the component's own module. This block used to be
+// a second copy of it, under a comment promising it mirrored RecCard.jsx
+// "exactly". It did not: measured over this very grid on 2026-09-17 the two
+// disagreed on 20,167 of 95,928 rows -- the component renders a plain
+// "Booster", the copy rendered "Booster (dose 3)". The test asserting that no
+// chip implies N > M was itself the thing printing N.
+const chipLabel = (result, seriesTotal) => doseChipLabel(result, seriesTotal);
 
 describe('F4 sweep — no chip ever shows N > M, across every age × risk × dose-count', () => {
   const failures = [];

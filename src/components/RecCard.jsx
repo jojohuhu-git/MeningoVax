@@ -4,6 +4,7 @@ import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
+import { doseChipLabel, doseChipClass, NEEDS_INPUT_LABEL } from './doseChipLabel.js';
 
 // C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
 // instead of a terse status word that needed a legend to decode (the legend
@@ -154,10 +155,6 @@ function cardCiteNumberer(doseValidations, noteCites, boosterCites) {
 // not counted, because that is the question a reader has when a row is greyed
 // out. The dose itself may well be fine — in the duplicate case it is counted,
 // once, on the row above.
-const RECORD_PROBLEM_LABELS = {
-  future: 'Date is in the future — not counted',
-  duplicate: 'Entered twice — this row not counted',
-};
 
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
@@ -170,7 +167,7 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
   if (status === 'pending' || editing) {
     return (
       <div className="dose-val dose-val-pending" data-testid="dose-val-pending">
-        <span className="dose-val-chip dose-val-needs-input">Needs input</span>
+        <span className="dose-val-chip dose-val-needs-input">{NEEDS_INPUT_LABEL}</span>
         {showReasonsBlock(reasons, null, reasonCites, numberFor)}
         <div className="risk-at-dose-prompt" data-testid="risk-at-dose-prompt">
           <div className="risk-at-dose-question">
@@ -186,59 +183,13 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
     );
   }
 
-  // F5 (2026-09-14 dose-counter handoff): 'Counts' was a catch-all fallback
-  // for states nobody enumerated — this app's own old dead wording (already
-  // removed everywhere else, C2 2026-07-24). Every case below now has an
-  // engine-named state and an explicit label:
-  //   Dose N of M   — a valid dose within the primary series total.
-  //   Booster       — a valid dose past the total on a schedule with an
-  //     ongoing booster phase (high-risk/exposure MenACWY, high-risk MenB) —
-  //     analyzeHistory() deliberately did NOT cap it (F2); showing "N of M"
-  //     here would itself violate the "chip never shows N > M" rule.
-  //   Extra dose    — a valid dose past the total on a schedule with NO
-  //     booster phase (routine MenACWY, single-dose exposure, healthy
-  //     MenB) — analyzeHistory() capped it (extraDose:true, F2/F3). This is
-  //     the reported bug's exact scenario (a 3rd routine MenACWY dose).
-  //   Given — not part of a series this patient needs — a dose recorded while
-  //     this vaccine isn't currently indicated at all (no seriesTotal to
-  //     compare against). U4 (2026-09-17): was "Recorded — not part of an
-  //     indicated series", which described the RECORD rather than the patient.
-  //     ("Off-window - repeat" below is left alone: that wording is an
-  //     owner-agreed design decision from the 2026-07-23 handoff.)
-  const chipClass = notAdolescentCount
-    ? 'dose-val-chip dose-val-offwindow'
-    : extraDose
-      ? 'dose-val-chip dose-val-offwindow'
-      : status === 'valid'
-        ? 'dose-val-chip dose-val-valid'
-        : status === 'invalid'
-          ? 'dose-val-chip dose-val-invalid'
-          : 'dose-val-chip dose-val-unknown';
-
-  // G3/G7 (2026-09-16): some rows are not an invalid DOSE at all — they are an
-  // entry that cannot be right. "Invalid" sends the reader looking for a
-  // clinical mistake instead of a typo, so the chip names the entry problem.
-  const chipLabel = recordProblem
-    ? RECORD_PROBLEM_LABELS[recordProblem]
-    : notAdolescentCount
-    ? 'Off-window - repeat'
-    // G6 (2026-09-16): an UNDATED row past the series total is a question, not
-    // a finding — with no date the app cannot tell an extra dose from a series
-    // dose whose date is missing. The assertive chip below stays for dated
-    // doses, where it really is known.
-    : extraDoseUnverified
-      ? 'Extra dose? — no date recorded'
-    : extraDose
-      // U4: "the indicated series total" is `seriesTotal`, the code's own
-      // variable name, read out loud in the interface.
-      ? 'Extra dose — more than this series needs'
-      : status === 'valid'
-        ? (seriesTotal == null
-            ? 'Given — not part of a series this patient needs'
-            : effectiveDoseNum <= seriesTotal
-              ? `Dose ${effectiveDoseNum} of ${seriesTotal}`
-              : 'Booster')
-        : status === 'invalid' ? 'Invalid' : 'Unknown';
+  // The chip's wording and its colour both live in doseChipLabel.js, which
+  // carries the reasoning for every branch and the order they are tested in.
+  // They were spelled out here AND, separately, inside sweep-dose-counter.test.js
+  // -- the test whose job is to prove the chip never implies N > M. The two
+  // drifted, and it was the test that was printing N. One copy now.
+  const chipClass = doseChipClass(result);
+  const chipLabel = doseChipLabel(result, seriesTotal);
 
   return (
     <div className={`dose-val${doesNotCount ? ' dose-val-dropped' : ''}`}>
