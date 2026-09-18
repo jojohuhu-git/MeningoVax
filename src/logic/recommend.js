@@ -43,7 +43,7 @@ import {
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 // Calendar P1-3: one rule for how old the patient is — the date of birth wins
 // over a stored ageMonths, which is only ever a snapshot of it.
-import { patientAgeMonths } from './patientAge.js';
+import { patientAgeMonths, ageAtDoseMonths } from './patientAge.js';
 import { analyzeHistory } from './validate.js';
 import { creditPentavalents } from './pentavalentCredit.js';
 
@@ -158,15 +158,15 @@ function rec(o) {
   };
 }
 
-// Compute age (months) at a past dose from its date and current age.
-function ageAtDose(dose, am, today) {
-  if (typeof dose?.ageMonths === 'number') return dose.ageMonths;
-  // calendarMonthsBetween, not an averaged days/month divisor — see the
-  // matching ageAtDoseFromDate in validate.js for why. Rounded to 6 decimal
-  // places to avoid floating-point noise from subtracting two large
-  // nearly-equal values (see ageAtDoseFromDate's comment).
-  if (dose?.date) return Math.round((am - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
-  return null;
+// Age (months) at a past dose.
+//
+// Calendar P2-2 (2026-09-17): this was one of three hand-written copies of the
+// same subtraction, which mixed the patient's month-anniversaries with the dose
+// date's and came out up to 2.9 days wrong. patientAge.js now owns the answer
+// for every surface, and uses the date of birth to get it exactly whenever
+// there is one. See ageAtDoseMonths() there for the full reasoning.
+function ageAtDose(dose, am, today, dob) {
+  return ageAtDoseMonths(dose, { dob, ageMonths: am }, today);
 }
 
 // ── MenACWY ────────────────────────────────────────────────────────────────
@@ -223,11 +223,11 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   // branch, so today's answers do not change; this removes the trap rather than
   // leaving a literal that happens to be right.
   const menacwyPrimaryDoseTotal = menacwySeriesInfo({
-    riskClass, am, doses, today, infantSeries: menacwyInfantSeriesIndicated(riskIds),
+    riskClass, am, doses, today, dob, infantSeries: menacwyInfantSeriesIndicated(riskIds),
   }).primaryTotal;
   // Age at the LAST primary dose — the dose that completed the series and so
   // started the booster clock.
-  const primaryCompletionAge = ageAtDose(doses[menacwyPrimaryDoseTotal - 1] || null, am, today);
+  const primaryCompletionAge = ageAtDose(doses[menacwyPrimaryDoseTotal - 1] || null, am, today, dob);
   const isFirstBooster = given === menacwyPrimaryDoseTotal;
   // First booster: <7y or unknown → 3y conservative; ≥7y → 5y.
   //
@@ -265,10 +265,10 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   // now; menacwyInfantSeries() already keys every total, interval and booster
   // clock inside it off d1AgeM, so it handles the whole lifecycle correctly.
   // An UNVACCINATED >=2y patient has no dose 1 and is unaffected.
-  const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
+  const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today, dob) : null;
   const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
-    return [menacwyInfantSeries(am, given, doses, last, today, riskIds)];
+    return [menacwyInfantSeries(am, given, doses, last, today, riskIds, dob)];
   }
 
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
@@ -414,7 +414,7 @@ function menacwyRec(am, riskIds, doses, today, dob) {
     // <7-year row. isTravel keeps the 3-year rule to the travel indication.
     const isTravel = hasTravel;
     const isFirstExposureBooster = given === 1;
-    const primaryDoseAge = ageAtDose(doses[0] || null, am, today);
+    const primaryDoseAge = ageAtDose(doses[0] || null, am, today, dob);
     // Unknown age falls to the shorter 3-year interval, the same conservative
     // choice the high-risk branch above makes.
     const exposureBoostYears = (isTravel && isFirstExposureBooster)
@@ -518,9 +518,9 @@ function menacwyRec(am, riskIds, doses, today, dob) {
       // "does this dose count" test. A college entrant whose dose came three
       // days before their 16th birthday is covered.
       const dosesAt16Plus = doses
-        .map((d) => ({ a: ageAtDose(d, am, today), date: d.date || null }))
+        .map((d) => ({ a: ageAtDose(d, am, today, dob), date: d.date || null }))
         .filter(({ a, date }) => a != null
-          && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: date, ageMonths: am, today }));
+          && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: date, ageMonths: am, today, dob }));
       if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
@@ -671,7 +671,7 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   return menacwyRoutine(am, given, doses, last, today, dob);
 }
 
-function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
+function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   const refs = collectRefs(riskIds, [], ['acip2020']);
@@ -843,8 +843,8 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   // the final dose given at ≥12m AND ≥12 weeks after the previous dose completes the series
   // (3 doses total, no 4th dose needed). Otherwise the standard 4-dose path applies.
   // When D1/D2 ages are unknown, fall back conservatively to the standard 4-dose series.
-  const d1AgeM = given >= 1 ? ageAtDose(doses[0], am, today) : null;
-  const d2AgeM = given >= 2 ? ageAtDose(doses[1], am, today) : null;
+  const d1AgeM = given >= 1 ? ageAtDose(doses[0], am, today, dob) : null;
+  const d2AgeM = given >= 2 ? ageAtDose(doses[1], am, today, dob) : null;
   // P1-3 (2026-09-15): was `d1AgeM >= 2`. CDC gives a dose 1 at 2 months a flat
   // 4-dose series and reserves the "3- or 4- dose series" wording for 3-6
   // months, so a baby who started on time at 2 months was being offered a
@@ -1031,8 +1031,8 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
   // the routine booster. Before this the validator counted such a dose while
   // this line did not, so the card went on asking for a booster the patient had.
   const hasDoseAt16 = doses.some((d) => {
-    const a = ageAtDose(d, am, today);
-    return a != null && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today });
+    const a = ageAtDose(d, am, today, dob);
+    return a != null && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today, dob });
   });
   // F1 (2026-09-14): the routine series is 2 doses (11-12y + the 16y
   // booster) whenever an earlier <16y dose is already on record and owes
@@ -1044,8 +1044,8 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
   // The complement of hasDoseAt16, and it must use the same test or a dose
   // inside the grace window would count as both "at 16" and "before 16".
   const hasDoseBefore16 = doses.some((d) => {
-    const a = ageAtDose(d, am, today);
-    return a != null && !ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today });
+    const a = ageAtDose(d, am, today, dob);
+    return a != null && !ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: d.date || null, ageMonths: am, today, dob });
   });
   // Change 2 (2026-07-24): `doses` is already the effective/kept list (A3
   // filters out anything given before age 10 for a healthy patient — see
@@ -1064,7 +1064,7 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
   const undatedNote = sixteenUnconfirmed
     ? ` ${undatedCount === 1 ? 'One recorded dose has no date' : `${undatedCount} recorded doses have no date`}, so a dose given at age 16 years or older cannot be confirmed from this record. Adding the date may remove this recommendation.`
     : '';
-  const doseAgesM = doses.map((d) => ageAtDose(d, am, today));
+  const doseAgesM = doses.map((d) => ageAtDose(d, am, today, dob));
   const doseAtAge10 = given === 1 && doseAgesM[0] != null && doseAgesM[0] < MENACWY_ROUTINE_DOSE1_AGE_MONTHS;
 
   // Under 11, with a dose already on file: it can only be the age-10 dose

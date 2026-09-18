@@ -391,15 +391,25 @@ export function calendarIntervalMeetsMinimum(sinceISO, months, refISO) {
  * `when` carries the dose date and the reference point. Without it the check
  * falls back to the exact comparison — never more lenient than it can justify.
  *
+ * Calendar P2-2 (2026-09-17): `when.dob` is the patient's date of birth when
+ * there is one, and the re-derivation then measures from the birthday to the
+ * graced dose date. Without it this line was the last place left computing an
+ * age at a dose by subtracting two spans measured on different rulers — up to
+ * 2.9 days out, against a 4-day grace, so the grace itself was worth somewhere
+ * between 1.1 and 6.9 days depending on the month. A patient entered as
+ * years/months has no birthday to measure from and keeps the subtraction.
+ *
  * @param {?number} ageAtDoseMonths  age in months at the dose (null = unknown)
  * @param {number}  minAgeMonths
- * @param {{doseDate?: ?string, ageMonths?: ?number, today?: ?string}} [when]
+ * @param {{doseDate?: ?string, ageMonths?: ?number, today?: ?string, dob?: ?string}} [when]
  */
 export function ageMeetsMinimum(ageAtDoseMonths, minAgeMonths, when = {}) {
   if (ageAtDoseMonths == null) return false;
   if (ageAtDoseMonths >= minAgeMonths) return true;
-  const { doseDate, ageMonths, today } = when;
-  if (!doseDate || ageMonths == null || !today) return false;
-  const asIfLater = ageMonths - calendarMonthsBetween(addDays(doseDate, GRACE_DAYS), today);
-  return asIfLater >= minAgeMonths;
+  const { doseDate, ageMonths, today, dob } = when;
+  if (!doseDate) return false;
+  const graced = addDays(doseDate, GRACE_DAYS);
+  if (dob) return calendarMonthsBetween(dob, graced) >= minAgeMonths;
+  if (ageMonths == null || !today) return false;
+  return ageMonths - calendarMonthsBetween(graced, today) >= minAgeMonths;
 }

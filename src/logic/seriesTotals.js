@@ -28,6 +28,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { calendarMonthsBetween, calendarIntervalElapsed, daysBetween, DAYS } from './dateUtils.js';
+import { ageAtDoseMonths } from './patientAge.js';
 // P2-1 group 3 (2026-09-17): the month floors these tests compare against are
 // the engine's and the validator's, not a third private copy. seriesTotals.js
 // decides how many doses a series HAS, so it must ask the same question with
@@ -44,12 +45,14 @@ import {
   MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
 } from './ages.js';
 
-// Duplicated arithmetic from validate.js's ageAtDoseFromDate / recommend.js's
-// ageAtDose on purpose (avoids a circular import — see header). It's the
-// same 2-line age-at-a-past-dose formula both of those already duplicate.
-function ageAtDose(dose, ageMonths, today) {
-  if (!dose?.date) return null;
-  return Math.round((ageMonths - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
+// Calendar P2-2 (2026-09-17): this was the third hand-written copy of the
+// age-at-a-past-dose formula, kept separate to avoid a circular import back
+// into validate.js. patientAge.js is a leaf — it imports only format.js and
+// dateUtils.js — so there is no cycle to avoid any more, and the three copies
+// are now one. That matters here more than anywhere: this module decides how
+// many doses a series HAS, with no grace to absorb a few days' error.
+function ageAtDose(dose, ageMonths, today, dob) {
+  return ageAtDoseMonths(dose, { dob, ageMonths }, today);
 }
 
 export const MENACWY_HIGHRISK_PRIMARY_TOTAL = 2; // ≥2y primary2 primary series
@@ -165,7 +168,7 @@ export function menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM = null }) {
  * @param {string} today — ISO date
  * @returns {{ total: number, hasBoosterPhase: boolean }}
  */
-export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = false }) {
+export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, infantSeries = false }) {
   // M10 (2026-09-15): an infant series is an infant series whatever the
   // indication. ACIP 2020 MMWR 69(RR-9) prints the same "2-23 mos" row in
   // Table 9 (travel), Table 8 (outbreak) and Tables 4-6 (medical high risk).
@@ -179,8 +182,8 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // answered 4 for the same child: the exact engine/validator disagreement this
   // module exists to make impossible. A series BEGUN under 2 years old keeps its
   // infant length for life (CDC: "Dose 1 at age 2 months: 4-dose series").
-  const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today) : null;
-  const d2AgeM = doses[1] ? ageAtDose(doses[1], am, today) : null;
+  const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today, dob) : null;
+  const d2AgeM = doses[1] ? ageAtDose(doses[1], am, today, dob) : null;
   const startedAsInfant = d1AgeM != null && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
     // P1-3: d2AgeM decides the 3-vs-4-dose answer for a 3-6-month start.
@@ -244,7 +247,7 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, infantSeries = 
   // Both questions have to fall the same way on an unknown: the booster is
   // still owed until a DATE shows it was given.
   const boosterStillOwed = doses.some((d) => {
-    const a = ageAtDose(d, am, today);
+    const a = ageAtDose(d, am, today, dob);
     return a == null || a < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS;
   });
   // The routine schedule is the ONE place where the primary series is shorter

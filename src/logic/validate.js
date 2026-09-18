@@ -54,6 +54,7 @@ import {
   menbFamily, ALL_BRANDS, MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
 } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
+import { ageAtDoseMonths } from './patientAge.js';
 // P0-1 (2026-09-17): the infant primary intervals now come from one module,
 // shared with recommend.js, so the engine cannot recommend a dose the validator
 // then rejects (or, as here, accept one the engine's own card called too soon).
@@ -176,18 +177,14 @@ const AGE_16Y_MONTHS = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS;
 // Returns null when the date is absent (caller handles unknown-date doses).
 // Exported for display surfaces (e.g. the compliance audit table) that need
 // to show "age at administration" without re-deriving the date math.
-export function ageAtDoseFromDate(dose, ageMonths, today) {
-  if (!dose?.date) return null;
-  // calendarMonthsBetween(dose.date, today), not daysBetween(...)/30.4375 — the
-  // averaged divisor drifts off whole months depending on how many leap days a
-  // span happens to contain, which can wrongly place a dose given exactly on a
-  // birthday on the wrong side of a whole-year threshold (e.g. the age-10 cutoff
-  // below). See calendarMonthsBetween's own comment for the concrete example.
-  // Rounded to 6 decimal places: subtracting two large nearly-equal floats
-  // (both ~months since a distant birthday) leaves binary floating-point noise
-  // (e.g. 119.99999999999999 instead of 120) that would otherwise still trip a
-  // "< 120" threshold check by less than a microsecond's worth of "age".
-  return Math.round((ageMonths - calendarMonthsBetween(dose.date, today)) * 1e6) / 1e6;
+export function ageAtDoseFromDate(dose, ageMonths, today, dob = null) {
+  // Calendar P2-2 (2026-09-17): the arithmetic moved to patientAge.js, which
+  // every surface now shares. Pass the date of birth whenever the caller has
+  // one and the answer is exact instead of up to 2.9 days out; without one it
+  // falls back to the subtraction this function used to do inline. The name
+  // stays because display surfaces (the record panel, the compliance audit
+  // table) already call it.
+  return ageAtDoseMonths(dose, { dob, ageMonths }, today);
 }
 
 // Human-readable rendering of a day count for error messages.
@@ -291,7 +288,7 @@ function beforeBirthProblem(dose, dob, ageMonths, today) {
   if (!dose?.date) return null;
   const knownFromDob = dob && dose.date < dob;
   const knownFromAge = !dob && ageMonths != null
-    && ageAtDoseFromDate(dose, ageMonths, today) < 0;
+    && ageAtDoseFromDate(dose, ageMonths, today, dob) < 0;
   if (!knownFromDob && !knownFromAge) return null;
   const because = dob
     ? `The date of birth recorded is ${fmtDate(dob)}.`
@@ -373,13 +370,13 @@ function invalidResult(reasons, detail, reasonCites) {
 // `kept` is the array of doses kept so far (NOT the full raw list). This is
 // what enables correct re-evaluation when an earlier dose is dropped.
 
-function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
+function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer, dob) {
   // P1-1 (2026-09-17): every age and interval below allows CDC's 4-day grace —
   // "doses administered <=4 days before the minimum age or interval are
   // considered valid". `whenGiven` carries what ageMeetsMinimum() needs to
   // re-derive the age as if the dose were 4 days later. See intervals.js for
   // the quote and for the two places the grace deliberately does NOT apply.
-  const whenGiven = { doseDate: dose.date || null, ageMonths, today };
+  const whenGiven = { doseDate: dose.date || null, ageMonths, today, dob };
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable: a past dose can never have been given later than today, so the
   // patient's CURRENT age is an upper bound on the age at administration.
@@ -390,7 +387,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!dose.date) {
     const brand = dose.brand || '';
     const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
-    if (knownBrandMin !== null && !ageMeetsMinimum(ageMonths, knownBrandMin, { doseDate: today, ageMonths, today })) {
+    if (knownBrandMin !== null && !ageMeetsMinimum(ageMonths, knownBrandMin, { doseDate: today, ageMonths, today, dob })) {
       const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
       return invalidResult(
         [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
@@ -403,7 +400,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     ]);
   }
 
-  const ageAtDose = ageAtDoseFromDate(dose, ageMonths, today);
+  const ageAtDose = ageAtDoseFromDate(dose, ageMonths, today, dob);
 
   // ── Min-age check (Task 1) ────────────────────────────────────────────
   // Use ALL_BRANDS as the single source of truth for minAgeM.
@@ -542,10 +539,10 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       // nothing to go on but "is this dose 2" and applied a single flat number
       // to every position in the series.
       const keptDated = kept.filter(d => d.date);
-      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today);
+      const d1AgeM = ageAtDoseFromDate(keptDated[0] || null, ageMonths, today, dob);
       // P1-3: d2AgeM decides 3-vs-4 doses for a 3-6-month start, so the
       // validator must read it too or it will disagree with the card again.
-      const d2AgeM = ageAtDoseFromDate(keptDated[1] || null, ageMonths, today);
+      const d2AgeM = ageAtDoseFromDate(keptDated[1] || null, ageMonths, today, dob);
 
       // ── Primary-series interval ──────────────────────────────────────
       // Two shapes. A series begun at 2 years or older is a flat 2-dose primary
@@ -634,7 +631,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
           // the primary series — the dose the clock actually starts from — not
           // off dose 2, which is only the same dose in a 2-dose series.
           const lastPrimary = keptDated[primaryTotal - 1] || keptDated[keptDated.length - 1] || null;
-          const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ageMonths, today);
+          const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ageMonths, today, dob);
           // Conservative: unknown age treated same as <7y → 3 years.
           const threeYears = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS);
           cadenceYears = threeYears ? MENACWY_BOOSTER_3Y_YEARS : MENACWY_BOOSTER_5Y_YEARS;
@@ -706,13 +703,13 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   return validResult(answeredYesNote ? [answeredYesNote] : []);
 }
 
-function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer) {
+function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer, dob) {
   // P1-1 (2026-09-17): every age and interval below allows CDC's 4-day grace —
   // "doses administered <=4 days before the minimum age or interval are
   // considered valid". `whenGiven` carries what ageMeetsMinimum() needs to
   // re-derive the age as if the dose were 4 days later. See intervals.js for
   // the quote and for the two places the grace deliberately does NOT apply.
-  const whenGiven = { doseDate: dose.date || null, ageMonths, today };
+  const whenGiven = { doseDate: dose.date || null, ageMonths, today, dob };
   // No date → interval cannot be checked, but a min-age conflict may still be
   // decidable using current age as an upper bound on age-at-administration
   // (see validateOneMenACWY). For MenB the permissive fallback is 120 months
@@ -723,7 +720,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     const brand = dose.brand || '';
     const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
     const minAgeM = knownBrandMin ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
-    if (!ageMeetsMinimum(ageMonths, minAgeM, { doseDate: today, ageMonths, today })) {
+    if (!ageMeetsMinimum(ageMonths, minAgeM, { doseDate: today, ageMonths, today, dob })) {
       const brandLabel = brand
         ? brand.replace(/\s*\(Men(?:B|ACWY|ABCWY)\).*/, '')
         : 'MenB';
@@ -738,7 +735,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     // have been given later than today. So it does not count toward the healthy series.
     // (If the patient is currently ≥16 we can't tell when an undated dose was given, so
     // it falls through to the "counted / unknown" case below.)
-    if (!hasMenbRisk(riskIds) && !ageMeetsMinimum(ageMonths, MENB_HEALTHY_MIN_AGE_MONTHS, { doseDate: today, ageMonths, today })) {
+    if (!hasMenbRisk(riskIds) && !ageMeetsMinimum(ageMonths, MENB_HEALTHY_MIN_AGE_MONTHS, { doseDate: today, ageMonths, today, dob })) {
       return {
         status: 'valid',
         reasons: [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years) [c]; MenB given before 16 is not counted for a patient without a high-risk indication.`],
@@ -751,7 +748,7 @@ function validateOneMenB(dose, effectiveIdx, kept, ageMonths, riskIds, today, ri
     ]);
   }
 
-  const ageAtDose = ageAtDoseFromDate(dose, ageMonths, today);
+  const ageAtDose = ageAtDoseFromDate(dose, ageMonths, today, dob);
 
   // ── MenB min age (Task 1) ─────────────────────────────────────────────
   // Use ALL_BRANDS as the single source of truth for minAgeM per brand.
@@ -1047,9 +1044,9 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
     if (result) {
       // fall through to the invalid branch below
     } else if (vaccine === 'MenACWY') {
-      result = validateOneMenACWY(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
+      result = validateOneMenACWY(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer, dob);
     } else if (vaccine === 'MenB') {
-      result = validateOneMenB(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer);
+      result = validateOneMenB(dose, effectiveCount, kept, ageMonths, riskIds, today, riskAnswer, dob);
     } else {
       result = unknownResult([`Unknown vaccine: ${vaccine}`]);
     }
@@ -1096,7 +1093,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
       // infant high-risk) are never capped here — see seriesTotals.js.
       const candidateKept = [...kept, dose];
       const seriesInfo = vaccine === 'MenACWY'
-        ? menacwySeriesInfo({ riskClass: menacwyRiskClass(riskIds), am: ageMonths, doses: candidateKept, today, infantSeries: menacwyInfantSeriesIndicated(riskIds) })
+        ? menacwySeriesInfo({ riskClass: menacwyRiskClass(riskIds), am: ageMonths, doses: candidateKept, today, dob, infantSeries: menacwyInfantSeriesIndicated(riskIds) })
         : menbSeriesInfo({ highRisk: hasMenbRisk(riskIds), doses: candidateKept });
       const isExtra = !seriesInfo.hasBoosterPhase
         && seriesInfo.total != null
