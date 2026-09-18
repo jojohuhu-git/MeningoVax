@@ -109,6 +109,157 @@ export function menacwyInfantNextDoseGate({ d1AgeM, d2AgeM = null, given }) {
   };
 }
 
+// ── MenACWY >=2y high-risk primary series ────────────────────────
+//
+// The 2-dose primary series a patient aged 2 years or older gets for a medical
+// high-risk indication (asplenia, persistent complement deficiency,
+// complement-inhibitor therapy, HIV): the two doses are 8 weeks apart.
+//
+// ACIP 2020 MMWR 69(RR-9), the high-risk schedule tables the engine already
+// cites through `acip2020`. The NUMBER is unchanged by P2-1 — it was already 8
+// weeks in both recommend.js and validate.js. What changed is that it is now
+// written down once instead of four times (three in the engine, one in the
+// validator), and the card sentence interpolates it rather than spelling "8
+// weeks" out in English beside it. That second copy in the prose is the half of
+// P0-1 that would have kept misleading a clinician even after the constant was
+// corrected.
+export const MENACWY_HIGHRISK_PRIMARY_GAP = WEEKS(8);
+
+// ── Booster cadences ────────────────────────────────────
+//
+// P2-1 group 2 (2026-09-17). FOUR branches each decided how long until the next
+// MenACWY booster with their own `? 3 : 5` — the >=2y high-risk branch, the
+// travel/microbiologist branch, the infant branch, and the outbreak top-up —
+// and five more places spelled the answer out in English on the card. The
+// numbers all agreed; nothing made them agree. No number changes here.
+//
+// ACIP 2020 MMWR 69(RR-9), Tables 4-10, through the `boosterBeforeAge7` and
+// `boosterAtOrAfterAge7` citations the cards already carry.
+
+// Age at which the first-booster interval changes, in months.
+const BOOSTER_AGE_SPLIT_MONTHS = 84; // 7 years
+
+/** First MenACWY booster when the primary series completed before age 7. */
+export const MENACWY_FIRST_BOOSTER_YEARS_UNDER_7 = 3;
+/** First MenACWY booster when it completed at age 7 or older. */
+export const MENACWY_FIRST_BOOSTER_YEARS_FROM_7 = 5;
+/** Every booster after the first, whatever the completion age. */
+export const MENACWY_BOOSTER_CADENCE_YEARS = 5;
+
+/**
+ * Years until the FIRST MenACWY booster.
+ *
+ * An unknown completion age falls to the SHORTER interval on purpose: bringing
+ * a booster forward is the conservative error, and every branch that had its
+ * own copy of this rule already made that choice.
+ *
+ * @param {?number} primaryCompletionAgeMonths age at the last primary dose
+ */
+export function menacwyFirstBoosterYears(primaryCompletionAgeMonths) {
+  return (primaryCompletionAgeMonths == null || primaryCompletionAgeMonths < BOOSTER_AGE_SPLIT_MONTHS)
+    ? MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
+    : MENACWY_FIRST_BOOSTER_YEARS_FROM_7;
+}
+
+/** Years until this patient's next MenACWY booster, first or later. */
+export function menacwyBoosterYears({ isFirstBooster, primaryCompletionAgeMonths }) {
+  return isFirstBooster
+    ? menacwyFirstBoosterYears(primaryCompletionAgeMonths)
+    : MENACWY_BOOSTER_CADENCE_YEARS;
+}
+
+// The outbreak top-up looks like the first-booster rule and is NOT the same
+// rule. ACIP Table 8 gives an outbreak contact a single further dose when they
+// are identified at risk AGAIN, and it keys off the patient's age NOW, not the
+// age at which their series was completed. Kept as its own named export so a
+// future tidy-up cannot merge the two on the strength of them sharing a 3 and
+// a 5 (owner-confirmed 2026-09-15: a top-up, not a standing countdown).
+export const MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7 = 3;
+export const MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7 = 5;
+
+/** Years before an outbreak contact may be topped up again, by age TODAY. */
+export function menacwyOutbreakTopUpYears(currentAgeMonths) {
+  return currentAgeMonths < BOOSTER_AGE_SPLIT_MONTHS
+    ? MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7
+    : MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7;
+}
+
+/** First MenB booster for a high-risk patient: 1 year after the primary series. */
+export const MENB_HIGHRISK_FIRST_BOOSTER_YEARS = 1;
+/**
+ * Later MenB high-risk boosters. CDC says "every 2-3 years"; 2 is the FLOOR the
+ * validator enforces and "2-3 years" is what the card says. The two live side
+ * by side so nobody tidies the range in the prose down to the floor — they are
+ * not the same claim.
+ */
+export const MENB_HIGHRISK_BOOSTER_CADENCE_YEARS = 2;
+export const MENB_HIGHRISK_BOOSTER_CADENCE_LABEL = '2–3 years';
+
+/** Years until this patient's next MenB high-risk booster. */
+export function menbHighRiskBoosterYears(isFirstBooster) {
+  return isFirstBooster
+    ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS
+    : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS;
+}
+
+/** "1 year" / "3 years" — for interpolating a cadence into card text. */
+export function yearsLabel(years) {
+  return `${years} year${years === 1 ? '' : 's'}`;
+}
+
+// ── MenB series intervals ─────────────────────────────────
+//
+// P2-1 group 3 (2026-09-17). Six floors, each written as a bare number passed
+// to a calendar helper in recommend.js, again as a named constant in
+// validate.js, again in seriesTotals.js for the rescue test, and once more in
+// English on the card. No number changes here.
+//
+// Month counts are MONTHS on purpose, compared on the calendar. P0-4 found the
+// cost of treating them as days: DAYS.months(6) is 183 while a real six-month
+// span is 181-184, so a correctly given 2-dose series was told it needed a
+// third injection depending on nothing but which month the patient started in.
+//
+// ACIP Oct 2024 MMWR (mm7349a3) for the high-risk schedule and the 2-dose
+// interval; CDC child & adolescent schedule notes, MenB special situations,
+// for the rescue rules — the citations the cards already carry.
+
+/** MenB high-risk dose 2: at least 4 weeks after dose 1 (the 0/1-2/6 schedule). */
+export const MENB_HIGHRISK_D2_GAP = WEEKS(4);
+/** MenB high-risk dose 3: at least 6 months after dose 1... */
+export const MENB_HIGHRISK_D3_MONTHS_FROM_D1 = 6;
+/** ...AND at least 4 months after dose 2. Both must be met. */
+export const MENB_HIGHRISK_D3_MONTHS_FROM_D2 = 4;
+/**
+ * A high-risk dose 3 given sooner than MENB_HIGHRISK_D3_MONTHS_FROM_D2 still
+ * COUNTS; CDC owes the patient a fourth dose this long after it.
+ */
+export const MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS = 4;
+
+/** Healthy 2-dose MenB: dose 2 at least 6 months after dose 1. */
+export const MENB_HEALTHY_D2_MONTHS = 6;
+/**
+ * Healthy series where dose 2 came early: a third dose this long after dose 2.
+ * Dose 2 is not repeated.
+ */
+export const MENB_HEALTHY_RESCUE_MONTHS = 4;
+
+/**
+ * ACIP's floor for REPEATING a dose that did not count, and the baseline the
+ * validator uses to spot two MenACWY doses entered impossibly close together.
+ *
+ * P0-1 (2026-09-17) is the reason this carries a name and a warning: this
+ * 4-week floor had become the MenACWY infant PRIMARY interval, which is 8
+ * weeks. In the MMWR the 4-week repeat rule appears only in the MenB section.
+ * It is not a primary-series interval for any schedule. See
+ * MENACWY_INFANT_EARLY_GAP and MENACWY_HIGHRISK_PRIMARY_GAP for those.
+ */
+export const MENACWY_REPEAT_DOSE_FLOOR = WEEKS(4);
+
+/** "4 months" / "6 months" — for interpolating a floor into card text. */
+export function monthsLabel(months) {
+  return `${months} month${months === 1 ? '' : 's'}`;
+}
+
 /** "8 weeks" / "12 weeks" — for interpolating a gate into card text. */
 export function weeksLabel(days) {
   return `${days / 7} weeks`;
