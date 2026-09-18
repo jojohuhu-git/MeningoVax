@@ -4,7 +4,7 @@ import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { patientAgeMonths } from '../logic/patientAge.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
-import RecCard, { RecNote } from './RecCard.jsx';
+import RecCard, { RecNote, RiskAgeNote } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
@@ -43,7 +43,8 @@ export default function Results({ state, onReset, onChange, onBack }) {
     riskAtDoseAnswers,
   });
 
-  const { menacwy, menb, pentavalent, hct, history, excluded, exclusionMessage, exclusionCitations } = result;
+  const { menacwy, menb, pentavalent, hct, history, excluded, exclusionMessage, exclusionCitations,
+          riskAgeNote, riskAgeNoteCites } = result;
 
   if (excluded) {
     return (
@@ -227,6 +228,10 @@ export default function Results({ state, onReset, onChange, onBack }) {
               : <span className="meta-chip meta-norisk">No risk factors</span>
             }
           </div>
+          {/* impossible P1-2: sits directly under the risk chips it doubts,
+              because it is a question about the ticks, not about the answer.
+              Quiet by design: no banner, no icon, nothing withheld. */}
+          <RiskAgeNote note={riskAgeNote} noteCites={riskAgeNoteCites} />
           <div className="meta-actions">
             {onChange && (
               <button

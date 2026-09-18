@@ -294,6 +294,37 @@ export function RecNote({ note, noteCites = [], numberFor, className = 'rec-note
   );
 }
 
+// impossible P1-2 (2026-09-18): the age-plausibility note. It lives here, next
+// to RecNote, because it needs the same "[c]" -> numbered superscript machinery
+// and that machinery is not worth exporting twice; it renders in the results
+// header rather than on a card.
+//
+// Deliberately NOT a RecNote: no "Why this" disclosure. The whole point is that
+// a doubt about the patient's age has to be readable without a click, and it is
+// two short sentences, so there is nothing to hide behind a toggle.
+//
+// All copy comes from recommend.js. Nothing is authored here.
+export function RiskAgeNote({ note, noteCites = [] }) {
+  if (!note) return null;
+  const numberFor = makeCiteNumberer();
+  let used = 0;
+  return (
+    <div className="risk-age-note" data-testid="risk-age-note">
+      {note.lines.map((line, i) => {
+        const n = (line.match(/\[c\]/g) || []).length;
+        const slice = noteCites.slice(used, used + n);
+        used += n;
+        return (
+          <div key={i} className="risk-age-note-line">
+            {renderNoteWithCites(line, slice, numberFor)}
+          </div>
+        );
+      })}
+      <div className="risk-age-note-footer">{note.footer}</div>
+    </div>
+  );
+}
+
 // Only render when there's non-empty reasons AND not a bare 'valid' with no notes.
 // G4 (2026-09-16): a verdict that sets a recorded dose aside on age grounds
 // now carries the ACIP sentence it rests on, shown the same way as on the
