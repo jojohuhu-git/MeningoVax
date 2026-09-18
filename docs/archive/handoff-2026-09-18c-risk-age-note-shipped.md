@@ -1,5 +1,11 @@
 # MeningoVax — Handoff after the risk-factor age note shipped (2026-09-18)
 
+> **SUPERSEDED** by
+> `docs/archive/handoff-2026-09-18d-utc-dob-picker-fixed.md`. That session merged this
+> handoff's own PR (#47), then fixed the "loose thread" flagged below (the UTC
+> date-of-birth picker bug, PR #48). Use the newer file — its tables of what's done and
+> what remains are current; this file's are not.
+
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor (MenACWY + MenB +
 pentavalent), browser-only, no backend, live at https://jojohuhu-git.github.io/MeningoVax/.
 Its core promise is **honesty**: a silently wrong answer is worse than a crash.
