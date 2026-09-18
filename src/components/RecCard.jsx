@@ -70,10 +70,12 @@ function statusPillLabel(rec, pending) {
 // a clinician who counts the rows against the paper chart isn't left wondering
 // where a dose they never entered here came from — and knows to edit it on the
 // step that owns it.
-function describeDose(dose, idx, ageMonths, today) {
+function describeDose(dose, idx, ageMonths, today, dob) {
   const parts = [`D${idx + 1}`];
   parts.push(dose?.date ? fmtDate(dose.date) : 'date unknown');
-  const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today) : null;
+  // Calendar P2-2: with a date of birth the printed age is exact; without one
+  // it is the same approximation as before, and still shown with a "~".
+  const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today, dob) : null;
   parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose)}` : 'age unknown');
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   if (dose?.creditedFrom) {
@@ -330,7 +332,7 @@ function timingClass(status, dueToday) {
   return 'timing-neutral';
 }
 
-export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
+export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, dob = null, onRiskAtDoseAnswer, riskAtDoseAnswers = {} }) {
   const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, boosterDueDateExact, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
   const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
@@ -453,7 +455,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                   </li>
                 ) : (
                   <li key={row.index} className="rec-progress-dose-row">
-                    <span className="rec-progress-dose-text">{describeDose(row.dose, row.index, ageMonths, today)}</span>
+                    <span className="rec-progress-dose-text">{describeDose(row.dose, row.index, ageMonths, today, dob)}</span>
                     <DoseValidation
                       result={doseValidations[row.index]}
                       seriesTotal={seriesTotal}

@@ -386,6 +386,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               doses={menacwyHistory.sortedDoses}
               doseValidations={menacwyHistory.perDose}
               ageMonths={ageMonths ?? 0}
+              dob={dob ?? null}
               onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
               riskAtDoseAnswers={acwyRiskAnswers}
             />
@@ -402,6 +403,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
               doses={menbHistory.sortedDoses}
               doseValidations={menbHistory.perDose}
               ageMonths={ageMonths ?? 0}
+              dob={dob ?? null}
               onRiskAtDoseAnswer={handleRiskAtDoseAnswer}
               riskAtDoseAnswers={bRiskAnswers}
             />
