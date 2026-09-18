@@ -20,6 +20,7 @@ import { recommend } from '../../logic/recommend.js';
 import { analyzeHistory } from '../../logic/validate.js';
 import { TEST_TODAY } from '../../test-today.js';
 import { readFileSync } from 'node:fs';
+import { noteText } from '../../test-note-text.js';
 
 // Entries deliberately kept in refs.js although nothing cites them today.
 // Anything NOT on this list that goes unreferenced is drift — either a rule lost
@@ -95,7 +96,10 @@ describe('L2-3: every citation the app can show actually resolves', () => {
         }
 
         for (const rec of [...(result.menacwy || []), ...(result.menb || [])]) {
-          const markers = (rec.note || '').split('[c]').length - 1;
+          // U1 (2026-09-17): a note is { lead, detail }, and the [c] markers in
+          // the two halves share ONE ordered noteCites list -- so the count has
+          // to span both halves, exactly as RecCard's slicing does.
+          const markers = noteText(rec).split('[c]').length - 1;
           const cites = (rec.noteCites || []).length;
           if (markers !== cites) {
             markerMismatches.push(`age ${ageMonths}m, risks [${riskIds.join('+') || 'none'}], ${doses.length} doses — "${rec.doseLabel}": ${markers} [c] marker(s) but ${cites} citation(s)`);

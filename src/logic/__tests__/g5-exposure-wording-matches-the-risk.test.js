@@ -17,12 +17,13 @@
 // ─────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const ADULT = 360; // 30y
 
 function acwyText(riskIds, menacwyDoses = []) {
   const { menacwy } = recommend({ ageMonths: ADULT, riskIds, menacwyDoses, menbDoses: [] });
-  return menacwy.map(r => [r.doseLabel, r.boosterSummary, r.note].filter(Boolean).join(' ')).join(' ');
+  return menacwy.map(r => [r.doseLabel, r.boosterSummary, noteText(r)].filter(Boolean).join(' ')).join(' ');
 }
 
 describe('G5: exposure wording names the exposure the patient has', () => {

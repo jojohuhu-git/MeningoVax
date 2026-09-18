@@ -13,6 +13,7 @@
 // alongside the footnote since they're the same underlying rule.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-06-03';
 function run(input) {
@@ -56,7 +57,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
       menbDoses: [],
     });
     const rec = acwy(r);
-    expect(rec.note).toContain('[c]');
+    expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites).toHaveLength(1);
     expect(rec.noteCites[0].key).toBe('acwyAge10CountsAsDose1');
   });

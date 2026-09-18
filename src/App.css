@@ -882,6 +882,35 @@ body {
   line-height: 1.55;
   margin-bottom: var(--sp-12);
 }
+/* U1 (2026-09-17): .rec-note-lead needs no rule of its own -- it inherits
+   .rec-note's size, color and leading, because the lead IS the note as far as
+   the reader is concerned. The supporting half sits in .rec-note-detail,
+   behind the "Why this" button.
+
+   Quiet text trigger, same pattern as .dose-val-edit-link: this is a
+   secondary affordance and must not compete with the dose label above it.
+   Accent-colored rather than gray because, unlike the note text, it is
+   clickable. */
+.rec-note-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c);
+  cursor: pointer;
+}
+.rec-note-toggle:hover { text-decoration: underline; }
+.rec-note-detail {
+  margin-top: var(--sp-8);
+  padding-left: var(--sp-8);
+  border-left: 2px solid var(--gy5);
+  color: var(--gy2);
+}
 /* C5: [N] subscript deep-links inside .rec-note, one per cited MMWR sentence. */
 .note-cite {
   font-size: var(--fs-2xs);

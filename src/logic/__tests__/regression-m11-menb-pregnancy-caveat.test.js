@@ -18,6 +18,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
 const menb = (riskIds, dates = []) =>
@@ -27,23 +28,23 @@ describe('M11 — a pregnant patient at increased risk is told it is a judgement
   it('the high-risk MenB card names the benefit-versus-risk discussion', () => {
     const r = menb(['pregnancy', 'asplenia']);
     expect(r.status).toBe('risk-based');              // still offered, not deferred
-    expect(r.note).toMatch(/only after discussing it with her/i);
-    expect(r.note).toMatch(/outweighs the potential risk/i);
+    expect(noteText(r)).toMatch(/only after discussing it with her/i);
+    expect(noteText(r)).toMatch(/outweighs the potential risk/i);
   });
 
   it('it applies to a later dose in the series too, not just dose 1', () => {
-    expect(menb(['pregnancy', 'complement'], ['2026-06-15']).note)
+    expect(noteText(menb(['pregnancy', 'complement'], ['2026-06-15'])))
       .toMatch(/only after discussing it with her/i);
   });
 
   it('control: the same patient without pregnancy sees no such text', () => {
-    expect(menb(['asplenia']).note).not.toMatch(/Pregnancy:/);
+    expect(noteText(menb(['asplenia']))).not.toMatch(/Pregnancy:/);
   });
 
   it('control: pregnancy with NO increased risk is still a plain deferral', () => {
     const r = menb(['pregnancy']);
     expect(r.status).toBe('deferred');
     expect(r.doseLabel).toMatch(/Defer during pregnancy/);
-    expect(r.note).not.toMatch(/only after discussing it with her/i);
+    expect(noteText(r)).not.toMatch(/only after discussing it with her/i);
   });
 });

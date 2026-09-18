@@ -40,6 +40,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { menacwyInfantHighRiskTotal } from '../seriesTotals.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-07-05';
 const acwy = (ageMonths, riskIds = ['asplenia']) =>
@@ -72,19 +73,19 @@ describe('Bug A - the 7-11-month starting card', () => {
 
   it('the note does not promise a booster at 12-23 months', () => {
     // Was: "Then a booster at 12-23 months (>=12 weeks after the primary series)."
-    expect(r().note).not.toMatch(/booster at 12.23 months/i);
+    expect(noteText(r())).not.toMatch(/booster at 12.23 months/i);
   });
 
   it('the card puts the first booster 3 years after the series', () => {
     // U2 (2026-09-17): stated on the booster line, which owns the cadence; the
     // note used to repeat it a few lines below.
     expect(r().boosterSummary).toMatch(/first in 3 years/);
-    expect(r().note).not.toMatch(/3 years/);
+    expect(noteText(r())).not.toMatch(/3 years/);
   });
 
   it('the note keeps both real dose-2 floors', () => {
-    expect(r().note).toMatch(/12 weeks/);
-    expect(r().note).toMatch(/12 months of age|first birthday/i);
+    expect(noteText(r())).toMatch(/12 weeks/);
+    expect(noteText(r())).toMatch(/12 months of age|first birthday/i);
   });
 });
 
@@ -103,7 +104,7 @@ describe('Bug B - the 12-23-month starting card', () => {
 
   it('label and note agree with each other', () => {
     const c = r();
-    expect(c.note).toMatch(/2-dose primary/);
+    expect(noteText(c)).toMatch(/2-dose primary/);
     expect(c.doseLabel).toMatch(new RegExp(`of ${c.seriesTotal}\\b`));
   });
 });
@@ -122,7 +123,11 @@ describe('what must NOT change', () => {
     const c = acwy(3);
     expect(c.seriesTotal).toBe(4);
     expect(c.doseLabel).toMatch(/Dose 1 of 4/);
-    expect(c.note).toMatch(/4-dose Menveo series at 2, 4, 6, and 12 months/);
+    // U1 (2026-09-17): same claim, re-worded when the note split into a lead and
+    // a detail. Matched in two parts rather than as one exact sentence, so a
+    // future copy pass can move the comma without failing a clinical test.
+    expect(noteText(c)).toMatch(/4-dose Menveo series/);
+    expect(noteText(c)).toMatch(/2, 4, 6 and 12 months/);
   });
 
   it('the booster summary still says first in 3 years, then every 5', () => {

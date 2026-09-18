@@ -17,6 +17,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Results from '../Results.jsx';
 import { newDoseRow } from '../../logic/doseIdentity.js';
+import { openWhyThis } from '../../test-why-this.js';
 
 const TEEN = 204;                   // 17y against the pinned test clock
 const DOSE_AT_16_5 = '2026-03-15';  // age 16y6m
@@ -38,6 +39,10 @@ function renderWith(menacwyDoses, ageMonths = TEEN) {
       }}
     />
   );
+  // U1 (2026-09-17): the "a recorded dose has no date" caveat is part of the
+  // note's detail, behind "Why this" -- open it, since these assertions read
+  // the card's full text.
+  openWhyThis();
   const cards = Array.from(document.querySelectorAll('[data-testid="rec-card"]'));
   return {
     acwyCard: cards.find(c => c.textContent.startsWith('MenACWY')),

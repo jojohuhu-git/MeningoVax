@@ -17,6 +17,7 @@ import { describe, it, expect } from 'vitest';
 import RecCard from '../RecCard.jsx';
 import { recommend } from '../../logic/recommend.js';
 import { analyzeHistory } from '../../logic/validate.js';
+import { openWhyThis } from '../../test-why-this.js';
 
 const TODAY = '2026-09-15';
 const allYes = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i, 'yes']));
@@ -35,6 +36,9 @@ function chips(ageMonths, dates, riskIds = ['outbreak_acwy']) {
   );
   const toggle = container.querySelector('.rec-card-head-toggle');
   if (toggle) fireEvent.click(toggle);
+  // U1 (2026-09-17): the outbreak top-up rule is the note's detail, behind
+  // "Why this" -- open it, since these tests read the card's full text.
+  openWhyThis();
   const rendered = [...container.querySelectorAll('.dose-val-chip')].map((e) => e.textContent);
   expect(rendered.length).toBe(dates.length); // guard against a vacuous pass
   return { rec, rendered, container };

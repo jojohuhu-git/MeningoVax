@@ -27,6 +27,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
 const acwy = (riskIds, doses = []) =>
@@ -36,15 +37,15 @@ const MILITARY_WITH_DOSE = () => acwy(['military'], [{ date: '2023-09-15' }]);
 
 describe('M18 — the military card stops denying the DoD booster', () => {
   it('no longer says a re-dose applies only for a separate indication', () => {
-    expect(MILITARY_WITH_DOSE().note).not.toMatch(/only if a separate ongoing-risk indication/i);
+    expect(noteText(MILITARY_WITH_DOSE())).not.toMatch(/only if a separate ongoing-risk indication/i);
   });
 
   it('states the every-5-years interval from ACIP Table 10', () => {
-    expect(MILITARY_WITH_DOSE().note).toMatch(/5 years/);
+    expect(noteText(MILITARY_WITH_DOSE())).toMatch(/5 years/);
   });
 
   it('names the Department of Defense as the body that sets the timing', () => {
-    expect(MILITARY_WITH_DOSE().note).toMatch(/Department of Defense|DoD/);
+    expect(noteText(MILITARY_WITH_DOSE())).toMatch(/Department of Defense|DoD/);
   });
 
   it('adds no booster scheduling — the card is not made due today', () => {
@@ -58,6 +59,6 @@ describe('M18 — the military card stops denying the DoD booster', () => {
   it('control: a college resident keeps the no-booster wording (M17)', () => {
     // Same ACIP row, opposite halves. College must not inherit the 5-year line.
     const r = acwy(['college_dorm'], [{ date: '2023-09-15' }]);
-    expect(r.note || '').not.toMatch(/5 years/);
+    expect(noteText(r) || '').not.toMatch(/5 years/);
   });
 });

@@ -29,6 +29,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { DAYS } from '../dateUtils.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-15';
 const acwy = (ageMonths, riskIds, dates) =>
@@ -71,7 +72,7 @@ describe('M12 — the outbreak top-up', () => {
 
   it('the copy does not promise a repeating schedule', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2023-09-14']);
-    expect(r.note).toMatch(/does not start a repeating schedule/i);
+    expect(noteText(r)).toMatch(/does not start a repeating schedule/i);
     expect(r.boosterSummary).toBeFalsy();
   });
 
