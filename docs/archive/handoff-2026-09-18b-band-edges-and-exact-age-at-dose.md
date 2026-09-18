@@ -1,3 +1,11 @@
+> **SUPERSEDED (2026-09-18) — do not work this queue.**
+> Its remaining item 1 (impossible P1-2, the risk-factor note) shipped as PR #46 and is
+> deployed. The current handoff, with the up-to-date queue, test count and owner
+> decisions, is
+> [`handoff-2026-09-18c-risk-age-note-shipped.md`](handoff-2026-09-18c-risk-age-note-shipped.md).
+> The ACIP microbiologist-table claim this file flagged as unconfirmed **has since been
+> confirmed** against the MMWR PDF — see the newer handoff.
+
 # MeningoVax — Handoff after the two band/age items shipped (2026-09-18)
 
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor (MenACWY + MenB +
