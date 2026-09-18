@@ -1,19 +1,9 @@
-> **SUPERSEDED (2026-09-17)** — see
-> [`handoff-2026-09-17c-u5-stale-collapse-state-merged.md`](handoff-2026-09-17c-u5-stale-collapse-state-merged.md).
-> `main` has moved on twice since this file was written: PR #32 (U1) and PR #34
-> (U5). The test count quoted below (**951**) is the count at PR #31 and is no
-> longer the baseline — `main` is now **1201 passing (99 files)**. Do not resume
-> from this file.
+> **SUPERSEDED (2026-09-17)** — the current handoff is [`handoff-2026-09-17d-u5-and-p2-1-both-merged.md`](handoff-2026-09-17d-u5-and-p2-1-both-merged.md).
+> Everything this file lists as remaining is done: **U1** merged as PR #32,
+> **P2-1** as PR #33, **U5** as PR #34. The **951** below was the count at PR #31;
+> `main` is now **1232 passing (100 files)**. Do not resume from this file.
 
 # MeningoVax — Handoff after the copy block (U2, U3, U4) merged (2026-09-17)
-
-> **SUPERSEDED — 2026-09-17.** U1 and P2-1, listed below as the remaining queue, are
-> both done: **U1 merged as PR #32** (squash `91d7136`, deployed) and **P2-1 built and
-> CI-green in PR #33**, awaiting the owner's review. Do not resume this file's queue.
-> Current state and resuming instructions:
-> `docs/archive/handoff-2026-09-17c-u1-merged-p2-1-open.md`.
-
-
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
 The app is a standalone client-side meningococcal advisor (MenACWY + MenB +

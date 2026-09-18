@@ -1,3 +1,9 @@
+> **SUPERSEDED (2026-09-17)** — the current handoff is [`handoff-2026-09-17d-u5-and-p2-1-both-merged.md`](handoff-2026-09-17d-u5-and-p2-1-both-merged.md).
+> P2-1 is no longer open — it merged as PR #33 (`962d4e3`). This file's `main`
+> (`91d7136`) and its branch count (1229) are both stale, and the U5 bug it lists
+> as "found live, reported not fixed" is fixed and merged (PR #34).
+> `main` is now **1232 passing (100 files)** at `962d4e3`. Do not resume from this file.
+
 # MeningoVax — Handoff after U1 merged and P2-1 built (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/

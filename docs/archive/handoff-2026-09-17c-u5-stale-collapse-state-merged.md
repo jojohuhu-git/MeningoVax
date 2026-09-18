@@ -1,3 +1,9 @@
+> **SUPERSEDED (2026-09-17)** — the current handoff is [`handoff-2026-09-17d-u5-and-p2-1-both-merged.md`](handoff-2026-09-17d-u5-and-p2-1-both-merged.md).
+> This file says the remaining queue is empty. It was not — it was written without
+> knowledge of PR #33 (P2-1), which has since merged. Its `main` (`9c04ae5`) and
+> count (1201) are stale.
+> `main` is now **1232 passing (100 files)** at `962d4e3`. Do not resume from this file.
+
 # MeningoVax — Handoff after U5, the blank-card bug (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
