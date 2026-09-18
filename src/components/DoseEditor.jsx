@@ -47,10 +47,14 @@ export default function DoseEditor({
   emptyMessage,
   rowClassName,
   onFocusCapture,
+  // calendar P2-1: "now" is App.jsx's job. A caller that already knows the
+  // render's today (StepHistory, Results) passes it down; the fallback below
+  // exists only for a component test that mounts DoseEditor on its own.
+  today: todayProp,
 }) {
   const listRef = useRef(null);
   const prevLengthRef = useRef(doses.length);
-  const today = todayISO();
+  const today = todayProp || todayISO();
 
   // Item 1: focus the new row's date input, but only when a row was just
   // ADDED (length grew) -- not on mount and not on remove.

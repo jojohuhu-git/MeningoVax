@@ -10,7 +10,10 @@ import { todayISO } from '../logic/dateUtils.js';
 // the 16th birthday?"). A coarse age-band guess can silently contradict a
 // dose date entered later, so there is no separate age-band question anymore;
 // the band shown below is always derived from the entered age.
-export default function StepAge({ ageMonths, error, onChange }) {
+export default function StepAge({ ageMonths, error, onChange, today: todayProp }) {
+  // calendar P2-1: App.jsx reads the clock once per render and passes it down;
+  // the fallback is only for a test that mounts StepAge on its own.
+  const today = todayProp || todayISO();
   // Mode: 'precise' | 'dob'
   const [mode, setMode] = useState('dob');
   const [years, setYears] = useState('');
@@ -54,7 +57,7 @@ export default function StepAge({ ageMonths, error, onChange }) {
     const problem = ageEntryProblem({ mode: 'dob', dob: v });
     setEntryError(problem);
     if (v && !problem) {
-      const am = dobToAgeMonths(v);
+      const am = dobToAgeMonths(v, today);
       if (am != null && am >= 0) {
         // Calendar P1-3: the date of birth is KEPT, not converted and discarded.
         // It is what lets the 16th-birthday date be the real one, lets the
@@ -104,7 +107,7 @@ export default function StepAge({ ageMonths, error, onChange }) {
             // a UTC-behind timezone (every US zone), so the picker would let
             // a date be chosen that the validator then correctly refuses as
             // "in the future." Same fix as DoseEditor.jsx's dose-date picker.
-            max={todayISO()}
+            max={today}
             onChange={e => handleDobChange(e.target.value)}
             style={{ width: 'auto' }}
           />

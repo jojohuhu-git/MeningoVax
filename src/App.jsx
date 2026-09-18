@@ -7,6 +7,7 @@ import Results from './components/Results.jsx';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from './data/brands.js';
 import { hasExclusion } from './data/riskFactors.js';
 import { creditPentavalents } from './logic/pentavalentCredit.js';
+import { todayISO } from './logic/dateUtils.js';
 
 const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
 
@@ -44,6 +45,14 @@ const INITIAL_STATE = {
 export default function App() {
   const [state, setState] = useState(INITIAL_STATE);
   const [ageError, setAgeError] = useState('');
+  // calendar P2-1: "now" is read from the clock exactly once per render, here,
+  // and handed down as a prop — StepAge, StepHistory/DoseEditor and Results
+  // (which hands it to recommend() and to RecCard/DoseEditor) all get the same
+  // value instead of each reading todayISO() for itself. Previously the picker
+  // max, the age derivation, the record-panel editors and the engine were four
+  // independent clock reads that happened to agree because they ran within the
+  // same millisecond, not because anything made them agree.
+  const today = todayISO();
 
   function update(patch) {
     setState(prev => ({ ...prev, ...patch }));
@@ -129,6 +138,7 @@ export default function App() {
             ageMonths={state.ageMonths}
             ageGroup={state.ageGroup}
             error={ageError}
+            today={today}
             onChange={({ ageMonths, ageGroup, dob }) => {
               update({ ageMonths, ageGroup, dob: dob ?? null });
               if (ageMonths != null) setAgeError('');
@@ -148,6 +158,7 @@ export default function App() {
             onChange={menacwyDoses => update({ menacwyDoses })}
             brandOptions={MENACWY_HISTORY_BRANDS}
             creditedDoses={credited.menacwy}
+            today={today}
           />
         )}
         {state.step === 3 && (
@@ -157,11 +168,12 @@ export default function App() {
             onChange={menbDoses => update({ menbDoses })}
             brandOptions={MENB_HISTORY_BRANDS}
             creditedDoses={credited.menb}
+            today={today}
           />
         )}
         {state.step === 4 && (
           <Results state={state} onReset={reset} onChange={update}
-            onBack={goBack} />
+            onBack={goBack} today={today} />
         )}
       </main>
 

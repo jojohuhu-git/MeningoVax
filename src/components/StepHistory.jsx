@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { newDoseRow } from '../logic/doseIdentity.js';
 
-export default function StepHistory({ vaccine, doses, onChange, brandOptions, creditedDoses = [] }) {
+export default function StepHistory({ vaccine, doses, onChange, brandOptions, creditedDoses = [], today }) {
   const [hasHistory, setHasHistory] = useState(doses.length > 0 ? true : null);
 
   // B7: Ctrl+A (Cmd+A on Mac) adds a dose row, overriding the browser's
@@ -85,6 +85,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions, cr
           onChange={onChange}
           brandOptions={brandOptions}
           creditedDoses={creditedDoses}
+          today={today}
         />
       )}
 
