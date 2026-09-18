@@ -1,3 +1,10 @@
+> **SUPERSEDED (2026-09-18).** The queue in this file has been worked: calendar P1-1/P1-2,
+> the newborn "due today" finding, impossible P0-1, impossible P1-3, and calendar
+> P1-3/P2-1 + impossible P1-1 all shipped as PRs #38, #39, #40, #41 and #42, all merged and
+> deployed. Read `handoff-2026-09-18-calendar-and-impossible-queues-six-items.md` instead —
+> it carries the remaining items, two new findings, and a warning that calendar P2-1 and
+> P2-2 are less closed than they look.
+
 # MeningoVax — Handoff: what needs doing next (2026-09-17, evening)
 
 **This is the current file. It supersedes `handoff-2026-09-17f-part2-done-and-two-audits.md`,
