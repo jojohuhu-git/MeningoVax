@@ -1,3 +1,9 @@
+> **SUPERSEDED — 2026-09-17.** Everything below was true when written and is now
+> history. P2-2 is written, the sweep test's duplicate chip rules are fixed, and the
+> `intervals.js` header (which this file pointed at as a to-do list) was wrong — it
+> named five groups as unmigrated that had already been migrated. Current file:
+> `handoff-2026-09-17e-p2-2-and-chip-label-one-copy.md`.
+
 # MeningoVax — Handoff after U5 and P2-1 both merged (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/

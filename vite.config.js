@@ -13,5 +13,12 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./src/test-setup.js'],
     globals: true,
+    // Agent worktrees live under .claude/worktrees/ and each holds a FULL second
+    // copy of src/. Without this, `npx vitest run` from the repo root collects
+    // both copies: the count doubles and the copy that is not the project root
+    // fails en masse on setup paths, so a perfectly green tree reports ~197
+    // failures that mean nothing. Vitest's default exclude covers node_modules
+    // and dist, not this.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/worktrees/**'],
   },
 });

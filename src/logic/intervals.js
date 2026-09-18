@@ -8,12 +8,24 @@
 // wrong, and fixing only the constant would have left the sentence lying to the
 // clinician.
 //
-// This module is that sibling, started with the MenACWY infant primary group
-// (the group P0-1 needed). The remaining groups named in P2-1 — the >=2y
-// high-risk primary, the 3- and 5-year booster cadences, the MenB month floors
-// and the 4-month rescue interval, and P1-1's 4-day grace rule — are NOT here
-// yet and still live where they always did. Add them one group at a time with
-// the full suite green in between.
+// This module is that sibling. It was started with the MenACWY infant primary
+// group (the group P0-1 needed), and the rest of P2-1 landed after it, so the
+// >=2y high-risk primary gap, the 3- and 5-year booster cadences, the MenB
+// month floors and the 4-month rescue interval, and P1-1's 4-day grace rule
+// ALL LIVE HERE NOW. (This paragraph used to say they did not. It was written
+// before the three group commits landed and was never updated — which pointed
+// the next reader at work that was already done, the one mistake most likely to
+// re-create a second copy of a number.) The scan in
+// __tests__/regression-p2-1-intervals-in-one-place.test.js fails the build if
+// any of them is hand-typed again outside this file.
+//
+// What is NOT here yet: AGE thresholds — the age at which a dose becomes due or
+// a patient ages out of a series, as opposed to the gap BETWEEN two doses. They
+// have the same two-copies problem this module was built to end, and it is
+// already visible: recommend.js keeps a map of them (`M`, around :65) while
+// validate.js hand-types `ageMonths < 24` (around :412) rather than asking for
+// it. That is the next group. Do it the same way: one group at a time, full
+// suite green in between.
 //
 // The rule for callers: ask this module for the number and INTERPOLATE it into
 // whatever you print. Never restate it in English.
