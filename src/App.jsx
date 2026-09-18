@@ -26,6 +26,11 @@ const INITIAL_STATE = {
   step: 0,
   ageMonths: null,
   ageGroup: null,
+  // Calendar P1-3 (2026-09-17): the date of birth is kept, not converted to a
+  // number of months and thrown away. ageMonths is still stored -- it is the
+  // only thing a years/months patient has -- but where there is a dob it is a
+  // snapshot, and patientAgeMonths() treats it as one.
+  dob: null,
   riskIds: [],
   menacwyDoses: [],
   menbDoses: [],
@@ -124,8 +129,8 @@ export default function App() {
             ageMonths={state.ageMonths}
             ageGroup={state.ageGroup}
             error={ageError}
-            onChange={({ ageMonths, ageGroup }) => {
-              update({ ageMonths, ageGroup });
+            onChange={({ ageMonths, ageGroup, dob }) => {
+              update({ ageMonths, ageGroup, dob: dob ?? null });
               if (ageMonths != null) setAgeError('');
             }}
           />

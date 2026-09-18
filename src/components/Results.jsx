@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { recommend } from '../logic/recommend.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
+import { patientAgeMonths } from '../logic/patientAge.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard, { RecNote } from './RecCard.jsx';
@@ -22,7 +23,11 @@ const MENB_HISTORY_BRANDS = [
 ];
 
 export default function Results({ state, onReset, onChange, onBack }) {
-  const { ageMonths, riskIds, menacwyDoses, menbDoses, riskAtDoseAnswers } = state;
+  const { riskIds, menacwyDoses, menbDoses, riskAtDoseAnswers, dob } = state;
+  // Calendar P1-3/P2-1: derived at render from the date of birth when there is
+  // one, so the patient goes on ageing while the tab is open instead of being
+  // frozen at the moment the Age step was filled in.
+  const ageMonths = patientAgeMonths(state);
   const acwyRiskAnswers = riskAtDoseAnswers?.MenACWY ?? {};
   const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
@@ -31,6 +36,7 @@ export default function Results({ state, onReset, onChange, onBack }) {
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
+    dob,
     riskIds,
     menacwyDoses,
     menbDoses,
@@ -169,7 +175,10 @@ export default function Results({ state, onReset, onChange, onBack }) {
     const mm = parseFloat(m) || 0;
     if (isNaN(yy) || yy < 0) return;
     const am = yy * 12 + mm;
-    onChange?.({ ageMonths: am, ageGroup: ageGroup(am) });
+    // Typing an age here OVERRIDES the date of birth, so the date of birth has
+    // to go: leaving it would mean this edit was silently ignored, because
+    // patientAgeMonths() lets the date of birth win.
+    onChange?.({ ageMonths: am, ageGroup: ageGroup(am), dob: null });
   }
 
   // ── Recorded-dose editors (live re-render via onChange) ──
