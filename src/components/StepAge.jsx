@@ -3,6 +3,7 @@ import { ageGroup as deriveGroup, dobToAgeMonths, fmtAgeMonths } from '../logic/
 // Impossible-entries P0-1: what counts as an age a human being can be. Both
 // entry boxes ask the same module, so the two doors cannot drift apart.
 import { ageEntryProblem } from '../logic/ageEntry.js';
+import { todayISO } from '../logic/dateUtils.js';
 
 // A2: date of birth is the primary, recommended entry — it lets the engine
 // compute a dose's age precisely (e.g. "was this MenACWY dose given on/after
@@ -98,7 +99,12 @@ export default function StepAge({ ageMonths, error, onChange }) {
             id="dob-input"
             type="date"
             value={dob}
-            max={new Date().toISOString().slice(0, 10)}
+            // todayISO(), not new Date().toISOString() — the latter is UTC and
+            // runs a day ahead of the clinician's wall clock every evening in
+            // a UTC-behind timezone (every US zone), so the picker would let
+            // a date be chosen that the validator then correctly refuses as
+            // "in the future." Same fix as DoseEditor.jsx's dose-date picker.
+            max={todayISO()}
             onChange={e => handleDobChange(e.target.value)}
             style={{ width: 'auto' }}
           />
