@@ -1,3 +1,10 @@
+> **SUPERSEDED — 18 September 2026.** The current handoff is
+> [`handoff-2026-09-18f-rulebook-v6-published.md`](handoff-2026-09-18f-rulebook-v6-published.md).
+> Two things below are wrong and were corrected there: this file lists **calendar P2-2 as
+> still to do** — it was done in PR #44 the same day, with residual error re-measured at
+> 0.000000 days — and it gives the suite as **496 test files**, where the real figure is
+> **119** (the test count, 1464, was right). Do not start P2-2 from this file.
+
 # MeningoVax — Handoff after calendar P2-1's remainder was shipped (2026-09-18)
 
 Repo: `~/Downloads/MeningoVax-main`. Meningococcal-only clinical advisor (MenACWY + MenB +
