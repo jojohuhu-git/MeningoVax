@@ -109,6 +109,22 @@ export function menacwyInfantNextDoseGate({ d1AgeM, d2AgeM = null, given }) {
   };
 }
 
+// ── MenACWY >=2y high-risk primary series ────────────────────────
+//
+// The 2-dose primary series a patient aged 2 years or older gets for a medical
+// high-risk indication (asplenia, persistent complement deficiency,
+// complement-inhibitor therapy, HIV): the two doses are 8 weeks apart.
+//
+// ACIP 2020 MMWR 69(RR-9), the high-risk schedule tables the engine already
+// cites through `acip2020`. The NUMBER is unchanged by P2-1 — it was already 8
+// weeks in both recommend.js and validate.js. What changed is that it is now
+// written down once instead of four times (three in the engine, one in the
+// validator), and the card sentence interpolates it rather than spelling "8
+// weeks" out in English beside it. That second copy in the prose is the half of
+// P0-1 that would have kept misleading a clinician even after the constant was
+// corrected.
+export const MENACWY_HIGHRISK_PRIMARY_GAP = WEEKS(8);
+
 /** "8 weeks" / "12 weeks" — for interpolating a gate into card text. */
 export function weeksLabel(days) {
   return `${days / 7} weeks`;

@@ -48,6 +48,7 @@ import {
 // interpolate the number rather than restating it.
 import {
   menacwyInfantNextDoseGate, weeksLabel, earliestGatedDate, ageMeetsMinimum,
+  MENACWY_HIGHRISK_PRIMARY_GAP,
 } from './intervals.js';
 
 // Age bands (months)
@@ -247,7 +248,7 @@ function menacwyRec(am, riskIds, doses, today) {
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
         doseNum: 1, seriesTotal: 2, boosterSummary: MENACWY_HIGHRISK_BOOSTER_LINE, dueToday: true, brands: menacwyBrands(am),
         note: {
-          lead: 'Two MenACWY doses, at least 8 weeks apart, because of this patient\'s high-risk indication.',
+          lead: `Two MenACWY doses, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} apart, because of this patient's high-risk indication.`,
           detail: 'The high-risk indications are asplenia, persistent complement deficiency, complement-inhibitor therapy and HIV. ACIP gives all four the same 2-dose primary series.',
         },
         // U2: the booster half of this sentence, and both of its sources, moved
@@ -263,15 +264,15 @@ function menacwyRec(am, riskIds, doses, today) {
       })];
     }
     if (given === 1) {
-      const elapsed = intervalElapsed(lastDate, DAYS.weeks(8), today);
+      const elapsed = intervalElapsed(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP, today);
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 2 of 2 (high-risk primary series)',
         doseNum: 2, seriesTotal: 2, boosterSummary: MENACWY_HIGHRISK_BOOSTER_LINE, dueToday: elapsed,
-        earliestNextDate: elapsed ? null : addDays(lastDate, DAYS.weeks(8)),
-        minIntervalDays: DAYS.weeks(8), brands: menacwyBrands(am),
+        earliestNextDate: elapsed ? null : addDays(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP),
+        minIntervalDays: MENACWY_HIGHRISK_PRIMARY_GAP, brands: menacwyBrands(am),
         note: {
-          lead: 'The second dose of the high-risk primary series, at least 8 weeks after dose 1.',
-          detail: 'Eight weeks is a minimum, not a target: a dose given later still counts and the series is not restarted. Two doses complete the primary series, and boosters continue from there while the risk lasts.',
+          lead: `The second dose of the high-risk primary series, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} after dose 1.`,
+          detail: `That is a minimum, not a target: a dose given later than ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} still counts and the series is not restarted. Two doses complete the primary series, and boosters continue from there while the risk lasts.`,
         },
         // U2: the booster tail moved to the booster line above. It gains the
         // sources the dose-1 card always had and this one never did.

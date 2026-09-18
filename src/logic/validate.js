@@ -57,7 +57,7 @@ import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './series
 // then rejects (or, as here, accept one the engine's own card called too soon).
 import {
   menacwyInfantNextDoseGate, ageMeetsMinimum, intervalMeetsMinimum,
-  calendarIntervalMeetsMinimum,
+  calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
 } from './intervals.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
@@ -100,8 +100,10 @@ const MENB_HEALTHY_MIN_AGE_MONTHS = 192;
 // and wins when it applies. NOTE: this baseline only catches interval
 // violations; routine 11-12y vs 16y *position* logic stays in the engine.
 const MENACWY_BASELINE_MIN_INTERVAL    = DAYS.weeks(4);    // 28 d — minimum between any 2 doses
-// MenACWY high-risk 2-dose primary (≥2y): ≥8 weeks
-const MENACWY_HR_ADULT_MIN_INTERVAL    = DAYS.weeks(8);    // 56 d
+// MenACWY high-risk 2-dose primary (≥2y): P2-1 (2026-09-17) moved this to
+// intervals.js, so the validator and the engine ask the same function instead
+// of each keeping their own 56.
+const MENACWY_HR_ADULT_MIN_INTERVAL    = MENACWY_HIGHRISK_PRIMARY_GAP;
 // MenACWY infant high-risk series: the gaps are no longer a constant here.
 // P0-1 (2026-09-17): this was `DAYS.weeks(4)` and it was wrong — ACIP RR-9's
 // Tables 4-6 footnote and the CDC child schedule both require 8 weeks between
