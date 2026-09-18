@@ -1,3 +1,9 @@
+> **SUPERSEDED, 17 September 2026 (evening) — see
+> [handoff-2026-09-17f-part2-done-and-two-audits.md](handoff-2026-09-17f-part2-done-and-two-audits.md).**
+> PR #35 has since been merged (`2e136ba`), and so has the age-threshold work this file
+> named as the next unit (PR #36, `5754b16`). The rulebook artifact named below has been
+> refreshed and now reports no open gaps. Do not resume from this file.
+
 # MeningoVax — Handoff after P2-2 and the chip-label dedup (2026-09-17)
 
 Repo: `~/Downloads/MeningoVax-main`. Live: https://jojohuhu-git.github.io/MeningoVax/
