@@ -29,11 +29,13 @@ export default function StepAge({ ageMonths, error, onChange }) {
     const yn = parseFloat(y);
     const mn = parseFloat(m);
     if (problem || (isNaN(yn) && isNaN(mn))) {
-      onChange({ ageMonths: null, ageGroup: null });
+      onChange({ ageMonths: null, ageGroup: null, dob: null });
       return;
     }
     const am = (isNaN(yn) ? 0 : yn) * 12 + (isNaN(mn) ? 0 : mn);
-    onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
+    // No date of birth in this mode: the app genuinely does not know it, and
+    // must not print dates as though it did (calendar P1-3).
+    onChange({ ageMonths: am, ageGroup: deriveGroup(am), dob: null });
   }
 
   function handleYearsChange(v) {
@@ -53,11 +55,15 @@ export default function StepAge({ ageMonths, error, onChange }) {
     if (v && !problem) {
       const am = dobToAgeMonths(v);
       if (am != null && am >= 0) {
-        onChange({ ageMonths: am, ageGroup: deriveGroup(am) });
+        // Calendar P1-3: the date of birth is KEPT, not converted and discarded.
+        // It is what lets the 16th-birthday date be the real one, lets the
+        // patient go on ageing while the tab stays open, and lets the app know
+        // what "before birth" means for a recorded dose.
+        onChange({ ageMonths: am, ageGroup: deriveGroup(am), dob: v });
         return;
       }
     }
-    onChange({ ageMonths: null, ageGroup: null });
+    onChange({ ageMonths: null, ageGroup: null, dob: null });
   }
 
   const derivedGroup = ageMonths != null ? deriveGroup(ageMonths) : null;
@@ -72,14 +78,14 @@ export default function StepAge({ ageMonths, error, onChange }) {
         <button
           className={`history-toggle-btn${mode === 'dob' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
-          onClick={() => { setMode('dob'); setYears(''); setMonths(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null }); }}
+          onClick={() => { setMode('dob'); setYears(''); setMonths(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}
         >
           Date of Birth
         </button>
         <button
           className={`history-toggle-btn${mode === 'precise' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
-          onClick={() => { setMode('precise'); setDob(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null }); }}
+          onClick={() => { setMode('precise'); setDob(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}
         >
           Years / Months (if DOB unknown)
         </button>
