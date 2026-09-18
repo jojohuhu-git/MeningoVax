@@ -46,11 +46,38 @@ export function intervalElapsed(sinceISO, intervalDays, refISO) {
 // wrongly trip a "< 120 months" age threshold on a dose given exactly on a
 // patient's birthday. This function counts whole calendar months directly, so
 // same-day-of-month spans (e.g. birthday to birthday) land on an exact integer.
+//
+// The fractional part is measured between the patient's own month-anniversaries,
+// NOT as a share of whichever month the end date happens to fall in. Calendar
+// P1-1 (2026-09-17): the old version took the fraction as
+// (endDay - startDay) / daysInEndMonth, which breaks whenever the birth
+// day-of-month is bigger than the whole end month. A baby born 31 January was
+// -0.0714 months old on 1 February, StepAge dropped the negative age, and the
+// app answered a correct date of birth with "Please enter a valid age before
+// continuing." The same flaw made age non-monotonic (12.0000 months on
+// 2027-01-31, 11.9286 the next day — back under the 12-month MenACWY infant
+// gate) and put a leap-day child on the infant schedule on the very date
+// addCalendarMonths() calls their second birthday.
+//
+// Anchoring on addCalendarMonths() means the two helpers now hold ONE opinion
+// about a child's birthday: whatever date addCalendarMonths(dob, n) returns,
+// this function reads back as exactly n. Spans where the end precedes the start
+// still come back negative, so a future-dated dose stays detectable.
 export function calendarMonthsBetween(startISO, endISO) {
-  const [sy, sm, sd] = startISO.split('-').map(Number);
-  const [ey, em, ed] = endISO.split('-').map(Number);
-  const daysInEndMonth = new Date(Date.UTC(ey, em, 0)).getUTCDate();
-  return (ey - sy) * 12 + (em - sm) + (ed - sd) / daysInEndMonth;
+  const [sy, sm] = startISO.split('-').map(Number);
+  const [ey, em] = endISO.split('-').map(Number);
+  // Whole months = the last anniversary on or before endISO. The first guess can
+  // only ever be one too many: anniversary n falls in the end date's own month,
+  // so anniversary n-1 falls in the month before it and is certainly earlier.
+  let whole = (ey - sy) * 12 + (em - sm);
+  let anniversary = addCalendarMonths(startISO, whole);
+  if (endISO < anniversary) {
+    whole -= 1;
+    anniversary = addCalendarMonths(startISO, whole);
+  }
+  const nextAnniversary = addCalendarMonths(startISO, whole + 1);
+  const span = daysBetween(anniversary, nextAnniversary);
+  return whole + daysBetween(anniversary, endISO) / span;
 }
 
 // ── Calendar-exact intervals (P0-4/P0-5, 2026-09-15) ──────────────────────
