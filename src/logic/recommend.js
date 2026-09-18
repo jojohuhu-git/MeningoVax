@@ -716,6 +716,34 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds) {
   const outbreakTopUp = infantOutbreak
     ? ` There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥${MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7} years have passed since the last dose (≥${MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7} years from age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}).`
     : '';
+  // Nothing can be due before any MenACWY product is licensed. Found 2026-09-17
+  // during the calendar P1-1 sweep: an at-risk NEWBORN was told "Dose 1 (infant
+  // high-risk series)", due today, with a Menveo chip to pick. The minimum age
+  // was tested on the branch below and nowhere else, so a patient who failed
+  // that test fell through to the CONTINUE-the-series fallback at the end of
+  // this function -- which is written for someone who already has doses, and
+  // with none recorded printed "Dose 1" and called it due today.
+  //
+  // Checking it here, before any card is built, means the answer cannot depend
+  // on which branch a too-young patient happens to land in.
+  //
+  // CDC child & adolescent schedule notes, verified live 2026-09-17:
+  // MenACWY-CRM (Menveo) "minimum age: 2 months"; MenACWY-TT (MenQuadfi)
+  // "minimum age: 2 years"; "Dose 1 at age 2 months: 4-dose series (additional
+  // 3 doses at age 4, 6, and 12 months)".
+  //
+  // No date is promised. The app stores an age, not a date of birth (calendar
+  // P1-3), so a date here would claim a precision it does not have.
+  if (am < MENACWY_MIN_AGE_MONTHS) {
+    return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
+      dueToday: false,
+      note: {
+        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        detail: `This patient has an indication that calls for the infant ${why} series, so track them and start it at ${monthsLabel(MENACWY_MIN_AGE_MONTHS)}. Only Menveo is licensed that young; the other MenACWY brands start later.`,
+      },
+      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      refs });
+  }
   if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_MIN_AGE_MONTHS) {
     // start series; Menveo only.
     // One total for BOTH the printed label and seriesTotal. They used to be
