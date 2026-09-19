@@ -10,20 +10,26 @@
 // patient, currently checked only on the handful of patients someone wrote
 // down by hand.
 //
-// REPORT-ONLY. This file asserts NOTHING about clinical correctness. It
-// prints a violation count and up to 20 examples per property and leaves it
-// there, on purpose (plan item B, "The discipline that makes this safe").
-// Several of these properties have legitimate exceptions — the four-day
-// grace rule, pentavalent age floors, shared-decision citations — and a
-// naive assertion would fail on those, not on a real bug. The owner reviews
-// this output; only then does a property get turned into a real assertion,
-// one property per commit, with the exception written down in a comment
-// citing her decision and the date.
+// Landed REPORT-ONLY first, then turned on one property per commit after
+// owner review, per the plan's "The discipline that makes this safe" — see
+// the git history for this file (2026-09-19) for each individual decision.
 //
-// The one real (non-report-only) assertion in each `it()` below just checks
-// that the sweep actually ran a nonzero number of rows — a structural
-// safety net against an empty grid silently reporting "0 violations"
-// because nothing executed, not a clinical claim.
+// Current state (2026-09-19):
+//   - Properties 1-5 are REAL, ENFORCED assertions — the owner reviewed the
+//     report-only output on PR #55 and approved all five with no exceptions
+//     needed beyond what was already built into the checks (property 1's
+//     4-day grace, property 3's shared-decision/deferred exclusion).
+//   - Property 6 is still REPORT-ONLY, deliberately: it's a rough heuristic
+//     for "don't repeat an already-counted dose", flagged as not precise
+//     enough to trust as a real rule yet. Do not turn it on without first
+//     tightening what it actually checks.
+//   - Property 7 duplicates a real assertion that already lives in
+//     `sweep-dose-counter.test.js`; it's reported here too only so all seven
+//     properties show up in one place.
+//
+// Every `it()` still prints its violation count and up to 20 examples via
+// `report()` before asserting, so a real failure here shows its evidence
+// the same way the report-only version did.
 // ─────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
@@ -183,7 +189,7 @@ function report(name, violations) {
   );
 }
 
-describe('B · never-events sweep (report-only — see file header before asserting anything from this)', () => {
+describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — see file header)', () => {
   // Owner decision 2026-09-19: enforce as a real never-event. Known exception
   // (CDC's 4-day grace) is already built into the check above (GRACE_MONTHS),
   // not carved out here — a brand offered more than 4 days early is still a

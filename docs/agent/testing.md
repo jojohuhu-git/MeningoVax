@@ -105,15 +105,19 @@ also documents, in its own comments, exactly what its class-based profile
 list does **not** yet cover (several risk ids branch individually, beyond
 their class) — that widening is plan item C1, not done yet.
 
-`sweep-never-events.test.js` is **report-only**: it checks seven candidate
-never-event properties (no brand below its licensed floor, no nonsense
-`earliestNextDate`, every actionable rec cites something, status is always
-one of the known eight, `recommend()` never throws, plus two heuristics) and
-prints a violation count and examples for each, without asserting any of them
-are bugs. That is deliberate — several of these properties have legitimate
-exceptions (the four-day grace rule, pentavalent age floors), and turning one
-into a real assertion is a one-property-per-commit decision for the owner to
-make, not something a sweep should assume. See
+`sweep-never-events.test.js` checks seven candidate never-event properties
+(no brand below its licensed floor, no nonsense `earliestNextDate`, every
+actionable rec cites something, status is always one of the known eight,
+`recommend()` never throws, plus two duplicate/heuristic properties). It
+landed **report-only** first — printing a violation count and examples for
+each without asserting any of them were bugs — because several of these
+properties have legitimate exceptions (the four-day grace rule, shared-
+decision citations), and a naive assertion would fail on the exception
+rather than on a real bug. After the owner reviewed that output, five of the
+seven (1-5) were turned into real, enforced assertions, one property per
+commit (2026-09-19). Property 6 stays report-only — it's a rough heuristic,
+not yet precise enough to trust as a rule. Property 7 duplicates a real
+assertion already enforced in `sweep-dose-counter.test.js`. See
 `.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, item B, for the
 full reasoning; item B2 (grid realism: fractional ages, dates of birth
 instead of `ageMonths`, deliberately invalid doses) and C1 (widening the
