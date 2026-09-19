@@ -184,9 +184,14 @@ function report(name, violations) {
 }
 
 describe('B · never-events sweep (report-only — see file header before asserting anything from this)', () => {
+  // Owner decision 2026-09-19: enforce as a real never-event. Known exception
+  // (CDC's 4-day grace) is already built into the check above (GRACE_MONTHS),
+  // not carved out here — a brand offered more than 4 days early is still a
+  // real violation.
   it('property 1 — no brand offered below its own licensed minimum age', () => {
     report('Property 1 (brand below its licensed minimum age)', p1);
-    expect(rows.total).toBeGreaterThan(0);
+    expect(p1.slice(0, 20)).toEqual([]);
+    expect(p1.length).toBe(0);
   });
 
   it('property 2 — earliestNextDate is a real, forward-looking date', () => {
