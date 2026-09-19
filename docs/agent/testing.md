@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 120 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 74 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 122 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 76 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 42 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 41 (the 42nd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,469 | `npm test`, 2026-09-19, on top of commit `19885fb` (includes this rewrite's own new test file) |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 499 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,481 | `npm test`, 2026-09-19, on top of commit `e159211` (plan item B: `test-grid.js` + the never-events sweep + its drift tripwire) |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 503 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean
@@ -86,22 +86,42 @@ for finding the right one:
 ## The sweep pattern
 
 [`sweep-dose-counter.test.js`](../../src/logic/__tests__/sweep-dose-counter.test.js)
-does not test one patient — it generates every age in the app's own input range
-(`StepAge.jsx`'s `max="120"`, stepped every few months) crossed with a
+and
+[`sweep-never-events.test.js`](../../src/logic/__tests__/sweep-never-events.test.js)
+do not test one patient each — they generate every age in the app's own input
+range (`StepAge.jsx`'s `max="120"`, stepped every few months) crossed with a
 representative risk profile per `menacwyClass`/`menbClass` pairing and dose
-histories of 0–5 doses, then asserts a handful of properties across every one
-of those generated patients at once (currently: no dose chip ever implies
-"dose N of M" with N > M). It exists because every earlier fix to that bug
-shipped as a test for the one age it was written about, and an 82-year-old
-broke it anyway.
+histories of 0–5 doses, then assert (or, for the never-events sweep, report —
+see below) a handful of properties across every one of those generated
+patients at once. `sweep-dose-counter.test.js` exists because every earlier
+fix to the "dose N of M with N > M" bug shipped as a test for the one age it
+was written about, and an 82-year-old broke it anyway.
 
-This is currently the suite's only sweep, and it hand-writes its own list of 7
-risk profiles rather than deriving them from `riskFactors.js` — meaning a new
-risk factor added to the app does not automatically widen it. Fixing that (a
-shared `src/test-grid.js` that every sweep imports from, so the grid can't fall
-behind the app) is planned but **not yet built** — see
-`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, item B, if you are
-looking for it and it isn't here yet.
+Both sweeps get their risk profiles, brands and dose-generation helpers from
+[`src/test-grid.js`](../../src/test-grid.js) — **derived** from
+`riskFactors.js` and `brands.js`, not hand-typed, so a new risk factor or
+brand widens both sweeps on the next run with no test edit. `test-grid.js`
+also documents, in its own comments, exactly what its class-based profile
+list does **not** yet cover (several risk ids branch individually, beyond
+their class) — that widening is plan item C1, not done yet.
+
+`sweep-never-events.test.js` checks seven candidate never-event properties
+(no brand below its licensed floor, no nonsense `earliestNextDate`, every
+actionable rec cites something, status is always one of the known eight,
+`recommend()` never throws, plus two duplicate/heuristic properties). It
+landed **report-only** first — printing a violation count and examples for
+each without asserting any of them were bugs — because several of these
+properties have legitimate exceptions (the four-day grace rule, shared-
+decision citations), and a naive assertion would fail on the exception
+rather than on a real bug. After the owner reviewed that output, five of the
+seven (1-5) were turned into real, enforced assertions, one property per
+commit (2026-09-19). Property 6 stays report-only — it's a rough heuristic,
+not yet precise enough to trust as a rule. Property 7 duplicates a real
+assertion already enforced in `sweep-dose-counter.test.js`. See
+`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, item B, for the
+full reasoning; item B2 (grid realism: fractional ages, dates of birth
+instead of `ageMonths`, deliberately invalid doses) and C1 (widening the
+profile list) are the next two steps and are **not yet built**.
 
 ## The worktree trap
 

@@ -14,56 +14,27 @@
 //   - the chip never falls back to the old dead "Counts" label
 //   - a dose is never numbered (effectiveDoseNum) against a null total
 //     without an explicit non-numbered label to show for it
+//
+// Plan item B (2026-09-19): the risk-profile list and dose-generation helpers
+// now come from `test-grid.js` instead of being typed here. This file used to
+// hardcode `TODAY = '2026-09-14'`, one day off the suite's pinned
+// `TEST_TODAY = '2026-09-15'` (`test-today.js`) — the exact "two dates, one
+// suite" drift the plan calls out. It also hand-typed 7 risk combinations
+// that did not widen when a risk factor was added; the grid's derived list
+// widens on its own (see `test-grid.js` for what it still does not cover).
 // ─────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
 import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
-import { addDays } from '../dateUtils.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
+import { TEST_TODAY } from '../../test-today.js';
+import {
+  SINGLE_RISK_PROFILES, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
+  MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses,
+} from '../../test-grid.js';
 
-const TODAY = '2026-09-14';
-
-// Every risk combination that produces a DISTINCT menacwyClass/menbClass
-// pairing (riskFactors.js), plus the reported bug's own context (hct alone
-// — no menacwyClass/menbClass at all, falls to the routine/healthy path).
-const RISK_COMBOS = [
-  [],                    // routine MenACWY, not-yet-indicated/healthy MenB
-  ['hct'],               // reported bug's own context — no risk CLASS, routine/healthy path
-  ['asplenia'],          // primary2 MenACWY + highrisk MenB
-  ['microbiologist'],    // single+boost MenACWY + highrisk MenB
-  ['travel'],            // single+boost MenACWY, no MenB
-  ['military'],          // single MenACWY, no MenB
-  ['college_dorm'],      // single MenACWY (own age-band sub-logic), no MenB
-];
-
-// Chronological dose dates for `count` doses (0-5), each `stepMonths` apart,
-// the most recent one `recentOffsetMonths` in the past — spacing generous
-// enough to clear every interval rule in validate.js (max is MenB healthy
-// D2's 6 months) so every generated dose validates as clinically VALID.
-// This isolates the N-vs-M counting/capping logic from the (separately,
-// already thoroughly tested) invalid-dose-detection logic.
-const STEP_MONTHS = 8;
-const RECENT_OFFSET_MONTHS = 1;
-
-function monthsAgo(m) { return addDays(TODAY, -Math.round(m * 30.4375)); }
-
-// Only generate as many doses as fit above the brand's own minimum age —
-// an infeasible combo (e.g. 5 doses 8mo apart for a 3-month-old) is simply
-// capped down, not skipped, so every age still gets SOME coverage.
-function feasibleCount(am, minAgeM, maxCount) {
-  if (am < minAgeM) return 0;
-  return Math.max(0, Math.min(maxCount, Math.floor((am - minAgeM) / STEP_MONTHS) + 1));
-}
-
-function makeDoses(am, count, brand, minAgeM) {
-  const k = feasibleCount(am, minAgeM, count);
-  const doses = [];
-  for (let i = k - 1; i >= 0; i--) {
-    doses.push({ date: monthsAgo(RECENT_OFFSET_MONTHS + i * STEP_MONTHS), brand });
-  }
-  return doses;
-}
+const TODAY = TEST_TODAY;
 
 // The chip label comes from the component's own module. This block used to be
 // a second copy of it, under a comment promising it mirrored RecCard.jsx
@@ -77,10 +48,10 @@ describe('F4 sweep — no chip ever shows N > M, across every age × risk × dos
   const failures = [];
 
   for (let am = 0; am <= 120 * 12; am += 3) { // every 3 months, 0-120 years
-    for (const riskIds of RISK_COMBOS) {
+    for (const riskIds of SINGLE_RISK_PROFILES) {
       for (let count = 0; count <= 5; count++) {
-        const menacwyDoses = makeDoses(am, count, 'Menveo (MenACWY)', 2);
-        const menbDoses = makeDoses(am, count, 'Bexsero (MenB)', 120);
+        const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
+        const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
 
         const result = recommend({
           today: TODAY, ageMonths: am, riskIds, menacwyDoses, menbDoses,
