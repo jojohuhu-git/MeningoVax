@@ -201,9 +201,14 @@ describe('B · never-events sweep (report-only — see file header before assert
     expect(p2.length).toBe(0);
   });
 
+  // Owner decision 2026-09-19: enforce as a real never-event. Scope is
+  // deliberately the four actionable statuses only — shared-decision and
+  // deferred are excluded (built into ACTIONABLE_STATUSES above), because
+  // the plan names them as legitimately citing differently.
   it('property 3 — every actionable rec (due/catchup/risk-based/exposure) carries a citation', () => {
     report('Property 3 (actionable rec with no citation)', p3);
-    expect(rows.total).toBeGreaterThan(0);
+    expect(p3.slice(0, 20)).toEqual([]);
+    expect(p3.length).toBe(0);
   });
 
   it('property 4 — status is always one of the known eight', () => {
