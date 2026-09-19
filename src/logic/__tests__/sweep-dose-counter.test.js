@@ -22,15 +22,26 @@
 // suite" drift the plan calls out. It also hand-typed 7 risk combinations
 // that did not widen when a risk factor was added; the grid's derived list
 // widens on its own (see `test-grid.js` for what it still does not cover).
+//
+// B2 (2026-09-19): swept patients are now generated from a DATE OF BIRTH
+// (`SWEEP_DOBS`), not a plain `ageMonths` integer — every prior row here was
+// a whole number of months old and never touched the app's own dob-derived
+// age path (`patientAgeMonths`/`dobToAgeMonths`). This is deliberately still
+// the GENEROUS dose-spacing profile: F4 is a COUNTING property (no chip may
+// imply N > M), which needs every generated dose to be clinically VALID to
+// mean anything — an invalid dose is never numbered at all. The new
+// deliberately-invalid TIGHT profile (`makeTightDoses` in `test-grid.js`) is
+// exercised by `sweep-never-events.test.js` instead, not here.
 // ─────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
 import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
+import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
-  SINGLE_RISK_PROFILES, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
+  SWEEP_DOBS, SINGLE_RISK_PROFILES, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
   MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses,
 } from '../../test-grid.js';
 
@@ -47,19 +58,20 @@ const chipLabel = (result, seriesTotal) => doseChipLabel(result, seriesTotal);
 describe('F4 sweep — no chip ever shows N > M, across every age × risk × dose-count', () => {
   const failures = [];
 
-  for (let am = 0; am <= 120 * 12; am += 3) { // every 3 months, 0-120 years
+  for (const dob of SWEEP_DOBS) { // B2a/B2b: real dates of birth, fractional ages included
+    const am = dobToAgeMonths(dob, TODAY);
     for (const riskIds of SINGLE_RISK_PROFILES) {
       for (let count = 0; count <= 5; count++) {
         const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
         const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
 
         const result = recommend({
-          today: TODAY, ageMonths: am, riskIds, menacwyDoses, menbDoses,
+          today: TODAY, ageMonths: am, dob, riskIds, menacwyDoses, menbDoses,
         });
         if (result.excluded) continue; // hard-stop combos carry no dose chips
 
-        const acwyAnalysis = analyzeHistory('MenACWY', menacwyDoses, am, riskIds, TODAY);
-        const bAnalysis = analyzeHistory('MenB', menbDoses, am, riskIds, TODAY);
+        const acwyAnalysis = analyzeHistory('MenACWY', menacwyDoses, am, riskIds, TODAY, undefined, dob);
+        const bAnalysis = analyzeHistory('MenB', menbDoses, am, riskIds, TODAY, undefined, dob);
         const acwyTotal = result.menacwy[0]?.seriesTotal ?? null;
         const bTotal = result.menb[0]?.seriesTotal ?? null;
 
