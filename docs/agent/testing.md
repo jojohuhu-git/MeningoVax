@@ -3,23 +3,132 @@
 ## Framework
 
 - **Vitest** — `npm test` = `vitest run`, `npm run test:watch` = `vitest`
-- All tests run in the default `node` environment (no happy-dom needed — no UI rendering tests yet)
-- Test files live in `src/logic/__tests__/` and `src/components/__tests__/`
+- **Environment rule:** tests run in `node` by default. A file opts into
+  `happy-dom` (a lightweight browser DOM implementation, needed to render a
+  React component and read its output) individually, with
+  `// @vitest-environment happy-dom` as its first line.
+- Test files live in `src/logic/__tests__/`, `src/components/__tests__/`, and
+  `src/data/__tests__/`.
+- Global setup: `src/test-setup.js`. Shared test-only helpers: `src/test-today.js`
+  (the one pinned "today" — see below), `src/test-why-this.js`, `src/test-note-text.js`.
 
-## Test Files
+## Measured counts
 
-| File | What it covers |
+The table below is what a fresh checkout actually contains. It is re-derivable
+with the command in the third column, and every row is checked on every
+`npm test` run by `regression-testing-md-counts-match-reality.test.js` — if
+the repo and this table disagree, that test fails and names the mismatch.
+
+| What | Count | Re-derive with |
+|---|---|---|
+| Test files, total | 120 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 74 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 42 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 41 (the 42nd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+
+**Not guarded by a test** — re-run the command if you need a current number,
+rather than trusting this document:
+
+| What | Count | Measured |
+|---|---|---|
+| Individual `it()` tests, total | 1,469 | `npm test`, 2026-09-19, on top of commit `19885fb` (includes this rewrite's own new test file) |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 499 | `npx vitest run --reporter=json`, same run |
+| Failing | 0 | same run |
+
+These two rows are a snapshot, not a tripwire: verifying them exactly would mean
+re-running the whole suite from inside a test, which is expensive and was
+judged not worth it for this document (see the plan this rewrite came out of,
+`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`). The file counts
+above are the load-bearing numbers for navigating the suite, so those are the
+ones that are guarded.
+
+## The two-layer rule
+
+A fix for anything visible on screen gets **two** tests, not one:
+
+1. An **engine test** in `src/logic/__tests__/`, asserting on what `recommend()`
+   or `analyzeHistory()` returns.
+2. A **screen test** in `src/components/__tests__/` (`happy-dom`), asserting on
+   what actually renders — because an engine can be correct while the component
+   reading its output still shows the wrong thing.
+
+Each names the other in a header comment. Example —
+[`regression-b1-infant-band-edges-ui.test.jsx`](../../src/components/__tests__/regression-b1-infant-band-edges-ui.test.jsx):
+
+> `// B1 · UI layer. The engine-layer twin, with the verbatim CDC quotes and the`
+> `// full history, is src/logic/__tests__/regression-b1-infant-band-edges.test.js.`
+
+Measured 2026-09-19 by stripping the `-ui` suffix from every
+`components/__tests__` file name and intersecting with `logic/__tests__` file
+names: **19** pairs match by name alone. That undercounts the real total — some
+pairs use different stems on each side and only declare the link in the header
+comment (grep for "engine-layer twin" / "screen-layer twin" if a same-name
+match doesn't turn one up) — but 19 is enough to show the convention is real
+and in active use, not aspirational.
+
+## The tripwire family
+
+Seven tests exist purely to catch a repo-wide failure mode, not to check one
+clinical rule. Each is described in its own header comment; this is the map
+for finding the right one:
+
+| Test | Guards against |
 |---|---|
-| `src/logic/__tests__/recommend.test.js` | Engine unit tests — all rec paths, risk classes, booster cadence |
-| `src/logic/__tests__/validate.test.js` | Dose validation — min age, intervals, family mismatch, unknown dates |
-| `src/logic/__tests__/analyzeHistory.test.js` | analyzeHistory integration (effective dose counting) |
-| `src/logic/__tests__/validate-new-rules.test.js` | d1Cross, booster-cadence, dateless min-age rules |
-| `src/logic/__tests__/regression-pentavalent-menb-minage.test.js` | Penbraya/Penmenvy min age on every dose |
-| `src/logic/__tests__/regression-d2-d5-d6-d7.test.js` | Job-aid cross-check: 16–21y catch-up, infant HR intervals, 3-dose shortcut, Menveo split |
-| `src/logic/__tests__/regression-dateless-minage.test.js` | Dateless dose min-age logic (current age as upper bound) |
-| `src/logic/__tests__/regression-c1-h1-m1-m2-m3-m4-m5.test.js` | Code-review fixes: D3 timing, infant series completion, age boundaries, family lock, risk class, date utils |
-| `src/logic/__tests__/format-ageGroup.test.js` | ageGroup() thresholds (10y = Child, 11y = Adolescent) |
-| `src/components/__tests__/App.test.jsx` | Wizard render/flow tests |
+| [`date-pinning.test.js`](../../src/logic/__tests__/date-pinning.test.js) | The suite giving a different answer depending on what day it's run — a red suite that is nobody's fault, which teaches you to ignore red. |
+| [`citation-freshness.test.js`](../../src/data/__tests__/citation-freshness.test.js) | A source's `lastVerified` date in `refs.js` going stale (>12 months old by default) with nothing noticing. |
+| [`citation-integrity.test.js`](../../src/data/__tests__/citation-integrity.test.js) | A citation that's broken, orphaned, or attached to a recommendation it doesn't actually support. |
+| [`rule-docs-match-code.test.js`](../../src/logic/__tests__/rule-docs-match-code.test.js) | `clinical-rules.md` / `meningococcal-rules-summary.md` describing a rule the code no longer implements — reads the real value out of the code and requires the doc to state it. |
+| [`regression-p2-1-intervals-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-1-intervals-in-one-place.test.js) | An interval (dose spacing) value hand-typed a second time somewhere instead of imported from `intervals.js`. |
+| [`regression-p2-3-ages-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-3-ages-in-one-place.test.js) | Same, for age thresholds — imported from the age-threshold source instead of retyped. |
+| [`regression-chip-label-one-copy.test.js`](../../src/components/__tests__/regression-chip-label-one-copy.test.js) | A second, hand-written copy of the dose-chip wording drifting from `doseChipLabel.js`'s real logic — this happened once already, on 20,167 swept rows. |
+
+## The sweep pattern
+
+[`sweep-dose-counter.test.js`](../../src/logic/__tests__/sweep-dose-counter.test.js)
+does not test one patient — it generates every age in the app's own input range
+(`StepAge.jsx`'s `max="120"`, stepped every few months) crossed with a
+representative risk profile per `menacwyClass`/`menbClass` pairing and dose
+histories of 0–5 doses, then asserts a handful of properties across every one
+of those generated patients at once (currently: no dose chip ever implies
+"dose N of M" with N > M). It exists because every earlier fix to that bug
+shipped as a test for the one age it was written about, and an 82-year-old
+broke it anyway.
+
+This is currently the suite's only sweep, and it hand-writes its own list of 7
+risk profiles rather than deriving them from `riskFactors.js` — meaning a new
+risk factor added to the app does not automatically widen it. Fixing that (a
+shared `src/test-grid.js` that every sweep imports from, so the grid can't fall
+behind the app) is planned but **not yet built** — see
+`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, item B, if you are
+looking for it and it isn't here yet.
+
+## The worktree trap
+
+`.claude/worktrees/` holds full second copies of `src/` — one per agent
+worktree in progress. `vitest.config.js` excludes that directory explicitly:
+
+```js
+exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/worktrees/**'],
+```
+
+Without that line, `npx vitest run` from the repo root collects both copies:
+the count roughly doubles, and the copy that isn't the real project root fails
+on setup paths — so a perfectly clean tree reports about 197 meaningless
+failures. If you ever see a sudden wall of failures with no code change to
+explain them, check for a worktree under `.claude/worktrees/` and check that
+this exclude line is still there before you go looking for a regression.
+
+## Finding a fix's tests
+
+There is no per-file index — with 120 files it would be the first thing to go
+stale, so this document does not keep one. Instead: **a fix's tests are named
+for the fix-queue ID that produced them.** `regression-b1-...`,
+`regression-p0-4-...`, `regression-imp-p1-2-...`, `g6-...`, `m9-...`,
+`u3-...`, `cal-p2-2-...` are all queue IDs from `docs/archive/` handoffs and
+audit queues. To find every test touching a given fix, grep its ID across
+`src/**/__tests__/` — both the engine and screen layers, if it has both, will
+turn up.
 
 ## Coverage Requirements
 
