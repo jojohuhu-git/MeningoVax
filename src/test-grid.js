@@ -9,15 +9,20 @@
 // about: it did not widen when a risk factor was added, and it hardcoded its
 // own `TODAY` one day off the suite's pinned `TEST_TODAY`.
 //
-// B2 (grid realism — fractional ages, dates of birth instead of ageMonths,
-// deliberately invalid doses) and C1 (widening from one profile per risk
-// CLASS to one profile per risk ID — 12 singles + 66 pairs) are the next two
-// items in the plan and are deliberately NOT done here.
+// B2 (grid realism, this file as of the B2 commit) fixed three blind spots in
+// the grid: every swept age was a whole number of months, every sweep passed
+// `ageMonths` directly instead of a `dob` (bypassing the app's own primary age
+// path), and no generated dose was ever invalid. See SWEEP_DOBS,
+// dobForApproxAgeMonths and the TIGHT profile below.
+//
+// C1 (widening from one profile per risk CLASS to one profile per risk ID —
+// 12 singles + 66 pairs) is the next item in the plan and is deliberately NOT
+// done here.
 import { RISK_FACTORS } from './data/riskFactors.js';
 import {
   MENB_BRANDS, menacwyBrandLabelsForAge, MENACWY_MIN_AGE_MONTHS,
 } from './data/brands.js';
-import { addDays } from './logic/dateUtils.js';
+import { addDays, addCalendarMonths } from './logic/dateUtils.js';
 import { TEST_TODAY } from './test-today.js';
 
 // StepAge.jsx's own input range (`max="120"`, years) — read here, not retyped.
@@ -64,8 +69,8 @@ export const MENB_SWEEP_BRAND_MIN_AGE = MENB_BRANDS[0].minAgeM;
 // Spacing wide enough to clear every interval rule in validate.js (the widest
 // is MenB healthy dose 2's 6 months), so every generated dose validates as
 // clinically VALID. This isolates counting/never-event logic from interval-
-// validity logic. B2c (deferred, plan item B2) adds a TIGHT profile that
-// deliberately violates intervals, for the properties that need it.
+// validity logic. The TIGHT profile below (B2c) deliberately violates
+// intervals instead, for the properties that need invalid doses.
 export const GENEROUS_STEP_MONTHS = 8;
 const RECENT_OFFSET_MONTHS = 1;
 
@@ -86,3 +91,95 @@ export function makeGenerousDoses(ageMonths, count, brand, minAgeM, today = TEST
   }
   return doses;
 }
+
+// ── Dose generation: the TIGHT profile (B2c) ──────────────────────────────
+// B2c: the generous profile above is deliberately spaced wide enough that
+// every dose it generates validates — that isolated the counting logic B was
+// built for, but it left the entire invalid-dose space unswept: too-soon
+// intervals, below-minimum-age doses, doses dated before the patient's own
+// birth. This profile does the opposite on purpose: 1-calendar-month spacing
+// clears none of validate.js's real intervals (the narrowest, MenACWY's own
+// baseline floor between any two doses and MenB high-risk dose 2, is 4 weeks;
+// the widest, MenB healthy dose 2, is 6 months — see the interval-constants
+// block atop validate.js), so every dose after the first is "too soon". No
+// minAgeM floor is applied to where the oldest dose lands, so a young-enough
+// patient also gets a dose recorded before their own minimum licensed age —
+// and, at the youngest swept ages, one dated before birth. That is
+// intentional: those are exactly what never-events properties 1 and 5 need
+// invalid data to exercise.
+//
+// Do NOT use this profile for a counting property (F4 / property 7 in
+// sweep-dose-counter.test.js) — invalid doses don't count and are never
+// numbered, so they can't expose a numbering bug. Counting properties stay on
+// the generous profile above; this one is for "does the app stay sane when
+// the history is wrong", not "does the app count a valid history correctly".
+export const TIGHT_STEP_MONTHS = 1;
+
+export function makeTightDoses(ageMonths, count, brand, today = TEST_TODAY) {
+  const doses = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const monthsBack = RECENT_OFFSET_MONTHS + i * TIGHT_STEP_MONTHS;
+    doses.push({ date: addDays(today, -Math.round(monthsBack * 30.4375)), brand });
+  }
+  return doses;
+}
+
+// ── B2a/B2b: the swept patients, as dates of birth ────────────────────────
+// Every sweep used to iterate a plain `ageMonths` integer and pass it
+// straight to recommend()/analyzeHistory() as `ageMonths` — bypassing the
+// date-of-birth path entirely (patientAgeMonths() prefers `dob` and derives
+// the exact-to-the-day age from it; `ageMonths` alone is the fallback for a
+// patient with no known birthday). Since PR #42/#44, `dob` is what the real
+// app actually keeps and passes, and the calendar-exact arithmetic those PRs
+// fixed (dobToAgeMonths, ageAtDoseMonths's calendar-exact branch,
+// beforeBirthProblem, the 16th-birthday date) only runs when a `dob` is
+// present. A grid that never supplies one exercises none of it.
+//
+// SWEEP_DOBS below is what every sweep should loop over. For each `dob`, get
+// the real age with `dobToAgeMonths(dob, TEST_TODAY)` from `./logic/format.js`
+// — do not retype the arithmetic in a sweep file.
+export const AGE_STEP_MONTHS = 3;
+
+// A non-multiple of the ~30.4375-day averaged month. Subtracting it from
+// every regular-step dob below means NO row in the main sweep lands back on a
+// whole-month anniversary at TEST_TODAY — every age comes out fractional.
+// Before this, all 95,928+ rows the grid ever generated were an exact integer
+// number of months old (B2a) — the same blind spot the 2026-09-18 handoff
+// named as "the most productive lens on this codebase" and never applied to
+// the grid. B1 (infant band edges) and cal P2-2 (age-at-dose off by up to
+// 2.95 days) both survived a green suite because of it.
+const FRACTIONAL_OFFSET_DAYS = 11;
+
+export function dobForApproxAgeMonths(approxAgeMonths, today = TEST_TODAY) {
+  return addDays(addCalendarMonths(today, -approxAgeMonths), -FRACTIONAL_OFFSET_DAYS);
+}
+
+function dobAtAgeMonths(ageMonths, today = TEST_TODAY) {
+  return addDays(today, -Math.round(ageMonths * 30.4375));
+}
+
+// Ages a defect has actually hidden behind before (B2a). The infant-band
+// half-months are where B1 put an extra injection into a 6½-month-old; the
+// day either side of each birthday gate is where cal P2-2 miscounted a dose
+// by up to 2.95 days; 29 February is the calendar's own edge case — a real
+// leap-day `dob`, chosen near the MenACWY 16-year routine-booster gate so
+// `addCalendarYears`'s Feb-29 clamp gets exercised, not just guessed at.
+const EDGE_BAND_HALF_MONTHS = [6.5, 7.5, 11.5, 23.5];
+const BIRTHDAY_GATE_YEARS = [10, 11, 16, 19];
+
+export const EDGE_CASE_DOBS = [
+  ...EDGE_BAND_HALF_MONTHS.map((m) => dobAtAgeMonths(m)),
+  ...BIRTHDAY_GATE_YEARS.flatMap((y) => [
+    addDays(addCalendarMonths(TEST_TODAY, -y * 12), 1), // one day before the birthday
+    addDays(addCalendarMonths(TEST_TODAY, -y * 12), -1), // one day after the birthday
+  ]),
+  '2010-02-29', // leap-day dob, ~16.5y at TEST_TODAY
+];
+
+export const SWEEP_DOBS = (() => {
+  const dobs = [];
+  for (let am = 0; am <= MAX_AGE_MONTHS; am += AGE_STEP_MONTHS) {
+    dobs.push(dobForApproxAgeMonths(am));
+  }
+  return [...dobs, ...EDGE_CASE_DOBS];
+})();

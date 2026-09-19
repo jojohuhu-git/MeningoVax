@@ -105,6 +105,20 @@ also documents, in its own comments, exactly what its class-based profile
 list does **not** yet cover (several risk ids branch individually, beyond
 their class) — that widening is plan item C1, not done yet.
 
+Every swept patient is generated from a **date of birth** (`SWEEP_DOBS` in
+`test-grid.js`), not a plain `ageMonths` integer — plan item B2 (2026-09-19).
+The grid's dob step lands off whole-month anniversaries on purpose, so no row
+is an exact integer number of months old, and it injects the specific ages
+that have hidden a defect before: infant-band half-months (6.5/7.5/11.5/23.5),
+the day either side of each birthday gate (10y/11y/16y/19y), and a real
+29 February dob. `sweep-never-events.test.js` also runs its five enforced
+properties against a second, deliberately invalid **tight**-spacing dose
+profile (`makeTightDoses`) alongside the original **generous** one, so the
+never-taken invalid-dose space (too-soon intervals, below-minimum-age doses,
+doses before birth) is swept too. `sweep-dose-counter.test.js`'s counting
+property stays on the generous profile only — an invalid dose is never
+numbered, so it can't expose a numbering bug.
+
 `sweep-never-events.test.js` checks seven candidate never-event properties
 (no brand below its licensed floor, no nonsense `earliestNextDate`, every
 actionable rec cites something, status is always one of the known eight,
@@ -118,10 +132,9 @@ seven (1-5) were turned into real, enforced assertions, one property per
 commit (2026-09-19). Property 6 stays report-only — it's a rough heuristic,
 not yet precise enough to trust as a rule. Property 7 duplicates a real
 assertion already enforced in `sweep-dose-counter.test.js`. See
-`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, item B, for the
-full reasoning; item B2 (grid realism: fractional ages, dates of birth
-instead of `ageMonths`, deliberately invalid doses) and C1 (widening the
-profile list) are the next two steps and are **not yet built**.
+`.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, items B and B2,
+for the full reasoning; item C1 (widening the profile list to every risk id
+and pair) is the next step and is **not yet built**.
 
 ## The worktree trap
 
