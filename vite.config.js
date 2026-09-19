@@ -20,5 +20,11 @@ export default defineConfig({
     // failures that mean nothing. Vitest's default exclude covers node_modules
     // and dist, not this.
     exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/worktrees/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/**/__tests__/**', 'src/test-*.js'],
+    },
   },
 });
