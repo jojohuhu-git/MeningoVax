@@ -218,9 +218,11 @@ describe('B · never-events sweep (report-only — see file header before assert
     expect(p4.length).toBe(0);
   });
 
+  // Owner decision 2026-09-19: enforce as a real never-event, no known exception.
   it('property 5 — recommend() never throws, for any patient on the grid', () => {
     report('Property 5 (recommend() threw)', p5);
-    expect(rows.total).toBeGreaterThan(0);
+    expect(p5.slice(0, 20)).toEqual([]);
+    expect(p5.length).toBe(0);
   });
 
   it('property 6 (HEURISTIC) — a completed series should not still read as due today', () => {
