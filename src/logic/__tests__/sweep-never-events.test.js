@@ -194,9 +194,11 @@ describe('B · never-events sweep (report-only — see file header before assert
     expect(p1.length).toBe(0);
   });
 
+  // Owner decision 2026-09-19: enforce as a real never-event, no known exception.
   it('property 2 — earliestNextDate is a real, forward-looking date', () => {
     report('Property 2 (earliestNextDate sanity)', p2);
-    expect(rows.total).toBeGreaterThan(0);
+    expect(p2.slice(0, 20)).toEqual([]);
+    expect(p2.length).toBe(0);
   });
 
   it('property 3 — every actionable rec (due/catchup/risk-based/exposure) carries a citation', () => {
