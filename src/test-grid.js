@@ -15,9 +15,14 @@
 // path), and no generated dose was ever invalid. See SWEEP_DOBS,
 // dobForApproxAgeMonths and the TIGHT profile below.
 //
-// C1 (widening from one profile per risk CLASS to one profile per risk ID —
-// 12 singles + 66 pairs) is the next item in the plan and is deliberately NOT
-// done here.
+// C1 (2026-09-19): widened SINGLE_RISK_PROFILES from one profile per risk
+// CLASS (8 profiles, collapsing e.g. travel/microbiologist/college_dorm/
+// outbreak_acwy/pregnancy onto whichever id happened to win its class
+// pairing) to one profile per risk id — all 12, individually — plus added
+// PAIR_RISK_PROFILES, every 2-risk combination (66 pairs, C(12,2)). Both are
+// DERIVED from RISK_FACTORS, so a 13th risk factor widens both on its own.
+// The pair sweep runs on SWEEP_DOBS_COARSE (6-month step) instead of the
+// 3-month SWEEP_DOBS — see the runtime note by that export.
 import { RISK_FACTORS } from './data/riskFactors.js';
 import {
   MENB_BRANDS, menacwyBrandLabelsForAge, MENACWY_MIN_AGE_MONTHS,
@@ -31,30 +36,39 @@ export const MAX_AGE_MONTHS = 120 * 12;
 // Risk factors the engine can actually be asked about. `hct_cart_bcell_exclude`
 // hard-stops the whole engine (recommend() returns `excluded: true` before it
 // reads anything else) and carries no dose recommendations for a sweep to check.
+// Kept for callers that generate doses to check (dose generation assumes a
+// non-excluded patient); SINGLE_RISK_PROFILES/PAIR_RISK_PROFILES below sweep
+// hct_cart_bcell_exclude too — both sweeps already skip `excluded: true` rows.
 export const SWEEPABLE_RISK_FACTORS = RISK_FACTORS.filter((r) => !r.exclude);
 
-// One risk id per distinct (menacwyClass, menbClass) pairing — first catalog
-// entry per pairing wins — plus the no-risk baseline. DERIVED, so a risk
-// factor whose pairing doesn't exist yet widens this on its own.
-//
-// KNOWN LIMITATION, left for plan item C1 on purpose: recommend.js branches on
-// several risk ids INDIVIDUALLY, beyond their class — travel, microbiologist,
-// college_dorm, outbreak_acwy and pregnancy each carry their own age-band or
-// infant-series logic despite sharing a class with another id (grep
-// `riskIds.includes(` / `riskIds.some(` in recommend.js and validate.js).
-// Collapsing by class means this grid, like the hand-typed list it replaces,
-// exercises only whichever id happens to win its pairing — e.g. today
-// 'military' wins the single/undefined pairing over 'college_dorm' and
-// 'outbreak_acwy'. C1 sweeps every id individually (12 singles) and closes
-// this gap. Until then, a clean result here means "no counting-logic
-// regression", not "no id-specific regression" — do not read it as the latter.
-export const SINGLE_RISK_PROFILES = (() => {
-  const seenPairing = new Map();
-  for (const r of SWEEPABLE_RISK_FACTORS) {
-    const key = `${r.menacwyClass ?? 'none'}|${r.menbClass ?? 'none'}`;
-    if (!seenPairing.has(key)) seenPairing.set(key, r.id);
+// C1: every risk id gets its own profile, individually — not collapsed by
+// (menacwyClass, menbClass) pairing the way the pre-C1 grid did. That old
+// collapse meant travel/microbiologist/college_dorm/outbreak_acwy/pregnancy —
+// each of which recommend.js and validate.js branch on BY ID, beyond their
+// shared class (grep `riskIds.includes(` / `riskIds.some(`) — were exercised
+// only when they happened to win their class pairing (e.g. 'military' won
+// the single/undefined pairing over 'college_dorm' and 'outbreak_acwy', so
+// neither of those two ids was ever swept on its own). DERIVED from
+// RISK_FACTORS, so a 13th risk factor widens both lists with no test edit.
+export const ALL_RISK_IDS = RISK_FACTORS.map((r) => r.id);
+
+// The no-risk baseline plus one profile per risk id — 1 + 12 = 13 profiles
+// (was 8, one per class pairing, pre-C1).
+export const SINGLE_RISK_PROFILES = [[], ...ALL_RISK_IDS.map((id) => [id])];
+
+// Every 2-risk combination — C(12,2) = 66 pairs. A real patient can tick more
+// than one box; pre-C1 the grid never swept a combination at all (C2's
+// hand-written 8 clinical combos are the only place that happened, and C2 is
+// still not built). Swept on SWEEP_DOBS_COARSE, not SWEEP_DOBS — see that
+// export for the runtime reasoning.
+export const PAIR_RISK_PROFILES = (() => {
+  const pairs = [];
+  for (let i = 0; i < ALL_RISK_IDS.length; i++) {
+    for (let j = i + 1; j < ALL_RISK_IDS.length; j++) {
+      pairs.push([ALL_RISK_IDS[i], ALL_RISK_IDS[j]]);
+    }
   }
-  return [[], ...[...seenPairing.values()].map((id) => [id])];
+  return pairs;
 })();
 
 // The brand each sweep dose is recorded under — the youngest-licensed ACTIVE
@@ -179,6 +193,25 @@ export const EDGE_CASE_DOBS = [
 export const SWEEP_DOBS = (() => {
   const dobs = [];
   for (let am = 0; am <= MAX_AGE_MONTHS; am += AGE_STEP_MONTHS) {
+    dobs.push(dobForApproxAgeMonths(am));
+  }
+  return [...dobs, ...EDGE_CASE_DOBS];
+})();
+
+// C1: PAIR_RISK_PROFILES is 66 profiles vs. SINGLE_RISK_PROFILES' 13 — running
+// it at the same 3-month AGE_STEP_MONTHS would multiply the sweep's rows by
+// roughly the pair-to-single ratio and take the suite from ~14s to the
+// high-20s. The plan calls for coarsening the age step for pairs instead,
+// since the age *bands* matter most for single risk factors, not for
+// checking that two of them combine without a counting/never-event
+// violation. Six months keeps a reasonable number of samples per year of
+// life while cutting the row count roughly in half. EDGE_CASE_DOBS is still
+// included in full — it is 13 dobs, negligible against 66 profiles either way.
+export const AGE_STEP_MONTHS_COARSE = 6;
+
+export const SWEEP_DOBS_COARSE = (() => {
+  const dobs = [];
+  for (let am = 0; am <= MAX_AGE_MONTHS; am += AGE_STEP_MONTHS_COARSE) {
     dobs.push(dobForApproxAgeMonths(am));
   }
   return [...dobs, ...EDGE_CASE_DOBS];

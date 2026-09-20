@@ -32,6 +32,13 @@
 // mean anything — an invalid dose is never numbered at all. The new
 // deliberately-invalid TIGHT profile (`makeTightDoses` in `test-grid.js`) is
 // exercised by `sweep-never-events.test.js` instead, not here.
+//
+// C1 (2026-09-19): the risk-profile list widened from 8 profiles (one per
+// (menacwyClass, menbClass) pairing) to 13 SINGLE_RISK_PROFILES (all 12 risk
+// ids, individually) plus 66 PAIR_RISK_PROFILES (every 2-risk combination) —
+// see `test-grid.js` for what each now covers. Pairs run on the coarser
+// SWEEP_DOBS_COARSE (6-month step, not 3) to keep the suite's runtime near
+// its pre-C1 mark — see that export for the measured reasoning.
 // ─────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
@@ -41,7 +48,8 @@ import { doseChipLabel } from '../../components/doseChipLabel.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
-  SWEEP_DOBS, SINGLE_RISK_PROFILES, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
+  SWEEP_DOBS, SWEEP_DOBS_COARSE, SINGLE_RISK_PROFILES, PAIR_RISK_PROFILES,
+  MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
   MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses,
 } from '../../test-grid.js';
 
@@ -58,45 +66,54 @@ const chipLabel = (result, seriesTotal) => doseChipLabel(result, seriesTotal);
 describe('F4 sweep — no chip ever shows N > M, across every age × risk × dose-count', () => {
   const failures = [];
 
-  for (const dob of SWEEP_DOBS) { // B2a/B2b: real dates of birth, fractional ages included
-    const am = dobToAgeMonths(dob, TODAY);
-    for (const riskIds of SINGLE_RISK_PROFILES) {
-      for (let count = 0; count <= 5; count++) {
-        const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
-        const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
+  // C1: singles at the full 3-month step, pairs at the coarser 6-month step
+  // (see test-grid.js's SWEEP_DOBS_COARSE for why) — same per-row check either way.
+  const GRID_BATCHES = [
+    [SWEEP_DOBS, SINGLE_RISK_PROFILES],
+    [SWEEP_DOBS_COARSE, PAIR_RISK_PROFILES],
+  ];
 
-        const result = recommend({
-          today: TODAY, ageMonths: am, dob, riskIds, menacwyDoses, menbDoses,
-        });
-        if (result.excluded) continue; // hard-stop combos carry no dose chips
+  for (const [dobs, profiles] of GRID_BATCHES) {
+    for (const dob of dobs) { // B2a/B2b: real dates of birth, fractional ages included
+      const am = dobToAgeMonths(dob, TODAY);
+      for (const riskIds of profiles) {
+        for (let count = 0; count <= 5; count++) {
+          const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
+          const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
 
-        const acwyAnalysis = analyzeHistory('MenACWY', menacwyDoses, am, riskIds, TODAY, undefined, dob);
-        const bAnalysis = analyzeHistory('MenB', menbDoses, am, riskIds, TODAY, undefined, dob);
-        const acwyTotal = result.menacwy[0]?.seriesTotal ?? null;
-        const bTotal = result.menb[0]?.seriesTotal ?? null;
+          const result = recommend({
+            today: TODAY, ageMonths: am, dob, riskIds, menacwyDoses, menbDoses,
+          });
+          if (result.excluded) continue; // hard-stop combos carry no dose chips
 
-        for (const entry of acwyAnalysis.perDose) {
-          const label = chipLabel(entry, acwyTotal);
-          if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
-              && entry.effectiveDoseNum != null && acwyTotal != null
-              && entry.effectiveDoseNum > acwyTotal && label.startsWith('Dose ')) {
-            failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: ${label} (N>M)`);
+          const acwyAnalysis = analyzeHistory('MenACWY', menacwyDoses, am, riskIds, TODAY, undefined, dob);
+          const bAnalysis = analyzeHistory('MenB', menbDoses, am, riskIds, TODAY, undefined, dob);
+          const acwyTotal = result.menacwy[0]?.seriesTotal ?? null;
+          const bTotal = result.menb[0]?.seriesTotal ?? null;
+
+          for (const entry of acwyAnalysis.perDose) {
+            const label = chipLabel(entry, acwyTotal);
+            if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
+                && entry.effectiveDoseNum != null && acwyTotal != null
+                && entry.effectiveDoseNum > acwyTotal && label.startsWith('Dose ')) {
+              failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: ${label} (N>M)`);
+            }
+            if (label === 'Counts') failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: dead 'Counts' label`);
+            if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose && entry.effectiveDoseNum == null) {
+              failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: valid dose numbered against nothing (effectiveDoseNum null, not extra/off-window)`);
+            }
           }
-          if (label === 'Counts') failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: dead 'Counts' label`);
-          if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose && entry.effectiveDoseNum == null) {
-            failures.push(`MenACWY am=${am} risk=${riskIds} count=${count}: valid dose numbered against nothing (effectiveDoseNum null, not extra/off-window)`);
-          }
-        }
-        for (const entry of bAnalysis.perDose) {
-          const label = chipLabel(entry, bTotal);
-          if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
-              && entry.effectiveDoseNum != null && bTotal != null
-              && entry.effectiveDoseNum > bTotal && label.startsWith('Dose ')) {
-            failures.push(`MenB am=${am} risk=${riskIds} count=${count}: ${label} (N>M)`);
-          }
-          if (label === 'Counts') failures.push(`MenB am=${am} risk=${riskIds} count=${count}: dead 'Counts' label`);
-          if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose && entry.effectiveDoseNum == null) {
-            failures.push(`MenB am=${am} risk=${riskIds} count=${count}: valid dose numbered against nothing (effectiveDoseNum null, not extra/off-window)`);
+          for (const entry of bAnalysis.perDose) {
+            const label = chipLabel(entry, bTotal);
+            if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
+                && entry.effectiveDoseNum != null && bTotal != null
+                && entry.effectiveDoseNum > bTotal && label.startsWith('Dose ')) {
+              failures.push(`MenB am=${am} risk=${riskIds} count=${count}: ${label} (N>M)`);
+            }
+            if (label === 'Counts') failures.push(`MenB am=${am} risk=${riskIds} count=${count}: dead 'Counts' label`);
+            if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose && entry.effectiveDoseNum == null) {
+              failures.push(`MenB am=${am} risk=${riskIds} count=${count}: valid dose numbered against nothing (effectiveDoseNum null, not extra/off-window)`);
+            }
           }
         }
       }
