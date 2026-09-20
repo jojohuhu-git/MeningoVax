@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 127 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 79 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 128 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 80 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 44 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 43 (the 44th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,519 | `npm test`, 2026-09-19, on top of main `5e80959` (C2 combo tests) plus item D's report-only two-run-relations sweep |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 522 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,548 | `npm test`, 2026-09-19, on top of main `b14ab64` (item D's sweep + the rulebook handoff PR) |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 527 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean
