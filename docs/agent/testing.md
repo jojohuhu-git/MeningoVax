@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,513 | `npm test`, 2026-09-19, on top of main `f32692e` (C2 combo 6 fix) plus this session's remaining 7 C2 clinical-combo tests |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 520 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,519 | `npm test`, 2026-09-19, on top of main `5e80959` (C2 combo tests) plus item D's report-only two-run-relations sweep |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 522 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean
@@ -133,8 +133,22 @@ commit (2026-09-19). Property 6 stays report-only — it's a rough heuristic,
 not yet precise enough to trust as a rule. Property 7 duplicates a real
 assertion already enforced in `sweep-dose-counter.test.js`. See
 `.claude/prompts/plan-2026-09-19-test-depth-and-drift.md`, items B and B2,
-for the full reasoning; item C1 (widening the profile list to every risk id
-and pair) is the next step and is **not yet built**.
+for the full reasoning. **Update:** item C1 (widening the profile list from
+one-per-class to every individual risk id, plus every 2-risk pair) is done —
+both sweeps now loop over `SINGLE_RISK_PROFILES` (13) and, on the coarser
+`SWEEP_DOBS_COARSE`, `PAIR_RISK_PROFILES` (66).
+
+[`sweep-two-run-relations.test.js`](../../src/logic/__tests__/sweep-two-run-relations.test.js)
+is a third kind of sweep — plan item D. The two sweeps above each look at ONE
+patient and ONE answer; this one looks at TWO runs of the same patient and
+checks whether the difference between them makes sense (adding a risk factor
+never reduces what's owed; recording the recommended dose advances the
+credited count by exactly one; a day passing never uncounts a dose). It
+landed **report-only**, same discipline as item B, and as of this writing
+**none of its three relations are enforced yet** — the report-only output
+needs the owner's review first. See the plan document, item D, and the
+file's own header for what each relation checks and why the grid it samples
+is deliberately smaller than the other two sweeps'.
 
 ## The worktree trap
 
