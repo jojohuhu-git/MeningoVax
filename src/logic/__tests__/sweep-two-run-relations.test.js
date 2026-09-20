@@ -135,6 +135,26 @@ for (const baseline of SINGLE_RISK_PROFILES) {
 // ── Relation 2: record the recommended dose, re-run — advances by one ────
 const rowsD2 = { total: 0 };
 const d2 = [];
+// Rows where the newly-recorded dose lands as `pending`/`needsInput` — the
+// risk-at-dose prompt (recommend.js's `riskAtDoseAnswers`) for a dose given
+// before age 10, which analyzeHistory correctly refuses to credit without an
+// answer. recordRecommendedDose() doesn't supply one, so every infant/
+// under-10 risk-based dose this relation records hits this path and can
+// never show +1 — that is THIS FILE's scaffolding gap, not the app's, and is
+// reported separately so it doesn't drown out real relation-2 violations.
+const d2NeedsInputGap = [];
+// Rows where the newly-recorded dose is `notAdolescentCount` — ACIP: a dose
+// given before age 10 is valid but does not count toward the adolescent
+// series (sweep-never-events.test.js's own F4/property-7 check already
+// excludes this same flag from its counting property, for the same reason).
+// Seen here on "exposure"-class single doses (military/travel/college_dorm/
+// outbreak_acwy/microbiologist) recorded at implausible pre-10 ages — the
+// grid ticks these risk ids across the FULL age range, including ages the
+// app itself flags via `riskAgeNote` as worth questioning. Not a relation-2
+// violation: `completedDoseCount` tracks the adolescent/high-risk series
+// specifically, and an exposure-class single dose at this age was never
+// meant to advance it.
+const d2NotAdolescentCount = [];
 
 const DOSE_COUNTS_D2 = [0, 1, 2, 3];
 
@@ -156,6 +176,15 @@ for (const riskIds of SINGLE_RISK_PROFILES) {
       ]) {
         for (const r of result[key]) {
           if (!ACTIONABLE_STATUSES.includes(r.status)) continue;
+          // Only a dose actually due TODAY is "the visit-to-visit loop a
+          // clinician performs" (plan wording). A future rec's own
+          // earliestNextDate is later than the `today` this whole row is
+          // evaluated at — recording it now would create a dose dated after
+          // "today", which the validator correctly calls nonsense (found
+          // while building this file: every "Booster ... 5 years" rec
+          // recorded this way came back `invalid`, not +1, purely because of
+          // that clock mismatch, not a real defect).
+          if (!r.dueToday) continue;
           const newDoses = recordRecommendedDose(r, doses, TODAY);
           if (newDoses == null) continue; // no brand offered — nothing to record (property 1's job to catch that separately)
 
@@ -165,12 +194,19 @@ for (const riskIds of SINGLE_RISK_PROFILES) {
           const completedBefore = completedDoseCount(before);
           const completedAfter = completedDoseCount(after);
           const where = `am=${am} risk=${JSON.stringify(riskIds)} count=${count} ${vaccine} status=${r.status}`;
+          const newEntry = after.perDose[after.perDose.length - 1];
 
-          if (completedAfter !== completedBefore + 1) {
-            d2.push(
-              `${where}: recording "${r.doseLabel}" (brand ${r.brands?.[0]}, date ${newDoses[newDoses.length - 1].date}) `
-              + `moved the credited count ${completedBefore} -> ${completedAfter} (expected +1)`,
-            );
+          if (newEntry?.status === 'pending' && newEntry?.needsInput) {
+            d2NeedsInputGap.push(`${where}: recording "${r.doseLabel}" landed as pending/needsInput (see file header)`);
+          } else if (completedAfter !== completedBefore + 1) {
+            if (newEntry?.notAdolescentCount) {
+              d2NotAdolescentCount.push(`${where}: recording "${r.doseLabel}" landed as notAdolescentCount (see file header)`);
+            } else {
+              d2.push(
+                `${where}: recording "${r.doseLabel}" (brand ${r.brands?.[0]}, date ${newDoses[newDoses.length - 1].date}) `
+                + `moved the credited count ${completedBefore} -> ${completedAfter} (expected +1)`,
+              );
+            }
           }
         }
       }
@@ -225,6 +261,8 @@ describe('D · two-run relational sweep (REPORT-ONLY — see file header, no ass
 
   it('relation 2 — recording the recommended dose advances the credited count by exactly one', () => {
     report('Relation 2 (credited count did not advance by exactly one)', d2, rowsD2.total);
+    report('Relation 2, known scaffolding gap (needsInput prompt — see file header, not an app finding)', d2NeedsInputGap, rowsD2.total);
+    report('Relation 2, known non-issue (notAdolescentCount — see file header, not an app finding)', d2NotAdolescentCount, rowsD2.total);
     expect(rowsD2.total).toBeGreaterThan(0);
   });
 
