@@ -2,6 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { validateHistory } from '../validate.js';
 import { DAYS } from '../dateUtils.js';
 import { addDays } from '../dateUtils.js';
+import { ALL_BRANDS } from '../../data/brands.js';
+
+// E2 (2026-09-20): was hand-typed as 'Menactra (MenACWY) — discontinued',
+// which had already drifted from brands.js's real label ('Menactra
+// (MenACWY, discontinued)' — comma, not an em dash). Both happened to pass
+// validate.js's brandMinAgeM() lookup, which only checks startsWith('Menactra'),
+// so the drift was invisible until read from the source instead of retyped.
+const MENACTRA_LABEL = ALL_BRANDS.find((b) => b.key === 'Menactra').label;
 
 const TODAY = '2026-06-03';
 
@@ -102,13 +110,13 @@ describe('MenACWY — high-risk adult D2 interval check', () => {
 describe('MenACWY — Menactra at 9 months', () => {
   it('Menactra at 9 months → valid', () => {
     // ageAtDose = 240 - 231 = 9
-    const results = validate('MenACWY', [{ date: monthsAgo(231), brand: 'Menactra (MenACWY) — discontinued' }], 240);
+    const results = validate('MenACWY', [{ date: monthsAgo(231), brand: MENACTRA_LABEL }], 240);
     expect(results[0].status).toBe('valid');
   });
 
   it('Menactra at 5 months → invalid (min 9 months)', () => {
     // ageAtDose = 240 - 235 = 5
-    const results = validate('MenACWY', [{ date: monthsAgo(235), brand: 'Menactra (MenACWY) — discontinued' }], 240);
+    const results = validate('MenACWY', [{ date: monthsAgo(235), brand: MENACTRA_LABEL }], 240);
     expect(results[0].status).toBe('invalid');
     expect(results[0].reasons[0]).toMatch(/below the minimum age/i);
   });
