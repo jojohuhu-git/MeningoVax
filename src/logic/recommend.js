@@ -174,6 +174,53 @@ function ageAtDose(dose, am, today, dob) {
   return ageAtDoseMonths(dose, { dob, ageMonths: am }, today);
 }
 
+// Whether the patient is CURRENTLY old enough for the routine adolescent
+// MenACWY booster (16y) and it is NOT yet satisfied by any recorded dose --
+// the one fact that decides whether the routine requirement is a live,
+// unmet obligation right now, independent of any other indication.
+//
+// Both halves matter. Age alone is not enough: menacwyRoutine() itself gates
+// on `am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS` before it ever asks about
+// dose history, because a 6- or 12-year-old with an early dose (M12's own
+// test fixtures) does not owe a "still due" booster today -- that dose
+// pathway is why the first version of this fix (unconditional on age) broke
+// regression-m12-outbreak-topup.test.js and regression-p2-3-ages-in-one-
+// place.test.js: it told young children with a top-up-satisfied outbreak
+// dose that a routine booster was due TODAY, decades early. Dose-history
+// alone is not enough either -- see below.
+//
+// The dose-history half is the same predicate menacwyRoutine() and the
+// 'single' branch's own college_dorm rule each already compute inline (not
+// touched here, to keep this fix's footprint to the branches that were
+// actually wrong).
+function routineBoosterCurrentlyUnmet(am, doses, today, dob) {
+  if (am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) return false;
+  return !doses.some((d) => {
+    const a = ageAtDose(d, am, today, dob);
+    return a != null && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, {
+      doseDate: d.date || null, ageMonths: am, today, dob,
+    });
+  });
+}
+
+// Shared wording for "your occupational/outbreak requirement is met, but the
+// separate routine age-16 booster is not" -- found 2026-09-19 (plan item D,
+// relation 1a): military and outbreak_acwy each declared the whole MenACWY
+// picture "Complete" the moment THEIR OWN requirement was satisfied by any
+// prior dose, without checking whether the patient had since turned 16 with
+// only pre-16 doses on record -- so a 16-year-old still due their routine
+// booster read as fully done the moment military/outbreak_acwy was ticked.
+// college_dorm's own rule already got this right, by construction (its OWN
+// requirement IS "a dose at >=16"), which is why it alone was never affected.
+function routineBoosterStillOwedNote(indicationLabel) {
+  return {
+    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then.',
+    detail: `The ${indicationLabel} requirement is already met by that dose, but ACIP's routine age-16 `
+      + 'booster is a separate rule that applies regardless of other indications. The next dose given '
+      + 'will satisfy both at once.',
+  };
+}
+
 // ── MenACWY ────────────────────────────────────────────────────────────────
 function menacwyRec(am, riskIds, doses, today, dob) {
   const given = doses.length;
@@ -600,6 +647,21 @@ function menacwyRec(am, riskIds, doses, today, dob) {
       const topUpDays = DAYS.years(topUpYears);
       const elapsedTopUp = calendarIntervalElapsed(lastDate, topUpYears * 12, today);
       if (!elapsedTopUp) {
+        // Found 2026-09-19 (plan item D, relation 1a): this used to say
+        // "Complete" the moment the outbreak top-up requirement itself was
+        // satisfied, even when every recorded dose was given before age 16 --
+        // so a 16-year-old still owed their routine booster read as fully
+        // done the moment an outbreak was ticked. The outbreak requirement
+        // and the routine age-16 requirement are separate ACIP rules; only
+        // report "Complete" once both are.
+        if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
+          return [rec({
+            vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at ≥16y still owed)',
+            doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+            note: routineBoosterStillOwedNote('outbreak'),
+            refs: refsExposure(),
+          })];
+        }
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete for this outbreak', seriesTotal: 1,
           earliestNextDate: addCalendarYears(lastDate, topUpYears),
@@ -643,6 +705,21 @@ function menacwyRec(am, riskIds, doses, today, dob) {
     // countdown it has no basis to compute. Do not add a 5-year due date here
     // without a way to capture the assignment.
     if (given >= 1) {
+      // Found 2026-09-19 (plan item D, relation 1a): this used to say
+      // "Complete" the moment the recruitment requirement itself was
+      // satisfied by any prior dose, even when that dose was given before
+      // age 16 -- so a 16-year-old still owed their routine booster read as
+      // fully done the moment "military" was ticked. Recruitment and the
+      // routine age-16 requirement are separate ACIP rules; only report
+      // "Complete" once both are.
+      if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at \u226516y still owed)',
+          doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+          note: routineBoosterStillOwedNote('military recruitment'),
+          refs: refsExposure(),
+        })];
+      }
       return [rec({
         vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
         // U4 (2026-09-17): the longest note on any card, and it spent its first
