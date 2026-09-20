@@ -358,6 +358,42 @@ function menacwyRec(am, riskIds, doses, today, dob) {
     })];
   }
 
+  // ── Occupational-only exposure floor (microbiologist/military/college_dorm) ──
+  // Found 2026-09-19 (plan item D, relation 1b, MeningoVax-main): a 1-week-old
+  // ticked "microbiologist" alone got told a MenACWY dose was due today, with
+  // an empty brands list -- there is no product to actually give.
+  //
+  // Cause: the infant-hoist minimum-age check above (menacwyInfantSeries(),
+  // reached only when menacwyInfantSeriesIndicated(riskIds) is true) covers
+  // the primary2 class plus travel/outbreak_acwy -- ACIP gives those an
+  // explicit "2-23 mos" table row. Microbiologist ('single+boost') and
+  // military/college_dorm ('single') have no such row (Tables 7 and 10 both
+  // start at ">=10 yrs"), so they were deliberately left out of that hoist --
+  // but that also left the two branches below with no minimum-age floor of
+  // their own. This is the exact defect regression-newborn-menacwy-not-due-
+  // yet.test.js fixed for asplenia/complement/hiv/travel/outbreak_acwy in an
+  // earlier session (PR #38); these three risk ids were simply never in that
+  // fix's reach.
+  //
+  // Travel and outbreak_acwy can never reach here below this age: both are
+  // in menacwyInfantSeriesIndicated(), so the hoist above already caught them
+  // whenever am is under MENACWY_INFANT_SERIES_MAX_AGE_MONTHS (well above
+  // MENACWY_MIN_AGE_MONTHS). So this guard only ever fires for microbiologist
+  // alone, or military/college_dorm (alone or combined) -- reusing the same
+  // MENACWY_MIN_AGE_MONTHS constant and citation the infant-hoist check uses,
+  // not a re-derived number.
+  if ((riskClass === 'single+boost' || riskClass === 'single') && am < MENACWY_MIN_AGE_MONTHS) {
+    return [rec({
+      vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible', dueToday: false,
+      note: {
+        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
+      },
+      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      refs: refsExposure(),
+    })];
+  }
+
   // ── Single dose with ongoing boosters (travel, microbiologist) ───────────
   // G5 (2026-09-16): travellers and microbiologists share this branch, and the
   // wording used to name BOTH indications to everybody — a microbiologist who
