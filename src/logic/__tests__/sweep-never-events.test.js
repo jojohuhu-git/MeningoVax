@@ -44,6 +44,13 @@
 //     use the same five checks. Property 7 (F4, a COUNTING property) is
 //     deliberately NOT run against the tight profile — see
 //     `sweep-dose-counter.test.js`'s own header for why.
+//
+// C1 (2026-09-19): the risk-profile list widened from 8 profiles (one per
+// (menacwyClass, menbClass) pairing) to 13 SINGLE_RISK_PROFILES (all 12 risk
+// ids, individually) plus 66 PAIR_RISK_PROFILES (every 2-risk combination) —
+// see `test-grid.js` for what each now covers. Pairs run on the coarser
+// SWEEP_DOBS_COARSE (6-month step, not 3) to keep the suite's runtime near
+// its pre-C1 mark — see that export for the measured reasoning.
 // ─────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
@@ -54,7 +61,8 @@ import { ALL_BRANDS } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
-  SWEEP_DOBS, SINGLE_RISK_PROFILES, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
+  SWEEP_DOBS, SWEEP_DOBS_COARSE, SINGLE_RISK_PROFILES, PAIR_RISK_PROFILES,
+  MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
   MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses, makeTightDoses,
 } from '../../test-grid.js';
 
@@ -153,64 +161,73 @@ function checkProperties1to5(where, am, dob, riskIds, menacwyDoses, menbDoses) {
   return allRecs;
 }
 
-for (const dob of SWEEP_DOBS) { // B2a/B2b: real dates of birth, fractional ages included
-  const am = dobToAgeMonths(dob, TODAY);
-  for (const riskIds of SINGLE_RISK_PROFILES) {
-    for (let count = 0; count <= 5; count++) {
-      const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
-      const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
-      const where = `am=${am} risk=${JSON.stringify(riskIds)} count=${count}`;
+// C1: singles at the full 3-month step, pairs at the coarser 6-month step
+// (see test-grid.js's SWEEP_DOBS_COARSE for why) — same per-row checks either way.
+const GRID_BATCHES = [
+  [SWEEP_DOBS, SINGLE_RISK_PROFILES],
+  [SWEEP_DOBS_COARSE, PAIR_RISK_PROFILES],
+];
 
-      const allRecs = checkProperties1to5(`${where} [generous]`, am, dob, riskIds, menacwyDoses, menbDoses);
+for (const [dobs, profiles] of GRID_BATCHES) {
+  for (const dob of dobs) { // B2a/B2b: real dates of birth, fractional ages included
+    const am = dobToAgeMonths(dob, TODAY);
+    for (const riskIds of profiles) {
+      for (let count = 0; count <= 5; count++) {
+        const menacwyDoses = makeGenerousDoses(am, count, MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE, TODAY);
+        const menbDoses = makeGenerousDoses(am, count, MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, TODAY);
+        const where = `am=${am} risk=${JSON.stringify(riskIds)} count=${count}`;
 
-      // ── B2c: the same five checks, over the deliberately-invalid TIGHT
-      // profile. Not a counting property, so no need to skip it here.
-      const tightMenacwyDoses = makeTightDoses(am, count, MENACWY_SWEEP_BRAND, TODAY);
-      const tightMenbDoses = makeTightDoses(am, count, MENB_SWEEP_BRAND, TODAY);
-      checkProperties1to5(`${where} [tight]`, am, dob, riskIds, tightMenacwyDoses, tightMenbDoses);
+        const allRecs = checkProperties1to5(`${where} [generous]`, am, dob, riskIds, menacwyDoses, menbDoses);
 
-      if (allRecs == null) continue; // excluded or threw on the generous pass — nothing left to check below
+        // ── B2c: the same five checks, over the deliberately-invalid TIGHT
+        // profile. Not a counting property, so no need to skip it here.
+        const tightMenacwyDoses = makeTightDoses(am, count, MENACWY_SWEEP_BRAND, TODAY);
+        const tightMenbDoses = makeTightDoses(am, count, MENB_SWEEP_BRAND, TODAY);
+        checkProperties1to5(`${where} [tight]`, am, dob, riskIds, tightMenacwyDoses, tightMenbDoses);
 
-      // ── Property 6 (HEURISTIC — for the owner's judgement, not a fixed
-      // rule): a vaccine whose most recently counted dose already completes
-      // the series (effectiveDoseNum === seriesTotal) but which still has a
-      // "due"/dueToday rec that does not read as a booster. This is a rough
-      // proxy for "asks to repeat a dose ACIP would already count" — the
-      // plan names the four-day grace rule and the MenB dose-3 rescue as the
-      // two places this has actually gone wrong, and both are narrower than
-      // this heuristic catches. Treat every hit here as a candidate to look
-      // at by hand, not as a confirmed bug. Generous doses only — see file
-      // header.
-      for (const [vaccine, doses] of [['MenACWY', menacwyDoses], ['MenB', menbDoses]]) {
-        if (doses.length === 0) continue;
-        const analysis = analyzeHistory(vaccine, doses, am, riskIds, TODAY, undefined, dob);
-        const completedTotal = analysis.perDose
-          .filter((d) => d.status === 'valid' && d.effectiveDoseNum != null)
-          .reduce((max, d) => Math.max(max, d.effectiveDoseNum), 0);
-        const seriesTotal = allRecs.find((r) => r.vaccine === vaccine)?.seriesTotal ?? null;
-        if (seriesTotal != null && completedTotal >= seriesTotal) {
-          const dueRec = allRecs.find((r) => r.vaccine === vaccine && r.dueToday);
-          if (dueRec && !/boost/i.test(dueRec.doseLabel || '')) {
-            p6.push(`${where} ${vaccine}: series reads complete (${completedTotal}/${seriesTotal}) but "${dueRec.doseLabel}" is still due today`);
+        if (allRecs == null) continue; // excluded or threw on the generous pass — nothing left to check below
+
+        // ── Property 6 (HEURISTIC — for the owner's judgement, not a fixed
+        // rule): a vaccine whose most recently counted dose already completes
+        // the series (effectiveDoseNum === seriesTotal) but which still has a
+        // "due"/dueToday rec that does not read as a booster. This is a rough
+        // proxy for "asks to repeat a dose ACIP would already count" — the
+        // plan names the four-day grace rule and the MenB dose-3 rescue as the
+        // two places this has actually gone wrong, and both are narrower than
+        // this heuristic catches. Treat every hit here as a candidate to look
+        // at by hand, not as a confirmed bug. Generous doses only — see file
+        // header.
+        for (const [vaccine, doses] of [['MenACWY', menacwyDoses], ['MenB', menbDoses]]) {
+          if (doses.length === 0) continue;
+          const analysis = analyzeHistory(vaccine, doses, am, riskIds, TODAY, undefined, dob);
+          const completedTotal = analysis.perDose
+            .filter((d) => d.status === 'valid' && d.effectiveDoseNum != null)
+            .reduce((max, d) => Math.max(max, d.effectiveDoseNum), 0);
+          const seriesTotal = allRecs.find((r) => r.vaccine === vaccine)?.seriesTotal ?? null;
+          if (seriesTotal != null && completedTotal >= seriesTotal) {
+            const dueRec = allRecs.find((r) => r.vaccine === vaccine && r.dueToday);
+            if (dueRec && !/boost/i.test(dueRec.doseLabel || '')) {
+              p6.push(`${where} ${vaccine}: series reads complete (${completedTotal}/${seriesTotal}) but "${dueRec.doseLabel}" is still due today`);
+            }
           }
         }
-      }
 
-      // ── Property 7 (existing, F4): no chip implies N > M ────────────────
-      // Already a real, enforced assertion in sweep-dose-counter.test.js on
-      // this same (generous) grid; reported here too so all seven properties
-      // show up in one place, per the plan. Not run against the tight
-      // profile — see file header and sweep-dose-counter.test.js.
-      for (const [vaccine, doses] of [['MenACWY', menacwyDoses], ['MenB', menbDoses]]) {
-        if (doses.length === 0) continue;
-        const analysis = analyzeHistory(vaccine, doses, am, riskIds, TODAY, undefined, dob);
-        const total = allRecs.find((r) => r.vaccine === vaccine)?.seriesTotal ?? null;
-        for (const entry of analysis.perDose) {
-          const label = doseChipLabel(entry, total);
-          if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
-              && entry.effectiveDoseNum != null && total != null
-              && entry.effectiveDoseNum > total && label.startsWith('Dose ')) {
-            p7.push(`${where} ${vaccine}: ${label} (N>M)`);
+        // ── Property 7 (existing, F4): no chip implies N > M ────────────────
+        // Already a real, enforced assertion in sweep-dose-counter.test.js on
+        // this same (generous) grid; reported here too so all seven properties
+        // show up in one place, per the plan. Not run against the tight
+        // profile — see file header and sweep-dose-counter.test.js.
+        for (const [vaccine, doses] of [['MenACWY', menacwyDoses], ['MenB', menbDoses]]) {
+          if (doses.length === 0) continue;
+          const analysis = analyzeHistory(vaccine, doses, am, riskIds, TODAY, undefined, dob);
+          const total = allRecs.find((r) => r.vaccine === vaccine)?.seriesTotal ?? null;
+          for (const entry of analysis.perDose) {
+            const label = doseChipLabel(entry, total);
+            if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
+                && entry.effectiveDoseNum != null && total != null
+                && entry.effectiveDoseNum > total && label.startsWith('Dose ')) {
+              p7.push(`${where} ${vaccine}: ${label} (N>M)`);
+            }
           }
         }
       }
