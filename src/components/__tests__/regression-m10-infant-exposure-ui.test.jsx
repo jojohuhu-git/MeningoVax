@@ -51,7 +51,7 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     // the recurring 3-then-5-year countdown travel and medical risk get
     // (owner-confirmed 2026-09-15).
     const { container } = show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(container.textContent).not.toMatch(/Boosters: first in 3 years/);
+    expect(container.textContent).not.toMatch(/Boosters: first in 3 years/); // extinct: outbreak contacts get a one-off top-up, not this standing-cadence line (M10, 2026-09-15)
   });
 
   it('the outbreak card does not claim "future boosters needed"', () => {
@@ -82,7 +82,7 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     // A collapsed card renders no note at all, so show()'s openWhyThis() found
     // no button to click. Open the disclosure now that the card itself is open.
     openWhyThis();
-    expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i);
+    expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i); // extinct: outbreak-completed series shows no 3-year countdown (P0-1, 2026-09-17)
     expect(container.textContent).toMatch(/identified at risk in a NEW outbreak/i);
   });
 

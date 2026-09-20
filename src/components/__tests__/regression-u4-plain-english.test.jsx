@@ -32,7 +32,7 @@ describe('U4 · the recorded-dose chips say what happened to the patient', () =>
     // seriesTotal null = this vaccine is not currently indicated at all.
     const { container } = showRow({ status: 'valid', effectiveDoseNum: 1 }, null);
     expect(container.textContent).toMatch(/Given — not part of a series this patient needs/);
-    expect(container.textContent).not.toMatch(/Recorded — not part of an indicated series/);
+    expect(container.textContent).not.toMatch(/Recorded — not part of an indicated series/); // extinct: reworded to "Given —…" (U4, 2026-09-17)
   });
 
   it('an extra dose is measured against the series, not against a "series total"', () => {

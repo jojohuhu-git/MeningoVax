@@ -41,8 +41,8 @@ function showCard() {
 describe('U3 · the recorded-doses block on a four-dose series', () => {
   it('no longer prints the same long sentence on every row', () => {
     const { container } = showCard();
-    expect(container.textContent).not.toMatch(/in response to the risk-timing question/i);
-    expect(container.textContent).not.toMatch(/Counted toward the high-risk series/i);
+    expect(container.textContent).not.toMatch(/in response to the risk-timing question/i); // extinct: shortened away (U3, 2026-09-17)
+    expect(container.textContent).not.toMatch(/Counted toward the high-risk series/i); // extinct: shortened away (U3, 2026-09-17)
   });
 
   it('still says, on each row, that high risk was confirmed and when', () => {

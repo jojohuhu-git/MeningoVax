@@ -63,6 +63,14 @@ Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standa
 ### college_dorm vs military vs acwy_outbreak
 The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`. Do not apply it to `military` or `acwy_outbreak`.
 
+### End-of-Session Checklist (E4)
+Four questions, at the end of any session and in any PR body. They take two minutes and catch drift a green suite alone won't:
+
+1. Did this session add a number, date, or sentence to a test file? If yes — where does it come from, and is it already in `src/`?
+2. Did this session add a capability to the app (a risk factor, a brand, a status, a schedule)? If yes — which sweep (`sweep-dose-counter.test.js`, `sweep-never-events.test.js`, etc.) got wider? "None" is a failing answer.
+3. Did this session change a clinical rule? If yes — which doc (`docs/agent/clinical-rules.md` / `docs/agent/meningococcal-rules-summary.md`) was updated in the same commit?
+4. Is the test count rising much faster than the file count? That can mean one file is generating many near-identical assertions — not wrong, but it inflates the sense of coverage. Flag it for the owner to see at review time rather than deciding alone.
+
 ## Testing Expectations
 
 - When changing the engine: add/adjust a test in `recommend.test.js`.

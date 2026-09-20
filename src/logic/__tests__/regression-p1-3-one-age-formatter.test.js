@@ -94,6 +94,6 @@ describe('P1-3: the two deliberate differences survive', () => {
     const h = analyzeHistory('MenB', [{ date: '2026-09-14', brand: 'Bexsero' }],
       0.1, [], TODAY, {});
     const reason = h.perDose[0].reasons?.[0] ?? '';
-    expect(reason).not.toMatch(/~Birth/);
+    expect(reason).not.toMatch(/~Birth/); // extinct: formatter lowercased to "~birth" (P1-3, 2026-09-17)
   });
 });

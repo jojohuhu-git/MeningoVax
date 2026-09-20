@@ -40,7 +40,7 @@ describe('the 9-month-old starting card', () => {
     // U2 (2026-09-17): the same promise, now made once -- on the card's booster
     // line rather than a second time in the note underneath it.
     expect(container.textContent).toMatch(/Boosters: first in 3 years/);
-    expect(container.textContent).not.toMatch(/booster at 12–23 months/);
+    expect(container.textContent).not.toMatch(/booster at 12–23 months/); // extinct: duplicate note-line wording removed (U2, 2026-09-17)
   });
 
   it('still shows both real dose-2 floors', () => {

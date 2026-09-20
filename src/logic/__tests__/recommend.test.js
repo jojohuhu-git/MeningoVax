@@ -673,7 +673,7 @@ describe('HCT advisory', () => {
   it('ages 16-23: MenB is indicated from the transplant alone (CDC + ASCO, settled 2026-09-13) — not a "not triggered" pointer', () => {
     const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
     const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine.text).not.toMatch(/Not triggered/);
+    expect(menbLine.text).not.toMatch(/Not triggered/); // extinct: HCT-alone MenB pointer replaced with a real line (2026-09-13)
     expect(menbLine.text).toMatch(/16 through 23/);
     expect(menbLine.citations.map((c) => c.short)).toContain('CDC Altered Immunocompetence');
   });
@@ -697,7 +697,7 @@ describe('HCT advisory', () => {
     const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
     const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
     expect(acwyLine.text).toMatch(/high-risk condition/);
-    expect(acwyLine.text).not.toMatch(/6–12 months after transplant, with a booster/);
+    expect(acwyLine.text).not.toMatch(/6–12 months after transplant, with a booster/); // extinct: high-risk condition overrides the routine HCT-timing wording (2026-09-13)
     expect(menbLine.text).toMatch(/high-risk condition/);
   });
 

@@ -52,7 +52,7 @@ describe('the age printed beside the recorded dose', () => {
   it('reads as a whole seven months, not a shade under', () => {
     const { container } = show(result({ dob: DOB }), { dob: DOB });
     expect(container.textContent).toMatch(/age 7 months/);
-    expect(container.textContent).not.toMatch(/age 6 months/);
+    expect(container.textContent).not.toMatch(/age 6 months/); // extinct: rounding-down bug fixed (cal-P2-2, 2026-09-15)
   });
 });
 

@@ -206,7 +206,7 @@ describe('App wizard', () => {
     const cards = screen.getAllByTestId('rec-card');
     const menacwyCard = cards.find(c => c.textContent.includes('MenACWY'));
     expect(menacwyCard.className).toMatch(/timing-due/);
-    expect(menacwyCard.className).not.toMatch(/status-risk-based/);
+    expect(menacwyCard.className).not.toMatch(/status-risk-based/); // extinct: class renamed to .status-badge.risk-based (2026-07-16)
 
     const badge = menacwyCard.querySelector('.status-badge.risk-based');
     expect(badge).not.toBeNull();

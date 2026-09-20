@@ -38,8 +38,8 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 3 years after primary/);
     expect(noteText(acwy(r))).toMatch(/first booster is due 3 years/i);
-    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/);
-    expect(noteText(acwy(r))).not.toMatch(/3–5 years/);
+    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
+    expect(noteText(acwy(r))).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
   });
 
   it('states "5 years" (not "3-5 years") once dose 2 is known to have been given at/after age 7', () => {
@@ -57,8 +57,8 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 5 years after primary/);
     expect(noteText(acwy(r))).toMatch(/first booster is due 5 years/i);
-    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/);
-    expect(noteText(acwy(r))).not.toMatch(/3–5 years/);
+    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
+    expect(noteText(acwy(r))).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
   });
 
   it('subsequent boosters (after the first) say "every 5 years", not "3-5 years"', () => {
@@ -79,7 +79,7 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
     // U2 (2026-09-17): a later booster's note said nothing the booster line did
     // not already say, so the card now carries the cadence once, on that line.
     expect(acwy(r).boosterSummary).toMatch(/every 5 years/);
-    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/);
-    expect(acwy(r).boosterSummary).not.toMatch(/3–5 years/);
+    expect(acwy(r).doseLabel).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
+    expect(acwy(r).boosterSummary).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
   });
 });

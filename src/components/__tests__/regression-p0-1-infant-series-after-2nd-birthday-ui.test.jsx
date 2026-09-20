@@ -37,7 +37,7 @@ describe('P0-1 (UI): a 2-year-old mid-series is still asked for the dose they ow
     const { rec, container } = show(24, twoDoses);
     expect(rec.dueToday).toBe(true);
     expect(container.textContent).toMatch(/Dose 3/);
-    expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i);
+    expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i); // extinct: a mid-series 2-year-old is asked for the next dose, not shown a booster countdown (P0-1, 2026-09-15)
   });
 
   it('the chip on each recorded dose counts against 4, not 2', () => {

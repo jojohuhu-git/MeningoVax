@@ -49,7 +49,7 @@ describe('imp P1-2 UI: the note a clinician actually sees', () => {
     // The age reads as a sentence, not jammed onto the rule: the first live
     // run of this printed "and this patient is Birth."
     expect(n.textContent).toContain("This patient's age is recorded as Birth.");
-    expect(n.textContent).not.toContain('is Birth,');
+    expect(n.textContent).not.toContain('is Birth,'); // extinct: ungrammatical concatenation fixed (imp-P1-2, 2026-09-17)
   });
 
   it('still shows the recommendation — nothing is blocked or withheld by the note itself', () => {

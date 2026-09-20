@@ -37,7 +37,7 @@ const MILITARY_WITH_DOSE = () => acwy(['military'], [{ date: '2023-09-15' }]);
 
 describe('M18 — the military card stops denying the DoD booster', () => {
   it('no longer says a re-dose applies only for a separate indication', () => {
-    expect(noteText(MILITARY_WITH_DOSE())).not.toMatch(/only if a separate ongoing-risk indication/i);
+    expect(noteText(MILITARY_WITH_DOSE())).not.toMatch(/only if a separate ongoing-risk indication/i); // extinct: old denial wording removed (M18, 2026-09-15)
   });
 
   it('states the every-5-years interval from ACIP Table 10', () => {

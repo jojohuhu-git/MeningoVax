@@ -54,8 +54,8 @@ describe('U3 · a counted dose states only what is true of THAT dose', () => {
 
   it('drops the clause the "Edit" button on the same row already says', () => {
     for (const reason of [...reasonsOf(infantRows()), ...reasonsOf(menbRows())]) {
-      expect(reason).not.toMatch(/in response to the risk-timing question/i);
-      expect(reason).not.toMatch(/this dose's date/i);
+      expect(reason).not.toMatch(/in response to the risk-timing question/i); // extinct: shortened away (U3, 2026-09-17)
+      expect(reason).not.toMatch(/this dose's date/i); // extinct: shortened away (U3, 2026-09-17)
     }
   });
 

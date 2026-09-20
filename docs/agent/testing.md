@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 129 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 81 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 130 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 82 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 44 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 43 (the 44th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,551 | `npm test`, 2026-09-20, on top of `b14ab64` + item E2's coverage guard |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 529 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,553 | `npx vitest run --reporter=json`, 2026-09-19, on top of `398bb03` + item E4b's vacuous-assertion guard |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 531 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean
@@ -69,7 +69,7 @@ and in active use, not aspirational.
 
 ## The tripwire family
 
-Seven tests exist purely to catch a repo-wide failure mode, not to check one
+Eight tests exist purely to catch a repo-wide failure mode, not to check one
 clinical rule. Each is described in its own header comment; this is the map
 for finding the right one:
 
@@ -82,6 +82,7 @@ for finding the right one:
 | [`regression-p2-1-intervals-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-1-intervals-in-one-place.test.js) | An interval (dose spacing) value hand-typed a second time somewhere instead of imported from `intervals.js`. |
 | [`regression-p2-3-ages-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-3-ages-in-one-place.test.js) | Same, for age thresholds — imported from the age-threshold source instead of retyped. |
 | [`regression-chip-label-one-copy.test.js`](../../src/components/__tests__/regression-chip-label-one-copy.test.js) | A second, hand-written copy of the dose-chip wording drifting from `doseChipLabel.js`'s real logic — this happened once already, on 20,167 swept rows. |
+| [`regression-2026-09-19-no-vacuous-negative-assertions.test.js`](../../src/logic/__tests__/regression-2026-09-19-no-vacuous-negative-assertions.test.js) | E4b — a "the app must never say X again" assertion going silently vacuous once nobody produces X for an unrelated reason (a reword, a refactor). Requires every un-annotated negative-assertion literal to still exist somewhere in `src/`; an `// extinct:` comment is the conscious opt-out for a fact that really was removed on purpose. |
 
 ## The sweep pattern
 
