@@ -216,3 +216,38 @@ export const SWEEP_DOBS_COARSE = (() => {
   }
   return [...dobs, ...EDGE_CASE_DOBS];
 })();
+
+// ── D: turn a recommendation into a recorded dose ─────────────────────────
+// Plan item D (two-run relational tests) needs to simulate "the clinician
+// followed the card": take today's rec, record the dose it points to, and
+// re-run. This is the one piece of scaffolding the plan calls out as not
+// existing yet, and it warns that the helper's own assumption can end up
+// being what a careless test proves right, instead of the app — so the
+// assumption is stated here, once, in the open:
+//
+// ASSUMPTION: "giving the recommended dose" means recording it under
+// `rec.brands[0]` (the first brand the card lists), dated `rec.earliestNextDate`
+// if the card names a future date or `today` if it's due now — nothing more
+// clinical than that. A real clinician might pick a different brand from the
+// same card; this helper always picks the first.
+//
+// Returns a NEW doses array (does not mutate `doses`); the caller re-runs
+// recommend()/analyzeHistory() on the result to see what changed.
+export function recordRecommendedDose(rec, doses, today = TEST_TODAY) {
+  const brand = rec.brands?.[0];
+  if (!brand) return null; // nothing to record — caller should skip this rec
+  const date = rec.earliestNextDate ?? today;
+  return [...doses, { date, brand }];
+}
+
+// How many doses `analyzeHistory()`'s walk currently credits — the highest
+// `effectiveDoseNum` among its VALID perDose entries, or 0 if none. Shared
+// so "how many doses does this history count as" is asked the same way
+// everywhere (sweep-never-events.test.js's property 6 has an inline copy of
+// this same reduce predating this export — not touched here, since it was
+// already reviewed and shipped; a later session can point it at this export).
+export function completedDoseCount(analysis) {
+  return analysis.perDose
+    .filter((d) => d.status === 'valid' && d.effectiveDoseNum != null)
+    .reduce((max, d) => Math.max(max, d.effectiveDoseNum), 0);
+}
