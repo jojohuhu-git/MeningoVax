@@ -52,14 +52,22 @@ describe('imp P1-2 UI: the note a clinician actually sees', () => {
     expect(n.textContent).not.toContain('is Birth,');
   });
 
-  it('still shows the recommendation — nothing is blocked or withheld', () => {
+  it('still shows the recommendation — nothing is blocked or withheld by the note itself', () => {
     show(['college_dorm'], DOB_NEWBORN);
     expect(note()).toBeTruthy();
-    // The card that provoked the queue item is still there, still saying the
-    // same thing. This assertion is the owner's decision in test form.
-    expect(
-      screen.getByText(/A single MenACWY dose for a first-year college student/i),
-    ).toBeTruthy();
+    // 2026-09-19: this assertion used to check the card still read "A single
+    // MenACWY dose for a first-year college student..." even at birth — that
+    // was never the owner's decision about THIS card's content, it was a side
+    // effect of a separate bug (recommend.js's 'single'/'single+boost'
+    // branches had no minimum-age floor at all, unlike every other risk
+    // factor's branch). Fixed in recommend.js: college_dorm/military/
+    // microbiologist now respect MenACWY's real 2-month floor, same as
+    // asplenia/travel/etc. already did (see
+    // regression-newborn-menacwy-not-due-yet.test.js). The owner's actual
+    // decision — a quiet note, never a block — is still exactly what this
+    // test checks: the plausibility note above still renders (line 57)
+    // AND the (now-corrected) recommendation is still shown, not suppressed.
+    expect(screen.getByText('Not yet age-eligible')).toBeTruthy();
   });
 
   it('says plainly that nothing has changed', () => {

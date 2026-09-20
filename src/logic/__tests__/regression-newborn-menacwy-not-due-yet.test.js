@@ -90,3 +90,55 @@ describe('a newborn is never told a MenACWY dose is due today', () => {
     }
   });
 });
+
+// The same defect, found again 2026-09-19 (plan item D, relation 1b) for the
+// three risk factors that never reach this file's fix at all.
+//
+// AT_RISK above is exactly menacwyInfantSeriesIndicated()'s list (primary2
+// class, plus travel/outbreak_acwy) -- the only risk ids that get routed
+// through menacwyInfantSeries(), where the minimum-age check above lives.
+// microbiologist ('single+boost' class) and military/college_dorm ('single'
+// class) never route through that function -- ACIP has no infant table row
+// for them, so they were deliberately left out of the infant hoist -- but
+// that also left their OWN branches with no minimum-age floor of their own.
+//
+// Reproduced: a 1-week-old ticked "microbiologist" alone got
+// `{ status: 'exposure', dueToday: true, doseLabel: '1 dose (ongoing-risk
+// indication)', brands: [] }` -- a dose "due today" with nothing to actually
+// give, because MenACWY's real 2-month floor was never checked on this path.
+const OCCUPATIONAL_AT_RISK = [['microbiologist'], ['military'], ['college_dorm']];
+
+describe('the same floor applies to the occupational-only risk factors this file missed', () => {
+  it.each(OCCUPATIONAL_AT_RISK)('nothing is due below the minimum age for %s', (...riskIds) => {
+    for (const am of TOO_YOUNG) {
+      const c = card(am, riskIds);
+      expect(c.dueToday, `age ${am} months, ${riskIds}`).toBe(false);
+    }
+  });
+
+  it.each(OCCUPATIONAL_AT_RISK)('no brand is offered to a patient too young for any of them: %s', (...riskIds) => {
+    for (const am of TOO_YOUNG) {
+      expect(card(am, riskIds).brands ?? [], `age ${am} months, ${riskIds}`).toEqual([]);
+    }
+  });
+
+  it.each(OCCUPATIONAL_AT_RISK)('the card reads not-indicated, not a dose count, for %s', (...riskIds) => {
+    for (const am of TOO_YOUNG) {
+      const c = card(am, riskIds);
+      expect(c.status, `age ${am} months, ${riskIds}`).toBe('not-indicated');
+      expect(c.doseNum, `age ${am} months, ${riskIds}`).toBeNull();
+      expect(c.doseLabel, `age ${am} months, ${riskIds}`).toMatch(/not yet/i);
+    }
+  });
+
+  it.each(OCCUPATIONAL_AT_RISK)('the card says the real minimum age, for %s', (...riskIds) => {
+    const c = card(1, riskIds);
+    expect(`${c.note.lead} ${c.note.detail}`).toMatch(/2 months/);
+  });
+
+  it.each(OCCUPATIONAL_AT_RISK)('the dose becomes due the moment the patient reaches 2 months, for %s', (...riskIds) => {
+    const c = card(MENACWY_MIN_AGE_MONTHS, riskIds);
+    expect(c.dueToday).toBe(true);
+    expect(c.status).toBe('exposure');
+  });
+});
