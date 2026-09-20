@@ -1624,17 +1624,41 @@ function collectRefs(riskIds, extra, defaults) {
 //  age path, so `menbTransplantAloneBand` stays as-is.
 function hctAdvisory(am, riskIds = []) {
   const menbTransplantAloneBand = am >= MENB_HEALTHY_MIN_AGE_MONTHS && am < MENB_HEALTHY_MAX_AGE_MONTHS; // 16 through 23 years
-  const highRisk = riskIds.some((id) => id === 'asplenia' || id === 'complement');
+  // The CDC/ASCO/IDSA sources this advisory cites for a transplant-specific
+  // "at any age" carve-out name only asplenia and persistent complement
+  // deficiency/complement-inhibitor therapy (see the header comment). C2
+  // combo (2026-09-19, HCT + travel): a DIFFERENT risk factor — travel,
+  // microbiologist exposure, military, college dorm, an ACWY/B outbreak —
+  // also produces its own standing recommendation above, computed by
+  // menacwyRiskClass()/hasMenbRisk() from riskFactors.js independently of
+  // HCT. That recommendation is real and already on screen; it was
+  // previously invisible to this function, so a patient with e.g. HCT +
+  // travel was told "select a risk factor above if one applies" — even
+  // though travel HAD been selected and WAS the source of the dose shown a
+  // few lines above. Distinguish the two: cdcNamedHighRisk keeps the
+  // specifically-sourced CDC/ASCO/IDSA text and citation unchanged;
+  // otherMenacwyRiskSelected/otherMenbRiskSelected cover everything else
+  // that still yields a standing recommendation, with their own (uncited,
+  // since no HCT-specific source covers them) text.
+  const cdcNamedHighRisk = riskIds.some((id) => id === 'asplenia' || id === 'complement');
+  const otherMenacwyRiskSelected = !cdcNamedHighRisk && menacwyRiskClass(riskIds) != null;
+  const otherMenbRiskSelected = !cdcNamedHighRisk && hasMenbRisk(riskIds);
 
   const lines = [];
 
   // MenACWY — floor is 2 months; no upper age limit on giving it at all.
   if (am >= 2) {
-    if (highRisk) {
+    if (cdcNamedHighRisk) {
       lines.push({
         label: 'MenACWY',
         text: 'Indicated at any age from the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy), not the transplant — the standing high-risk MenACWY recommendation above already governs dosing and boosters.',
         refs: ['cdcAlteredImmunocompetence'],
+      });
+    } else if (otherMenacwyRiskSelected) {
+      lines.push({
+        label: 'MenACWY',
+        text: 'Not specifically sourced as transplant-driven, but the risk factor selected above already indicates MenACWY on its own — that recommendation applies regardless of the transplant, and already governs dosing and boosters.',
+        refs: [],
       });
     } else {
       lines.push({
@@ -1654,16 +1678,22 @@ function hctAdvisory(am, riskIds = []) {
         text: 'Indicated at this age (16 through 23) from the transplant alone. This is the standard 2-dose series shown below, not the 3-dose high-risk one — 3 doses apply only if an additional MenB risk factor (asplenia, complement deficiency, microbiologist exposure, or a serogroup B outbreak) is also selected. No MenB booster is established.',
         refs: ['cdcAlteredImmunocompetence'],
       });
-    } else if (highRisk) {
+    } else if (cdcNamedHighRisk) {
       lines.push({
         label: 'MenB',
         text: 'Indicated at any age from 10 years from the high-risk condition selected above (asplenia, or persistent complement deficiency/complement-inhibitor therapy), not the transplant — the standing high-risk MenB recommendation above already governs dosing and boosters.',
         refs: ['cdcAlteredImmunocompetence'],
       });
+    } else if (otherMenbRiskSelected) {
+      lines.push({
+        label: 'MenB',
+        text: 'Not specifically sourced as transplant-driven, but the risk factor selected above (microbiologist exposure, or a serogroup B outbreak) already indicates MenB on its own — that recommendation applies regardless of the transplant, and already governs dosing and boosters.',
+        refs: [],
+      });
     } else {
       lines.push({
         label: 'MenB',
-        text: 'Not specifically sourced as transplant-driven at this age. If another MenB risk factor applies (asplenia, complement deficiency, microbiologist exposure, travel/outbreak) — select it for its own rules. Otherwise, centers may still vaccinate more broadly; this app’s standard MenB rules below govern eligibility.',
+        text: 'Not specifically sourced as transplant-driven at this age. If another MenB risk factor applies (asplenia, complement deficiency, microbiologist exposure, or a serogroup B outbreak) — select it for its own rules. Otherwise, centers may still vaccinate more broadly; this app’s standard MenB rules below govern eligibility.',
         refs: ['kambojShah2019MenbHct'],
       });
     }
