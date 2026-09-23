@@ -83,7 +83,7 @@ describe('symptom 1 · the card at 6 months and 2 weeks', () => {
     const c = card(JUST_UNDER_LATE);
     expect(c.seriesTotal).toBe(4);
     expect(c.doseLabel).not.toMatch(/7–11mo/);
-    expect(noteText(c)).toMatch(/4-dose Menveo series/);
+    expect(noteText(c)).toMatch(/4-dose infant MenACWY series/); // M3: brand-neutral
   });
 
   it('still hands the 7-month-old the later band, unchanged', () => {

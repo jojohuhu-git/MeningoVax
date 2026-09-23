@@ -17,7 +17,7 @@
 // So this was a silently wrong clinical answer, which is the one thing this app
 // promises not to produce.
 //
-// Cause. The "start the series" branch is gated on `am >= MENACWY_MIN_AGE_MONTHS`.
+// Cause. The "start the series" branch is gated on `am >= MENACWY_SCHEDULE_MIN_AGE_MONTHS`.
 // A patient below that age failed the gate and fell all the way through to the
 // CONTINUE-the-series fallback at the bottom of the same function, which is
 // written for a patient who already has doses: with none recorded it printed
@@ -33,7 +33,7 @@
 // a healthy infant and an HCT patient already said "Not yet due" correctly.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
-import { MENACWY_MIN_AGE_MONTHS } from '../../data/brands.js';
+import { MENACWY_SCHEDULE_MIN_AGE_MONTHS } from '../ages.js';
 
 const AT_RISK = [['asplenia'], ['complement'], ['hiv'], ['travel'], ['outbreak_acwy']];
 const TOO_YOUNG = [0, 0.0357, 0.5, 1, 1.9];
@@ -46,7 +46,7 @@ function card(ageMonths, riskIds) {
 
 describe('a newborn is never told a MenACWY dose is due today', () => {
   it('the minimum age this rests on is 2 months', () => {
-    expect(MENACWY_MIN_AGE_MONTHS).toBe(2);
+    expect(MENACWY_SCHEDULE_MIN_AGE_MONTHS).toBe(2);
   });
 
   it.each(AT_RISK)('nothing is due below the minimum age for %s', (...riskIds) => {
@@ -77,7 +77,7 @@ describe('a newborn is never told a MenACWY dose is due today', () => {
   });
 
   it('the series still starts the moment the patient reaches 2 months', () => {
-    const c = card(MENACWY_MIN_AGE_MONTHS, ['asplenia']);
+    const c = card(MENACWY_SCHEDULE_MIN_AGE_MONTHS, ['asplenia']);
     expect(c.dueToday).toBe(true);
     expect(c.doseLabel).toBe('Dose 1 of 4 (infant high-risk)');
   });
@@ -137,7 +137,7 @@ describe('the same floor applies to the occupational-only risk factors this file
   });
 
   it.each(OCCUPATIONAL_AT_RISK)('the dose becomes due the moment the patient reaches 2 months, for %s', (...riskIds) => {
-    const c = card(MENACWY_MIN_AGE_MONTHS, riskIds);
+    const c = card(MENACWY_SCHEDULE_MIN_AGE_MONTHS, riskIds);
     expect(c.dueToday).toBe(true);
     expect(c.status).toBe('exposure');
   });

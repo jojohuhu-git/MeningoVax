@@ -161,7 +161,9 @@ describe('imp P1-2: a risk factor that cannot apply at that age is noted', () =>
     expect(card.dueToday).toBe(true);
     expect(card.seriesTotal).toBe(1);
     expect(card.note.lead).toBe('A single MenACWY dose, for a military recruit.');
-    expect(card.brands.map(b => b.name || b)).toEqual(['Menveo 2-vial (MenACWY)']);
+    // M2 (2026-09-22): MenQuadfi is now also licensed at 2 months (its floor
+    // is 6 weeks), so a 2-month-old is offered both brands, not Menveo alone.
+    expect(card.brands.map(b => b.name || b)).toEqual(['Menveo 2-vial (MenACWY)', 'MenQuadfi (MenACWY)']);
     // And the note is an ADDITION, sitting outside the card.
     expect(r.riskAgeNote).toBeTruthy();
   });

@@ -57,14 +57,14 @@ describe('the card for a baby born six and a half months ago', () => {
     const { container } = show(cardFor(DOB_SIX_AND_A_HALF));
     const text = container.textContent;
     const headingSaysFour = /Dose 1 of 4/.test(text);
-    const noteSaysTwo = /2-dose Menveo series/.test(text);
+    const noteSaysTwo = /2-dose infant MenACWY series/.test(text); // M3: brand-neutral
     expect(headingSaysFour && noteSaysTwo).toBe(false);
   });
 
   it('shows the younger band, which is the one CDC puts them in', () => {
     const { container } = show(cardFor(DOB_SIX_AND_A_HALF));
     expect(screen.getByText(/Dose 1 of 4 \(infant high-risk\)/)).toBeTruthy();
-    expect(container.textContent).toMatch(/4-dose Menveo series/);
+    expect(container.textContent).toMatch(/4-dose infant MenACWY series/); // M3: brand-neutral
     expect(container.textContent).not.toMatch(/7–11mo/);
   });
 });
@@ -88,7 +88,7 @@ describe('what must NOT change', () => {
     }).menacwy[0];
     const { container } = show(rec);
     expect(screen.getByText(/Dose 1 of 2 \(infant high-risk 7–11mo\)/)).toBeTruthy();
-    expect(container.textContent).toMatch(/2-dose Menveo series/);
+    expect(container.textContent).toMatch(/2-dose infant MenACWY series/); // M3: brand-neutral
   });
 
   it('a whole-numbered 14-month-old still sees the 12-23mo card', () => {

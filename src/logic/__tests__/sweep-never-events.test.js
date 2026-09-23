@@ -57,7 +57,7 @@ import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
-import { ALL_BRANDS } from '../../data/brands.js';
+import { ALL_BRANDS, brandMinAge } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
@@ -76,7 +76,9 @@ const KNOWN_STATUSES = [
 // legitimately differ in how they cite, so they are excluded here.
 const ACTIONABLE_STATUSES = ['due', 'catchup', 'risk-based', 'exposure'];
 
-const BRAND_MIN_AGE = new Map(ALL_BRANDS.map((b) => [b.label, b.minAgeM]));
+// M2 (2026-09-22): MenQuadfi's floor is minAgeDays, not minAgeM — brandMinAge()
+// (brands.js) returns whichever unit the brand actually states its floor in.
+const BRAND_MIN_AGE = new Map(ALL_BRANDS.map((b) => [b.label, brandMinAge(b.label)]));
 
 // CDC's 4-day grace (property 1's known exception — regression-p1-1-four-day-
 // grace.test.js enforces it elsewhere; this sweep must not flag it as new).
@@ -122,11 +124,19 @@ function checkProperties1to5(where, am, dob, riskIds, menacwyDoses, menbDoses) {
     // ── Property 1: no brand below its own licensed minimum age ──────
     if (r.dueToday) {
       for (const brandLabel of r.brands) {
-        const minAgeM = BRAND_MIN_AGE.get(brandLabel);
-        if (minAgeM == null) {
+        const floor = BRAND_MIN_AGE.get(brandLabel);
+        if (floor == null) {
           p1.push(`${where} ${r.vaccine}: offered unrecognised brand "${brandLabel}"`);
-        } else if (am + GRACE_MONTHS < minAgeM) {
-          p1.push(`${where} ${r.vaccine}: offered "${brandLabel}" (floor ${minAgeM}mo) at age ${am}mo`);
+        } else {
+          // A days-stated floor (MenQuadfi) is converted to the same averaged
+          // months figure used everywhere else this sweep works in months —
+          // this property only needs to catch a brand offered WAY below its
+          // floor, not validate an exact day, so the ~1-2-day fuzz an average
+          // month introduces is immaterial here.
+          const floorMonths = floor.unit === 'days' ? floor.value / 30.4375 : floor.value;
+          if (am + GRACE_MONTHS < floorMonths) {
+            p1.push(`${where} ${r.vaccine}: offered "${brandLabel}" (floor ${floor.value}${floor.unit === 'days' ? 'd' : 'mo'}) at age ${am}mo`);
+          }
         }
       }
     }

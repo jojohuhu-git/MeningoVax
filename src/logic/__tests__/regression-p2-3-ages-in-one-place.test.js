@@ -38,7 +38,7 @@ import {
   MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7, MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7,
 } from '../intervals.js';
 import {
-  MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS, PENTAVALENT_MIN_AGE_MONTHS,
+  MENB_MIN_AGE_MONTHS, PENTAVALENT_MIN_AGE_MONTHS,
   MENACWY_INFANT_SERIES_BRANDS, menacwyBrandLabelsForAge, MENACWY_BRANDS,
 } from '../../data/brands.js';
 import { noteText } from '../../test-note-text.js';
@@ -274,11 +274,20 @@ describe('P2-3 · the MenB ages', () => {
 
 describe('P2-3 · brand availability is derived from the product table', () => {
   it('every offered brand is licensed at the age it is offered at', () => {
+    // M2 (2026-09-22): MenQuadfi's floor is minAgeDays, not minAgeM — compare
+    // in whichever unit the brand states its own floor, same as the
+    // production code does (menacwyBrandLabelsForAge itself).
     const byLabel = Object.fromEntries(MENACWY_BRANDS.map((b) => [b.label, b]));
     for (let am = 0; am <= 1200; am += 1) {
       for (const label of menacwyBrandLabelsForAge(am)) {
-        expect(am, `${label} offered at ${am} months`)
-          .toBeGreaterThanOrEqual(byLabel[label].minAgeM);
+        const b = byLabel[label];
+        if (b.minAgeDays != null) {
+          expect(am * 30.4375, `${label} offered at ${am} months`)
+            .toBeGreaterThanOrEqual(b.minAgeDays);
+        } else {
+          expect(am, `${label} offered at ${am} months`)
+            .toBeGreaterThanOrEqual(b.minAgeM);
+        }
       }
     }
   });
@@ -302,10 +311,15 @@ describe('P2-3 · brand availability is derived from the product table', () => {
     }
   });
 
-  it('the infant series offers exactly what is licensed at the youngest age', () => {
-    expect(MENACWY_INFANT_SERIES_BRANDS)
-      .toEqual(menacwyBrandLabelsForAge(MENACWY_MIN_AGE_MONTHS));
-    expect(MENACWY_INFANT_SERIES_BRANDS.length).toBeGreaterThan(0);
+  it('the infant series offers every brand licensed anywhere in the infant band', () => {
+    // M2 (2026-09-22): this used to assert MENACWY_INFANT_SERIES_BRANDS
+    // equalled "whatever is licensed at the single youngest floor" — which
+    // silently drops Menveo the moment a second product (MenQuadfi, 6 weeks)
+    // has a younger floor than Menveo's 2 months. Both are now genuinely
+    // licensed within the infant band, so both must be offered.
+    expect(MENACWY_INFANT_SERIES_BRANDS).toEqual([
+      'Menveo 2-vial (MenACWY)', 'MenQuadfi (MenACWY)',
+    ]);
   });
 
   it('the pentavalent offer starts at the pentavalent product floor', () => {

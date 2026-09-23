@@ -5,9 +5,10 @@ code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth** — MeningoVax is edited first; any change here must be
 carried over to vaxapp's copy at `docs/agent/meningococcal-rules-summary.md`.
 
-**Last verified against code:** 2026-09-17 (P0-1, MenACWY infant primary intervals);
-before that 2026-09-16, after the 2026-09-15 dose-counter and
-primary/booster-boundary fixes (M5, M9, M10, M12, M16-M18, P0-1 to P0-5, P1-1 to P1-3).
+**Last verified against code:** 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
+before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
+the 2026-09-15 dose-counter and primary/booster-boundary fixes (M5, M9, M10, M12,
+M16-M18, P0-1 to P0-5, P1-1 to P1-3).
 
 This file is no longer kept honest by memory alone. The test
 `src/logic/__tests__/rule-docs-match-code.test.js` reads each load-bearing rule out of
@@ -81,7 +82,19 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
   series* as a high-risk one — ACIP prints the identical "2–23 months" row in Tables
   4–6, 8 and 9. Microbiologists and military recruits are excluded: ACIP gives them no
   infant row at all.
-  - Dose 1 at 2 months: 4-dose Menveo series (2, 4, 6, 12 months). No shortcut.
+  - Dose 1 at 2 months: 4-dose infant MenACWY series (2, 4, 6, 12 months). No shortcut.
+    Menveo and MenQuadfi are both offered — see the licensed-age note just below.
+  - **MenQuadfi is licensed from 6 weeks, younger than the app's own 2-month
+    schedule floor (2026-09-23, AAP-aligned per WA DOH).** The app still never
+    *asks* for a dose before 2 months — CDC's earliest schedule row is 2 months
+    regardless of which product a family chooses — but a MenQuadfi dose actually
+    given at 6 or 7 weeks is licensed and **counts**: the card for a patient in
+    that gap says so and states the schedule that follows ("6 weeks, then 4, 6
+    and 12 months") instead of pretending nothing happened. Menveo's own floor
+    is unchanged at 2 months. See `MENACWY_LICENCE_MIN_AGE_DAYS` (brands.js) vs
+    `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
+    used to be one number only because every product's answer happened to
+    match.
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
     at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or
     its age is unknown, it stays a 4-dose series.

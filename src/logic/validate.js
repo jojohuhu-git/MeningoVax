@@ -51,7 +51,7 @@
 import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, DAYS } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import {
-  menbFamily, ALL_BRANDS, MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
+  menbFamily, ALL_BRANDS, brandMinAge, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS,
 } from '../data/brands.js';
 import { menacwySeriesInfo, menbSeriesInfo, menacwyPrimaryTotal } from './seriesTotals.js';
 import { ageAtDoseMonths } from './patientAge.js';
@@ -59,7 +59,7 @@ import { ageAtDoseMonths } from './patientAge.js';
 // shared with recommend.js, so the engine cannot recommend a dose the validator
 // then rejects (or, as here, accept one the engine's own card called too soon).
 import {
-  menacwyInfantNextDoseGate, ageMeetsMinimum, intervalMeetsMinimum,
+  menacwyInfantNextDoseGate, ageMeetsMinimum, ageMeetsMinimumDays, intervalMeetsMinimum,
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
@@ -87,9 +87,13 @@ import { fmtDate, stripAntigen } from './format.js';
 // ALL_BRANDS is the single source of truth for minAgeM per product.
 // maxAgeM is 999 for all meningococcal products → no upper-age check needed.
 //
-// Given a brand string (e.g. 'Penbraya (MenABCWY)' or 'Bexsero (MenB)'),
-// finds the matching ALL_BRANDS entry by startsWith(b.key) and returns minAgeM.
-// Returns null when no match found (caller chooses the permissive fallback).
+// MenB only: given a brand string (e.g. 'Penbraya (MenABCWY)' or 'Bexsero
+// (MenB)'), finds the matching ALL_BRANDS entry by startsWith(b.key) and
+// returns minAgeM. Returns null when no match found (caller chooses the
+// permissive fallback). MenACWY uses brandMinAge() from brands.js instead
+// (M2, 2026-09-22) because MenQuadfi's floor is stated in DAYS, not months —
+// every MenB product's floor is still a plain months number (10 years), so
+// this simpler months-only lookup is still correct for that vaccine.
 function brandMinAgeM(brandStr) {
   if (!brandStr) return null;
   for (const b of ALL_BRANDS) {
@@ -103,8 +107,40 @@ function brandMinAgeM(brandStr) {
 // P2-3 (2026-09-17): these used to be typed out here as 2 and 120, under a
 // comment explaining which products they came from. They now come from the
 // product table itself, so adding a product cannot leave them behind.
-const MIN_AGE_MENACWY_PERMISSIVE_MONTHS = MENACWY_MIN_AGE_MONTHS;
+//
+// M2 (2026-09-22): the MenACWY floor is now expressed in DAYS
+// (MENACWY_LICENCE_MIN_AGE_DAYS, brands.js) — MenQuadfi's 42-day floor is the
+// most permissive one, and converting it to an approximate months number
+// here would reintroduce exactly the imprecision the days unit exists to
+// avoid. See meetsMenacwyFloor() below for how a days-stated floor is
+// checked against a dose that may or may not have a date of birth on file.
+const MIN_AGE_MENACWY_PERMISSIVE = { unit: 'days', value: MENACWY_LICENCE_MIN_AGE_DAYS };
 const MIN_AGE_MENB_PERMISSIVE_MONTHS = MENB_MIN_AGE_MONTHS;
+
+// Same averaged month length used elsewhere for approximate, no-dob
+// fallbacks (brands.js's menacwyBrandLabelsForAge, dateUtils.js's
+// DAYS.months()). Used ONLY when a days-stated floor has to be checked
+// against a patient with no date of birth on file — there is no way to be
+// day-exact without one, so this degrades to the same approximation the rest
+// of the no-dob path already accepts (see patientAge.js).
+const AVG_DAYS_PER_MONTH = 30.4375;
+
+/**
+ * Does this dose/current-age clear a MenACWY product's licence floor?
+ *
+ * `floor` is whatever brandMinAge()/MIN_AGE_MENACWY_PERMISSIVE returns: a
+ * days-stated floor (MenQuadfi) or a months-stated one (every other
+ * product). `ageAtDoseDaysVal` is the exact day count when a date of birth
+ * and a dose date are both on file; otherwise null, and a days floor falls
+ * back to the approximate months conversion above.
+ */
+function meetsMenacwyFloor(floor, ageAtDoseMonthsVal, ageAtDoseDaysVal, whenGiven) {
+  if (floor.unit === 'days') {
+    if (ageAtDoseDaysVal != null) return ageMeetsMinimumDays(ageAtDoseDaysVal, floor.value);
+    return ageMeetsMinimum(ageAtDoseMonthsVal, floor.value / AVG_DAYS_PER_MONTH, whenGiven);
+  }
+  return ageMeetsMinimum(ageAtDoseMonthsVal, floor.value, whenGiven);
+}
 
 // ── Interval constants — reuse the recommend.js patterns ─────────────────
 // MenACWY: baseline minimum between ANY two doses regardless of risk class
@@ -226,12 +262,27 @@ function fmtAgeMClinical(m) {
 
 // Format a min-age threshold for human-readable messages.
 // Always expresses in years when ≥12 months (e.g. 120 → "10 years").
-function fmtMinAge(minAgeM) {
-  if (minAgeM >= 12) {
-    const y = minAgeM / 12;
-    return `${y} year${y === 1 ? '' : 's'} (${minAgeM} months)`;
+//
+// M2 (2026-09-22): also accepts a days-stated floor as { unit: 'days', value
+// }, from brandMinAge()/MIN_AGE_MENACWY_PERMISSIVE (MenQuadfi's 42 days).
+// Printed in weeks when it divides evenly (42 → "6 weeks", matching how the
+// clinical source states it) and in days otherwise — never converted to a
+// fractional month ("1.4 months" is not a number a clinician thinks in).
+// MenB call sites still pass a plain number and are unaffected.
+function fmtMinAge(minAge) {
+  if (minAge && typeof minAge === 'object') {
+    const { value } = minAge;
+    if (value % 7 === 0) {
+      const w = value / 7;
+      return `${w} week${w === 1 ? '' : 's'}`;
+    }
+    return `${value} day${value === 1 ? '' : 's'}`;
   }
-  return `${minAgeM} month${minAgeM === 1 ? '' : 's'}`;
+  if (minAge >= 12) {
+    const y = minAge / 12;
+    return `${y} year${y === 1 ? '' : 's'} (${minAge} months)`;
+  }
+  return `${minAge} month${minAge === 1 ? '' : 's'}`;
 }
 
 // Build an 'unknown' result for a dose whose date is missing.
@@ -382,41 +433,48 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   // patient's CURRENT age is an upper bound on the age at administration.
   // If a KNOWN brand's minimum age exceeds the current age, the dose could not
   // have been valid at any point in the patient's life → invalid (does not count).
-  // Unknown brand → permissive fallback (Menveo 2-vial, 2 months) → does not
-  // flag, per ACIP (any brand may be used when prior history/brand is unknown).
+  // Unknown brand → permissive fallback (MenQuadfi, 6 weeks — M2, 2026-09-22)
+  // → does not flag, per ACIP (any brand may be used when prior history/brand
+  // is unknown).
   if (!dose.date) {
     const brand = dose.brand || '';
-    const knownBrandMin = brandMinAgeM(brand); // null when brand unknown
-    if (knownBrandMin !== null && !ageMeetsMinimum(ageMonths, knownBrandMin, { doseDate: today, ageMonths, today, dob })) {
+    const knownBrandFloor = brandMinAge(brand); // null when brand unknown
+    const currentAgeDays = dob ? daysBetween(dob, today) : null;
+    if (knownBrandFloor !== null && !meetsMenacwyFloor(knownBrandFloor, ageMonths, currentAgeDays, { doseDate: today, ageMonths, today, dob })) {
       const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandMin)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
-        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandMin)}.`
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandFloor)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
+        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandFloor)}.`
       );
     }
-    const minAgeM = knownBrandMin ?? MIN_AGE_MENACWY_PERMISSIVE_MONTHS;
+    const floorForMsg = knownBrandFloor ?? MIN_AGE_MENACWY_PERMISSIVE;
     return unknownResult([
-      `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
+      `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(floorForMsg)} to be valid).`
     ]);
   }
 
   const ageAtDose = ageAtDoseFromDate(dose, ageMonths, today, dob);
 
   // ── Min-age check (Task 1) ────────────────────────────────────────────
-  // Use ALL_BRANDS as the single source of truth for minAgeM.
-  // Unknown brand → fall back to the most permissive (Menveo, 2 months) so
-  // we don't false-flag a dose recorded without a brand.
+  // Use brandMinAge() (brands.js) as the single source of truth for a
+  // product's licence floor, in whichever unit it is stated. Unknown brand →
+  // fall back to the most permissive product (MenQuadfi, 6 weeks) so we
+  // don't false-flag a dose recorded without a brand.
   // Note: maxAgeM is 999 for all MenACWY products — no upper-age check needed.
   const brand = dose.brand || '';
-  const minAgeM = brandMinAgeM(brand) ?? MIN_AGE_MENACWY_PERMISSIVE_MONTHS;
+  const floor = brandMinAge(brand) ?? MIN_AGE_MENACWY_PERMISSIVE;
+  // Exact only with a date of birth on file — see meetsMenacwyFloor() and
+  // brands.js's header for why a days-stated floor cannot be checked exactly
+  // any other way.
+  const ageAtDoseDays = dob ? daysBetween(dob, dose.date) : null;
 
-  if (ageAtDose !== null && !ageMeetsMinimum(ageAtDose, minAgeM, whenGiven)) {
+  if (ageAtDose !== null && !meetsMenacwyFloor(floor, ageAtDose, ageAtDoseDays, whenGiven)) {
     const brandLabel = brand
       ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
       : 'this brand';
     return invalidResult(
-      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabel}.`],
-      `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum for ${brandLabel}: ${fmtMinAge(minAgeM)}.`
+      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(floor)} for ${brandLabel}.`],
+      `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum for ${brandLabel}: ${fmtMinAge(floor)}.`
     );
   }
 

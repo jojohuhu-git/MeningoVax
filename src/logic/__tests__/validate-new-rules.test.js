@@ -467,10 +467,9 @@ describe('Regression — existing valid behaviors unchanged', () => {
     expect(results[0].status).toBe('valid');
   });
 
-  it('MenACWY MenQuadfi at 12 months → still invalid (min 24 months)', () => {
+  it('MenACWY MenQuadfi at 12 months → valid (M2, 2026-09-22: floor is now 6 weeks, not 24 months)', () => {
     const results = validate('MenACWY', [{ date: monthsAgo(228), brand: 'MenQuadfi (MenACWY)' }], 240);
-    expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/2 years/i);
+    expect(results[0].status).toBe('valid');
   });
 
   it('MenB Bexsero at age 10y 3mo → still valid', () => {
@@ -499,8 +498,13 @@ describe('Regression — existing valid behaviors unchanged', () => {
   });
 
   it('analyzeHistory effective count is still correct with renumbering', () => {
-    // D1 invalid (MenQuadfi at 12mo), D2 valid → D2 is effective D1
-    const d1 = monthsAgo(228); // ageAtDose = 12 → invalid
+    // D1 invalid, D2 valid → D2 is effective D1. D1 used to be "MenQuadfi at
+    // 12mo, invalid under the old 24-month floor" — M2 (2026-09-22) dropped
+    // that floor to 6 weeks, so a dose at 12mo is valid now. Rebased onto a
+    // before-birth date instead: this test is about RENUMBERING after an
+    // invalid D1, not about any particular clinical age rule, so it should
+    // not have been hostage to one.
+    const d1 = monthsAgo(250); // ageAtDose = 240-250 = -10 → before birth, invalid
     const d2 = monthsAgo(24);  // valid
     const { perDose, effective } = analyze('MenACWY', [
       { date: d1, brand: 'MenQuadfi (MenACWY)' },
