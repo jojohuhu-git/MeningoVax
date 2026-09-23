@@ -3,7 +3,7 @@ import { ageGroup as deriveGroup, dobToAgeMonths, fmtAgeMonths } from '../logic/
 // Impossible-entries P0-1: what counts as an age a human being can be. Both
 // entry boxes ask the same module, so the two doors cannot drift apart.
 import { ageEntryProblem } from '../logic/ageEntry.js';
-import { todayISO } from '../logic/dateUtils.js';
+import { todayISO, daysBetween } from '../logic/dateUtils.js';
 
 // A2: date of birth is the primary, recommended entry — it lets the engine
 // compute a dose's age precisely (e.g. "was this MenACWY dose given on/after
@@ -71,6 +71,9 @@ export default function StepAge({ ageMonths, error, onChange, today: todayProp }
   }
 
   const derivedGroup = ageMonths != null ? deriveGroup(ageMonths) : null;
+  // Exact day count for the weeks band (fmtAgeMonths' exactDays param) --
+  // same dob + today pair handleDobChange already used to derive ageMonths.
+  const ageDays = dob ? daysBetween(dob, today) : null;
 
   return (
     <div className="step-card">
@@ -153,7 +156,7 @@ export default function StepAge({ ageMonths, error, onChange, today: todayProp }
       {derivedGroup && (
         <div style={{ marginTop: 12 }}>
           <span className="age-badge">
-            {ageMonths != null ? fmtAgeMonths(ageMonths) : ''}{' '}
+            {ageMonths != null ? fmtAgeMonths(ageMonths, ageDays) : ''}{' '}
             · {derivedGroup}
           </span>
         </div>
