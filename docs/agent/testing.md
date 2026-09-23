@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,576 | `npx vitest run --reporter=json`, 2026-09-23, MenQuadfi 6-week licence floor M3-M5 |
+| Individual `it()` tests, total | 1,579 | `npx vitest run --reporter=json`, 2026-09-23, MenQuadfi wording fix after live-verify |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 539 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 

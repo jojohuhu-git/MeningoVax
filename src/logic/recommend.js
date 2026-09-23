@@ -887,7 +887,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
         dueToday: false,
         note: {
           lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
-          detail: `This patient has an indication that calls for the infant ${why} series, so track them and start it at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}.`,
+          detail: `This patient has an indication that calls for the ${why} series, so track them and start it at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}.`,
         },
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         refs });
@@ -902,7 +902,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
       dueToday: false,
       note: {
         lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young [c]; it counts toward the ${why} series.`,
-        detail: `${whyTitle} infant series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months [c]. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
+        detail: `${whyTitle} series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months [c]. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
       },
       noteCites: [cite('menQuadfiPackageInsert'), cite('acwyInfantHighRisk2to6mo')],
       refs: [...refs, 'waDohMenQuadfiAapAlignment'] });
