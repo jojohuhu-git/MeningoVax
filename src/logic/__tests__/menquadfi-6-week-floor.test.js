@@ -26,6 +26,7 @@ import {
   MENACWY_LICENCE_MIN_AGE_DAYS, MENACWY_INFANT_SERIES_BRANDS, ALL_BRANDS,
 } from '../../data/brands.js';
 import { MENACWY_SCHEDULE_MIN_AGE_MONTHS } from '../ages.js';
+import { noteText } from '../../test-note-text.js';
 
 const TODAY = '2026-09-22';
 const MENQUADFI = 'MenQuadfi (MenACWY)';
@@ -149,5 +150,53 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
     // The schedule floor stays 2 months regardless of which product exists —
     // it comes from CDC's dose-1 schedule row, not from any product table.
     expect(MENACWY_SCHEDULE_MIN_AGE_MONTHS * 30.4375).toBeGreaterThan(MENACWY_LICENCE_MIN_AGE_DAYS);
+  });
+});
+
+// ── M3 · card copy stops naming a single brand when two are offered ──────
+
+describe('M3 — no card names one brand while offering two chips', () => {
+  it('a 7-week-old with NO doses yet: still told to track and start at 2 months, with no false "only Menveo" claim', () => {
+    const r = recommend({
+      today: TODAY, dob: addDays(TODAY, -49), // 7 weeks old, given === 0
+      riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
+    });
+    const card = r.menacwy[0];
+    expect(card.doseLabel).toBe('Not yet age-eligible');
+    expect(noteText(card)).toMatch(/track them and start it/);
+    // MenQuadfi's own floor (6 weeks) is younger than the 2-month schedule
+    // floor this card is describing, so "only Menveo is licensed that young"
+    // was never true — nothing should claim it.
+    expect(noteText(card)).not.toMatch(/Menveo/);
+  });
+
+  it('a 7-week-old with a MenQuadfi dose already given at 6 weeks: dose 1 counts, the card says so', () => {
+    const dob = addDays(TODAY, -49); // 7 weeks old today
+    const doseDate = addDays(dob, 42); // dose given exactly at the 6-week licence floor
+    const r = recommend({
+      today: TODAY, dob, riskIds: ['asplenia'],
+      menacwyDoses: [{ date: doseDate, brand: MENQUADFI }], menbDoses: [],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes' } },
+    });
+    const card = r.menacwy[0];
+    // Still not due today -- the interval to dose 2 (8 weeks) always outruns
+    // the 2-month schedule floor -- but the card must stop pretending dose 1
+    // never happened.
+    expect(card.dueToday).toBe(false);
+    expect(card.doseLabel).not.toBe('Not yet age-eligible');
+    expect(noteText(card)).not.toMatch(/track them and start it/);
+    expect(noteText(card)).toMatch(/6 weeks, then 4, 6 and 12 months/);
+    expect(noteText(card)).not.toMatch(/Menveo/);
+  });
+
+  it('invariant: across the whole infant band, a card never names "Menveo" in prose while offering more than one brand chip', () => {
+    for (let m = 2; m <= 23; m += 1) {
+      const card = recommend({
+        today: TODAY, ageMonths: m, riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [],
+      }).menacwy[0];
+      if (Array.isArray(card.brands) && card.brands.length > 1) {
+        expect(noteText(card), `age ${m}mo`).not.toMatch(/Menveo/);
+      }
+    }
   });
 });

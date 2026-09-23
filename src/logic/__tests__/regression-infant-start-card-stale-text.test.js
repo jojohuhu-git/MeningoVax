@@ -126,7 +126,10 @@ describe('what must NOT change', () => {
     // U1 (2026-09-17): same claim, re-worded when the note split into a lead and
     // a detail. Matched in two parts rather than as one exact sentence, so a
     // future copy pass can move the comma without failing a clinical test.
-    expect(noteText(c)).toMatch(/4-dose Menveo series/);
+    // M3 (2026-09-23): brand-neutral since MenQuadfi is also licensed for the
+    // infant series (see the menquadfi-6-week-floor tests) — this card must
+    // not name a single brand while the chips beside it offer two.
+    expect(noteText(c)).toMatch(/4-dose infant MenACWY series/);
     expect(noteText(c)).toMatch(/2, 4, 6 and 12 months/);
   });
 

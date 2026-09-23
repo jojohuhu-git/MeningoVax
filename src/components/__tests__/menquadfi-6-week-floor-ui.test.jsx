@@ -10,9 +10,16 @@
 // products that are licensed that young.
 // ─────────────────────────────────────────────────────────────────────────
 import React, { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Results from '../Results.jsx';
+import { openWhyThis } from '../../test-why-this.js';
+
+function openAllCards(container) {
+  for (const toggle of container.querySelectorAll('.rec-card-head-toggle')) {
+    fireEvent.click(toggle);
+  }
+}
 
 const TODAY = '2026-09-22';
 
@@ -57,5 +64,27 @@ describe('a 2-month-old with asplenia', () => {
     expect(screen.getByText(/brand options/i)).toBeDefined();
     expect(screen.getByText('Menveo 2-vial')).toBeDefined();
     expect(screen.getByText('MenQuadfi')).toBeDefined();
+  });
+});
+
+// M3 (2026-09-23): a dose already recorded at 6 weeks -- before the app's own
+// 2-month schedule floor -- must not be described as if nothing had happened.
+describe('a 7-week-old with a MenQuadfi dose already given at 6 weeks', () => {
+  it('the card does not say "Not yet age-eligible" and states the schedule it actually started', () => {
+    const { container } = render(<Harness initial={{
+      dob: '2026-08-04', // 7 weeks before TODAY
+      riskIds: ['asplenia'],
+      menacwyDoses: [{ date: '2026-09-15', brand: 'MenQuadfi (MenACWY)' }], // given at 6 weeks
+      menbDoses: [],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes' }, MenB: {} },
+    }} />);
+    // Cards render collapsed by default (status is 'not-indicated' either
+    // way); the note text only exists in the DOM once expanded.
+    openAllCards(container);
+    openWhyThis();
+    // MenB (10-year floor) is legitimately still "Not yet age-eligible" here --
+    // only the MenACWY card, which has the MenQuadfi dose, should have moved on.
+    expect(screen.getAllByText('Not yet age-eligible')).toHaveLength(1);
+    expect(screen.getByText(/6 weeks, then 4, 6 and 12 months/)).toBeDefined();
   });
 });
