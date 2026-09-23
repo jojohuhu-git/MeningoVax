@@ -1,6 +1,7 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-09-17 (P0-1, MenACWY infant primary intervals).
+**Last verified against code:** 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
+before that 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
 `src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
@@ -60,6 +61,21 @@ started under 2y stays on the infant pathway however old they are now. Totals co
 - D1 at 7–23m: 2-dose primary, D2 ≥12 weeks after D1 AND at ≥12 months of age (M5 — this
   band was 3 doses before 2026-09-15).
 - ≥2y: 2-dose primary (D2 ≥8 weeks after D1)
+
+**MenQuadfi's licence floor (M1–M4, 2026-09-22/23) is younger than the schedule floor
+above, and the two are deliberately two different constants:**
+`MENACWY_LICENCE_MIN_AGE_DAYS` (`brands.js`, 42 — could a dose of ANY MenACWY product
+have been given at this age) vs `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (`ages.js`, 2 —
+unchanged, does the app ASK for one yet). MenQuadfi is AAP-aligned per WA DOH to 6
+weeks; Menveo's floor stays 2 months. The app never asks for a dose before 2 months —
+nothing in the schedule needs one that young — but a MenQuadfi dose actually given at 6
+or 7 weeks is licensed and counts: `recommend.js`'s `menacwyInfantSeries()` branches on
+`given` at its schedule-floor gate so that case gets a card describing the series that
+was actually started ("6 weeks, then 4, 6 and 12 months"), not the unconditional
+"nothing is due yet, track and start at 2 months" text a `given === 0` patient sees.
+`MENACWY_INFANT_SERIES_BRANDS` means "licensed anywhere in the infant band" (both
+Menveo and MenQuadfi), not "licensed at the single youngest floor" — the latter would
+silently drop Menveo now that MenQuadfi's floor is younger.
 
 **Infant primary intervals (P0-1, 2026-09-17).** Two numbers, and they come from
 `intervals.js` → `menacwyInfantNextDoseGate()`. Never hand-type either, and never restate

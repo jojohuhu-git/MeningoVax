@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,571 | `npx vitest run --reporter=json`, 2026-09-22, MenQuadfi 6-week licence floor M1+M2 |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 531 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,576 | `npx vitest run --reporter=json`, 2026-09-23, MenQuadfi 6-week licence floor M3-M5 |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 539 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean
