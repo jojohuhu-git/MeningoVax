@@ -28,6 +28,17 @@ import { todayISO, calendarMonthsBetween } from './dateUtils.js';
  *
  * e.g. 0 → "Birth", 1.5 → "6 weeks", 4 → "4 months", 72 → "6 years",
  *      78 → "6 years 6 months", 191.7 → "15 years 11 months"
+ *
+ * @param {number} am          age in months (calendar-exact; see calendarMonthsBetween)
+ * @param {number} [exactDays] exact day count for the same age, when a caller has
+ *   both a date of birth and a real date on file. Used ONLY for the weeks band
+ *   (am <= 2): `am` already carries one averaged days-per-month conversion (from
+ *   wherever it was derived), and converting it back to weeks with a SECOND
+ *   averaged constant compounds the error -- a dose given at exactly 42 days
+ *   (6.0 completed weeks) could print "5 weeks". When exactDays is supplied,
+ *   weeks are Math.floor(exactDays / 7) instead: exact, no averaging at all.
+ *   Omit it (patient entered as years/months, no date of birth) and the old
+ *   averaged conversion is used unchanged.
  */
 // An age is the difference of two dates, so one that IS exactly five years can
 // arrive as 59.9999999. Flooring that naively would print "4 years 11 months"
@@ -36,7 +47,7 @@ import { todayISO, calendarMonthsBetween } from './dateUtils.js';
 const FLOOR_EPS = 1e-6;
 const floorAge = (n) => Math.floor(n + FLOOR_EPS);
 
-export function fmtAgeMonths(am) {
+export function fmtAgeMonths(am, exactDays) {
   if (am == null) return '';
   // Impossible-entries P1-3 (2026-09-17): a negative age used to fall into the
   // "Birth" branch below, so -52 months and 0 months printed the same word. A
@@ -46,6 +57,16 @@ export function fmtAgeMonths(am) {
   // A negative age is a bug or a typo, never a patient, so it must not be
   // mistakable for one.
   if (am < 0) return 'Before birth';
+  // Very young infants (≤ ~8 weeks / 2 months): express in weeks, exactly
+  // from the day count when one is known (see the exactDays param doc above)
+  // -- this branch runs BEFORE the averaged am < 0.25 "Birth" cutoff below so
+  // an exact day count can override it too (an exactly-7-day-old dose reads
+  // "1 week", not "Birth", even though 7 days is 0.23 averaged months).
+  if (exactDays != null && am <= 2) {
+    const wks = Math.floor(exactDays / 7);
+    if (wks < 1) return 'Birth';
+    return `${wks} week${wks === 1 ? '' : 's'}`;
+  }
   if (am < 0.25) return 'Birth';               // < ~1 week → Birth
   // Very young infants (≤ ~8 weeks / 2 months): express in weeks
   if (am <= 2) {

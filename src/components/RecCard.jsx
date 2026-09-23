@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
-import { todayISO } from '../logic/dateUtils.js';
+import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
 import { doseChipLabel, doseChipClass, NEEDS_INPUT_LABEL } from './doseChipLabel.js';
@@ -76,7 +76,10 @@ function describeDose(dose, idx, ageMonths, today, dob) {
   // Calendar P2-2: with a date of birth the printed age is exact; without one
   // it is the same approximation as before, and still shown with a "~".
   const ageAtDose = dose?.date ? ageAtDoseFromDate(dose, ageMonths, today, dob) : null;
-  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose)}` : 'age unknown');
+  // Exact day count for the weeks band (fmtAgeMonths' exactDays param) --
+  // same dob + dose.date pair ageAtDoseFromDate already used above.
+  const ageAtDoseDays = dob && dose?.date ? daysBetween(dob, dose.date) : null;
+  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose, ageAtDoseDays)}` : 'age unknown');
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   if (dose?.creditedFrom) {
     parts.push(`one shot covering both — recorded under ${dose.creditedFrom}`);

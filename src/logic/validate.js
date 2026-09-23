@@ -248,7 +248,12 @@ function fmtDays(n) {
 //     so an empty string would render "Given at ~, before age 10".
 //   - lower-case 'birth', for the same reason — it appears mid-sentence.
 // Both are pinned by regression-p1-3-one-age-formatter.test.js.
-function fmtAgeMClinical(m) {
+// exactDays: the exact day count for the same age, when dob is on file --
+// see fmtAgeMonths()'s own param doc in format.js. Passed through so the
+// MenACWY min-age-floor messages (the ones a MenQuadfi 6-week rejection
+// prints) don't misround a boundary week the same way the record panel used
+// to (queue item: 42 days must read as "6 weeks", not "5").
+function fmtAgeMClinical(m, exactDays) {
   if (m == null) return '?';
   // P1-3 (impossible-entries, 2026-09-17): this guard used to read `m < 0.5`,
   // which swallowed every negative age into the word "birth" -- so a dose dated
@@ -257,7 +262,7 @@ function fmtAgeMClinical(m) {
   // 'birth' below, because these strings appear mid-sentence after "~".
   if (m < 0) return 'before birth';
   if (m < 0.5) return 'birth';
-  return fmtAgeMonths(m);
+  return fmtAgeMonths(m, exactDays);
 }
 
 // Format a min-age threshold for human-readable messages.
@@ -443,8 +448,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     if (knownBrandFloor !== null && !meetsMenacwyFloor(knownBrandFloor, ageMonths, currentAgeDays, { doseDate: today, ageMonths, today, dob })) {
       const brandLabel = brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '');
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(knownBrandFloor)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
-        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandFloor)}.`
+        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths, currentAgeDays)}, below the minimum age of ${fmtMinAge(knownBrandFloor)} for ${brandLabel}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
+        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths, currentAgeDays)}. Minimum for ${brandLabel}: ${fmtMinAge(knownBrandFloor)}.`
       );
     }
     const floorForMsg = knownBrandFloor ?? MIN_AGE_MENACWY_PERMISSIVE;
@@ -473,8 +478,8 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
       : 'this brand';
     return invalidResult(
-      [`Given at ~${fmtAgeMClinical(ageAtDose)}, below the minimum age of ${fmtMinAge(floor)} for ${brandLabel}.`],
-      `Age at administration: ~${fmtAgeMClinical(ageAtDose)}. Minimum for ${brandLabel}: ${fmtMinAge(floor)}.`
+      [`Given at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}, below the minimum age of ${fmtMinAge(floor)} for ${brandLabel}.`],
+      `Age at administration: ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}. Minimum for ${brandLabel}: ${fmtMinAge(floor)}.`
     );
   }
 
@@ -535,7 +540,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, AGE_10Y_MONTHS, whenGiven)) {
     return {
       status: 'valid',
-      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose)}): does not count toward the adolescent MenACWY series. [c]`],
+      reasons: [`Given before age 10 (~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}): does not count toward the adolescent MenACWY series. [c]`],
       reasonCites: [cite('acwyBeforeAge10')],
       notAdolescentCount: true,
     };
@@ -555,14 +560,14 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
       return {
         status: 'pending',
         needsInput: true,
-        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Whether this dose counts toward the high-risk series depends on whether the patient was already high-risk on that date — not recorded.`],
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}, before age 10. Whether this dose counts toward the high-risk series depends on whether the patient was already high-risk on that date — not recorded.`],
         promptDate: dose.date,
       };
     }
     if (riskAnswer === 'no' || riskAnswer === 'unsure') {
       return {
         status: 'valid',
-        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before age 10. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series. [c]`],
+        reasons: [`Given at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}, before age 10. Marked as ${riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series. [c]`],
         reasonCites: [cite('acwyBeforeAge10')],
         notAdolescentCount: true,
       };
@@ -575,7 +580,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
     // what the "Dose N of M" chip means, and "in response to the risk-timing
     // question" is the "Edit" button sitting beside it. What is left is the
     // part that actually varies.
-    answeredYesNote = `Counted — high risk confirmed at ~${fmtAgeMClinical(ageAtDose)}.`;
+    answeredYesNote = `Counted — high risk confirmed at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}.`;
   }
 
   // ── Interval checks ───────────────────────────────────────────────────
@@ -634,7 +639,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
             const weeks = gate.minIntervalDays / 7;
             const why = [
               tooSoon ? `only ${fmtDays(interval)} after the previous dose (minimum ${weeks} weeks)` : null,
-              tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ageAtDose)})` : null,
+              tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)})` : null,
             ].filter(Boolean).join(', and ');
             const requirement = gate.isFinalPrimary
               ? `CDC requires the dose completing an infant series at least ${weeks} weeks after the previous dose AND after age 12 months.`
@@ -752,7 +757,7 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
   if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1 && ageAtDose !== null && !ageMeetsMinimum(ageAtDose, AGE_16Y_MONTHS, whenGiven)) {
     return {
       status: 'valid',
-      reasons: [`Given at ~${fmtAgeMClinical(ageAtDose)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16. [c]`],
+      reasons: [`Given at ~${fmtAgeMClinical(ageAtDose, ageAtDoseDays)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16. [c]`],
       reasonCites: [cite('acwyRoutine1112and16')],
       notAdolescentCount: true,
     };

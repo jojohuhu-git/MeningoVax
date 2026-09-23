@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { recommend } from '../logic/recommend.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { patientAgeMonths } from '../logic/patientAge.js';
+import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
 import RecCard, { RecNote, RiskAgeNote } from './RecCard.jsx';
@@ -28,6 +29,9 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   // one, so the patient goes on ageing while the tab is open instead of being
   // frozen at the moment the Age step was filled in.
   const ageMonths = patientAgeMonths(state, today);
+  // Exact day count for the weeks band (fmtAgeMonths' exactDays param) --
+  // same dob + reference date patientAgeMonths already used above.
+  const ageDays = dob ? daysBetween(dob, today || todayISO()) : null;
   const acwyRiskAnswers = riskAtDoseAnswers?.MenACWY ?? {};
   const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
@@ -224,7 +228,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
         <div className="results-meta">
           <div className="meta-chips">
             <span className="meta-chip meta-age">
-              {fmtAgeMonths(ageMonths)}
+              {fmtAgeMonths(ageMonths, ageDays)}
             </span>
             {group && <span className="meta-chip meta-group">{group}</span>}
             {riskLabels.length > 0
