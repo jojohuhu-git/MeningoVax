@@ -892,14 +892,20 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         refs });
     }
+    // M4 (2026-09-23): this card makes a LICENCE claim ("a product licensed
+    // that young") the schedule citation (acwyInfantHighRisk2to6mo) doesn't
+    // support -- that MMWR states dose counts and intervals, not which
+    // product may be given when. The package insert is the right source for
+    // that; the WA DOH chip carries the "why" (AAP alignment) a clinician
+    // reading this unusual card would otherwise have to take on faith.
     return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Dose 1 given; next dose not yet due',
       dueToday: false,
       note: {
-        lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young; it counts toward the ${why} series [c].`,
-        detail: `${whyTitle} infant series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
+        lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young [c]; it counts toward the ${why} series.`,
+        detail: `${whyTitle} infant series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months [c]. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
       },
-      noteCites: [cite('acwyInfantHighRisk2to6mo')],
-      refs });
+      noteCites: [cite('menQuadfiPackageInsert'), cite('acwyInfantHighRisk2to6mo')],
+      refs: [...refs, 'waDohMenQuadfiAapAlignment'] });
   }
   if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     // start series; Menveo and MenQuadfi both licensed by this age (M3, 2026-09-23).

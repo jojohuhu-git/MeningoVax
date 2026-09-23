@@ -189,6 +189,19 @@ describe('M3 — no card names one brand while offering two chips', () => {
     expect(noteText(card)).not.toMatch(/Menveo/);
   });
 
+  it('cites the package insert for the licence claim and the MMWR for the schedule claim (M4)', () => {
+    const dob = addDays(TODAY, -49);
+    const doseDate = addDays(dob, 42);
+    const r = recommend({
+      today: TODAY, dob, riskIds: ['asplenia'],
+      menacwyDoses: [{ date: doseDate, brand: MENQUADFI }], menbDoses: [],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes' } },
+    });
+    const card = r.menacwy[0];
+    expect(card.noteCites.map((c) => c.key)).toEqual(['menQuadfiPackageInsert', 'acwyInfantHighRisk2to6mo']);
+    expect(card.citations.map((c) => c.short)).toContain('WA DOH');
+  });
+
   it('invariant: across the whole infant band, a card never names "Menveo" in prose while offering more than one brand chip', () => {
     for (let m = 2; m <= 23; m += 1) {
       const card = recommend({

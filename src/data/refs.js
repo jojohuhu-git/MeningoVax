@@ -174,6 +174,40 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
+  // M4 (2026-09-23, MenQuadfi 6-week floor queue). The ONE source for a
+  // LICENSED-age claim, not a schedule claim — the authority rule ranks FDA
+  // package inserts below ACIP/CDC for SCHEDULE questions (dose counts,
+  // intervals, preferred ages), but the schedule doesn't state a product's
+  // licensed minimum age at all; only the insert does. So this is not a
+  // hierarchy violation, just the right document for a different question.
+  // Fetched live via DailyMed, which republishes the FDA-approved label
+  // verbatim (structured product labeling) — this IS the package insert, not
+  // a paraphrase of it. DailyMed's own page shows "Revised: 4/2026", with
+  // "Recent Major Changes" to Indications and Usage / Dosage and
+  // Administration dated 5/2025 — the 6-week floor is already in the current
+  // label, not a pending change.
+  menQuadfiPackageInsert: {
+    url: 'https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7',
+    quote: 'MenQuadfi is approved for use in individuals 6 weeks of age and older.',
+    label: 'MenQuadfi (MenACWY-TT) FDA prescribing information: approved for use from 6 weeks of age',
+    short: 'MenQuadfi Package Insert',
+    lastVerified: '2026-09-23',
+  },
+  // The "why" for the MenQuadfi floor drop (2 years -> 6 weeks): an AAP
+  // alignment, per WA state DOH. This is the app's first non-CDC/ACIP
+  // clinical citation (checked 2026-09-22: every other entry in this file is
+  // CDC/ACIP/MMWR/immunize.org) -- MeningoVax's own authority rule already
+  // covers a state DOH resource as tiebreak/context when it explains an
+  // AAP-driven change; see docs/agent/meningococcal-rules-summary.md's
+  // authority section. Quote fetched live 2026-09-22 (see the fix-queue file
+  // fix-2026-09-22-menquadfi-6-week-licence-floor.md for the full context).
+  waDohMenQuadfiAapAlignment: {
+    url: 'https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines',
+    quote: 'Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation.',
+    label: 'Washington State DOH: MenQuadfi’s 6-week minimum age aligns with AAP',
+    short: 'WA DOH',
+    lastVerified: '2026-09-22',
+  },
   // M16 (2026-09-15): the "preferred age 16-18 yrs" claim, restored with the
   // citation it should always have carried. C1/2026-07-24 dropped it after
   // correctly finding it absent from mm7349a3 (the Oct 2024 Bexsero dosing
