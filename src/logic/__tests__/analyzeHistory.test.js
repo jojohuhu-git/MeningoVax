@@ -359,10 +359,14 @@ describe('All-valid baseline — no regressions', () => {
 // This is the core renumbering bug guard. If analyzeHistory() is changed
 // to use raw indices (like the old validateHistory()), this test MUST fail.
 describe('First-dose-invalid renumbering (core invariant — must fail if walk is reverted)', () => {
-  it('MenACWY: invalid D1 (MenQuadfi at 12mo), valid D2 → D2 is effective D1 with no cascade error', () => {
-    // Patient now 25y (300mo). Dose 1: MenQuadfi at 12 months (ageAtDose=12 < 24mo minimum).
-    // Dose 2: given 2 years ago = valid.
-    const d1 = monthsAgo(288); // ageAtDose = 300-288 = 12 mo → invalid (MenQuadfi needs ≥24mo)
+  it('MenACWY: invalid D1 (before birth), valid D2 → D2 is effective D1 with no cascade error', () => {
+    // Patient now 25y (300mo). Dose 1 used to be "MenQuadfi at 12 months,
+    // invalid under the old 24-month minimum" — M2 (2026-09-22) dropped
+    // MenQuadfi's floor to 6 weeks, so that dose is valid now. Rebased onto a
+    // before-birth date: this test is about the RENUMBERING invariant after
+    // an invalid D1, not about MenQuadfi's age rule, so it should not have
+    // been hostage to one.
+    const d1 = monthsAgo(310); // ageAtDose = 300-310 = -10 → before birth, invalid
     const d2 = monthsAgo(24);  // ageAtDose = 300-24 = 276 mo = 23y → valid
     const { perDose, effective } = analyze(
       'MenACWY',
@@ -374,7 +378,7 @@ describe('First-dose-invalid renumbering (core invariant — must fail if walk i
       ['asplenia']
     );
 
-    expect(perDose[0].status).toBe('invalid');   // D1 too young for MenQuadfi
+    expect(perDose[0].status).toBe('invalid');   // D1 dated before birth
     expect(perDose[1].status).toBe('valid');     // D2 valid — NOT flagged for interval
     expect(perDose[1].effectiveDoseNum).toBe(1); // Re-numbered as effective dose 1
     expect(effective).toHaveLength(1);

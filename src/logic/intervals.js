@@ -413,3 +413,25 @@ export function ageMeetsMinimum(ageAtDoseMonths, minAgeMonths, when = {}) {
   if (ageMonths == null || !today) return false;
   return ageMonths - calendarMonthsBetween(graced, today) >= minAgeMonths;
 }
+
+/**
+ * Was the patient old enough at this dose, allowing the grace — for a
+ * DAYS-stated product floor (MenQuadfi's 6 weeks, brands.js's `minAgeDays`).
+ *
+ * Unlike ageMeetsMinimum above, this needs no dob/today re-derivation: days
+ * are exact regardless of which calendar month they fall in (that is the
+ * whole reason a days-stated floor exists — see brands.js), so the grace is
+ * just GRACE_DAYS more days, always. `intervalMeetsMinimum` already has
+ * exactly this shape for a gap between two doses; an age floor stated in
+ * days is the same arithmetic against a different pair of dates (birth to
+ * dose, instead of dose to dose).
+ *
+ * @param {?number} ageAtDoseDays  age in days at the dose (null = unknown —
+ *   this happens whenever there is no date of birth on file, since days
+ *   cannot be counted from a birthday the app was never given)
+ * @param {number} minAgeDays
+ */
+export function ageMeetsMinimumDays(ageAtDoseDays, minAgeDays) {
+  if (ageAtDoseDays == null) return false;
+  return intervalMeetsMinimum(ageAtDoseDays, minAgeDays);
+}

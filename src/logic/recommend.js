@@ -28,17 +28,25 @@ import {
 } from '../data/riskFactors.js';
 import {
   menbFamily, menacwyBrandLabelsForAge, MENACWY_INFANT_SERIES_BRANDS,
-  MENACWY_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS, PENTAVALENT_MIN_AGE_MONTHS,
+  MENB_MIN_AGE_MONTHS, PENTAVALENT_MIN_AGE_MONTHS,
 } from '../data/brands.js';
 // P2-3 (2026-09-17): the age thresholds used to live in a local `M` map here,
 // with validate.js and seriesTotals.js each keeping their own copies of the
 // same numbers. ages.js is their single home; see its header for why 192 gets
 // two names rather than one.
+//
+// M2 (2026-09-22): MENACWY_MIN_AGE_MONTHS used to come from brands.js and
+// meant two things that happened to be equal — the youngest a product may be
+// GIVEN, and the youngest age the app ASKS for a dose. MenQuadfi's 6-week
+// licence floor split them; every use below wanted the second one, so they
+// now import MENACWY_SCHEDULE_MIN_AGE_MONTHS from here instead. The value is
+// unchanged (2 months) — CDC's earliest schedule row is still 2 months
+// regardless of which product a family chooses.
 import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
-  MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+  MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS,
   MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
 } from './ages.js';
 // impossible P1-2: the note prints the patient's age in the same words the
@@ -425,15 +433,15 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   // Travel and outbreak_acwy can never reach here below this age: both are
   // in menacwyInfantSeriesIndicated(), so the hoist above already caught them
   // whenever am is under MENACWY_INFANT_SERIES_MAX_AGE_MONTHS (well above
-  // MENACWY_MIN_AGE_MONTHS). So this guard only ever fires for microbiologist
+  // MENACWY_SCHEDULE_MIN_AGE_MONTHS). So this guard only ever fires for microbiologist
   // alone, or military/college_dorm (alone or combined) -- reusing the same
-  // MENACWY_MIN_AGE_MONTHS constant and citation the infant-hoist check uses,
+  // MENACWY_SCHEDULE_MIN_AGE_MONTHS constant and citation the infant-hoist check uses,
   // not a re-derived number.
-  if ((riskClass === 'single+boost' || riskClass === 'single') && am < MENACWY_MIN_AGE_MONTHS) {
+  if ((riskClass === 'single+boost' || riskClass === 'single') && am < MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     return [rec({
       vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible', dueToday: false,
       note: {
-        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
         detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
       },
       noteCites: [cite('acwyInfantHighRisk2to6mo')],
@@ -862,17 +870,17 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
   //
   // No date is promised. The app stores an age, not a date of birth (calendar
   // P1-3), so a date here would claim a precision it does not have.
-  if (am < MENACWY_MIN_AGE_MONTHS) {
+  if (am < MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
       dueToday: false,
       note: {
-        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
-        detail: `This patient has an indication that calls for the infant ${why} series, so track them and start it at ${monthsLabel(MENACWY_MIN_AGE_MONTHS)}. Only Menveo is licensed that young; the other MenACWY brands start later.`,
+        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        detail: `This patient has an indication that calls for the infant ${why} series, so track them and start it at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. Only Menveo is licensed that young; the other MenACWY brands start later.`,
       },
       noteCites: [cite('acwyInfantHighRisk2to6mo')],
       refs });
   }
-  if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_MIN_AGE_MONTHS) {
+  if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     // start series; Menveo only.
     // One total for BOTH the printed label and seriesTotal. They used to be
     // written out separately, so when M5 changed the helper (a 7-23-month start

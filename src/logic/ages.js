@@ -40,11 +40,20 @@
 //
 // WHAT IS DELIBERATELY NOT HERE
 //
-//   - PRODUCT licence floors ("Menveo 2-vial is licensed from 2 months",
+//   - PRODUCT licence floors ("MenQuadfi is licensed from 6 weeks",
 //     "every MenB product is 10 years and up"). Those belong to the product,
 //     not the schedule, and they already have a single home in
-//     `src/data/brands.js`. Ask that file, via MENACWY_MIN_AGE_MONTHS /
+//     `src/data/brands.js`. Ask that file, via MENACWY_LICENCE_MIN_AGE_DAYS /
 //     MENB_MIN_AGE_MONTHS / menacwyBrandLabelsForAge().
+//
+//     M2 (2026-09-22): MENACWY_SCHEDULE_MIN_AGE_MONTHS below is the other
+//     half of a split that used to be one constant, MENACWY_MIN_AGE_MONTHS
+//     in brands.js. It happened to equal the licence floor for as long as
+//     Menveo (2 months) was the youngest-licensed MenACWY product. MenQuadfi
+//     licensed from 6 weeks broke that coincidence: a 6-week dose is validly
+//     GIVEN (licence floor, brands.js), but the app does not ASK for one
+//     until 2 months (schedule floor, here) — CDC's schedule has no dose row
+//     earlier than that regardless of which product is used.
 //   - The demographic band labels in `format.js` ("Infant (<2y)", "Child
 //     (2-10y)"). Those describe a patient, not a rule. If ACIP moved the
 //     routine dose to 12 years, a 11-year-old would still be an adolescent.
@@ -77,6 +86,14 @@ export function ageYears(months) {
 //
 //   "Dose 1 at age 7-23 months: 2-dose series (dose 2 at least 12 weeks after
 //    dose 1 and after age 12 months)"
+
+/**
+ * The youngest age the SCHEDULE asks for a MenACWY dose — CDC's "Dose 1 at
+ * age 2 months" row. This is not a product licence floor (brands.js owns
+ * those, and MenQuadfi's is younger: 6 weeks); it is the age below which
+ * nothing is DUE, regardless of which product could technically be given.
+ */
+export const MENACWY_SCHEDULE_MIN_AGE_MONTHS = 2;
 
 /**
  * The second birthday: the door into the infant/early-childhood schedule.

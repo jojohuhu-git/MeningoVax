@@ -24,9 +24,7 @@
 // The pair sweep runs on SWEEP_DOBS_COARSE (6-month step) instead of the
 // 3-month SWEEP_DOBS — see the runtime note by that export.
 import { RISK_FACTORS } from './data/riskFactors.js';
-import {
-  MENB_BRANDS, menacwyBrandLabelsForAge, MENACWY_MIN_AGE_MONTHS,
-} from './data/brands.js';
+import { MENB_BRANDS } from './data/brands.js';
 import { addDays, addCalendarMonths } from './logic/dateUtils.js';
 import { TEST_TODAY } from './test-today.js';
 
@@ -71,11 +69,23 @@ export const PAIR_RISK_PROFILES = (() => {
   return pairs;
 })();
 
-// The brand each sweep dose is recorded under — the youngest-licensed ACTIVE
-// product per vaccine, so the generous spacing profile below can place a dose
-// at any swept age without also tripping a brand age floor.
-export const MENACWY_SWEEP_BRAND = menacwyBrandLabelsForAge(MENACWY_MIN_AGE_MONTHS)[0];
-export const MENACWY_SWEEP_BRAND_MIN_AGE = MENACWY_MIN_AGE_MONTHS;
+// The brand each sweep dose is recorded under, so the generous spacing
+// profile below can place a dose at any swept age without also tripping a
+// brand age floor.
+//
+// M2 (2026-09-22): this used to be DERIVED — the brand licensed at the
+// single lowest MenACWY floor — which silently re-points to whichever
+// product currently has the smallest number. When MenQuadfi's floor (6
+// weeks) became lower than Menveo's (2 months), this expression quietly
+// became MenQuadfi and Menveo stopped being exercised by every sweep in this
+// file. All 278,232 rows kept passing regardless: none of the swept
+// properties depend on WHICH MenACWY brand a valid dose carries, so a whole
+// brand silently dropping out of every sweep produced zero signal. Pinned
+// explicitly instead — see sweep-covers-both-infant-menacwy-brands.test.js
+// for the assertion that both infant-eligible brands still exist in the
+// product table, which a derived constant cannot fail to notice on its own.
+export const MENACWY_SWEEP_BRAND = 'Menveo 2-vial (MenACWY)';
+export const MENACWY_SWEEP_BRAND_MIN_AGE = 2; // Menveo 2-vial's own floor, in months
 export const MENB_SWEEP_BRAND = MENB_BRANDS[0].label;
 export const MENB_SWEEP_BRAND_MIN_AGE = MENB_BRANDS[0].minAgeM;
 

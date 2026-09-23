@@ -42,18 +42,23 @@ describe('MenACWY — no date', () => {
   });
 });
 
-describe('MenACWY — MenQuadfi before 24 months', () => {
-  it('MenQuadfi at 12 months → invalid (min age 24 mo)', () => {
-    // Patient is 20y (240 mo). Dose given 228 months ago → ageAtDose = 240-228 = 12
-    const results = validate('MenACWY', [{ date: monthsAgo(228), brand: 'MenQuadfi (MenACWY)' }], 240);
+// M2 (2026-09-22): MenQuadfi's minimum age dropped from 2 years to 6 weeks
+// (AAP alignment, WA DOH). This describe block used to be "before 24 months";
+// see menquadfi-6-week-floor.test.js for the exact-day precision tests a
+// no-dob patient (like this file's tests) cannot exercise.
+describe('MenACWY — MenQuadfi before 6 weeks', () => {
+  it('MenQuadfi at 1 month → invalid (below the 6-week minimum)', () => {
+    // Patient is 20y (240 mo). Dose given 239 months ago → ageAtDose ≈ 1 month,
+    // clearly under 6 weeks (~1.38 months) regardless of the no-dob approximation.
+    const results = validate('MenACWY', [{ date: monthsAgo(239), brand: 'MenQuadfi (MenACWY)' }], 240);
     expect(results[0].status).toBe('invalid');
     expect(results[0].reasons[0]).toMatch(/below the minimum age/);
-    expect(results[0].reasons[0]).toMatch(/2 years/i);
+    expect(results[0].reasons[0]).toMatch(/6 weeks/i);
   });
 
-  it('MenQuadfi at 27 months → valid (clearly above 24-month minimum)', () => {
-    // Patient is 20y (240 mo). Dose given 213 months ago → ageAtDose ≈ 27
-    const results = validate('MenACWY', [{ date: monthsAgo(213), brand: 'MenQuadfi (MenACWY)' }], 240);
+  it('MenQuadfi at 12 months → valid (well above 6 weeks; used to be invalid under the old 24-month rule)', () => {
+    // Patient is 20y (240 mo). Dose given 228 months ago → ageAtDose = 12
+    const results = validate('MenACWY', [{ date: monthsAgo(228), brand: 'MenQuadfi (MenACWY)' }], 240);
     expect(results[0].status).toBe('valid');
   });
 });

@@ -50,10 +50,13 @@ describe('Dateless dose below brand minimum age → invalid', () => {
     expect(res[0].status).toBe('invalid');
   });
 
-  it('MenQuadfi for a 12-month-old (no date) → invalid (min 24 mo)', () => {
-    const res = validate('MenACWY', [{ brand: 'MenQuadfi (MenACWY)' }], 12);
+  it('MenQuadfi for a 1-month-old (no date) → invalid (min 6 weeks, M2 2026-09-22)', () => {
+    // M2 dropped MenQuadfi's floor from 24 months to 6 weeks, so a
+    // 12-month-old dateless dose (the old fixture) is comfortably valid now
+    // — a 1-month-old is the case that still clears "below minimum".
+    const res = validate('MenACWY', [{ brand: 'MenQuadfi (MenACWY)' }], 1);
     expect(res[0].status).toBe('invalid');
-    expect(res[0].reasons[0]).toMatch(/minimum age of 2 years/);
+    expect(res[0].reasons[0]).toMatch(/minimum age of 6 weeks/);
   });
 });
 
@@ -69,7 +72,7 @@ describe('Dateless dose where current age clears the minimum → counts', () => 
   it('MenQuadfi for a 20-year-old (no date) → unknown, counts with min-age note', () => {
     const res = validate('MenACWY', [{ brand: 'MenQuadfi (MenACWY)' }], 240);
     expect(res[0].status).toBe('unknown');
-    expect(res[0].reasons[0]).toMatch(/≥2 years/);
+    expect(res[0].reasons[0]).toMatch(/≥6 weeks/);
   });
 });
 
