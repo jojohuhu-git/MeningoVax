@@ -170,6 +170,32 @@ describe('M3 — no card names one brand while offering two chips', () => {
     expect(noteText(card)).not.toMatch(/Menveo/);
   });
 
+  // Found live-verifying the deployed app (2026-09-23, after M3-M5 merged):
+  // `why`/`whyTitle` already read "infant high-risk" / "Infant high-risk"
+  // (etc. for travel/outbreak) -- a literal "infant" typed next to either
+  // doubles up. Pre-existing at the given===0 branch; introduced by M3's own
+  // new given>=1 branch.
+  it.each(['asplenia', 'travel', 'outbreak_acwy'])('never says "infant infant" or "Infant ... infant" for risk %s', (riskId) => {
+    const dob7wk = addDays(TODAY, -49);
+    const notYetCard = recommend({
+      today: TODAY, dob: dob7wk, riskIds: [riskId], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
+    }).menacwy[0];
+    // extinct: recommend.js's "the infant ${why} series" (why already starting with "infant") is now "the ${why} series"; 2026-09-23.
+    expect(noteText(notYetCard)).not.toMatch(/infant infant/i);
+
+    const doseDate = addDays(dob7wk, 42);
+    const givenCard = recommend({
+      today: TODAY, dob: dob7wk, riskIds: [riskId],
+      menacwyDoses: [{ date: doseDate, brand: MENQUADFI }], menbDoses: [],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes' } },
+    }).menacwy[0];
+    // extinct: recommend.js's "${whyTitle} infant series" is now "${whyTitle} series"; 2026-09-23.
+    expect(noteText(givenCard)).not.toMatch(/infant infant/i);
+    // whyTitle already reads "Infant high-risk" / "Infant travel" / "Infant
+    // outbreak" -- a trailing " infant series" doubles the word non-adjacently.
+    expect(noteText(givenCard)).not.toMatch(/(high-risk|travel|outbreak) infant series/i);
+  });
+
   it('a 7-week-old with a MenQuadfi dose already given at 6 weeks: dose 1 counts, the card says so', () => {
     const dob = addDays(TODAY, -49); // 7 weeks old today
     const doseDate = addDays(dob, 42); // dose given exactly at the 6-week licence floor
