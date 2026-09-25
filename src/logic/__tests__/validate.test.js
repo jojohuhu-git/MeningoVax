@@ -25,18 +25,23 @@ const HR_AM    = 360; // 30-year-old with high-risk factor
 function monthsAgo(m) { return addDays(TODAY, -Math.round(m * 30.4375)); }
 function weeksAgo(w)  { return addDays(TODAY, -(w * 7)); }
 function daysAgo(d)   { return addDays(TODAY, -d); }
+// K1 (2026-09-24): `detailsUnknown` is the clinician's "a dose was given,
+// but I have no date or brand for it" tick. A row with nothing in it at all
+// is now an untouched row, not a dose, so these fixtures say which they mean.
+const undatedDose = () => ({ detailsUnknown: true });
+
 
 // ── MenACWY tests ─────────────────────────────────────────────────────────
 describe('MenACWY — no date', () => {
   it('unknown result when dose has no date', () => {
-    const results = validate('MenACWY', [{}], ADULT_AM);
+    const results = validate('MenACWY', [undatedDose()], ADULT_AM);
     expect(results).toHaveLength(1);
     expect(results[0].status).toBe('unknown');
     expect(results[0].reasons[0]).toMatch(/No date recorded/);
   });
 
   it('unknown result includes counting note', () => {
-    const results = validate('MenACWY', [{}, {}], ADULT_AM);
+    const results = validate('MenACWY', [undatedDose(), undatedDose()], ADULT_AM);
     expect(results[0].status).toBe('unknown');
     expect(results[1].status).toBe('unknown');
   });
@@ -289,7 +294,7 @@ describe('MenB — high-risk D3 interval checks', () => {
 
 describe('MenB — no date → unknown', () => {
   it('dose with no date → unknown result', () => {
-    const results = validate('MenB', [{}], ADULT_AM);
+    const results = validate('MenB', [undatedDose()], ADULT_AM);
     expect(results[0].status).toBe('unknown');
     expect(results[0].reasons[0]).toMatch(/No date recorded/);
   });

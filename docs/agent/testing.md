@@ -21,19 +21,19 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 133 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 84 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
-| — in `src/components/__tests__/` (screen) | 45 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| Test files, total | 135 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 85 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 46 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
-| — of the components ones, opted into `happy-dom` | 44 (the 45th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 45 (the 46th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
 
 **Not guarded by a test** — re-run the command if you need a current number,
 rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,583 | `npx vitest run --reporter=json`, 2026-09-23, fmtAgeMonths weeks-band exact-days fix |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 540 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,614 | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 552 | `npx vitest run --reporter=json`, same run |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean

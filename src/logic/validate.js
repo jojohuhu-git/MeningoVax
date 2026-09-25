@@ -80,7 +80,7 @@ import {
 } from './ages.js';
 import { fmtAgeMonths } from './format.js';
 import { cite } from '../data/refs.js';
-import { doseAnswerKey } from './doseIdentity.js';
+import { doseAnswerKey, dropBlankDoseRows } from './doseIdentity.js';
 import { fmtDate, stripAntigen } from './format.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
@@ -1268,7 +1268,14 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // kept dose), so doses entered out of order must be re-sorted. Dated doses ascending;
   // undated doses sort FIRST (they count but are never a timing anchor, and an undated
   // historical dose is assumed to be the earlier dose — matching existing convention).
-  const filtered = sortDosesChronologically((doses ?? []).filter(Boolean));
+  // K1 (2026-09-24): drop rows the clinician added but never typed into. The
+  // filter used to be `.filter(Boolean)`, which removed only null/undefined,
+  // so an empty row reached the walk and was graded as a dose of unknown
+  // date. Sweeping those rows out of state when the user leaves a list is not
+  // enough on its own: the Results "Recorded doses" panel recalculates live,
+  // so a just-added blank row is already changing the answer on screen with
+  // no "leaving" moment to sweep at.
+  const filtered = sortDosesChronologically(dropBlankDoseRows(doses));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [] };
   const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob);
 

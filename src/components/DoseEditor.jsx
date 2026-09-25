@@ -141,6 +141,31 @@ export default function DoseEditor({
             >
               ×
             </button>
+            {/* K1 (2026-09-24): an empty row means two things — "I haven't
+                typed yet" and "a dose was given, but I have no card". The app
+                cannot tell them apart, and it used to guess the second, so a
+                row nobody had touched was graded as a dose of unknown date.
+                The clinician now says which it is. The tick appears only while
+                the row is otherwise empty, because that is the only case where
+                the two readings differ. */}
+            {!dose.date && !dose.brand && (
+              <label className="dose-row-unknown">
+                <input
+                  type="checkbox"
+                  className="risk-checkbox"
+                  checked={!!dose.detailsUnknown}
+                  onChange={e => updateDose(idx, 'detailsUnknown', e.target.checked)}
+                />
+                <span>
+                  A dose was given, but the date and brand are unknown.
+                  <span className="dose-row-unknown-hint">
+                    Tick this to keep the dose on the record. An empty row is
+                    removed when you continue.
+                  </span>
+                </span>
+              </label>
+            )}
+
             {/* G3: the `max` above stops the date PICKER offering a future day,
                 but a typed or pasted date walks straight past it. Say so where
                 the date was entered, not only on the results card. */}

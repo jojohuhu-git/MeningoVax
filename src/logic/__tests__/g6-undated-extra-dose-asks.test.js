@@ -22,7 +22,10 @@ import { describe, it, expect } from 'vitest';
 import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 
-const undated = (n) => Array.from({ length: n }, () => ({ date: '', brand: '' }));
+// K1 (2026-09-24): detailsUnknown is how the clinician says "a dose was
+// given, I have no date or brand for it". Without the tick the row is one
+// nobody filled in, and no longer counts as a dose.
+const undated = (n) => Array.from({ length: n }, () => ({ date: '', brand: '', detailsUnknown: true }));
 const TEEN = 204; // 17y
 
 // G8 (2026-09-16) moved the MenACWY fixture from two undated doses to three.

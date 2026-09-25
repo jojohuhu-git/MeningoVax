@@ -33,7 +33,10 @@ import { menacwySeriesInfo } from '../seriesTotals.js';
 import { TEST_TODAY } from '../../test-today.js';
 import { noteText } from '../../test-note-text.js';
 
-const undated = () => ({ date: '', brand: '' });
+// K1 (2026-09-24): "undated" here means the clinician told the app a dose
+// was given but had no date or brand for it — the tick on the row, not an
+// untouched row. An untouched row is no longer a dose.
+const undated = () => ({ date: '', brand: '', detailsUnknown: true });
 const TEEN = 204;      // 17y  (born 2009-09-15 against TEST_TODAY)
 const ADULT19 = 228;   // 19y  (born 2007-09-15)
 const DOSE_AT_16_5 = '2026-03-15'; // age 16y6m for TEEN

@@ -54,21 +54,21 @@ const dated = (date) => ({ ...newDoseRow(), date });
 
 describe('G8 (UI): a blank date does not push out a documented dose', () => {
   it('does not ask for a booster the patient has on record', () => {
-    const { acwyCard } = renderWith([newDoseRow(), dated(DOSE_AT_16_5)]);
+    const { acwyCard } = renderWith([newDoseRow({ detailsUnknown: true }), dated(DOSE_AT_16_5)]);
     expect(acwyCard.textContent).toMatch(/Up to date/);
     expect(acwyCard.textContent).not.toMatch(/Booster \(16y\)/);
     expect(acwyCard.textContent).not.toMatch(/due today/i);
   });
 
   it('never tells the clinician the series was already complete', () => {
-    const { acwyCard } = renderWith([newDoseRow(), dated(DOSE_AT_16_5)]);
+    const { acwyCard } = renderWith([newDoseRow({ detailsUnknown: true }), dated(DOSE_AT_16_5)]);
     expect(acwyCard.textContent).not.toMatch(/was already complete/);
   });
 });
 
 describe('G8 (UI): when no dose can be placed at 16 years or older', () => {
   it('says the date is missing rather than claiming there is no such dose', () => {
-    const { acwyCard } = renderWith([newDoseRow(), newDoseRow()]);
+    const { acwyCard } = renderWith([newDoseRow({ detailsUnknown: true }), newDoseRow({ detailsUnknown: true })]);
     expect(acwyCard.textContent).toMatch(/Booster \(16y\)/);
     expect(acwyCard.textContent).toMatch(/recorded doses have no date/);
     expect(acwyCard.textContent).toMatch(/cannot be confirmed from this record/);
@@ -76,7 +76,7 @@ describe('G8 (UI): when no dose can be placed at 16 years or older', () => {
   });
 
   it('stops calling the second undated row an extra dose', () => {
-    const { rows } = renderWith([newDoseRow(), newDoseRow()]);
+    const { rows } = renderWith([newDoseRow({ detailsUnknown: true }), newDoseRow({ detailsUnknown: true })]);
     expect(rows).toHaveLength(2);
     expect(rows[1].textContent).not.toMatch(/Extra dose/);
     expect(rows[1].textContent).not.toMatch(/already complete/);
