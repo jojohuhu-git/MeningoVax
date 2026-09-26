@@ -206,6 +206,17 @@ body {
 .stepper-item.done .stepper-label   { color: var(--gy3); }
 
 /* ── Main content ──────────────────────────────────────────────── */
+/* K2 (2026-09-25): steps 0-3 now render inside a <form> (see App.jsx) so the
+   browser's native Enter-key handling can do the work a JS listener used to.
+   .app-form takes over the flex-stretch job .app-main used to do directly as
+   a child of .app-shell, and passes it straight through to .app-main so the
+   page's height math is unchanged. .app-nav is `position: fixed`, so being
+   inside the form doesn't move or resize it either way. */
+.app-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 .app-main {
   flex: 1;
   max-width: 640px;

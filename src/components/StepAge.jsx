@@ -83,6 +83,7 @@ export default function StepAge({ ageMonths, error, onChange, today: todayProp }
       {/* Entry mode tabs — DOB first/default; Years/Months is the fallback for when DOB is genuinely unknown */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         <button
+          type="button"
           className={`history-toggle-btn${mode === 'dob' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
           onClick={() => { setMode('dob'); setYears(''); setMonths(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}
@@ -90,6 +91,7 @@ export default function StepAge({ ageMonths, error, onChange, today: todayProp }
           Date of Birth
         </button>
         <button
+          type="button"
           className={`history-toggle-btn${mode === 'precise' ? ' selected' : ''}`}
           style={{ flex: 'none', minHeight: 36, padding: '0 14px', fontSize: '0.85rem' }}
           onClick={() => { setMode('precise'); setDob(''); setEntryError(null); onChange({ ageMonths: null, ageGroup: null, dob: null }); }}

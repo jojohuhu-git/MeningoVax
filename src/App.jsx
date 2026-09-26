@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Stepper from './components/Stepper.jsx';
 import StepAge from './components/StepAge.jsx';
 import StepRisks from './components/StepRisks.jsx';
@@ -104,25 +104,13 @@ export default function App() {
     setAgeError('');
   }
 
-  // B7: Enter advances to the next step, without submitting a partial form or
-  // triggering a destructive action. Guarded against firing while focus is in
-  // a free-text field where the user may still be typing (this app has no
-  // free-text inputs today — only date/select/checkbox/button — but the guard
-  // future-proofs against one being added).
-  useEffect(() => {
-    if (state.step >= 4) return; // no Next button on Results
-    function handleKeydown(e) {
-      if (e.key !== 'Enter') return;
-      const tag = document.activeElement?.tagName;
-      const type = document.activeElement?.type;
-      if (tag === 'TEXTAREA' || (tag === 'INPUT' && type === 'text')) return;
-      e.preventDefault();
-      goNext();
-    }
-    document.addEventListener('keydown', handleKeydown);
-    return () => document.removeEventListener('keydown', handleKeydown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.step, state.ageMonths]);
+  // K2 (2026-09-25): Enter used to be a whole-page listener that called
+  // goNext() no matter what had focus, which made every button in the wizard
+  // an Enter trap (tab onto "No previous doses" and Enter skipped the step
+  // instead of answering it). Removed in favor of a real <form> below, whose
+  // onSubmit is the only thing that calls goNext() now: the browser presses
+  // whatever button you're on, or continues the field you're typing in,
+  // exactly the way every other web page already works.
 
   // G1 (2026-09-16): a pentavalent typed on one history step already counts on
   // the other. Each step is told which doses it is being credited, so it can say
@@ -148,67 +136,83 @@ export default function App() {
         </div>
       </header>
 
-      <main className="app-main">
-        {state.step === 0 && (
-          <StepAge
-            ageMonths={state.ageMonths}
-            ageGroup={state.ageGroup}
-            error={ageError}
-            today={today}
-            onChange={({ ageMonths, ageGroup, dob }) => {
-              update({ ageMonths, ageGroup, dob: dob ?? null });
-              if (ageMonths != null) setAgeError('');
-            }}
-          />
-        )}
-        {state.step === 1 && (
-          <StepRisks
-            riskIds={state.riskIds}
-            onChange={riskIds => update({ riskIds })}
-          />
-        )}
-        {state.step === 2 && (
-          <StepHistory
-            vaccine="MenACWY"
-            doses={state.menacwyDoses}
-            onChange={menacwyDoses => update({ menacwyDoses })}
-            brandOptions={MENACWY_HISTORY_BRANDS}
-            creditedDoses={credited.menacwy}
-            today={today}
-          />
-        )}
-        {state.step === 3 && (
-          <StepHistory
-            vaccine="MenB"
-            doses={state.menbDoses}
-            onChange={menbDoses => update({ menbDoses })}
-            brandOptions={MENB_HISTORY_BRANDS}
-            creditedDoses={credited.menb}
-            today={today}
-          />
-        )}
-        {state.step === 4 && (
+      {state.step < 4 ? (
+        // K2 (2026-09-25): a real <form> is what makes Enter work like the
+        // rest of the web, with no JavaScript key-listening at all. Pressing
+        // Enter in a field submits the form (native browser behaviour);
+        // pressing Enter on a `type="button"` button never does (also
+        // native) — it only clicks that button. Next is the one
+        // `type="submit"` button in here, so it's the only thing this
+        // onSubmit can mean.
+        <form
+          className="app-form"
+          onSubmit={e => {
+            e.preventDefault();
+            goNext();
+          }}
+        >
+          <main className="app-main">
+            {state.step === 0 && (
+              <StepAge
+                ageMonths={state.ageMonths}
+                ageGroup={state.ageGroup}
+                error={ageError}
+                today={today}
+                onChange={({ ageMonths, ageGroup, dob }) => {
+                  update({ ageMonths, ageGroup, dob: dob ?? null });
+                  if (ageMonths != null) setAgeError('');
+                }}
+              />
+            )}
+            {state.step === 1 && (
+              <StepRisks
+                riskIds={state.riskIds}
+                onChange={riskIds => update({ riskIds })}
+              />
+            )}
+            {state.step === 2 && (
+              <StepHistory
+                vaccine="MenACWY"
+                doses={state.menacwyDoses}
+                onChange={menacwyDoses => update({ menacwyDoses })}
+                brandOptions={MENACWY_HISTORY_BRANDS}
+                creditedDoses={credited.menacwy}
+                today={today}
+              />
+            )}
+            {state.step === 3 && (
+              <StepHistory
+                vaccine="MenB"
+                doses={state.menbDoses}
+                onChange={menbDoses => update({ menbDoses })}
+                brandOptions={MENB_HISTORY_BRANDS}
+                creditedDoses={credited.menb}
+                today={today}
+              />
+            )}
+          </main>
+
+          <div className="app-nav">
+            <div className="app-nav-inner">
+              {state.step > 0 ? (
+                <button type="button" className="btn btn-back" onClick={goBack}>Back</button>
+              ) : (
+                <span />
+              )}
+              <span className="app-nav-next">
+                <button type="submit" className="btn btn-next">
+                  {state.step === 3 ? 'View Results' : 'Next'}
+                </button>
+                <span className="shortcut-hint">or press Enter</span>
+              </span>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <main className="app-main">
           <Results state={state} onReset={reset} onChange={update}
             onBack={goBack} today={today} />
-        )}
-      </main>
-
-      {state.step < 4 && (
-        <div className="app-nav">
-          <div className="app-nav-inner">
-            {state.step > 0 ? (
-              <button className="btn btn-back" onClick={goBack}>Back</button>
-            ) : (
-              <span />
-            )}
-            <span className="app-nav-next">
-              <button className="btn btn-next" onClick={goNext}>
-                {state.step === 3 ? 'View Results' : 'Next'}
-              </button>
-              <span className="shortcut-hint">or press Enter</span>
-            </span>
-          </div>
-        </div>
+        </main>
       )}
     </div>
   );

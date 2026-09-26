@@ -63,6 +63,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions, cr
 
       <div className="history-toggle">
         <button
+          type="button"
           className={`history-toggle-btn${hasHistory === false ? ' selected' : ''}`}
           onClick={handleNo}
         >
@@ -70,6 +71,7 @@ export default function StepHistory({ vaccine, doses, onChange, brandOptions, cr
           <span className="shortcut-hint history-toggle-hint">Ctrl/Cmd+E</span>
         </button>
         <button
+          type="button"
           className={`history-toggle-btn${hasHistory === true ? ' selected' : ''}`}
           onClick={handleYes}
         >
