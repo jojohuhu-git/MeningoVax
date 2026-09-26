@@ -46,7 +46,6 @@ export default function DoseEditor({
   removeLabel,
   emptyMessage,
   rowClassName,
-  onFocusCapture,
   // calendar P2-1: "now" is App.jsx's job. A caller that already knows the
   // render's today (StepHistory, Results) passes it down; the fallback below
   // exists only for a component test that mounts DoseEditor on its own.
@@ -98,7 +97,7 @@ export default function DoseEditor({
     : null;
 
   return (
-    <div onFocusCapture={onFocusCapture}>
+    <div>
       {doses.length === 0 && emptyMessage && (
         <div className="dose-history-empty">{emptyMessage}</div>
       )}
@@ -203,11 +202,10 @@ export default function DoseEditor({
           type="button"
           className="add-dose-btn"
           onClick={addDose}
-          title="Add dose (Ctrl/Cmd+A)"
+          title="Add dose"
         >
           {addDoseLabel}
         </button>
-        <span className="shortcut-hint">Ctrl/Cmd+A</span>
       </div>
     </div>
   );
