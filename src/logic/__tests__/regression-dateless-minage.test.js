@@ -76,26 +76,31 @@ describe('Dateless dose where current age clears the minimum → counts', () => 
   });
 });
 
+// K1 (2026-09-24): `detailsUnknown` is the clinician's "a dose was given,
+// but I have no date or brand for it" tick. A row with nothing in it at all
+// is now an untouched row, not a dose, so these fixtures say which they mean.
+const undatedDose = () => ({ detailsUnknown: true });
+
 // ── Unknown brand → no brand-specific flag (ACIP: any brand acceptable) ─────
 describe('Dateless dose with unknown brand', () => {
   it('MenACWY unknown brand for a 2-year-old (no date) → unknown, not flagged', () => {
-    const res = validate('MenACWY', [{}], 24);
+    const res = validate('MenACWY', [undatedDose()], 24);
     expect(res[0].status).toBe('unknown');
   });
 
   it('MenACWY unknown brand for a 6-month-old (no date) → unknown (≥2mo floor cleared)', () => {
-    const res = validate('MenACWY', [{}], 6);
+    const res = validate('MenACWY', [undatedDose()], 6);
     expect(res[0].status).toBe('unknown');
   });
 
   it('MenB unknown brand for a 2-year-old (no date) → invalid (≥10y category floor)', () => {
     // Every MenB product is ≥10y — a vaccine-category floor, not a brand penalty.
-    const res = validate('MenB', [{}], 24);
+    const res = validate('MenB', [undatedDose()], 24);
     expect(res[0].status).toBe('invalid');
   });
 
   it('MenB unknown brand for a 30-year-old (no date) → unknown, counts', () => {
-    const res = validate('MenB', [{}], 360);
+    const res = validate('MenB', [undatedDose()], 360);
     expect(res[0].status).toBe('unknown');
   });
 });

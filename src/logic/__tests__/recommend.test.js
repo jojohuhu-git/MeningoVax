@@ -543,8 +543,10 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     const r = run({
       ageMonths: 144, riskIds: ['asplenia'],
       menacwyDoses: [
-        {}, // no date → unknown
-        {}, // no date → unknown
+        // K1 (2026-09-24): the clinician's "a dose was given, details unknown"
+        // tick — a row with nothing in it at all is no longer a dose.
+        { detailsUnknown: true }, // no date → unknown
+        { detailsUnknown: true }, // no date → unknown
       ],
     });
     expect(acwy(r).status).toBe('risk-based');
@@ -557,7 +559,7 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     // Subsequent booster must be 5 years regardless.
     const r = run({
       ageMonths: 240, riskIds: ['asplenia'],
-      menacwyDoses: [{}, {}, {}], // no dates → unknown
+      menacwyDoses: [{ detailsUnknown: true }, { detailsUnknown: true }, { detailsUnknown: true }], // no dates → unknown
     });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseNum).toBe(4);

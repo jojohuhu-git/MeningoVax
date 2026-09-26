@@ -53,7 +53,7 @@ const CASES = [
   {
     name: 'MenB undated, patient still under 16 today',
     vaccine: 'MenB',
-    doses: [{}],
+    doses: [{ detailsUnknown: true }], // K1: the "dose given, details unknown" tick
     ageMonths: 168, riskIds: [], answers: {},
     expectKey: 'menbHealthyPreferredAge1618',
   },

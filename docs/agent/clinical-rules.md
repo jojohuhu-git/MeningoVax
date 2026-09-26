@@ -234,6 +234,39 @@ appears on a **kept** row of the same vaccine: it carries `recordProblem:
 advice. Matched against `kept` rather than every row walked, so a row matching a
 dose that was itself dropped is graded normally. Brands that differ between the
 two rows are named in the reason, since one of them must be wrong.
+## History Entry — How an Undated Dose Gets Onto the Record (K1)
+
+K1 (2026-09-24). A dose row has two optional fields, so an empty row used to
+mean two different things at once and the app guessed the second:
+
+1. "I clicked + Add dose and have not typed anything yet."
+2. "This patient definitely had a dose. I have no card, so I do not know when
+   it was given or which brand it was."
+
+It guessed (2) — `analyzeHistory()` filtered out only `null`/`undefined` rows —
+so a row nobody had touched was graded as a dose of unknown date. Measured: one
+empty row moved a healthy 16-year-old's MenACWY card from catch-up to
+booster-due, and the Results "Recorded doses" panel recalculates live, so the
+answer on screen changed the moment "+ Add dose" was clicked.
+
+The clinician now says which one they mean. An otherwise-empty row shows a tick,
+"A dose was given, but the date and brand are unknown", which sets
+`detailsUnknown: true` on the row. With the tick the row is a dose of unknown
+date and every rule below applies to it unchanged. Without it the row is one
+nobody filled in, and:
+
+- `isBlankDoseRow()` (`doseIdentity.js`) calls it blank — meaning it carries no
+  information at all, not merely no date and no brand. Anything present and
+  meaningful (including `ageMonths`, the age-at-dose the engine also reads)
+  keeps the row, because discarding a row that holds real information would
+  delete a dose the clinician recorded.
+- `analyzeHistory()` ignores it, which is what stops the live Results panel
+  moving the answer before anything is typed.
+- Leaving a history step, or closing the "Recorded doses" panel, sweeps it out
+  of state — every blank row, not just a trailing one. The sweep never fires
+  while the clinician is still in the list: every new row starts blank and
+  would vanish as it appeared.
+
 ## History Entry — An Undated Dose Past the Series Total
 
 G6 (2026-09-16, owner decision "ask, don't assert"). In the series-total cap in

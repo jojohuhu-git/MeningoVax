@@ -8,6 +8,7 @@ import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from './data/brands.j
 import { hasExclusion } from './data/riskFactors.js';
 import { creditPentavalents } from './logic/pentavalentCredit.js';
 import { todayISO } from './logic/dateUtils.js';
+import { dropBlankDoseRows } from './logic/doseIdentity.js';
 
 const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
 
@@ -58,6 +59,21 @@ export default function App() {
     setState(prev => ({ ...prev, ...patch }));
   }
 
+  // K1 (2026-09-24): a row the clinician added but never typed into is not an
+  // injection, and must not follow the patient out of the step. Every blank
+  // row goes, not just a trailing one — fill rows 1 and 3, leave row 2 empty,
+  // and row 2 is dropped too.
+  //
+  // The sweep fires when LEAVING a history step, never while the clinician is
+  // still in it: every new row starts blank, so clearing on sight would make
+  // the row they just asked for vanish as it appeared.
+  function sweepBlankDoseRows(prev) {
+    const key = prev.step === 2 ? 'menacwyDoses' : prev.step === 3 ? 'menbDoses' : null;
+    if (!key) return prev;
+    const kept = dropBlankDoseRows(prev[key]);
+    return kept.length === prev[key].length ? prev : { ...prev, [key]: kept };
+  }
+
   function goNext() {
     if (state.step === 0) {
       if (state.ageMonths == null || state.ageMonths < 0) {
@@ -72,7 +88,7 @@ export default function App() {
       setState(prev => ({ ...prev, step: 4 }));
       return;
     }
-    setState(prev => ({ ...prev, step: Math.min(prev.step + 1, STEPS.length - 1) }));
+    setState(prev => ({ ...sweepBlankDoseRows(prev), step: Math.min(prev.step + 1, STEPS.length - 1) }));
   }
 
   function goBack() {
@@ -80,7 +96,7 @@ export default function App() {
       setState(prev => ({ ...prev, step: 1 }));
       return;
     }
-    setState(prev => ({ ...prev, step: Math.max(prev.step - 1, 0) }));
+    setState(prev => ({ ...sweepBlankDoseRows(prev), step: Math.max(prev.step - 1, 0) }));
   }
 
   function reset() {

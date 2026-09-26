@@ -36,6 +36,50 @@ export function newDoseRow(fields = {}) {
 }
 
 /**
+ * A row the clinician added but never filled in.
+ *
+ * K1 (2026-09-24): clicking "+ Add dose" and typing nothing used to put a
+ * dose of unknown date into the record — it moved a healthy 16-year-old's
+ * MenACWY card from catch-up to booster-due before a single character had
+ * been typed.
+ *
+ * An empty row used to mean two different things, and the app could not tell
+ * them apart: "I haven't typed yet" and "this patient definitely had a dose,
+ * but I have no card, so I don't know when or which". The second is a real
+ * clinical entry this app supports (see the undated-dose rules G6 and G8), so
+ * the row now carries `detailsUnknown` when the clinician ticks "A dose was
+ * given, but the date and brand are unknown". A row with that tick is a dose;
+ * a row without it, and with nothing typed in, is not.
+ *
+ * A row with only ONE of the two fields is deliberately NOT blank either: a
+ * brand with no date is a real injection whose date the clinician does not
+ * have, and a date with no brand is a real injection of an unrecorded brand.
+ * The engine already grades both correctly.
+ */
+export function isBlankDoseRow(d) {
+  if (!d) return true;
+  // "Carries nothing at all", rather than a list of the fields we happen to
+  // know about today. A dose row can hold more than a date and a brand — the
+  // engine also reads `ageMonths` (age at the dose, for a record with no
+  // dates) — and the cost of the two mistakes is not symmetrical: keeping an
+  // empty row is the bug being fixed here, but discarding a row that holds
+  // real information would delete a dose the clinician recorded. So anything
+  // present and meaningful keeps the row, including a field added later.
+  // `id` is not information: every row gets one the moment it is created.
+  return Object.entries(d).every(([key, value]) =>
+    key === 'id' || value === '' || value === null || value === undefined || value === false);
+}
+
+/**
+ * The same list with every untouched row removed — not just a trailing one.
+ * Used when the clinician leaves a list of dose rows behind (a history step,
+ * or the Results "Recorded doses" panel), never while they are still in it.
+ */
+export function dropBlankDoseRows(doses) {
+  return (doses ?? []).filter((d) => !isBlankDoseRow(d));
+}
+
+/**
  * The key a dose's risk-at-dose answer is stored under.
  *
  * `index` is the fallback for dose objects that were built by hand rather

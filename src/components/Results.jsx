@@ -9,7 +9,7 @@ import RecCard, { RecNote, RiskAgeNote } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
-import { newDoseRow } from '../logic/doseIdentity.js';
+import { newDoseRow, isBlankDoseRow, dropBlankDoseRows } from '../logic/doseIdentity.js';
 
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
@@ -196,6 +196,25 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, newDoseRow()] }); }
   function addB() { onChange?.({ menbDoses: [...menbDoses, newDoseRow()] }); }
 
+  // K1 (2026-09-24): rows the clinician added but never typed into are swept
+  // when this panel CLOSES — while it is open they are rows waiting to be
+  // filled in, and clearing them on sight would delete the row the user just
+  // asked for. The engine ignores blank rows in the meantime (validate.js),
+  // which is what stops the answer on screen moving the moment one appears.
+  function closeDosePanelAndSweep() {
+    setEditingDoses(false);
+    const acwy = dropBlankDoseRows(menacwyDoses);
+    const b = dropBlankDoseRows(menbDoses);
+    if (acwy.length !== menacwyDoses.length || b.length !== menbDoses.length) {
+      onChange?.({ menacwyDoses: acwy, menbDoses: b });
+    }
+  }
+
+  // K1: the count is of doses, not of rows — an empty row is not an injection.
+  const recordedDoseCount =
+    menacwyDoses.filter(d => !isBlankDoseRow(d)).length
+    + menbDoses.filter(d => !isBlankDoseRow(d)).length;
+
   // D6b: Ctrl+A (Cmd+A on Mac) adds a dose row in the Recorded-doses editor,
   // matching StepHistory's shortcut. Two dose lists share the panel, so the
   // shortcut targets whichever section (MenACWY or MenB) the user last
@@ -247,7 +266,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
               <button
                 type="button"
                 className="age-edit-btn"
-                onClick={() => { setEditingAge(v => !v); setEditingDoses(false); }}
+                onClick={() => { setEditingAge(v => !v); closeDosePanelAndSweep(); }}
                 aria-expanded={editingAge}
               >
                 Adjust age<Chevron open={editingAge} />
@@ -257,10 +276,14 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
               <button
                 type="button"
                 className="age-edit-btn"
-                onClick={() => { setEditingDoses(v => !v); setEditingAge(false); setActiveDoseSection('acwy'); }}
+                onClick={() => {
+                  if (editingDoses) closeDosePanelAndSweep(); else setEditingDoses(true);
+                  setEditingAge(false);
+                  setActiveDoseSection('acwy');
+                }}
                 aria-expanded={editingDoses}
               >
-                {`Recorded doses${(menacwyDoses.length + menbDoses.length) > 0 ? ` (${menacwyDoses.length + menbDoses.length})` : ''}`}<Chevron open={editingDoses} />
+                {`Recorded doses${recordedDoseCount > 0 ? ` (${recordedDoseCount})` : ''}`}<Chevron open={editingDoses} />
               </button>
             )}
           </div>

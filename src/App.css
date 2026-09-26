@@ -576,6 +576,25 @@ body {
   color: var(--r);
 }
 
+/* K1 (2026-09-24): the "a dose was given, details unknown" tick. Shown only
+   while a row has neither a date nor a brand, so it never competes with the
+   fields themselves. Neutral, not a warning — this is an ordinary entry, not
+   a problem to fix. */
+.dose-row-unknown {
+  flex-basis: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-8);
+  margin-top: var(--sp-8);
+  padding: var(--sp-8) var(--sp-12);
+  border-radius: var(--rads);
+  background: var(--gy6);
+  font-size: var(--fs-base);
+  color: var(--gy2);
+  cursor: pointer;
+}
+.dose-row-unknown-hint { display: block; color: var(--gy3); }
+
 .family-note {
   margin-top: var(--sp-12);
   padding: var(--sp-8) var(--sp-12);

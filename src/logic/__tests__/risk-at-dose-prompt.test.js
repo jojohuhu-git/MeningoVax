@@ -70,7 +70,7 @@ describe('MenACWY risk-at-dose prompt', () => {
 
   it('undated dose for a high-risk-now patient before age 10: no prompt (only dated doses ask)', () => {
     const results = validateHistory('MenACWY',
-      [{ date: '', brand: '' }],
+      [{ date: '', brand: '', detailsUnknown: true }],
       96, ['asplenia'], TODAY); // currently 8y, undated dose
     expect(results[0].status).not.toBe('pending');
   });
