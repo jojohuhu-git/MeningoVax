@@ -553,6 +553,65 @@ describe('App wizard', () => {
     });
   });
 
+  // K6 (2026-09-26): "Enter finishes the row you are in." Depends on K1
+  // (blank rows don't count) and K2 (the real <form>).
+  describe('K6: Enter in a filled dose row gives you the next row', () => {
+    async function toMenacwyDoseEditor(user) {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn()); // Age → Risks
+      fireEvent.click(getNextBtn()); // Risks → MenACWY history
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByText('+ Add dose')); // row 1, focus lands in its date box
+    }
+
+    it('a date-only row plus Enter adds a new row rather than advancing the step', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+
+      fireEvent.change(document.activeElement, { target: { value: '2020-01-01' } });
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(2);
+      expect(screen.getByText('MenACWY History')).toBeDefined();
+    });
+
+    it('the full rhythm — type, Enter, type, Enter, type, Enter, Enter — records exactly three doses and reaches Results with no ghost fourth', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+
+      for (const date of ['2015-01-01', '2016-01-01', '2017-01-01']) {
+        fireEvent.change(document.activeElement, { target: { value: date } });
+        await user.keyboard('{Enter}');
+      }
+      // Three dates typed; the rhythm has just added a 4th, blank row whose
+      // date box has focus. One more Enter on that empty last row means done.
+      expect(document.querySelectorAll('.dose-row').length).toBe(4);
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText('MenB History')).toBeDefined();
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+      expect(screen.getByText(/Recorded doses \(3\)/)).toBeDefined();
+    });
+
+    it('Enter in a row that is not the last one moves to the next row instead of adding one', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+      fireEvent.change(document.activeElement, { target: { value: '2020-01-01' } });
+      fireEvent.click(screen.getByText('+ Add dose')); // row 2, focus moves there
+
+      const dateInputs = () => document.querySelectorAll('input[type="date"]');
+      dateInputs()[0].focus();
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(2); // unchanged
+      expect(document.activeElement).toBe(dateInputs()[1]);
+    });
+  });
+
   // Item 5 (2026-07-23): StepHistory and the Results "Recorded doses" panel
   // now share one DoseEditor component, so the MenB family-lock guidance
   // that used to appear only in StepHistory must also appear in Results.

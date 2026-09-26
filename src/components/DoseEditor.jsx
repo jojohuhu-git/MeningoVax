@@ -3,7 +3,7 @@ import { menbFamily } from '../data/brands.js';
 import { isPentavalentBrand } from '../logic/pentavalentCredit.js';
 import { sortDosesChronologically } from '../logic/validate.js';
 import { todayISO } from '../logic/dateUtils.js';
-import { newDoseRow } from '../logic/doseIdentity.js';
+import { newDoseRow, isBlankDoseRow } from '../logic/doseIdentity.js';
 
 // Shared row/note renderer for recorded-dose editing, used by both the
 // wizard (StepHistory) and the Results "Recorded doses" inline panel.
@@ -78,6 +78,38 @@ export default function DoseEditor({
     onChange(doses.map((d, i) => (i === idx ? { ...d, [field]: value } : d)));
   }
 
+  // K6 (2026-09-26): "Enter finishes the row you are in." Only the date and
+  // brand fields drive this -- not the "×" remove button (its own Enter
+  // already removes the row, natively) and not the details-unknown checkbox.
+  //   - Row has something in it, and it's the last row -> add a new row (the
+  //     Item-1 effect above focuses its date box, so it isn't duplicated here).
+  //   - Row has something in it, and there's a row after -> move to that
+  //     row's date box.
+  //   - Row is empty, and it's the last row -> do nothing here; the browser's
+  //     native Enter behaviour on the field (submit the enclosing form, if
+  //     any) is what "you're done" means.
+  //   - Row is empty, and there's a row after -> not a real case in normal
+  //     use, but move on to the next row's date box rather than silently
+  //     doing nothing.
+  function handleRowKeyDown(e, idx) {
+    if (e.key !== 'Enter') return;
+    const isDateOrBrand = (e.target.tagName === 'INPUT' && e.target.type === 'date')
+      || e.target.tagName === 'SELECT';
+    if (!isDateOrBrand) return;
+
+    const isLastRow = idx === doses.length - 1;
+    if (!isLastRow) {
+      e.preventDefault();
+      const inputs = listRef.current?.querySelectorAll('input[type="date"]');
+      inputs?.[idx + 1]?.focus();
+      return;
+    }
+    if (!isBlankDoseRow(doses[idx])) {
+      e.preventDefault();
+      addDose();
+    }
+  }
+
   // The MenB antigen family is set by the FIRST dose in the series, which may be
   // a pentavalent recorded on the MenACWY step (G1) — so the lock is read from
   // this list and the credited doses together, ordered by the validator's own
@@ -104,7 +136,11 @@ export default function DoseEditor({
 
       <div className="dose-list" ref={listRef}>
         {doses.map((dose, idx) => (
-          <div key={idx} className={`dose-row${rowClassName ? ` ${rowClassName}` : ''}`}>
+          <div
+            key={idx}
+            className={`dose-row${rowClassName ? ` ${rowClassName}` : ''}`}
+            onKeyDown={e => handleRowKeyDown(e, idx)}
+          >
             <div className="dose-field">
               <label>Date (optional)</label>
               <input
