@@ -1,5 +1,9 @@
 # MeningoVax — Handoff after K1 of the keyboard queue (2026-09-25)
 
+**SUPERSEDED 2026-09-26 — see `handoff-2026-09-26-k3-k7-keyboard-queue-done.md`.** K2-K7,
+which this file described as remaining, are now all done, merged, and deployed. Do not
+resume work from this file.
+
 Repo: `~/Downloads/MeningoVax-main`. Live at https://jojohuhu-git.github.io/MeningoVax/
 
 Branch: `main`, clean, in sync with `origin/main` at `6b37c4a`.
