@@ -32,8 +32,8 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,614 | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
-| Test suites (`describe` blocks, files counted as one if they have none), total | 552 | `npx vitest run --reporter=json`, same run |
+| Individual `it()` tests, total | 1,620 | `npx vitest run --reporter=json`, 2026-09-25, K2 Enter-key form fix |
+| Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived for K2 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
 These two rows are a snapshot, not a tripwire: verifying them exactly would mean

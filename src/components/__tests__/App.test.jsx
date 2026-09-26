@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import App from '../../App.jsx';
 
@@ -352,14 +353,22 @@ describe('App wizard', () => {
       expect(addBtn.textContent).toBe('+ Add dose');
     });
 
-    it('Enter advances from the Age step to Risks', () => {
+    // K2 (2026-09-25): these two used to fire Enter at `document` with
+    // nothing focused, which only worked because a whole-page listener
+    // caught every Enter press regardless of focus. That listener is gone —
+    // Enter now does whatever the real, focused control natively does, so
+    // the test has to focus that control the way a keyboard user would.
+    it('Enter in the focused Years field advances from the Age step to Risks', async () => {
+      const user = userEvent.setup();
       render(<App />);
       enterAgeYears(14);
-      fireEvent.keyDown(document, { key: 'Enter' });
+      screen.getByLabelText('Years').focus();
+      await user.keyboard('{Enter}');
       expect(screen.getByText('Risk Factors')).toBeDefined();
     });
 
-    it('Enter does not advance past the Results step (no crash, no reset)', () => {
+    it('Enter does not advance past the Results step (no crash, no reset)', async () => {
+      const user = userEvent.setup();
       render(<App />);
       enterAgeYears(23);
       fireEvent.click(getNextBtn());
@@ -370,9 +379,104 @@ describe('App wizard', () => {
       fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
       expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
-      fireEvent.keyDown(document, { key: 'Enter' });
-      // Still on Results — did not reset or error.
+      // Results has no Next/Back form at all, so Enter — wherever it lands —
+      // cannot submit anything. Confirmed with nothing focused (jsdom default)
+      // and with a real Results button focused.
+      await user.keyboard('{Enter}');
       expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+    });
+  });
+
+  // K2 (2026-09-25): the whole-page Enter listener is gone. Enter now does
+  // whatever the browser natively does with the focused control — press the
+  // button you're on, or continue the field you're typing in — instead of
+  // always skipping to the next step regardless of where you were. Each test
+  // below fails on the pre-K2 code, where the global listener calls goNext()
+  // no matter what has focus.
+  describe('K2: Enter presses the button you are on', () => {
+    async function toMenacwyHistory(user) {
+      render(<App />);
+      enterAgeYears(14);
+      screen.getByLabelText('Years').focus();
+      await user.keyboard('{Enter}'); // Age → Risks (DOB/Years field, real submit)
+      fireEvent.click(getNextBtn()); // Risks → MenACWY history
+    }
+
+    it('Focus "No previous doses", press Enter: answers no, does not advance', async () => {
+      const user = userEvent.setup();
+      await toMenacwyHistory(user);
+
+      const noBtn = screen.getByText('No previous doses');
+      noBtn.focus();
+      await user.keyboard('{Enter}');
+
+      // Answered "no" — the button now reads selected, and still on this step.
+      expect(noBtn.className).toMatch(/selected/);
+      expect(screen.getByText('MenACWY History')).toBeDefined();
+    });
+
+    it('Focus "+ Add dose", press Enter: adds a row, does not advance', async () => {
+      const user = userEvent.setup();
+      await toMenacwyHistory(user);
+      fireEvent.click(screen.getByText('Yes, record doses'));
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(0);
+      const addBtn = screen.getByText('+ Add dose');
+      addBtn.focus();
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+      expect(screen.getByText('MenACWY History')).toBeDefined();
+    });
+
+    it('Focus a dose row\'s "×", press Enter: removes the row, does not advance', async () => {
+      const user = userEvent.setup();
+      await toMenacwyHistory(user);
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByText('+ Add dose'));
+      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+
+      const removeBtn = screen.getByLabelText('Remove dose 1');
+      removeBtn.focus();
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(0);
+      expect(screen.getByText('MenACWY History')).toBeDefined();
+    });
+
+    it('Focus "Back", press Enter: goes back one step', async () => {
+      const user = userEvent.setup();
+      await toMenacwyHistory(user);
+
+      const backBtn = getBackBtn();
+      backBtn.focus();
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText('Risk Factors')).toBeDefined();
+    });
+
+    it('Focus the Years/Months toggle, press Enter: switches mode, does not advance', async () => {
+      const user = userEvent.setup();
+      render(<App />);
+
+      const toggleBtn = screen.getByText(/years \/ months/i);
+      toggleBtn.focus();
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByLabelText('Years')).toBeDefined();
+      expect(screen.getByText('Patient Age')).toBeDefined();
+    });
+
+    it('Focus the date-of-birth field, press Enter: advances to Risks (existing behaviour survives)', async () => {
+      const user = userEvent.setup();
+      render(<App />);
+
+      const dobInput = document.getElementById('dob-input');
+      fireEvent.change(dobInput, { target: { value: '2012-01-01' } });
+      dobInput.focus();
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText('Risk Factors')).toBeDefined();
     });
   });
 

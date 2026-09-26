@@ -135,6 +135,7 @@ export default function DoseEditor({
               </select>
             </div>
             <button
+              type="button"
               className="dose-remove"
               onClick={() => removeDose(idx)}
               aria-label={removeLabel ? removeLabel(idx) : `Remove dose ${idx + 1}`}
@@ -199,6 +200,7 @@ export default function DoseEditor({
 
       <div className="add-dose-row">
         <button
+          type="button"
           className="add-dose-btn"
           onClick={addDose}
           title="Add dose (Ctrl/Cmd+A)"
