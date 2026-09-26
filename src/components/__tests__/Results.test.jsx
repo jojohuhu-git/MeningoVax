@@ -267,3 +267,70 @@ describe('P1-4: the headline waits for the answers', () => {
       .not.toMatch(/need an answer below/i);
   });
 });
+
+// K7 (2026-09-26): Escape closes whichever of "Adjust age" / "Recorded doses"
+// is open -- previously the only way to close either was to click its own
+// button again.
+describe('K7: Escape closes the two Results panels', () => {
+  it('closes the "Adjust age" panel', () => {
+    render(<Harness initial={baseState()} />);
+    fireEvent.click(screen.getByRole('button', { name: /adjust age/i }));
+    expect(screen.getByTestId('age-edit-row')).toBeTruthy();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByTestId('age-edit-row')).toBeNull();
+  });
+
+  it('closes the "Recorded doses" panel', () => {
+    render(<Harness initial={baseState()} />);
+    openRecordedDoses();
+    expect(screen.getByTestId('recorded-doses-panel')).toBeTruthy();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByTestId('recorded-doses-panel')).toBeNull();
+  });
+
+  it('sweeps a blank trailing row on close, same as clicking the button', () => {
+    render(<Harness initial={baseState()} />);
+    openRecordedDoses();
+    fireEvent.click(screen.getByRole('button', { name: '+ Add MenACWY dose' }));
+    expect(document.querySelectorAll('.dose-row').length).toBe(1);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    openRecordedDoses();
+
+    expect(document.querySelectorAll('.dose-row').length).toBe(0);
+  });
+
+  it('the two panels are mutually exclusive -- opening one always closes the other', () => {
+    // Not a K7 behaviour, just the existing design this fix must not disturb:
+    // "Adjust age" unconditionally closes the dose panel, and "Recorded doses"
+    // unconditionally closes the age panel. So Escape never has to choose
+    // between two open panels -- confirming that here documents why the
+    // if/else-if in the K7 fix is enough.
+    render(<Harness initial={baseState()} />);
+    fireEvent.click(screen.getByRole('button', { name: /adjust age/i }));
+    fireEvent.click(screen.getByRole('button', { name: /recorded doses/i }));
+
+    expect(screen.queryByTestId('age-edit-row')).toBeNull();
+    expect(screen.getByTestId('recorded-doses-panel')).toBeTruthy();
+  });
+
+  it('does nothing, and does not crash, when neither panel is open', () => {
+    render(<Harness initial={baseState()} />);
+    expect(() => fireEvent.keyDown(document, { key: 'Escape' })).not.toThrow();
+    expect(screen.queryByTestId('age-edit-row')).toBeNull();
+    expect(screen.queryByTestId('recorded-doses-panel')).toBeNull();
+  });
+
+  it('a different key does not close an open panel', () => {
+    render(<Harness initial={baseState()} />);
+    fireEvent.click(screen.getByRole('button', { name: /adjust age/i }));
+
+    fireEvent.keyDown(document, { key: 'a' });
+
+    expect(screen.getByTestId('age-edit-row')).toBeTruthy();
+  });
+});

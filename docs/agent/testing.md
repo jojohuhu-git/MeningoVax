@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,629 | `npx vitest run --reporter=json`, 2026-09-26, K3+K4+K5+K6 keyboard-queue items |
+| Individual `it()` tests, total | 1,635 | `npx vitest run --reporter=json`, 2026-09-26, K3-K7 keyboard-queue items |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { recommend } from '../logic/recommend.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { patientAgeMonths } from '../logic/patientAge.js';
@@ -204,6 +204,24 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
       onChange?.({ menacwyDoses: acwy, menbDoses: b });
     }
   }
+
+  // K7 (2026-09-26): Escape closes whichever of the two panels is open --
+  // the dose panel first (it's the more specific, more nested edit surface),
+  // otherwise the age panel. Depends on menacwyDoses/menbDoses (read inside
+  // closeDosePanelAndSweep) so the listener never closes over a stale dose
+  // list from before the clinician's most recent edit.
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key !== 'Escape') return;
+      if (editingDoses) {
+        closeDosePanelAndSweep();
+      } else if (editingAge) {
+        setEditingAge(false);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [editingAge, editingDoses, menacwyDoses, menbDoses]);
 
   // K1: the count is of doses, not of rows — an empty row is not an injection.
   const recordedDoseCount =
