@@ -376,6 +376,17 @@ body {
   border-color: var(--c);
   box-shadow: 0 0 0 3px var(--clt);
 }
+/* K5 (2026-09-26): buttons, checkboxes, selects and citation links had no
+   :focus-visible rule at all, so tabbing through the wizard fell back to
+   whatever ring each browser draws by default -- different on Chrome,
+   Safari and Firefox, and easy to lose track of. :focus-visible (not
+   :focus) shows the ring for keyboard users only, leaving mouse clicks
+   exactly as they were. */
+:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+  border-radius: var(--rads);
+}
 .age-badge {
   display: inline-flex;
   align-items: center;
@@ -497,9 +508,6 @@ body {
   color: var(--c);
   font-weight: 600;
 }
-.history-toggle-hint {
-  font-size: var(--fs-xs);
-}
 .dose-list { display: flex; flex-direction: column; gap: var(--sp-12); }
 .dose-row {
   display: flex;
@@ -537,6 +545,10 @@ body {
 .dose-field select:focus {
   outline: none;
   border-color: var(--c);
+  /* K5 (2026-09-26): the age field already gets a 3px halo on focus; the
+     dose fields only got a border-colour change, which read as two
+     different apps. Same treatment here. */
+  box-shadow: 0 0 0 3px var(--clt);
 }
 .dose-remove {
   min-height: 40px;

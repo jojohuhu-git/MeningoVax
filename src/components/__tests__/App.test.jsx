@@ -224,7 +224,7 @@ describe('App wizard', () => {
     fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
 
     fireEvent.click(screen.getByText('Yes, record doses'));
-    fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+    fireEvent.click(screen.getByText('+ Add dose'));
     const doseDateInput = document.querySelector('input[type="date"]');
     fireEvent.change(doseDateInput, { target: { value: '2025-06-01' } });
     fireEvent.click(getNextBtn()); // → MenB history
@@ -245,7 +245,7 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByText('No previous doses')); // MenACWY: none
     fireEvent.click(getNextBtn());
     fireEvent.click(screen.getByText('Yes, record doses')); // MenB: 1 dose
-    fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+    fireEvent.click(screen.getByText('+ Add dose'));
     fireEvent.change(document.querySelector('input[type="date"]'), { target: { value: '2026-06-01' } });
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
@@ -295,7 +295,7 @@ describe('App wizard', () => {
       fireEvent.click(getNextBtn()); // → MenACWY history (no risks)
 
       fireEvent.click(screen.getByText('Yes, record doses'));
-      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+      fireEvent.click(screen.getByText('+ Add dose'));
       const dateInputs = screen.getAllByDisplayValue('');
       // First empty date input is the new dose row's date field.
       const doseDateInput = document.querySelector('input[type="date"]:not(#dob-input)');
@@ -310,49 +310,45 @@ describe('App wizard', () => {
     });
   });
 
-  // B7: keyboard shortcuts — Ctrl/Cmd+A adds a dose row, Enter advances the
-  // stepper (without submitting a partial form or destructive action).
-  describe('B7: keyboard shortcuts', () => {
-    it('Ctrl+A adds a dose row while recording MenACWY history', () => {
+  // K3 (2026-09-26): the Ctrl/Cmd+A, +Y and +E shortcuts are gone — Tab and
+  // Enter are the only way through the wizard now.
+  describe('K3: no keyboard-shortcut modifier hints remain', () => {
+    it('no rendered text in the wizard mentions Ctrl, Cmd, Alt or a modifier symbol', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByText('+ Add dose'));
+
+      expect(document.body.textContent).not.toMatch(/Ctrl|Cmd|Alt|⌘/);
+    });
+
+    it('Ctrl+A no longer adds a dose row (native "select all" is left alone)', () => {
       render(<App />);
       enterAgeYears(14);
       fireEvent.click(getNextBtn());
       fireEvent.click(getNextBtn());
       fireEvent.click(screen.getByText('Yes, record doses'));
 
-      expect(document.querySelectorAll('.dose-row').length).toBe(0);
       fireEvent.keyDown(document, { key: 'a', ctrlKey: true });
-      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+      expect(document.querySelectorAll('.dose-row').length).toBe(0);
     });
 
-    it('Cmd+A (metaKey) also adds a dose row', () => {
+    it('Ctrl+E no longer answers "No previous doses"', () => {
       render(<App />);
       enterAgeYears(14);
       fireEvent.click(getNextBtn());
       fireEvent.click(getNextBtn());
-      fireEvent.click(screen.getByText('Yes, record doses'));
 
-      fireEvent.keyDown(document, { key: 'a', metaKey: true });
-      expect(document.querySelectorAll('.dose-row').length).toBe(1);
+      fireEvent.keyDown(document, { key: 'e', ctrlKey: true });
+      expect(screen.getByText('No previous doses').closest('button').className).not.toMatch(/selected/);
     });
+  });
 
-    // A1 (2026-07-24 plan): the Add-dose button used to also carry a browser
-    // native accessKey="a" (Alt+A on Windows/Linux, Ctrl+Alt+A on Mac Firefox),
-    // duplicating the JS-driven Ctrl/Cmd+A shortcut above via a different,
-    // less discoverable trigger. Removed — only the JS listener should fire.
-    it('the Add-dose button has no accessKey and no underlined "A" in its label', () => {
-      render(<App />);
-      enterAgeYears(14);
-      fireEvent.click(getNextBtn());
-      fireEvent.click(getNextBtn());
-      fireEvent.click(screen.getByText('Yes, record doses'));
-
-      const addBtn = screen.getByTitle('Add dose (Ctrl/Cmd+A)');
-      expect(addBtn.accessKey).toBe('');
-      expect(addBtn.querySelector('u')).toBeNull();
-      expect(addBtn.textContent).toBe('+ Add dose');
-    });
-
+  // B7: keyboard shortcuts — Enter advances the stepper (without submitting a
+  // partial form or destructive action).
+  describe('B7: keyboard shortcuts', () => {
     // K2 (2026-09-25): these two used to fire Enter at `document` with
     // nothing focused, which only worked because a whole-page listener
     // caught every Enter press regardless of focus. That listener is gone —
@@ -480,6 +476,64 @@ describe('App wizard', () => {
     });
   });
 
+  // K4 (2026-09-26): after Next/Back, the step's first real field should
+  // already have the cursor in it -- no stray Tab needed before typing.
+  describe('K4: cursor lands in the first field when a step opens', () => {
+    it('focuses the date-of-birth field on initial load', () => {
+      render(<App />);
+      expect(document.activeElement).toBe(document.getElementById('dob-input'));
+    });
+
+    it('focuses the first risk checkbox on entering Risks', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.type).toBe('checkbox');
+    });
+
+    it('focuses "No previous doses" on entering MenACWY history', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.textContent).toMatch(/No previous doses/);
+    });
+
+    it('focuses "No previous doses" again on entering MenB history', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.textContent).toMatch(/No previous doses/);
+    });
+
+    it('does not steal focus on the Results step', () => {
+      render(<App />);
+      enterAgeYears(23);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('re-focuses the date-of-birth field when Back returns to Age', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      const backBtn = getBackBtn();
+      backBtn.focus();
+      fireEvent.click(backBtn);
+      expect(document.activeElement).toBe(document.getElementById('dob-input'));
+    });
+  });
+
   // Item 1 (2026-07-23): the wizard's dose-history editor should focus a
   // newly-added row's (empty) date input, so a clinician doesn't have to
   // click into it separately.
@@ -491,11 +545,70 @@ describe('App wizard', () => {
       fireEvent.click(getNextBtn()); // no risks
       fireEvent.click(screen.getByText('Yes, record doses'));
 
-      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+      fireEvent.click(screen.getByText('+ Add dose'));
 
       const dateInput = document.querySelector('input[type="date"]');
       expect(dateInput).not.toBeNull();
       expect(document.activeElement).toBe(dateInput);
+    });
+  });
+
+  // K6 (2026-09-26): "Enter finishes the row you are in." Depends on K1
+  // (blank rows don't count) and K2 (the real <form>).
+  describe('K6: Enter in a filled dose row gives you the next row', () => {
+    async function toMenacwyDoseEditor(user) {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn()); // Age → Risks
+      fireEvent.click(getNextBtn()); // Risks → MenACWY history
+      fireEvent.click(screen.getByText('Yes, record doses'));
+      fireEvent.click(screen.getByText('+ Add dose')); // row 1, focus lands in its date box
+    }
+
+    it('a date-only row plus Enter adds a new row rather than advancing the step', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+
+      fireEvent.change(document.activeElement, { target: { value: '2020-01-01' } });
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(2);
+      expect(screen.getByText('MenACWY History')).toBeDefined();
+    });
+
+    it('the full rhythm — type, Enter, type, Enter, type, Enter, Enter — records exactly three doses and reaches Results with no ghost fourth', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+
+      for (const date of ['2015-01-01', '2016-01-01', '2017-01-01']) {
+        fireEvent.change(document.activeElement, { target: { value: date } });
+        await user.keyboard('{Enter}');
+      }
+      // Three dates typed; the rhythm has just added a 4th, blank row whose
+      // date box has focus. One more Enter on that empty last row means done.
+      expect(document.querySelectorAll('.dose-row').length).toBe(4);
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText('MenB History')).toBeDefined();
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+      expect(screen.getByText(/Recorded doses \(3\)/)).toBeDefined();
+    });
+
+    it('Enter in a row that is not the last one moves to the next row instead of adding one', async () => {
+      const user = userEvent.setup();
+      await toMenacwyDoseEditor(user);
+      fireEvent.change(document.activeElement, { target: { value: '2020-01-01' } });
+      fireEvent.click(screen.getByText('+ Add dose')); // row 2, focus moves there
+
+      const dateInputs = () => document.querySelectorAll('input[type="date"]');
+      dateInputs()[0].focus();
+      await user.keyboard('{Enter}');
+
+      expect(document.querySelectorAll('.dose-row').length).toBe(2); // unchanged
+      expect(document.activeElement).toBe(dateInputs()[1]);
     });
   });
 
@@ -513,7 +626,7 @@ describe('App wizard', () => {
 
       expect(screen.getByText('MenB History')).toBeDefined();
       fireEvent.click(screen.getByText('Yes, record doses'));
-      fireEvent.click(screen.getByTitle('Add dose (Ctrl/Cmd+A)'));
+      fireEvent.click(screen.getByText('+ Add dose'));
       const brandSelect = document.querySelector('select');
       fireEvent.change(brandSelect, { target: { value: 'Bexsero' } });
 

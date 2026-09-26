@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Stepper from './components/Stepper.jsx';
 import StepAge from './components/StepAge.jsx';
 import StepRisks from './components/StepRisks.jsx';
@@ -54,6 +54,25 @@ export default function App() {
   // independent clock reads that happened to agree because they ran within the
   // same millisecond, not because anything made them agree.
   const today = todayISO();
+  const mainRef = useRef(null);
+
+  // K4 (2026-09-26): after Next/Back, nothing was focused, so a keyboard user
+  // had to press Tab once before they could type -- that one stray keystroke
+  // is what makes people reach for the mouse. Owner decision: always focus
+  // the step's first real field, on phones too, even though that opens the
+  // on-screen keyboard and hides part of the page there. If that turns out
+  // to be annoying in practice, a narrow-screen exception is a one-line
+  // change -- not pre-empting it here.
+  useEffect(() => {
+    if (state.step >= 4) return; // Results is read, not filled in -- don't steal focus.
+    const main = mainRef.current;
+    if (!main) return;
+    const target =
+      state.step === 0 ? main.querySelector('#dob-input') :
+      state.step === 1 ? main.querySelector('input[type="checkbox"]') :
+      main.querySelector('.history-toggle-btn'); // steps 2/3: "No previous doses"
+    target?.focus();
+  }, [state.step]);
 
   function update(patch) {
     setState(prev => ({ ...prev, ...patch }));
@@ -151,7 +170,7 @@ export default function App() {
             goNext();
           }}
         >
-          <main className="app-main">
+          <main className="app-main" ref={mainRef}>
             {state.step === 0 && (
               <StepAge
                 ageMonths={state.ageMonths}

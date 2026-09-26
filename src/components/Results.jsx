@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { recommend } from '../logic/recommend.js';
 import { fmtAgeMonths, ageGroup, stripAntigen } from '../logic/format.js';
 import { patientAgeMonths } from '../logic/patientAge.js';
@@ -9,7 +9,7 @@ import RecCard, { RecNote, RiskAgeNote } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
-import { newDoseRow, isBlankDoseRow, dropBlankDoseRows } from '../logic/doseIdentity.js';
+import { isBlankDoseRow, dropBlankDoseRows } from '../logic/doseIdentity.js';
 
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
@@ -36,7 +36,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   const bRiskAnswers = riskAtDoseAnswers?.MenB ?? {};
   const [editingAge, setEditingAge] = useState(false);
   const [editingDoses, setEditingDoses] = useState(false);
-  const [activeDoseSection, setActiveDoseSection] = useState('acwy');
 
   const result = recommend({
     ageMonths: ageMonths ?? 0,
@@ -192,10 +191,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
     onChange?.({ ageMonths: am, ageGroup: ageGroup(am), dob: null });
   }
 
-  // ── Recorded-dose editors (live re-render via onChange) ──
-  function addAcwy() { onChange?.({ menacwyDoses: [...menacwyDoses, newDoseRow()] }); }
-  function addB() { onChange?.({ menbDoses: [...menbDoses, newDoseRow()] }); }
-
   // K1 (2026-09-24): rows the clinician added but never typed into are swept
   // when this panel CLOSES — while it is open they are rows waiting to be
   // filled in, and clearing them on sight would delete the row the user just
@@ -214,25 +209,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   const recordedDoseCount =
     menacwyDoses.filter(d => !isBlankDoseRow(d)).length
     + menbDoses.filter(d => !isBlankDoseRow(d)).length;
-
-  // D6b: Ctrl+A (Cmd+A on Mac) adds a dose row in the Recorded-doses editor,
-  // matching StepHistory's shortcut. Two dose lists share the panel, so the
-  // shortcut targets whichever section (MenACWY or MenB) the user last
-  // interacted with (activeDoseSection, tracked via onFocusCapture below --
-  // document.activeElement isn't reliable here since focus can be lost when
-  // a row is added and the list re-renders).
-  useEffect(() => {
-    if (!editingDoses) return;
-    function handleKeydown(e) {
-      const isAddDoseShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
-      if (!isAddDoseShortcut) return;
-      e.preventDefault();
-      if (activeDoseSection === 'menb') addB(); else addAcwy();
-    }
-    document.addEventListener('keydown', handleKeydown);
-    return () => document.removeEventListener('keydown', handleKeydown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingDoses, activeDoseSection, menacwyDoses, menbDoses]);
 
   return (
     <div>
@@ -279,7 +255,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
                 onClick={() => {
                   if (editingDoses) closeDosePanelAndSweep(); else setEditingDoses(true);
                   setEditingAge(false);
-                  setActiveDoseSection('acwy');
                 }}
                 aria-expanded={editingDoses}
               >
@@ -326,7 +301,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
                 removeLabel={i => `Remove MenACWY dose ${i + 1}`}
                 emptyMessage="No MenACWY doses recorded."
                 rowClassName="dose-history-row"
-                onFocusCapture={() => setActiveDoseSection('acwy')}
                 today={resolvedToday}
               />
             </div>
@@ -345,7 +319,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
                 removeLabel={i => `Remove MenB dose ${i + 1}`}
                 emptyMessage="No MenB doses recorded."
                 rowClassName="dose-history-row"
-                onFocusCapture={() => setActiveDoseSection('menb')}
                 today={resolvedToday}
               />
             </div>
