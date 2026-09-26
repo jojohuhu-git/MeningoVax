@@ -476,6 +476,64 @@ describe('App wizard', () => {
     });
   });
 
+  // K4 (2026-09-26): after Next/Back, the step's first real field should
+  // already have the cursor in it -- no stray Tab needed before typing.
+  describe('K4: cursor lands in the first field when a step opens', () => {
+    it('focuses the date-of-birth field on initial load', () => {
+      render(<App />);
+      expect(document.activeElement).toBe(document.getElementById('dob-input'));
+    });
+
+    it('focuses the first risk checkbox on entering Risks', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.type).toBe('checkbox');
+    });
+
+    it('focuses "No previous doses" on entering MenACWY history', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.textContent).toMatch(/No previous doses/);
+    });
+
+    it('focuses "No previous doses" again on entering MenB history', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(getNextBtn());
+      expect(document.activeElement.textContent).toMatch(/No previous doses/);
+    });
+
+    it('does not steal focus on the Results step', () => {
+      render(<App />);
+      enterAgeYears(23);
+      fireEvent.click(getNextBtn());
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(getNextBtn());
+      fireEvent.click(screen.getByText('No previous doses'));
+      fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+
+      expect(screen.getByText('Vaccine Recommendation')).toBeDefined();
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('re-focuses the date-of-birth field when Back returns to Age', () => {
+      render(<App />);
+      enterAgeYears(14);
+      fireEvent.click(getNextBtn());
+      const backBtn = getBackBtn();
+      backBtn.focus();
+      fireEvent.click(backBtn);
+      expect(document.activeElement).toBe(document.getElementById('dob-input'));
+    });
+  });
+
   // Item 1 (2026-07-23): the wizard's dose-history editor should focus a
   // newly-added row's (empty) date input, so a clinician doesn't have to
   // click into it separately.
