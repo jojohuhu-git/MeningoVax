@@ -357,6 +357,28 @@ function beforeBirthProblem(dose, dob, ageMonths, today) {
 }
 
 /**
+ * Is this dose dated after today?
+ *
+ * The same question G3 asks, exported so the dose chip can ask it too without
+ * deciding for itself what "in the future" means. It delegates to
+ * `futureDatedProblem` rather than re-testing the dates, so there is one
+ * comparison in this file and the chip and the verdict under it cannot disagree.
+ *
+ * Added 2026-10-12 for PARITY with PneumoVax: `describeDose` in BOTH apps built
+ * `age ${fmtAgeMonths(ageAtDose)}`, so a dose dated 2030 printed the age the
+ * patient WILL be — "age 10 years 4 months" for a child who is 6 years 9 months
+ * today. The verdict beside it was right; the age described a visit that has not
+ * happened. Owner decision: fix both. See PneumoVax PR #41.
+ *
+ * False for an undated row, and false for a dose dated TODAY — the half of the
+ * boundary a clinician actually relies on, since a dose given this morning
+ * counts.
+ */
+export function isFutureDated(dose, today) {
+  return futureDatedProblem(dose, todayISO(today)) != null;
+}
+
+/**
  * G3: a dose dated after today. The record lists doses the patient has already
  * received, so a future date is either a typo (a mistyped year, most often) or
  * a scheduled appointment typed into the wrong place. Counting it would tell a

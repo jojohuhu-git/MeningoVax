@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
-import { ageAtDoseFromDate } from '../logic/validate.js';
+import { ageAtDoseFromDate, isFutureDated } from '../logic/validate.js';
 import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
@@ -79,7 +79,25 @@ function describeDose(dose, idx, ageMonths, today, dob) {
   // Exact day count for the weeks band (fmtAgeMonths' exactDays param) --
   // same dob + dose.date pair ageAtDoseFromDate already used above.
   const ageAtDoseDays = dob && dose?.date ? daysBetween(dob, dose.date) : null;
-  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose, ageAtDoseDays)}` : 'age unknown');
+  // A dose dated in the future used to print the age the patient WILL be —
+  // "D1 · May 1, 2030 · age 10 years 4 months" for a child who is 6 years 9
+  // months today. The verdict beside it was right and said the dose is not
+  // counted; the AGE described a visit that has not happened, in the slot that
+  // elsewhere describes one that did. PARITY with PneumoVax (owner decision,
+  // 2026-10-12 — both apps had it; see PneumoVax PR #41).
+  //
+  // A date before BIRTH is handled a layer down: fmtAgeMonths returns the
+  // phrase "Before birth" for a negative age, which is why that one reads
+  // "age Before birth" and this one carries no "age" at all. The decision was
+  // to add the future case, not to restyle the shipped one.
+  //
+  // `isFutureDated` delegates to G3's own `futureDatedProblem`, so the chip and
+  // the verdict under it cannot disagree about a date.
+  parts.push(
+    isFutureDated(dose, today)
+      ? 'In the future'
+      : ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose, ageAtDoseDays)}` : 'age unknown'
+  );
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   if (dose?.creditedFrom) {
     parts.push(`one shot covering both — recorded under ${dose.creditedFrom}`);
