@@ -243,7 +243,12 @@ export const PENTAVALENT_MIN_AGE_MONTHS = Math.min(
 // Same averaged month length dateUtils.js's DAYS.months() uses. Duplicated
 // rather than imported because this file otherwise has no dependency on the
 // logic layer's date arithmetic, and one averaged constant is a much smaller
-// thing to keep in step than a whole module import. Used ONLY below, for
+// thing to keep in step than a whole module import.
+//
+// 2026-10-13: dateUtils.js now EXPORTS it as `AVG_DAYS_PER_MONTH`, and
+// validate.js imports it from there. This copy is left as it is on purpose —
+// the layering reason above still holds — so if you are chasing copies of
+// 30.4375, this one is a decision, not an oversight. Used ONLY below, for
 // comparing a fractional AGE (not a real date) against a days-stated floor —
 // a few days' fuzz here changes which brand chip appears on a card, not
 // whether a specific recorded dose validates (that check has real dates and

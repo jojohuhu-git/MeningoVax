@@ -48,7 +48,7 @@
 //   • Penbraya MMWR 2023: https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm
 // ─────────────────────────────────────────────────────────────────────────
 
-import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, DAYS } from './dateUtils.js';
+import { daysBetween, calendarMonthsBetween, calendarIntervalElapsed, todayISO, DAYS, AVG_DAYS_PER_MONTH } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import {
   menbFamily, ALL_BRANDS, brandMinAge, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS,
@@ -117,13 +117,16 @@ function brandMinAgeM(brandStr) {
 const MIN_AGE_MENACWY_PERMISSIVE = { unit: 'days', value: MENACWY_LICENCE_MIN_AGE_DAYS };
 const MIN_AGE_MENB_PERMISSIVE_MONTHS = MENB_MIN_AGE_MONTHS;
 
-// Same averaged month length used elsewhere for approximate, no-dob
-// fallbacks (brands.js's menacwyBrandLabelsForAge, dateUtils.js's
-// DAYS.months()). Used ONLY when a days-stated floor has to be checked
+// The averaged month length now comes from dateUtils.js, which this file
+// already imports (PneumoVax S6-4 parity, 2026-10-13); it used to be a local
+// copy of 30.4375 here. Used ONLY when a days-stated floor has to be checked
 // against a patient with no date of birth on file — there is no way to be
 // day-exact without one, so this degrades to the same approximation the rest
 // of the no-dob path already accepts (see patientAge.js).
-const AVG_DAYS_PER_MONTH = 30.4375;
+//
+// brands.js keeps its OWN copy on purpose; see the comment there. That file
+// deliberately takes no dependency on the logic layer's date arithmetic, and
+// that decision is left standing rather than quietly reversed.
 
 /**
  * Does this dose/current-age clear a MenACWY product's licence floor?
@@ -227,7 +230,7 @@ export function ageAtDoseFromDate(dose, ageMonths, today, dob = null) {
 function fmtDays(n) {
   if (n < 14) return `${n} day${n === 1 ? '' : 's'}`;
   if (n < 60) return `~${Math.round(n / 7)} week${Math.round(n / 7) === 1 ? '' : 's'}`;
-  if (n < 365) return `~${Math.round(n / 30.4375)} month${Math.round(n / 30.4375) === 1 ? '' : 's'}`;
+  if (n < 365) return `~${Math.round(n / AVG_DAYS_PER_MONTH)} month${Math.round(n / AVG_DAYS_PER_MONTH) === 1 ? '' : 's'}`;
   return `~${+(n / 365.25).toFixed(1)} year${+(n / 365.25).toFixed(1) === 1 ? '' : 's'}`;
 }
 
