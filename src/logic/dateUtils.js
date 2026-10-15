@@ -137,8 +137,26 @@ export function calendarIntervalElapsed(sinceISO, months, refISO) {
   return refISO >= addCalendarMonths(sinceISO, months);
 }
 
+// The averaged length of a calendar month, in days.
+//
+// APPROXIMATE BY NATURE -- never judge an age or an interval against a
+// threshold with it. The comments above record what that has cost: a
+// calendar-exact ten-year span measured this way lands at ~119.98 months and
+// wrongly trips a "< 120 months" gate, and a real six-month interval of 181
+// days fails a DAYS.months(6) (= 183) minimum. Reach for
+// calendarMonthsBetween, addCalendarMonths or calendarIntervalElapsed for
+// anything a clinical decision rests on. This is for rough DISPLAY counts and
+// for the day-count helpers below.
+//
+// Exported (PneumoVax S6-4, 2026-10-13) so each app's own modules share one
+// copy instead of writing 30.4375 out again. Naming it also makes every
+// remaining use of the rough ruler findable by one word; bare copies scattered
+// across files cannot be audited. 365.25 below is the same kind of
+// approximation and is still written out -- it has only this one use.
+export const AVG_DAYS_PER_MONTH = 30.4375;
+
 export const DAYS = {
   weeks: (w) => w * 7,
-  months: (m) => Math.round(m * 30.4375),
+  months: (m) => Math.round(m * AVG_DAYS_PER_MONTH),
   years: (y) => Math.round(y * 365.25),
 };
