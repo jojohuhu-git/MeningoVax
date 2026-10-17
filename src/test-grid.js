@@ -18,9 +18,11 @@
 // C1 (2026-09-19): widened SINGLE_RISK_PROFILES from one profile per risk
 // CLASS (8 profiles, collapsing e.g. travel/microbiologist/college_dorm/
 // outbreak_acwy/pregnancy onto whichever id happened to win its class
-// pairing) to one profile per risk id — all 12, individually — plus added
-// PAIR_RISK_PROFILES, every 2-risk combination (66 pairs, C(12,2)). Both are
-// DERIVED from RISK_FACTORS, so a 13th risk factor widens both on its own.
+// pairing) to one profile per risk id — all 12 at the time, individually —
+// plus added PAIR_RISK_PROFILES, every 2-risk combination. Both are DERIVED
+// from RISK_FACTORS, so adding or removing a risk factor resizes both on its
+// own: 2026-10-16 merged the transplant row into the hard stop and the lists
+// went 13 → 12 profiles and 66 → 55 pairs with no edit here.
 // The pair sweep runs on SWEEP_DOBS_COARSE (6-month step) instead of the
 // 3-month SWEEP_DOBS — see the runtime note by that export.
 import { RISK_FACTORS } from './data/riskFactors.js';
@@ -47,14 +49,15 @@ export const SWEEPABLE_RISK_FACTORS = RISK_FACTORS.filter((r) => !r.exclude);
 // only when they happened to win their class pairing (e.g. 'military' won
 // the single/undefined pairing over 'college_dorm' and 'outbreak_acwy', so
 // neither of those two ids was ever swept on its own). DERIVED from
-// RISK_FACTORS, so a 13th risk factor widens both lists with no test edit.
+// RISK_FACTORS, so a 12th risk factor widens both lists with no test edit.
 export const ALL_RISK_IDS = RISK_FACTORS.map((r) => r.id);
 
-// The no-risk baseline plus one profile per risk id — 1 + 12 = 13 profiles
-// (was 8, one per class pairing, pre-C1).
+// The no-risk baseline plus one profile per risk id — 1 + 11 = 12 profiles
+// (was 13 until 2026-10-16, when the transplant row merged into the hard
+// stop; was 8, one per class pairing, pre-C1).
 export const SINGLE_RISK_PROFILES = [[], ...ALL_RISK_IDS.map((id) => [id])];
 
-// Every 2-risk combination — C(12,2) = 66 pairs. A real patient can tick more
+// Every 2-risk combination — C(11,2) = 55 pairs. A real patient can tick more
 // than one box; pre-C1 the grid never swept a combination at all (C2's
 // hand-written 8 clinical combos are the only place that happened, and C2 is
 // still not built). Swept on SWEEP_DOBS_COARSE, not SWEEP_DOBS — see that

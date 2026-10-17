@@ -3,6 +3,11 @@
 // plan names 8 real two-risk-factor patients a clinician would flag. Combo 6
 // (HCT + travel) found a genuine bug and shipped separately as its own fix +
 // test (regression-c2-6-hct-other-risk-selected*.test.js*, MeningoVax#58).
+// 2026-10-16: combo 6 and its two test files are RETIRED — the transplant tick
+// is now a hard stop that hides the travel card too (owner decision 2, filed
+// in PneumoVax/docs/archive/plan-2026-10-16-transplant-hard-stop-both-apps.md),
+// so there is no combination left to get right. Guarded instead by
+// regression-2026-10-16-transplant-is-a-hard-stop.test.js.
 // This file covers the other 7 — each checked here for real, not assumed:
 // does the engine correctly take the UNION of what each risk factor alone
 // indicates (the more intensive MenACWY class, MenB if either risk grants

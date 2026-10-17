@@ -47,7 +47,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
     today,
   });
 
-  const { menacwy, menb, pentavalent, hct, history, excluded, exclusionMessage, exclusionCitations,
+  const { menacwy, menb, pentavalent, history, excluded, exclusionMessage, exclusionCitations,
           riskAgeNote, riskAgeNoteCites, meta } = result;
   // calendar P2-1: recommend() is the one place that resolves "no today
   // passed" to the real clock (`meta.today`); everything below that draws a
@@ -56,11 +56,23 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   const resolvedToday = meta.today;
 
   if (excluded) {
+    // Decision 3 of the 2026-10-16 hard-stop plan: typed doses stay in memory
+    // (going back a step still shows them) but are not evaluated, and the
+    // screen says so in one line. Conditional, deliberately — a CAR-T patient
+    // skips the history step entirely, so saying it unconditionally would
+    // report on doses nobody was ever asked for.
+    const hasRecordedDoses =
+      dropBlankDoseRows(menacwyDoses).length > 0 || dropBlankDoseRows(menbDoses).length > 0;
     return (
       <div>
         <div className="advisory-banner advisory-banner-exclude" data-testid="exclusion-stop">
-          <div className="advisory-banner-title">Does not apply to this patient</div>
+          <div className="advisory-banner-title">Individualized revaccination schedule required</div>
           <div className="advisory-note">{exclusionMessage}</div>
+          {hasRecordedDoses && (
+            <div className="advisory-banner-flag" data-testid="exclusion-doses-kept">
+              Recorded doses are kept but not evaluated here.
+            </div>
+          )}
           {exclusionCitations && exclusionCitations.length > 0 && (
             <div className="rec-citations">
               {exclusionCitations.map((c, i) => (
@@ -155,9 +167,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   } else {
     summaryLine = 'No MenACWY or MenB doses due today.';
   }
-  if (hct) {
-    summaryLine = 'Post-HCT advisory applies. See details below.';
-  }
 
   // P1-4 (2026-09-15, owner decision): while any recorded dose is still waiting
   // on its risk-timing answer, this headline must not assert a recommendation.
@@ -171,7 +180,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   // are COUNTED. That maths is untouched — only the claim made above it.
   const pendingAnswers = [...menacwyHistory.perDose, ...menbHistory.perDose]
     .filter((d) => d?.status === 'pending').length;
-  if (pendingAnswers > 0 && !hct) {
+  if (pendingAnswers > 0) {
     summaryLine = pendingAnswers === 1
       ? 'One recorded dose needs an answer below before a recommendation can be made.'
       : `${pendingAnswers} recorded doses need an answer below before a recommendation can be made.`;
@@ -345,30 +354,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
           </div>
         )}
       </div>
-
-      {/* HCT advisory block — alert banner, prominent at top */}
-      {hct && (
-        <div className="advisory-banner advisory-banner-hct" data-testid="hct-card">
-          <div className="advisory-banner-title">
-            Advisory: {hct.title}
-          </div>
-          <div className="advisory-banner-flag">{hct.coordinateFlag}</div>
-          {hct.lines.map((l, i) => (
-            <div key={i}>
-              {l.label && <div className="advisory-dose-line">{l.label}: {l.text}</div>}
-              {!l.label && <div className="advisory-note">{l.text}</div>}
-              {l.citations && l.citations.length > 0 && (
-                <div className="rec-citations">
-                  {l.citations.map((c, j) => (
-                    <a key={j} href={c.url} target="_blank" rel="noopener noreferrer"
-                      className="citation-chip" title={c.label}>{c.short || c.label}</a>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* B2/B3: when a pentavalent is eligible, present the two ways to give MenACWY +
           MenB today as an explicit choice — separate injections (primary/default) first,

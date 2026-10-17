@@ -44,8 +44,10 @@ const AGES = [1, 2, 4, 7, 12, 23, 24, 60, 84, 119, 120, 132, 180, 192, 200, 216,
 const RISKS = [
   [], ['asplenia'], ['complement'], ['hiv'], ['microbiologist'], ['travel'],
   ['military'], ['college_dorm'], ['outbreak_acwy'], ['outbreak_b'], ['pregnancy'],
-  ['hct'], ['asplenia', 'hct'], ['travel', 'asplenia'], ['pregnancy', 'complement'],
-  ['hct_cart_bcell_exclude'],
+  ['travel', 'asplenia'], ['pregnancy', 'complement'],
+  // The transplant tick is this one box since 2026-10-16 — ['hct'] and
+  // ['asplenia', 'hct'] were dropped with the row, not with any citation.
+  ['hct_cart_bcell_exclude'], ['asplenia', 'hct_cart_bcell_exclude'],
 ];
 
 // Dose histories built backwards from the pinned test date, so they are stable.
@@ -70,7 +72,6 @@ function everyCitation(result) {
   push(result.menacwy || []);
   push(result.menb || []);
   (result.pentavalent?.citations || []).forEach((c) => out.push({ where: 'pentavalent', c }));
-  (result.hct?.lines || []).forEach((l) => (l.citations || []).forEach((c) => out.push({ where: `HCT ${l.label}`, c })));
   (result.exclusionCitations || []).forEach((c) => out.push({ where: 'exclusion', c }));
   return out;
 }

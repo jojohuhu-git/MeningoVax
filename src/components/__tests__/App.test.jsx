@@ -634,7 +634,7 @@ describe('App wizard', () => {
     });
   });
 
-  it('CAR-T/B-cell checkbox skips both history steps and shows the hard-stop with no rec cards', () => {
+  it('transplant/CAR-T/B-cell checkbox skips both history steps and shows the hard-stop with no rec cards', () => {
     render(<App />);
     enterAgeYears(30);
     fireEvent.click(getNextBtn()); // → Risks
@@ -644,11 +644,13 @@ describe('App wizard', () => {
     expect(screen.queryByText('MenACWY History')).toBeNull();
     expect(screen.queryByText('MenB History')).toBeNull();
     expect(screen.getByTestId('exclusion-stop')).toBeTruthy();
-    expect(screen.getAllByText(/does not apply to this patient/i).length).toBeGreaterThan(0);
+    expect(screen.getByText('Individualized revaccination schedule required')).toBeDefined();
+    expect(screen.getAllByText(/follows a transplant‑ or therapy‑specific protocol/i).length)
+      .toBeGreaterThan(0);
     expect(document.querySelectorAll('[data-testid="rec-card"]').length).toBe(0);
   });
 
-  it('CAR-T/B-cell "Edit risk factors" button returns to Risks, not MenB history', () => {
+  it('transplant/CAR-T/B-cell "Edit risk factors" button returns to Risks, not MenB history', () => {
     render(<App />);
     enterAgeYears(30);
     fireEvent.click(getNextBtn()); // → Risks
@@ -659,19 +661,26 @@ describe('App wizard', () => {
     expect(screen.getByText('Risk Factors')).toBeDefined();
   });
 
-  it('HCT checkbox (age 14) shows the post-HCT advisory with the MenACWY recipe, still goes through history', () => {
+  // 2026-10-16: this used to be "HCT checkbox (age 14) shows the post-HCT
+  // advisory with the MenACWY recipe, still goes through history". There is no
+  // separate transplant checkbox any more, and no advisory — the transplant
+  // tick is the same hard stop, and it skips history the same way.
+  it('the transplant tick is the SAME box as CAR-T/B-cell, and it hard-stops at age 14 too', () => {
     render(<App />);
     enterAgeYears(14);
     fireEvent.click(getNextBtn()); // → Risks
-    fireEvent.click(screen.getByLabelText(/hematopoietic cell transplant \(hct\)/i, { exact: false }));
-    fireEvent.click(getNextBtn()); // → MenACWY history (HCT is not an exclusion — history still shows)
-    expect(screen.getByText('MenACWY History')).toBeDefined();
-    fireEvent.click(screen.getByText('No previous doses'));
-    fireEvent.click(getNextBtn()); // → MenB history
-    fireEvent.click(screen.getByText('No previous doses'));
-    fireEvent.click(screen.getByRole('button', { name: /view results/i }));
+    // One checkbox, named transplant-first — there is no second transplant row.
+    const boxes = screen.getAllByLabelText(/hematopoietic cell transplant/i, { exact: false });
+    expect(boxes).toHaveLength(1);
+    fireEvent.click(boxes[0]);
+    fireEvent.click(getNextBtn()); // → skips both history steps, straight to Results
 
-    expect(screen.getByTestId('hct-card')).toBeTruthy();
-    expect(screen.getByText(/6–12 months after transplant/i)).toBeDefined();
+    expect(screen.queryByText('MenACWY History')).toBeNull();
+    expect(screen.queryByText('MenB History')).toBeNull();
+    expect(screen.getByTestId('exclusion-stop')).toBeTruthy();
+    expect(screen.getByText('Individualized revaccination schedule required')).toBeDefined();
+    expect(document.querySelectorAll('[data-testid="rec-card"]').length).toBe(0);
+    // No doses were ever asked for, so the kept-doses line must not appear.
+    expect(screen.queryByTestId('exclusion-doses-kept')).toBeNull();
   });
 });

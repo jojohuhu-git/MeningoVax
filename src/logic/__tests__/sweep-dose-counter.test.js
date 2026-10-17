@@ -126,8 +126,15 @@ describe('F4 sweep — no chip ever shows N > M, across every age × risk × dos
   });
 });
 
-// ── Owner's own reported case, driven exactly as she entered it ──────────
-describe('F4 — the reported case: age 82, HCT only, 3 routine MenACWY doses', () => {
+// ── Owner's own reported case ────────────────────────────────────────────
+//
+// She entered it as "age 82, HCT only". Since 2026-10-16 the transplant tick
+// is a hard stop and returns no cards, so the tick itself can no longer reach
+// this code. The ENGINE PATH is unchanged and still guarded: the old `hct` row
+// carried no menacwyClass and no age floor, so it contributed nothing to the
+// recommendation — `riskIds: []` drives byte-identically the same branch her
+// case took, which is why the case is kept here rather than deleted.
+describe('F4 — the reported case: age 82, no risk class, 3 routine MenACWY doses', () => {
   it('MenACWY chips never exceed the series total', () => {
     const am = 82 * 12 + 7; // ~82y7m at TODAY, matching "age 79y7m" 3 years prior
     const menacwyDoses = [
@@ -135,9 +142,9 @@ describe('F4 — the reported case: age 82, HCT only, 3 routine MenACWY doses', 
       { date: '2024-07-05', brand: 'Menveo (MenACWY)' },
       { date: '2024-10-04', brand: 'Menveo (MenACWY)' },
     ];
-    const result = recommend({ today: TODAY, ageMonths: am, riskIds: ['hct'], menacwyDoses, menbDoses: [] });
+    const result = recommend({ today: TODAY, ageMonths: am, riskIds: [], menacwyDoses, menbDoses: [] });
     const total = result.menacwy[0].seriesTotal;
-    const analysis = analyzeHistory('MenACWY', menacwyDoses, am, ['hct'], TODAY);
+    const analysis = analyzeHistory('MenACWY', menacwyDoses, am, [], TODAY);
     for (const entry of analysis.perDose) {
       if (entry.effectiveDoseNum != null && total != null) {
         expect(entry.effectiveDoseNum).toBeLessThanOrEqual(total);

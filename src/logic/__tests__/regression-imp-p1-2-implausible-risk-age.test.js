@@ -54,8 +54,9 @@ const DOB_16_YEARS = '2010-09-18';
 // The three exposure indications ACIP prints only in a ">=10 yrs" row.
 const TABLE_FLOOR_10 = ['microbiologist', 'military', 'college_dorm'];
 
-// The eight that must NEVER be questioned. Getting this list wrong would be a
-// clinical error, so it is written out in full rather than derived.
+// The seven that must NEVER be questioned (eight until 2026-10-16, when the
+// separate `hct` row merged into the hard stop below). Getting this list wrong
+// would be a clinical error, so it is written out in full rather than derived.
 const MUST_NOT_BE_QUESTIONED = [
   'asplenia',    // infants genuinely have all three; ACIP prints an infant row
   'complement',
@@ -63,8 +64,7 @@ const MUST_NOT_BE_QUESTIONED = [
   'travel',      // ACIP prints a "2-23 mos" row for both (Tables 8 and 9) — a
   'outbreak_acwy', // 4-month-old going to the meningitis belt is exactly who it is for
   'outbreak_b',  // already handled by the MenB product floor
-  'hct',         // a baby can have a transplant
-  'hct_cart_bcell_exclude', // hard stop at every age; correct as it stands
+  'hct_cart_bcell_exclude', // a baby can have a transplant; hard stop at every age
 ];
 
 describe('imp P1-2: a risk factor that cannot apply at that age is noted', () => {

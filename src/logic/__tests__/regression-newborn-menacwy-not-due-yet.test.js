@@ -82,12 +82,14 @@ describe('a newborn is never told a MenACWY dose is due today', () => {
     expect(c.doseLabel).toBe('Dose 1 of 4 (infant high-risk)');
   });
 
-  it('a healthy infant and an HCT patient are unchanged', () => {
-    for (const riskIds of [[], ['hct']]) {
-      const c = card(1, riskIds);
-      expect(c.dueToday).toBe(false);
-      expect(c.doseLabel).toBe('Not yet due');
-    }
+  // Until 2026-10-16 this also ran the arm ['hct'] — a risk factor with no
+  // menacwyClass, checking that ticking it did not start the infant series
+  // early. That row merged into the hard stop, and the hard stop returns no
+  // cards at all, so there is no "no-class risk factor" arm left to run here.
+  it('a healthy infant is unchanged', () => {
+    const c = card(1, []);
+    expect(c.dueToday).toBe(false);
+    expect(c.doseLabel).toBe('Not yet due');
   });
 });
 
