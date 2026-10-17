@@ -5,6 +5,9 @@ import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
 import { doseChipLabel, doseChipClass, NEEDS_INPUT_LABEL } from './doseChipLabel.js';
+// C1 (2026-10-17): the inline [N] hover text names its document. Lives beside
+// cite() in refs.js, the same file PneumoVax keeps it in.
+import { citeTitle } from '../data/refs.js';
 
 // C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
 // instead of a terse status word that needed a legend to decode (the legend
@@ -250,7 +253,7 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
     if (!c) return [part];
     const marker = `[${numberFor(c.page ?? c.key)}]`;
     return [part, (
-      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={c.label}>
+      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={citeTitle(c)}>
         {marker}
       </a>
     )];

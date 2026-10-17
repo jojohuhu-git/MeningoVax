@@ -309,17 +309,41 @@ export const CITATIONS = {
     lastVerified: '2026-07-24',
   },
 
-  // ACIP 2025 MMWR (75(1);7–14) — same document as pentavalentGSK2025 below
-  // (its PMC mirror is PMC12782235); its Box cleanly restates every current
+  // MMWR 75(1);7–14 — the SAME document as pentavalentGSK2025 below (its PMC
+  // mirror is PMC12782235); its Box cleanly restates every current
   // MenACWY/MenB indication and the MenB high-risk booster cadence. Quotes
-  // confirmed live 2026-07-24 as exact substrings of
+  // confirmed live 2026-07-24, and again 2026-10-17, as exact substrings of
   // https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm.
   menbHighRiskBoosterCadenceBox: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains',
     label: 'ACIP 2025 MMWR Box: MenB high-risk booster cadence',
-    short: 'ACIP 2025 MMWR',
-    lastVerified: '2026-07-24',
+    // C1 (2026-10-17): was 'ACIP 2025 MMWR'. This key and `pentavalentGSK2025`
+    // store the IDENTICAL url with no anchor, so they are one document, and
+    // the numbering already gives them one shared [N] — but they printed two
+    // different names, so C1's new hover line could not tell a reader which
+    // chip its number came from. C1's uniqueness guard caught it.
+    //
+    // `short` here was UNREACHABLE before C1: this key is only ever a
+    // noteCites entry, never in a resolveRefs chip list, and resolveRefs was
+    // the only reader of `short`. So this rename changes no pre-existing
+    // visible text — it only decides what C1's new hover line says, and makes
+    // it agree with the chip pentavalentGSK2025 already prints.
+    //
+    // Read live 2026-10-17: mm7501a2 is "Use of the GSK MenACWY-CRM/MenB-4C
+    // Pentavalent Meningococcal Vaccine Among Persons Aged >=10 Years:
+    // Recommendations of the Advisory Committee on Immunization Practices —
+    // United States, 2025", MMWR Weekly / January 8, 2026 / 75(1);7-14. The
+    // quote above was confirmed present verbatim on that page the same day
+    // (45,924 chars via textContent, positive control "Penmenvy" present), so
+    // the citation was correctly attributed all along — only its name differed
+    // from the other key's. Named for the paper, not for a year the two keys
+    // disagreed about.
+    short: 'Penmenvy MMWR 2026;75(1)',
+    // Re-read live 2026-10-17 while checking this key's document identity:
+    // the URL resolved and the quote above was present verbatim. That is the
+    // full depth this field attests to for a quoted key, so the date moves.
+    lastVerified: '2026-10-17',
   },
 
   // Pentavalent MMWRs. Label uses "MMWR <publish year>;<volume>(<issue>)" —
@@ -441,7 +465,53 @@ export function resolveRefs(keys = []) {
 // page share one visible [N] (owner decision, 2026-07-24: the number
 // identifies the source document; the link and hover text still point at
 // the specific sentence).
+// C1 (2026-10-17) adds two fields, both read by citeTitle() below:
+//   `doc`   — the document's short name ("ACIP 2020 MMWR"), the SAME text the
+//             grey chip prints. Taken from `short` rather than re-typed, so
+//             the hover text and the chip can never disagree.
+//   `quote` — present only when this key cites one sentence. Whether it is set
+//             is what citeTitle() keys on, instead of comparing `label`
+//             against CITATIONS[key].label to guess.
+// `label` keeps its existing meaning (the sentence, else the full title).
 export function cite(key) {
   const c = CITATIONS[key];
-  return { key, page: c?.url, url: highlightUrl(key), label: c?.quote ?? c?.label };
+  return {
+    key,
+    page: c?.url,
+    url: highlightUrl(key),
+    label: c?.quote ?? c?.label,
+    doc: c?.short,
+    quote: c?.quote,
+  };
+}
+
+// ââ C1 (2026-10-17): the hover text names the document, then quotes it âââ
+//
+// Owner-reported: "I always see a '1' where you can hover over to see the
+// language cited verbatim, but there are multiple source chips under it and I
+// do not know where it came from." The hover text showed the sentence and never
+// said which document the sentence came from, so knowing the words still did
+// not tell you which grey chip to click.
+//
+// The first line is cite()'s `doc`, which is the ref's `short` â the SAME
+// string the chip prints, so the two can only ever agree. The sentence follows
+// on its own line.
+//
+// Why a line break and not "Document â sentence": em dashes are banned from
+// user-visible strings in both apps (owner decision 2026-07-16, D7 â the most
+// recognisable "written by an AI" tell; code comments keep them). A `title`
+// attribute honours "\n" in current browsers and degrades to a space where it
+// does not, which still reads correctly.
+//
+// A quote-free ref is a whole-document reference with no sentence to show. Its
+// `label` is already the full title, which names the document, so it is left
+// exactly as it was: composing a blank quote onto it would present a source
+// that appears to say nothing.
+//
+// PneumoVax carries this function under the same name in the same file
+// (src/data/refs.js). Change it in both or neither.
+export function citeTitle(c) {
+  if (!c) return undefined;
+  if (c.quote && c.doc) return `${c.doc}\n\u201c${c.quote}\u201d`;
+  return c.label;
 }
