@@ -1,5 +1,12 @@
 # Pointer: HCT/CAR-T/B-cell hard-stop plan lives in vaxapp
 
+> **SUPERSEDED 2026-10-16 — do not act on this file.** The post-transplant
+> meningococcal advisory it describes has been DELETED. Ticking the transplant
+> box is now a hard stop, in both apps. What was removed, and why, is recorded in
+> `docs/archive/retired-2026-10-16-post-hct-meningococcal-advisory.md`; the plan
+> is `PneumoVax/docs/archive/plan-2026-10-16-transplant-hard-stop-both-apps.md`.
+
+
 The full plan/handoff for this cross-repo change is at:
 
 `/Users/joannehuang/Downloads/vaxapp-main/docs/archive/handoff-2026-09-12-hct-cart-bcell-hardstop-plan.md`
