@@ -1,5 +1,12 @@
 # MeningoVax — post-HSCT meningococcal fix (pointer, 2026-09-13)
 
+> **SUPERSEDED 2026-10-16 — do not act on this file.** The post-transplant
+> meningococcal advisory it describes has been DELETED. Ticking the transplant
+> box is now a hard stop, in both apps. What was removed, and why, is recorded in
+> `docs/archive/retired-2026-10-16-post-hct-meningococcal-advisory.md`; the plan
+> is `PneumoVax/docs/archive/plan-2026-10-16-transplant-hard-stop-both-apps.md`.
+
+
 > **Partly under review (2026-09-14).** Every item in this file shipped (`ba255ef`, `a0106f4`)
 > and the record below is accurate. **One line is no longer settled:** "The 11–18 and 16–23
 > bands themselves were correct — keep them." That assumption is now an open clinical question

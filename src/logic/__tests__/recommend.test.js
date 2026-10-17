@@ -621,13 +621,16 @@ describe('Citation coverage — MenB high-risk, pregnancy, infant MenACWY (2026-
 });
 
 // ════════════════════════════════════════════════════════════════════════
-// Hard-stop exclusion: CAR-T / B-cell malignancy / B-cell-depleting therapy
+// Hard-stop exclusion: transplant / CAR-T / B-cell malignancy / B-cell-
+// depleting therapy. The transplant tick joined this stop on 2026-10-16,
+// replacing the post-HCT advisory that used to live below — see
+// regression-2026-10-16-transplant-is-a-hard-stop.test.js.
 // ════════════════════════════════════════════════════════════════════════
 describe('hard-stop exclusion', () => {
-  it('CAR-T/B-cell risk id ⇒ excluded, no recs, pentavalent not eligible', () => {
+  it('transplant/CAR-T/B-cell risk id ⇒ excluded, no recs, pentavalent not eligible', () => {
     const r = run({ ageMonths: 120, riskIds: ['hct_cart_bcell_exclude'] });
     expect(r.excluded).toBe(true);
-    expect(r.exclusionMessage).toMatch(/does not apply to this patient/);
+    expect(r.exclusionMessage).toMatch(/follows a transplant\u2011 or therapy\u2011specific protocol/);
     expect(r.menacwy).toEqual([]);
     expect(r.menb).toEqual([]);
     expect(r.pentavalent).toEqual({ eligible: false });
@@ -642,112 +645,3 @@ describe('hard-stop exclusion', () => {
   });
 });
 
-// ════════════════════════════════════════════════════════════════════════
-// M-B: HCT advisory (post-transplant meningococcal guidance)
-// ════════════════════════════════════════════════════════════════════════
-describe('HCT advisory', () => {
-  it('P1 (2026-09-14, owner decision): age 14, no additional risk factor — MenACWY ' +
-    'is NOT indicated from the transplant alone. ASCO requires an additional risk ' +
-    'factor at any age; there is no unconditional 11-18 age path (that traced to ' +
-    'IDSA 2013, now superseded for this row by ASCO 2024)', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y, no other risk
-    expect(r.hct).not.toBeNull();
-    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).toMatch(/[Nn]ot indicated from the transplant alone/);
-    expect(acwyLine.text).not.toMatch(/^2 doses of MenACWY, 2 months apart/);
-    expect(acwyLine.citations.map((c) => c.short)).toContain('ASCO Vaccination of Adults With Cancer (2024)');
-  });
-
-  it('P1: a high-risk condition (not the age band) is what gives MenACWY its schedule and boosters — the advisory text defers to the standing high-risk engine, it does not invent a transplant-alone booster', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct', 'asplenia'] }); // 14y, high-risk
-    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).toMatch(/high-risk condition/);
-    expect(acwyLine.text).toMatch(/standing high-risk MenACWY recommendation above already governs dosing and boosters/);
-  });
-
-  it('ages 10-15, no other risk: gives the MenB "check other boxes" pointer, sourced', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct'] }); // 14y — MenACWY band, but MenB pointer band
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine.text).toMatch(/Not specifically sourced as transplant-driven/);
-    expect(menbLine.citations.map((c) => c.short)).toContain('Kamboj & Shah 2019 (HCT MenB)');
-  });
-
-  it('ages 16-23: MenB is indicated from the transplant alone (CDC + ASCO, settled 2026-09-13) — not a "not triggered" pointer', () => {
-    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine.text).not.toMatch(/Not triggered/); // extinct: HCT-alone MenB pointer replaced with a real line (2026-09-13)
-    expect(menbLine.text).toMatch(/16 through 23/);
-    expect(menbLine.citations.map((c) => c.short)).toContain('CDC Altered Immunocompetence');
-  });
-
-  it('ages 16-23, transplant alone: MenB is the 2-dose series, not 3 — 3 doses require an additional MenB risk factor', () => {
-    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y, no other risk
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine.text).toMatch(/standard 2-dose series/);
-    expect(menbLine.text).toMatch(/3 doses apply only if an additional MenB risk factor/);
-  });
-
-  it('age 22 (in the 16-23 transplant-alone MenB band, out of the 11-18 MenACWY band): MenACWY still gets a line — no source there, but the vaccine can still be given', () => {
-    const r = run({ ageMonths: 264, riskIds: ['hct'] }); // 22y
-    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenACWY', 'MenB']);
-    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    expect(acwyLine.text).toMatch(/no upper age limit, so it can still be given/);
-  });
-
-  it('any age with a high-risk condition (asplenia): both MenACWY and MenB are indicated from that risk, not from the transplant, even outside their age bands', () => {
-    const r = run({ ageMonths: 360, riskIds: ['hct', 'asplenia'] }); // 30y — outside every band
-    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(acwyLine.text).toMatch(/high-risk condition/);
-    expect(acwyLine.text).not.toMatch(/6–12 months after transplant, with a booster/); // extinct: high-risk condition overrides the routine HCT-timing wording (2026-09-13)
-    expect(menbLine.text).toMatch(/high-risk condition/);
-  });
-
-  it('the complement/eculizumab risk factor triggers MenACWY at any age, but MenB only from age 10 (its real minimum licensed age) — not below it, even with the risk factor selected', () => {
-    const r = run({ ageMonths: 6, riskIds: ['hct', 'complement'] }); // 6mo
-    const acwyLine = r.hct.lines.find((l) => l.label === 'MenACWY');
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(acwyLine).toBeTruthy();
-    expect(menbLine).toBeUndefined();
-  });
-
-  it('the complement/eculizumab risk factor at age 10+ does trigger MenB', () => {
-    const r = run({ ageMonths: 132, riskIds: ['hct', 'complement'] }); // 11y
-    const menbLine = r.hct.lines.find((l) => l.label === 'MenB');
-    expect(menbLine).toBeTruthy();
-    expect(menbLine.text).toMatch(/any age from 10 years/);
-  });
-
-  it('neither band nor high-risk applies (age 30, no other risk): both vaccines still get a line — age doesn\'t bar giving them, it just isn\'t what CDC/ASCO/IDSA specifically source', () => {
-    const r = run({ ageMonths: 360, riskIds: ['hct'] }); // 30y, no other risk
-    expect(r.hct.lines.map((l) => l.label)).toEqual(['MenACWY', 'MenB']);
-    expect(r.hct.lines[0].text).toMatch(/no upper age limit, so it can still be given/);
-    expect(r.hct.lines[1].text).toMatch(/Not specifically sourced as transplant-driven/);
-  });
-
-  it('below every real minimum age (6 weeks, no other risk): the true fallback — neither vaccine can be given yet', () => {
-    const r = run({ ageMonths: 1, riskIds: ['hct'] }); // ~1mo, below MenACWY's own 2mo floor
-    expect(r.hct.lines).toHaveLength(1);
-    expect(r.hct.lines[0].label).toBeNull();
-    expect(r.hct.lines[0].text).toMatch(/below the minimum age for either meningococcal vaccine/);
-  });
-
-  it('the transplant alone never invents a booster schedule — booster wording only from a sourced band, not the high-risk limb', () => {
-    const r = run({ ageMonths: 360, riskIds: ['hct', 'asplenia'] }); // 30y, high-risk only
-    for (const line of r.hct.lines) {
-      expect(line.text).not.toMatch(/\bbooster\b.*\bmonths? after transplant\b/);
-    }
-  });
-
-  it('HCT computed alongside the normal engine, not instead of it', () => {
-    const r = run({ ageMonths: 168, riskIds: ['hct', 'asplenia'] });
-    expect(r.hct).not.toBeNull();
-    expect(r.menacwy.length).toBeGreaterThan(0);
-    expect(r.menb.length).toBeGreaterThan(0);
-  });
-
-  it('no HCT selected ⇒ hct is null', () => {
-    const r = run({ ageMonths: 168, riskIds: [] });
-    expect(r.hct).toBeNull();
-  });
-});

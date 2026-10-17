@@ -82,18 +82,15 @@ export const RISK_FACTORS = [
     group: 'IC',
     refs: ['acip2020'],
   },
-  {
-    id: 'hct',
-    label: 'Hematopoietic cell transplant (HCT)',
-    sublabel: 'full re-vaccination; advisory, coordinate with the transplant/ID team',
-    menacwyClass: undefined,
-    menbClass: undefined,
-    group: 'IC',
-    refs: ['cdcAlteredImmunocompetence', 'idsa2013MenacwyHct', 'kambojShah2019MenbHct'],
-  },
+  // One box, not two (owner decision 2026-10-16). Transplant used to have its
+  // own row here and an advisory banner on the results screen; the advisory's
+  // clinical rule was corrected four times in five weeks, so the transplant
+  // tick now joins the hard stop. Transplant is named FIRST because it is the
+  // common tick. `exclude: true` is the single flag driving both the engine
+  // stop and the red checkbox styling.
   {
     id: 'hct_cart_bcell_exclude',
-    label: 'CAR-T therapy, B-cell malignancy, or B-cell-depleting therapy',
+    label: 'Hematopoietic cell transplant (HCT/HSCT), CAR-T therapy, B-cell malignancy, or B-cell-depleting therapy',
     sublabel: 'this tool does not apply — needs an individualized, specialist-guided schedule',
     menacwyClass: undefined,
     menbClass: undefined,
@@ -251,13 +248,10 @@ export function shouldDeferMenB(riskIds = []) {
   return defer && !hasMenbRisk(riskIds);
 }
 
-// CAR-T therapy / B-cell malignancy / B-cell-depleting therapy selected?
-// This hard-stops the whole engine — too heterogeneous for one safe recipe.
+// Hematopoietic cell transplant / CAR-T therapy / B-cell malignancy /
+// B-cell-depleting therapy selected? This hard-stops the whole engine — too
+// heterogeneous for one safe recipe, and (2026-10-16) too contested between
+// sources to keep true as an advisory.
 export function hasExclusion(riskIds = []) {
   return riskIds.some((id) => RISK_BY_ID[id]?.exclude);
-}
-
-// Any HCT (hematopoietic cell transplant) selected?
-export function hasHCT(riskIds = []) {
-  return riskIds.includes('hct');
 }
