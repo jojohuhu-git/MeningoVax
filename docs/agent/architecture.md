@@ -2,7 +2,7 @@
 
 ## What It Is
 
-Standalone client-side React SPA giving ACIP/CDC-cited clinical decision support for **meningococcal** vaccination only — MenACWY + MenB (and pentavalent MenABCWY) across infants to adults. No backend, no auth, no DB. Sibling of PediVax (vaxapp) and PneumoVax; recommendation-engine design rules are ported from vaxapp but the codebase is independent.
+Standalone client-side React SPA giving ACIP/CDC-cited clinical decision support for **meningococcal** vaccination only — MenACWY + MenB (and pentavalent MenABCWY) across infants to adults. No backend, no auth, no DB. Sibling of PneumoVax; the codebase is independent.
 
 ## Tech Stack
 
