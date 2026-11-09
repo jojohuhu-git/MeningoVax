@@ -2,8 +2,7 @@
 
 **Purpose:** a single place to check "when is MenACWY / MenB due" without reading
 code. Written for the owner (a clinician), not for an engineer. This is the
-**source of truth** — MeningoVax is edited first; any change here must be
-carried over to vaxapp's copy at `docs/agent/meningococcal-rules-summary.md`.
+**source of truth**.
 
 **Last verified against code:** 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
@@ -352,7 +351,6 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
 
 This doc exists because rules drift as new test cases surface edge cases.
 **Whenever `validate.js` or `recommend.js` changes a rule described above,
-update this file in the same commit/PR** — and then port the change to
-vaxapp's copy. Don't let this document silently go stale; if you're not sure
+update this file in the same commit/PR**. Don't let this document silently go stale; if you're not sure
 it's current, re-derive the relevant section from the code rather than
 trusting it.

@@ -1,3 +1,5 @@
+> **HISTORY ONLY (banner added 2026-11-08).** This was the running handoff from June–July 2026. Later work has its own dated handoffs; current work is the port plan (`plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md`). Do not resume from this file.
+
 # MeningoVax — Handoff
 
 Living handoff for the MeningoVax app. See `CLAUDE.md` for architecture/engine rules.
