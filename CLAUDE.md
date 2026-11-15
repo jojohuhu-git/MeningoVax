@@ -37,8 +37,10 @@ dates stated plainly, a rulebook held to the code, citations per card) is being 
 nine phases. **The plan lives in PneumoVax, not here** (owner decision 2026-10-16: both-apps plans
 are one file plus a pointer): read
 [docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md](docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md)
-first. **Status 2026-11-08: not started, waiting on the owner's answer to Q0.** CDC's CDSI files for
-this app are in `scripts/cdsi/` (files only, nothing run yet).
+first. **Status 2026-11-15: Q0 approved; Phase 0 (measure, no code change) done** — results in
+`docs/archive/report-2026-11-15-phase0-measured.md` and
+`docs/archive/inventory-2026-11-15-every-place-a-dose-is-judged.md`. Next: Phase 1 (safety nets).
+CDC's CDSI files for this app are in `scripts/cdsi/` (read for Phase 0; no script run yet).
 
 ## Non-Negotiable Rules
 
