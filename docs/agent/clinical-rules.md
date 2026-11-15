@@ -7,7 +7,7 @@ The load-bearing numbers here are asserted against the code by
 `src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
 file and the suite fails, naming the sentence. The plain-English, owner-facing version of
 the same rules is [meningococcal-rules-summary.md](meningococcal-rules-summary.md), which
-is the source of truth synced to vaxapp.
+is the source of truth.
 
 ## The 4-Day Grace Rule (P1-1, 2026-09-17)
 

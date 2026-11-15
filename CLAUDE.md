@@ -2,7 +2,7 @@
 
 ## What This App Is
 
-Standalone client-side React SPA for **meningococcal** vaccine clinical decision support (MenACWY + MenB + pentavalent MenABCWY). No backend, no auth, no DB. Sibling of PediVax (vaxapp) and PneumoVax; independent codebase. Live at https://jojohuhu-git.github.io/MeningoVax/
+Standalone client-side React SPA for **meningococcal** vaccine clinical decision support (MenACWY + MenB + pentavalent MenABCWY). No backend, no auth, no DB. Sibling of PneumoVax; independent codebase. Live at https://jojohuhu-git.github.io/MeningoVax/
 
 ## Start Here
 
@@ -26,9 +26,19 @@ The save-time guardrail (flags stray top-level notes — see Root Directory Hygi
 | Plain-English folder guide (owner is a non-coder) | [MAP.md](MAP.md) |
 | Architecture, file map, engine API, validation model | [docs/agent/architecture.md](docs/agent/architecture.md) |
 | MenACWY/MenB clinical rules, schedules, booster cadence | [docs/agent/clinical-rules.md](docs/agent/clinical-rules.md) |
-| Plain-English rules summary (owner-facing; source of truth, synced to vaxapp) | [docs/agent/meningococcal-rules-summary.md](docs/agent/meningococcal-rules-summary.md) |
+| Plain-English rules summary (owner-facing; source of truth) | [docs/agent/meningococcal-rules-summary.md](docs/agent/meningococcal-rules-summary.md) |
 | Test files and coverage requirements | [docs/agent/testing.md](docs/agent/testing.md) |
 | Session history (2026-06-04 through 2026-06-13) | [docs/archive/agent-session-log.md](docs/archive/agent-session-log.md) |
+
+## Current Work — The Port From PneumoVax
+
+PneumoVax's way of working (one rule table, a moved answer must be explained, one label per dose,
+dates stated plainly, a rulebook held to the code, citations per card) is being brought here in
+nine phases. **The plan lives in PneumoVax, not here** (owner decision 2026-10-16: both-apps plans
+are one file plus a pointer): read
+[docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md](docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md)
+first. **Status 2026-11-08: not started, waiting on the owner's answer to Q0.** CDC's CDSI files for
+this app are in `scripts/cdsi/` (files only, nothing run yet).
 
 ## Non-Negotiable Rules
 
@@ -59,6 +69,19 @@ A D3 that was ALREADY GIVEN earlier than 4 months after D2 still counts: CDC add
 
 ### Pentavalent — Dedicated Card Only
 Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standalone MenB brand list. Eligible only when both MenACWY AND MenB are due today AND age ≥10y.
+
+### Transplant Is A Hard Stop, Mirrored With PneumoVax
+Ticking `hct_cart_bcell_exclude` (transplant, CAR-T, B-cell malignancy or B-cell-depleting therapy)
+stops the engine: no recommendation at all, not even the age-based one (owner decision 2026-10-16).
+The row's id, label, sublabel and flag and the whole message are **byte-identical to PneumoVax's**,
+frozen by `regression-2026-10-16-transplant-is-a-hard-stop.test.js` here and by PneumoVax's
+`regression-2026-10-16-transplant-stop-mirrors-meningovax.test.js`. Change the wording in both
+repos or neither. Never re-add a post-transplant schedule.
+
+### dateUtils.js Is Mirror-Synced With PneumoVax
+`src/logic/dateUtils.js` must stay identical in code to PneumoVax's copy (only a comment differs).
+The guard lives in PneumoVax (`regression-s6-4-avg-days-per-month-one-home.test.js`), so a change
+made here fails there — apply the same change to both.
 
 ### college_dorm vs military vs acwy_outbreak
 The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`. Do not apply it to `military` or `acwy_outbreak`.

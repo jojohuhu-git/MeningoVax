@@ -1,3 +1,5 @@
+> **DONE (banner added 2026-11-08).** The MenQuadfi 6-week floor shipped (PRs through #64, merged). Do not resume from this file.
+
 # MeningoVax — Handoff after MenQuadfi 6-week floor, Session 1 (M1+M2) (2026-09-22)
 
 Branch: `fix/menquadfi-6-week-licence-floor`, off `main` @ `ceaa0c5`. **NOT pushed, no PR** —
