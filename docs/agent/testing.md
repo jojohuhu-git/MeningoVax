@@ -14,7 +14,8 @@
 
 ## Measured counts
 
-The table below is what a fresh checkout actually contains. It is re-derivable
+The table below is what a fresh checkout actually contains, as of 2026-10-12
+(the commit adding `regression-future-dose-chip-says-in-the-future.test.jsx`). It is re-derivable
 with the command in the third column, and every row is checked on every
 `npm test` run by `regression-testing-md-counts-match-reality.test.js` — if
 the repo and this table disagree, that test fails and names the mismatch.
