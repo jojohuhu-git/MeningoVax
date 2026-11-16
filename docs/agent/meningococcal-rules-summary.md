@@ -251,9 +251,12 @@ on-the-table today).
   that rules out the only pentavalent the patient's MenB family allows, the app
   simply does not offer the combined injection and says why — **the vaccine
   itself is still given**, as two separate shots the same day.
-- This six-month rule is for **Penbraya only**. CDC states it for Penbraya and
-  says nothing of the kind about Penmenvy, so nothing has been assumed for
-  Penmenvy.
+- **Penmenvy follows the same six-month rule** (owner decision 2026-11-15). The
+  CDC schedule page names only Penbraya, but ACIP's Penmenvy report (January
+  2026) says a patient who needs more MenACWY and MenB doses within 6 months of
+  a pentavalent should get the two separate vaccines instead. Example: a
+  17-year-old with asplenia who had Penmenvy on July 1 is offered Menveo or
+  MenQuadfi plus Bexsero on September 1, not a second Penmenvy.
 - **After a Penbraya, MenB dose 2 should be Trumenba.** The app already does
   this, through the antigen-family rule — a Penbraya sets the family to FHbp and
   only Trumenba is then offered. No change was needed.
