@@ -568,9 +568,9 @@ export const DOSE_RULES = [
     grace: null,
     authorityToday: 'ACIP (any brand may be used when the brand is unknown)',
     sourcesSay: {
-      verdict: 'no-source',
-      refs: [],
-      note: 'No source read on 2026-11-15 says how to treat a dose with no date. The app counts it but never measures a gap from it. CDC\'s general advice on undated records was not read in this pass: read it before STOP C.',
+      verdict: 'differs',
+      refs: ['gbpWrittenDatedRecords', 'gbpRecordsNotFoundSusceptible'],
+      note: 'ACIP\'s general guidance (read live 2026-11-15) accepts only written, dated records, except influenza and PPSV23; a dose that cannot be documented is treated as not given. The app counts an undated MenACWY dose (never as a timing anchor). STOP C Q2.',
     },
     label: 'Unknown',
     // Counts, but is never a timing anchor for a later dose.
@@ -1033,9 +1033,9 @@ export const DOSE_RULES = [
     grace: null,
     authorityToday: 'This app (an undated dose counts but is never a timing anchor)',
     sourcesSay: {
-      verdict: 'no-source',
-      refs: [],
-      note: 'No source read on 2026-11-15 says how to treat a dose with no date. The app counts it but never measures a gap from it. CDC\'s general advice on undated records was not read in this pass: read it before STOP C.',
+      verdict: 'differs',
+      refs: ['gbpWrittenDatedRecords', 'gbpRecordsNotFoundSusceptible'],
+      note: 'ACIP\'s general guidance (read live 2026-11-15) accepts only written, dated records, except influenza and PPSV23; a dose that cannot be documented is treated as not given. The app counts an undated MenB dose (never as a timing anchor). STOP C Q2.',
     },
     label: 'Unknown',
     check: ({ brand }) => {
@@ -1405,8 +1405,8 @@ export const DOSE_RULES = [
     authorityToday: 'CDC notes; immunize.org',
     sourcesSay: {
       verdict: 'differs',
-      refs: ['menbRescueDoseRule'],
-      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. What differs: the app has no lower limit for dose 2; CDC\'s software has one (4 weeks less 4 days for both families, in its 3-dose healthy series; corrected in port 2.3, which read the file), finding R-4c. CDC\'s software also gives the 6-month line the 4-day grace; the app does not. For STOP C Q2.',
+      refs: ['menbRescueDoseRule', 'menbBexseroOldCourseStands'],
+      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. What differs: the app has no lower limit for dose 2; CDC\'s software has one (4 weeks less 4 days for both families, in its 3-dose healthy series; corrected in port 2.3, which read the file), finding R-4c. CDC\'s software also gives the 6-month line the 4-day grace; the app does not. Also (read live 2026-11-15): ACIP asks no extra dose after Bexsero at 0 and 1 month given before 24 October 2024, but this row still asks the rescue dose 3 for those patients. For STOP C Q2.',
     },
     label: 'Dose N of M',
     // NO grace, on purpose: it decides whether a rescue dose 3 is owed — a

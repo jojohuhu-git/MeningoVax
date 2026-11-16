@@ -22,7 +22,7 @@ built** — `report-2026-11-15-phase0-measured.md`, `inventory-2026-11-15-every-
 folder. **STOP B answered 2026-11-15** (five answers, in the plan); 1.5 is a required test (PR #85, merged).
 **Phase 2.1 built** — the rule table `src/logic/doseRules.js` (PR #86, merged). **Phase 2.2 built** —
 `sourcesSay` beside each row (what the sources say, quoted and read live). **Phase 2.3 built** — the
-rule table held against CDSI's rule files (`report-2026-11-15-cdsi-rule-comparison.md`). Next: the
-undated-records read, then STOP C.
+rule table held against CDSI's rule files (`report-2026-11-15-cdsi-rule-comparison.md`). **The three
+reads before STOP C done** (undated records, pentavalents from 26, the old Bexsero course). Next: STOP C.
 
 When a phase finishes, its new rule goes into this repo's `CLAUDE.md` (plan review item R-9).

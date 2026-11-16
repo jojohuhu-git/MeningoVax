@@ -30,6 +30,14 @@ const KNOWN_UNCITED = {
     'Kept as the CDC schedule-note landing page. Dropped from the MenACWY recs '
     + '2026-07-24 because it just restates the ACIP 2020 MMWR rule (owner decision '
     + '2026-07-23: do not cite two sources for one rule).',
+  // Read live 2026-11-15 for STOP C (port plan, decision packet 1, N1). Held
+  // here until the owner answers whether a pentavalent at 26 or older counts.
+  pentavalentHighRiskNoUpperAge:
+    'Held for STOP C N1: the ACIP sentence with no upper age for the high-risk group.',
+  pentavalentLicensed10to25:
+    'Held for STOP C N1: the licensed ages (10–25 years), where CDSI\'s 26 comes from.',
+  cdcAdultPenbrayaSameDay:
+    'Held for STOP C N1: CDC\'s adult notes, "Adults may receive" Penbraya, with no upper age.',
 };
 
 const SOURCE_FILES = [

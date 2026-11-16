@@ -46,8 +46,9 @@ are now a required test (`cdsi-test-patients-gate.test.js`). **Phase 2.1 built**
 `src/logic/doseRules.js`, PR #86, merged). **Phase 2.2 built** (`sourcesSay` beside each row: the
 quoted sentences, read live, and a verdict; 0 answers or sentences moved). **Phase 2.3 built** (every
 row held against CDSI's rule files, `cdsi-rule-comparison.test.js`; every difference named; 0 moved;
-findings in `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`). Next: read CDC's advice on
-undated records, then STOP C.
+findings in `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`). **The three reads before STOP C
+are done** (2026-11-15: undated records, pentavalents from 26, the old Bexsero course; quoted in
+`src/data/refs.js` and the 2.3 report; 0 answers moved). Next: STOP C.
 The newest handoff (in PneumoVax) says which PRs are open.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 

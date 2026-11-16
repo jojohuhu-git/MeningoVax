@@ -277,6 +277,17 @@ export const CITATIONS = {
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-07-24',
   },
+  // Read live 2026-11-15 in a real browser (STOP C read N2): the sentence
+  // under "Dosing Interval and Schedule". It names no risk group, so it
+  // covers high-risk patients (old course 0 and >=1 month) and healthy ones.
+  // Not yet cited on any card — held for STOP C.
+  menbBexseroOldCourseStands: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule.',
+    label: 'ACIP Oct 2024 MMWR: no extra doses for people who had Bexsero at 0 and 1 month before October 24, 2024',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-15',
+  },
   menbHighRisk3DoseSchedule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease',
@@ -370,6 +381,31 @@ export const CITATIONS = {
     short: 'Penbraya MMWR 2024;73(15)',
     lastVerified: '2026-06-03',
   },
+  // Read live 2026-11-15 in a real browser (STOP C read N1). Both ACIP
+  // statements set a lower age for the increased-risk group and no upper
+  // age; both MMWRs state the licence as 10–25 years. CDSI's "to 26 years"
+  // matches the licence, not this sentence. Not yet cited on any card.
+  pentavalentHighRiskNoUpperAge: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)',
+    label: 'ACIP 2025 (Penmenvy): may be used when both are due, for persons aged ≥10 years at increased risk',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-15',
+  },
+  pentavalentLicensed10to25: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'licensed for use in persons aged 10–25 years',
+    label: 'ACIP 2025 (Penmenvy) MMWR: licensed for persons aged 10–25 years',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-15',
+  },
+  cdcAdultPenbrayaSameDay: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    quote: 'Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day.',
+    label: 'CDC Adult Schedule notes (updated July 2, 2025): adults may receive Penbraya when both are given the same day',
+    short: 'CDC Adult Notes',
+    lastVerified: '2026-11-15',
+  },
 
   // CDC clinician guidance.
   cdcRecommendations: {
@@ -425,6 +461,25 @@ export const CITATIONS = {
     label: 'CDC ACIP General Best Practice Guidelines — Altered Immunocompetence',
     short: 'CDC Altered Immunocompetence',
     lastVerified: '2026-09-12',
+  },
+  // ACIP General Best Practice Guidelines — Timing and Spacing, section
+  // "Unknown or uncertain vaccination status" (page "Updated: July 24, 2024").
+  // Read live 2026-11-15 in a real browser (STOP C read: undated records).
+  // The same words are in the guideline PDF (general-recs.pdf) and, as
+  // "In most cases…", in the Pink Book chapter 6. Not yet cited on any card.
+  gbpWrittenDatedRecords: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
+    quote: 'With the exception of influenza vaccine and PPSV23, providers should only accept written, dated records as evidence of vaccination',
+    label: 'ACIP General Best Practice Guidelines: only written, dated records are evidence of vaccination (except influenza and PPSV23)',
+    short: 'ACIP Best Practice',
+    lastVerified: '2026-11-15',
+  },
+  gbpRecordsNotFoundSusceptible: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
+    quote: 'If records cannot be located within a reasonable time, these persons should be considered susceptible and started on the age-appropriate vaccination schedule.',
+    label: 'ACIP General Best Practice Guidelines: without records, treat as unvaccinated and start the age-appropriate schedule',
+    short: 'ACIP Best Practice',
+    lastVerified: '2026-11-15',
   },
 
   // ── What the sources say beside each dose rule (port Phase 2.2, 2026-11-15) ──

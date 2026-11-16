@@ -277,10 +277,14 @@ describe('4 · the order the comments promise, and no rule outside the table', (
 const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-source', 'record-keeping'];
 
 // STOP C Q2: the app and the sources part, or the app makes a minimum out of a schedule.
+// The two undated rows moved here from Q4 on 2026-11-15 (after 2.3), when
+// ACIP's general guidance on records was read live: it accepts only dated records.
 const STOP_C_Q2 = [
+  'ACWY-UNDATED-COUNTS',
   'ACWY-HIGHRISK-BOOSTER-GAP',
   'ACWY-TRAVEL-BOOSTER-GAP',
   'ACWY-ANY-TWO-DOSES-GAP',
+  'MENB-UNDATED-COUNTS',
   'MENB-HIGHRISK-DOSE-2-GAP',
   'MENB-HIGHRISK-EARLY-DOSE-3',
   'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
@@ -289,8 +293,6 @@ const STOP_C_Q2 = [
 ];
 // STOP C Q4: no source covers it — keep as an app rule, and in what words?
 const STOP_C_Q4 = [
-  'ACWY-UNDATED-COUNTS',
-  'MENB-UNDATED-COUNTS',
   'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE',
   'SERIES-CAP-EXTRA-DOSE',
 ];
