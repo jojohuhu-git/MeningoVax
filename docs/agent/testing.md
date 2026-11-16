@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 140 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 89 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 141 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 90 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,675 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.2 prose diff |
+| Individual `it()` tests, total | 1,682 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.3 typical patients |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -208,6 +208,26 @@ different wording" line in the PR. Dumps are about 80 MB: keep them out of the r
 It is a tool, not a gate. [`prose-diff-tool.test.js`](../../src/logic/__tests__/prose-diff-tool.test.js)
 only checks the tool still opens "Why this" and collapsed cards, still reads
 hover text, and that the app's own screen still starts closed.
+
+## The typical patients (port Phase 1.3, 2026-11-15)
+
+The saved-answer grid writes every dose as "N days before today", so it
+cannot build an ordinary record: a 17-year-old with MenACWY at 11 and 16, or
+a 5-year-old with asplenia who finished the infant series.
+`buildTypicalCases()` in `src/test-grid.js` is a second list of those, with
+doses written "at 132 months" or "1 month ago". It has about 14,000 patients:
+every birthday from 10 through 23, young children and adults, every risk
+factor, ordinary MenACWY, MenB and pentavalent records.
+
+A patient the app asks "was this patient at high risk when this dose was
+given?" appears twice: as first seen, and with every answer "yes" (key `ty…`).
+"Yes" is an assumption, stated in the code: a typical patient with a risk box
+ticked had that risk when the dose was given.
+
+These patients are in **neither** saved-answer file. The whole-app checks
+(Phase 1.4) run on them. [`typical-patients.test.js`](../../src/logic/__tests__/typical-patients.test.js)
+checks only the list itself (real dates, every risk factor and brand, the answered copies),
+not what the app answers.
 
 ## The worktree trap
 
