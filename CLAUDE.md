@@ -40,8 +40,10 @@ are one file plus a pointer): read
 first. **Status 2026-11-15: Phase 0 done; Phase 1 (items 1.1–1.5) built** (saved answers, prose
 diff, typical patients, whole-app checks, CDC's CDSI test patients) — findings in
 `docs/archive/report-2026-11-15-whole-app-checks.md` and
-`docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. Next: STOP B (the
-owner sees both reports). The newest handoff (in PneumoVax) says which PRs are open.
+`docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. **STOP B answered
+2026-11-15** (five owner answers, recorded in the plan; applied in Phase 3). CDC's test patients
+are now a required test (`cdsi-test-patients-gate.test.js`). Next: Phase 2 (the rule table).
+The newest handoff (in PneumoVax) says which PRs are open.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
 ## Non-Negotiable Rules

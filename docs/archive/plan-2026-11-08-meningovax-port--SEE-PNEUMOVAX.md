@@ -5,7 +5,7 @@ instead of working from a copy that has drifted.
 
 **The plan:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-meningovax-port.md`
 **Its latest handoff:** the newest `~/Downloads/PneumoVax/docs/archive/handoff-*meningovax*.md`
-without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase1-4-done.md`).
+without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-stop-b-answered.md`).
 **The CDC CDSI half:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-cdsi-checks-both-apps.md`
 (this repo's CDC files are already in `scripts/cdsi/cdc-files/`).
 
@@ -19,6 +19,7 @@ safety nets, one rule table, the clinical decisions, one label per dose, dates s
 wording, a rulebook held to the code, citations. **Status 2026-11-15: Phase 0 done; Phase 1 items 1.1–1.5
 built** — `report-2026-11-15-phase0-measured.md`, `inventory-2026-11-15-every-place-a-dose-is-judged.md`,
 `report-2026-11-15-whole-app-checks.md` and `report-2026-11-15-cdsi-test-patients.md` in this
-folder. Next: STOP B.
+folder. **STOP B answered 2026-11-15** (five answers, in the plan); 1.5 is a required test (PR #85).
+Next: Phase 2.
 
 When a phase finishes, its new rule goes into this repo's `CLAUDE.md` (plan review item R-9).

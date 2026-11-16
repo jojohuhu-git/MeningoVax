@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 142 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 91 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 143 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 92 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,692 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.4 whole-app checks |
+| Individual `it()` tests, total | 1,697 | `npm test`, 2026-11-15, CDC test patients made a required test |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -261,6 +261,27 @@ today are in the suite: [`whole-app-gate.test.js`](../../src/logic/__tests__/who
 (forward checks on every 20th patient, age lines on all). Each part was shown
 to go red by breaking the app on purpose; the report lists the eight breaks.
 When a finding is fixed, move its kind into the gate test.
+
+## CDC's CDSI test patients (required since 2026-11-15)
+
+CDC's 104 meningococcal test patients run through the app on every `npm test`:
+[`cdsi-test-patients-gate.test.js`](../../src/logic/__tests__/cdsi-test-patients-gate.test.js),
+using the same code as the printed report (`scripts/cdsi/cdsiCore.mjs`; the
+report is `npx vite-node scripts/cdsi/runTestCases.mjs`). It does **not** ask
+the app to agree with CDC's software (ACIP's wording wins over CDSI). It fails
+on change that nobody explained:
+
+- a **new** difference: a patient that disagrees and is in no family of the
+  `KNOWN` table in `cdsiCore.mjs`;
+- a **healed** one: a listed patient that now agrees. Take it off the list and
+  say why in the PR;
+- a **moved** answer: a patient's app answer differs from
+  `scripts/cdsi/cdc-files/meningo-app-answers.json`. Read what moved and why,
+  then rewrite the file with `npx vite-node scripts/cdsi/runTestCases.mjs --save-answers`.
+
+Shown to fail on 2026-11-15 by three breaks, each undone: healthy MenB rescue gap
+4 → 5 months (1 new, 12 moved); high-risk MenACWY gap 8 → 12 weeks (2 new, 3
+moved); an agreeing patient added to the known list (1 healed).
 
 ## The worktree trap
 
