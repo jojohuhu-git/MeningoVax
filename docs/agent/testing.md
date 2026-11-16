@@ -304,6 +304,24 @@ confirmed" note dropped (8 across 5 files); the dated/undated filter removed
 **Found while building it:** no saved grid holds a dose recorded without a
 date, so the six undated-dose rows are reached only by the hand patients.
 
+### What the sources say, beside every row (port Phase 2.2, 2026-11-15)
+
+Each row also carries `sourcesSay`: a verdict (`stated`, `schedule-only`,
+`differs`, `owner-decided`, `no-source`, `record-keeping`), the exact
+sentences it rests on as keys into `src/data/refs.js`, and one plain-English
+line. Section 5 of the same test checks that every row has one; that every key
+exists and carries a quote; that a `stated`, `schedule-only` or `differs` row
+quotes at least one source, read live on 2026-11-15 or later; and that the rows
+marked `differs`/`schedule-only` (STOP C Q2) and `no-source` (STOP C Q4) are
+exactly the lists written in the test. It also checks that no screen component
+reads `sourcesSay`. The field is never shown on a card: the prose dump was
+byte-identical before and after (0 of 23,400).
+
+Shown to fail on 2026-11-15 by four breaks, each undone: the 4-week MenACWY
+row relabelled `stated` (2 fail); one row's `sourcesSay` deleted (3); a quoted
+source's date set back to before the live read (1); a key naming a source that
+does not exist (1).
+
 ## The worktree trap
 
 `.claude/worktrees/` holds full second copies of `src/` — one per agent
