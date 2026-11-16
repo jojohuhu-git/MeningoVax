@@ -80,10 +80,12 @@ not a ruling.
   **both** brands. *Correction:* the 2.2 note said Trumenba 4 months; that is CDSI's 2-dose series
   only. The note in `doseRules.js` is corrected.
 
-## Labelled owner-decided — please confirm
+## Following from the MenQuadfi-from-6-weeks decision — asked, then answered (STOP C C13, C14)
 
-These follow from the owner's MenQuadfi-from-6-weeks decision (2026-09-23). Labelled so; say if
-either should be a question instead.
+These follow from the owner's MenQuadfi-from-6-weeks decision (2026-09-23). First labelled
+owner-decided; the owner asked for them to be questions (2026-11-15), and answered them at STOP C:
+unknown brand counts only from 2 months (C13); a MenQuadfi infant dose 1 from 6 weeks keeps
+counting (C14).
 
 - **An unknown-brand MenACWY counts from 6 weeks** (it might have been MenQuadfi). CDSI's
   "unspecified" codes start at 2 months less 4 days.
