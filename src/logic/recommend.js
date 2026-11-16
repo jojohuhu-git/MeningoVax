@@ -1880,19 +1880,25 @@ export function recommend(input) {
   // booster doses) if both would be given on the same clinic day and at least
   // 6 months have elapsed since most recent Penbraya dose."
   //
-  // Scoped to Penbraya alone, deliberately: the CDC page states this for
-  // Penbraya (Pfizer) and says nothing of the kind about Penmenvy — it does not
-  // mention Penmenvy at all. Verified by fetching the page and asking. Do not
-  // mirror it onto Penmenvy without a source.
+  // N1 (owner ruling 2026-11-15): Penmenvy follows the same rule. The CDC notes
+  // page above never names Penmenvy (it predates the recommendation), but the
+  // Penmenvy MMWR does, read live 2026-11-15 (mm7501a2, Jan 8 2026): "Persons at
+  // increased risk ... who are recommended to receive additional doses of
+  // MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine
+  // should receive separate MenACWY and MenB-4C vaccines, rather than
+  // MenACWY-CRM/MenB-4C." Until then this was scoped to Penbraya alone, on the
+  // notes page's silence.
   //
-  // Read from the CREDITED histories, so a Penbraya recorded on either step
+  // Read from the CREDITED histories, so a pentavalent recorded on either step
   // counts (G1) — the injection is the same one whichever list it was typed on.
-  const penbrayaOnRecord = [...rawMenacwyDoses, ...rawMenbDoses]
-    .filter((d) => d?.date && /penbraya/i.test(d.brand || ''))
-    .map((d) => d.date);
-  const penbrayaTooRecent = penbrayaOnRecord.some(
-    (d) => !calendarIntervalElapsed(d, 6, today),
-  );
+  // Each brand is checked against its own last dose; the MenB antigen-family
+  // lock below already rules out switching from one pentavalent to the other.
+  const PENTAVALENT_REPEAT_MONTHS = 6;
+  const pentavalentTooRecent = (name) => [...rawMenacwyDoses, ...rawMenbDoses]
+    .filter((d) => d?.date && new RegExp(name, 'i').test(d.brand || ''))
+    .some((d) => !calendarIntervalElapsed(d.date, PENTAVALENT_REPEAT_MONTHS, today));
+  const penbrayaTooRecent = pentavalentTooRecent('penbraya');
+  const penmenvyTooRecent = pentavalentTooRecent('penmenvy');
 
   // Determine which pentavalent matches the established/needed MenB family.
   const bFamily = menb.find((r) => r.family)?.family ?? null;
@@ -1901,7 +1907,8 @@ export function recommend(input) {
     : bFamily === 'FHbp'
       ? ['Penbraya (MenABCWY)']
       : ['Penmenvy (MenABCWY)', 'Penbraya (MenABCWY)']
-  ).filter((b) => !(penbrayaTooRecent && /penbraya/i.test(b)));
+  ).filter((b) => !(penbrayaTooRecent && /penbraya/i.test(b))
+    && !(penmenvyTooRecent && /penmenvy/i.test(b)));
 
   // If the 6-month rule rules out the only pentavalent this patient's antigen
   // family allows, the combined injection is simply not an option today. The
@@ -1932,8 +1939,8 @@ export function recommend(input) {
         eligible: false,
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
-        unavailableReason: (am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && penbrayaTooRecent)
-          ? 'A combined pentavalent shot is not an option today: Penbraya may only be repeated once 6 months have passed since the last Penbraya dose.'
+        unavailableReason: (am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && (penbrayaTooRecent || penmenvyTooRecent))
+          ? `A combined pentavalent shot is not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} may only be repeated once 6 months have passed since the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`
           : null,
       };
 

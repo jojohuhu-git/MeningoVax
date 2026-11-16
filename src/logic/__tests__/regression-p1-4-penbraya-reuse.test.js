@@ -43,11 +43,9 @@
 //
 // CDC requires at least 6 months since the most recent Penbraya dose.
 //
-// SCOPED TO PENBRAYA ON PURPOSE. The CDC page states this for Penbraya
-// (Pfizer) and says nothing of the kind about Penmenvy — it does not mention
-// Penmenvy anywhere. Verified by fetching the page and asking directly. The
-// asymmetry is sourced, not an oversight; do not mirror the rule onto Penmenvy
-// without a source.
+// It was scoped to Penbraya at first: the CDC page says nothing about Penmenvy.
+// N1 (2026-11-15) extended it to Penmenvy on the Penmenvy MMWR — see the end of
+// this file.
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
@@ -127,15 +125,8 @@ describe('P1-4 half B: Penbraya may not be repeated within 6 months', () => {
   });
 });
 
-describe('P1-4: Penmenvy is deliberately untouched', () => {
-  it('a recent Penmenvy dose does not withhold the pentavalent option', () => {
-    // CDC states the 6-month rule for Penbraya and does not mention Penmenvy at
-    // all. Inventing a matching rule would be guessing at a clinical interval.
-    const r = run({
-      ageMonths: 196, riskIds: ['asplenia'],
-      menbDoses: [{ date: '2026-07-15', brand: 'Penmenvy (MenABCWY)' }],
-    });
-    expect(r.pentavalent.eligible).toBe(true);
-    expect(r.pentavalent.brands).toEqual(['Penmenvy (MenABCWY)']);
-  });
-});
+// REVERSED 2026-11-15 (N1, owner ruling): this file used to pin "Penmenvy is
+// deliberately untouched", on the CDC notes page's silence about Penmenvy. The
+// Penmenvy MMWR (mm7501a2, Jan 8 2026) states the same 6-month rule, and the
+// owner chose to follow it. The Penmenvy rule and its source now live in
+// regression-2026-11-15-n1-penmenvy-six-months.test.js.

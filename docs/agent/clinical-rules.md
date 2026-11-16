@@ -202,9 +202,15 @@ patient's antigen family allows, `pentavalent.eligible` goes false and
 vaccines" banner plus that line. Withholding the combined shot never withholds the vaccine:
 the separate MenB card still offers Trumenba the same day.
 
-**Scoped to Penbraya, deliberately.** The CDC schedule-notes page states this for Penbraya
-(Pfizer) and does not mention Penmenvy at all (verified by fetching the page, 2026-09-17).
-Do NOT mirror the interval onto Penmenvy without a source — a test pins the asymmetry.
+**Penmenvy follows the same 6-month rule** (N1, owner ruling 2026-11-15). The CDC
+schedule-notes page names only Penbraya (it never mentions Penmenvy, and predates its
+recommendation), so this was first scoped to Penbraya. The Penmenvy MMWR states it, read live
+2026-11-15 (mm7501a2, Jan 8 2026): *"Persons at increased risk for meningococcal disease who
+receive a dose of MenACWY-CRM/MenB-4C and who are recommended to receive additional doses of
+MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine should receive
+separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C."* Each brand is timed
+from its own last dose; the antigen-family lock already prevents switching brands. Test:
+`regression-2026-11-15-n1-penmenvy-six-months.test.js`.
 
 **"Use Trumenba for MenB dose 2 after a Penbraya" needs no code** (P1-4, checked not
 assumed). CDC: *"if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be
