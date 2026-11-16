@@ -1406,7 +1406,7 @@ export const DOSE_RULES = [
     sourcesSay: {
       verdict: 'differs',
       refs: ['menbRescueDoseRule'],
-      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. What differs: the app has no lower limit for dose 2; CDC\'s software has one (Bexsero 4 weeks, Trumenba 4 months, each less 4 days), finding R-4c. For STOP C Q2.',
+      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. What differs: the app has no lower limit for dose 2; CDC\'s software has one (4 weeks less 4 days for both families, in its 3-dose healthy series; corrected in port 2.3, which read the file), finding R-4c. CDC\'s software also gives the 6-month line the 4-day grace; the app does not. For STOP C Q2.',
     },
     label: 'Dose N of M',
     // NO grace, on purpose: it decides whether a rescue dose 3 is owed — a
