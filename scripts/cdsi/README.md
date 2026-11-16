@@ -67,8 +67,8 @@ npx vite-node scripts/cdsi/runRuleComparison.mjs
 Read the last lines: **"declared wrongly"**, **"unaccounted for"** and **"CDSI rules changed since
 saved"** must all be 0. `src/logic/__tests__/cdsi-rule-comparison.test.js` checks the same and
 fails `npm test` otherwise. It never requires the app to agree with CDSI; it requires every
-difference to be named. First run: 57 agree, 26 differ (3 follow the wording, 7 owner-decided,
-16 open for STOP C). Findings: `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`.
+difference to be named. First run: 57 agree, 26 differ (3 follow the wording, 5 owner-decided,
+18 open for STOP C). Findings: `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`.
 
 ## When CDC publishes a new release
 

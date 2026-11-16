@@ -117,15 +117,13 @@ export const ROW_MAP = {
       },
       {
         what: 'Unknown-brand MenACWY minimum age', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
-        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
-        why: 'An unknown product might have been MenQuadfi, which the owner allows from 6 weeks, so the app counts an unknown-brand dose from 6 weeks. CDSI\'s "unspecified" codes start at 2 months less 4 days.',
+        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin', differs: ['number'], status: 'open', stopC: 'Q2 (new in 2.3)',
+        why: 'An unknown product might have been MenQuadfi, which the owner allows from 6 weeks (2026-09-23), so the app counts an unknown-brand dose from 6 weeks. CDSI\'s "unspecified" codes start at 2 months less 4 days. Does the 6-week decision reach a dose whose product is unknown? The owner asked for this to be a question, not a consequence (2026-11-15).',
       },
       {
         what: 'Youngest age a first MenACWY dose counts (any product)', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
-        cdsi: f('INFANT', 1, 'absolute minimum age'), field: 'value', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
-        why: 'CDSI 4.65 lists MenQuadfi from 6 weeks less 4 days, but its infant series still starts at 2 months less 4 days, so CDSI would NOT count a MenQuadfi given at 6–7 weeks as dose 1. The app counts it (owner, following AAP). The README said CDSI "now agrees" with the 6-week rule: true for the product, not for the series.',
+        cdsi: f('INFANT', 1, 'absolute minimum age'), field: 'value', differs: ['number'], status: 'open', stopC: 'Q2 (new in 2.3)',
+        why: 'CDSI 4.65 lists MenQuadfi from 6 weeks less 4 days, but its infant series still starts at 2 months less 4 days, so CDSI would NOT count a MenQuadfi given at 6–7 weeks as dose 1. The app counts it, under the owner\'s 6-week product decision (2026-09-23). Does that decision reach the start of the infant series? The owner asked for this to be a question, not a consequence (2026-11-15). The README said CDSI "now agrees" with the 6-week rule: true for the product, not for the series.',
       },
     ],
     // Every allowable MenACWY product line, in every series and dose. The test

@@ -341,7 +341,7 @@ accounts for; or CDSI's rules differing from the saved copy
 to agree with CDSI. Printed version: `npx vite-node scripts/cdsi/runRuleComparison.mjs`.
 
 First run, 2026-11-15: 57 comparisons agree; 26 differ (3 follow the wording,
-7 owner-decided, 16 open, several of them the same question for both MenB
+5 owner-decided, 18 open, several of them the same question for both MenB
 families). Shown to fail by five breaks, each undone: the infant 8-week gap set
 to 7 (1 fails); one booster floor in CDC's file changed from 3 to 4 years (2);
 the age-10 row's grace turned off (1); a row renamed so the map misses it (1);

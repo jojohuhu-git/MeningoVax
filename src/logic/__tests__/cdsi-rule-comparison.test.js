@@ -112,6 +112,7 @@ describe('every difference is named, with its evidence', () => {
     const open = [...new Set(differences.filter((c) => c.status === 'open').map((c) => c.source))].sort();
     expect(open).toEqual([
       'ACWY-ANY-TWO-DOSES-GAP',
+      'ACWY-BELOW-MIN-AGE',
       'ACWY-TRAVEL-BOOSTER-GAP',
       'CDSI only: MENB-4C-OLD-2-DOSE-COURSE',
       'CDSI only: PENTAVALENT-UPPER-AGE',

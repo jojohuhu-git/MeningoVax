@@ -17,7 +17,7 @@ How to re-run: `npx vite-node scripts/cdsi/runRuleComparison.mjs`. Required test
   the "was the patient high-risk when given?" question, the extra 4th dose, "Extra" doses). CDSI
   has no rule of those kinds, each reason written down.
 - **81 comparisons**, plus 2 CDSI rules the app has no row for: 57 agree. 26 differences: 3 follow
-  CDC/ACIP wording (settled), 7 owner-decided, 16 open. The 16 open ones are **8 questions**
+  CDC/ACIP wording (settled), 5 owner-decided, 18 open. The 18 open ones are **9 questions**
   (several are the same question checked for both MenB brand families).
 
 **Where the app and CDSI agree** (the bulk): every infant-series gap, the 8-week high-risk and
@@ -33,6 +33,7 @@ months; 2, 7, 11, 16, 19 and 22 years; MenB 16 and 24 years).
 | N1 | **Penbraya / Penmenvy at 26 or older** | Counts (no upper age for any product) | Allowed only up to 26 years, in every series | Born 1998-01-01, asplenia, Penbraya 2025-06-01 (age 27): app counts it as dose 1 of both ("Dose 2 of 2" MenACWY, "Dose 2 of 3" MenB due today) |
 | N2 | **High-risk Bexsero: 2 doses before 25 Oct 2024** | Asks dose 3 (checked: asplenia, Bexsero 2023-01-01 and 2023-02-15 → "Dose 3 of 3 (high-risk, 4C)") | The old 2-dose course is complete; no dose 3 | that patient |
 | N3 | **Healthy MenB: dose 2 given 1–4 days before 6 months** | Counts as early; dose 3 owed | 4-day grace: 2-dose series complete | Born 2008-01-01, Trumenba 2026-01-01 and 2026-06-29: app "Dose 3 of 3 (rescue: dose 2 given early)". Control, 2026-07-01: "Complete (2-dose series)" |
+| N5 | **MenQuadfi from 6 weeks: does the decision reach (a) a dose of unknown brand, (b) dose 1 of the infant series?** | (a) An unknown-brand MenACWY counts from 6 weeks (it might have been MenQuadfi). (b) A MenQuadfi dose 1 at 6–7 weeks counts | (a) "Unspecified" codes start at 2 months less 4 days. (b) Lists the product from 6 weeks, but its infant series still starts at 2 months less 4 days, so it would not count | Born 2026-09-01, asplenia, dose 2026-10-16 (6 weeks 3 days), "high-risk then" answered yes: MenQuadfi and unknown brand both "Counted", dose 2 due 2026-12-11. (Unanswered, the app asks that question first.) |
 | N4 | **Upper ages for counting a dose** (routine MenACWY dose 1 19 y, dose 2 22 y; healthy MenB dose 1 24 y) | Never refuses a recorded dose for age; uses the same numbers only to stop recommending | Sets those maximum ages | Low stakes: no more doses are owed either way |
 
 Also new, on a row already on the Q2 list: **high-risk MenB dose 3 just under 4 months after
@@ -60,21 +61,15 @@ course stands (N2).
   **both** brands. *Correction:* the 2.2 note said Trumenba 4 months; that is CDSI's 2-dose series
   only. The note in `doseRules.js` is corrected.
 
-## Labelled owner-decided — please confirm
+N5 was first labelled owner-decided, as a consequence of the 2026-09-23 MenQuadfi decision; the
+owner asked on 2026-11-15 for both parts to be questions instead. *Correction found with it:*
+`scripts/cdsi/README.md` said CDSI "now agrees" with the 6-week rule. True for the product, not
+the series. Fixed.
 
-These follow from the owner's MenQuadfi-from-6-weeks decision (2026-09-23). Labelled so; say if
-either should be a question instead.
+## Owner-decided (already ruled)
 
-- **An unknown-brand MenACWY counts from 6 weeks** (it might have been MenQuadfi). CDSI's
-  "unspecified" codes start at 2 months less 4 days.
-- **A MenQuadfi dose 1 at 6–7 weeks counts.** CDSI 4.65 lists the product from 6 weeks, but its
-  infant series still starts at 2 months less 4 days, so CDSI would not count it. *Correction:*
-  `scripts/cdsi/README.md` said CDSI "now agrees" with the 6-week rule. True for the product,
-  not the series. Fixed.
-
-Other owner-decided differences (already ruled): the age-10 MenACWY line has the 4-day grace in
-the app and not in CDSI (B-1, 2026-11-15); a healthy MenB dose before 16 is set aside (CDSI counts
-from 10; 2026-07-23, Option 1).
+- The age-10 MenACWY line has the 4-day grace in the app and not in CDSI (B-1, 2026-11-15).
+- A healthy MenB dose before 16 is set aside; CDSI counts it from 10 (2026-07-23, Option 1).
 
 ## Follows the wording (settled)
 
