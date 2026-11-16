@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 138 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 87 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 139 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 88 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,636 | `npx vitest run --reporter=json`, 2026-10-17, C1 citation hover text |
+| Individual `it()` tests, total | 1,670 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.1 saved answers |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -150,6 +150,38 @@ landed **report-only**, same discipline as item B, and as of this writing
 needs the owner's review first. See the plan document, item D, and the
 file's own header for what each relation checks and why the grid it samples
 is deliberately smaller than the other two sweeps'.
+
+## The saved answers (port Phase 1.1, 2026-11-15)
+
+The sweeps above check **properties**. None of them notices when a patient's
+**answer** changes. [`sweep-saved-answers.test.js`](../../src/logic/__tests__/sweep-saved-answers.test.js)
+does: it runs the engine over a fixed grid of synthetic patients and requires
+the same answer, line for line, as the two files saved in
+`src/logic/__tests__/__saved__/`:
+
+| File | Patients | What they are |
+|---|---|---|
+| `saved-answers.tsv` | 17,580 | patients a clinician could really enter |
+| `saved-answers-record-problems.tsv` | 5,820 | records they could not: a dose before birth, after today, or one shot on two rows |
+
+An answer is what the app **decides**: each card's status, due today or not,
+next date, dose number and totals, brands offered (as short codes), whether the
+pentavalent is offered, and for every recorded dose whether it counts and why
+not (as a kind, never a sentence). No wording is saved, so a copy edit never
+turns it red.
+
+**When it fails:** that is not automatically a bug. If the change was meant,
+run `npm run sweep:update`. It rewrites both files and prints how many answers
+moved, with examples. Put that number in the PR with the reason. If you cannot
+say why those patients should get a different answer, it is a bug.
+
+The grid (`src/test-grid.js`, "THE SAVED ANSWERS") sits on the meningococcal
+age lines and straddles each interval's edge with CDC's 4-day grace. It
+pairs MenACWY and MenB histories by what can change an answer rather than
+crossing all of them. The full cross was 35,925 patients and 10 MB with no
+more MenACWY or pentavalent answers. Its only extra MenB answers were under-10s
+with several rejected MenB doses. Every file it reads is dated by `TEST_TODAY`:
+moving that date moves every line, so rerun `npm run sweep:update` in the same commit.
 
 ## The worktree trap
 
