@@ -5,7 +5,7 @@ instead of working from a copy that has drifted.
 
 **The plan:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-meningovax-port.md`
 **Its latest handoff:** the newest `~/Downloads/PneumoVax/docs/archive/handoff-*meningovax*.md`
-without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase2-1-rule-table.md`).
+without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase2-2-sources.md`).
 **The CDC CDSI half:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-cdsi-checks-both-apps.md`
 (this repo's CDC files are already in `scripts/cdsi/cdc-files/`).
 
