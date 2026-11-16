@@ -24,6 +24,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { DOSE_RULES } from '../doseRules.js';
+import { CITATIONS } from '../../data/refs.js';
 import { analyzeHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
 import { doseChipLabel, RECORD_PROBLEM_LABELS } from '../../components/doseChipLabel.js';
@@ -262,6 +263,89 @@ describe('4 · the order the comments promise, and no rule outside the table', (
     const src = readFileSync(new URL('../validate.js', import.meta.url), 'utf8');
     for (const forbidden of ['./intervals.js', './ages.js', 'ageMeetsMinimum', 'intervalMeetsMinimum', 'calendarIntervalElapsed', 'calendarIntervalMeetsMinimum']) {
       expect(src.includes(forbidden), `validate.js mentions ${forbidden}: a rule belongs in doseRules.js`).toBe(false);
+    }
+  });
+});
+
+// ── 5 · What the sources say (port Phase 2.2, 2026-11-15) ─────────────────
+// Every row carries `sourcesSay`: a verdict from a closed list, the exact
+// sentences it rests on (keys into refs.js), and one plain-English line.
+// The rows whose verdict is 'differs', 'schedule-only' or 'no-source' ARE the
+// plan's STOP C question list (decision packet 1, Q2 and Q4). They are written
+// out below, so a new difference — a row added, or a verdict changed — turns
+// this file red until the list (and the packet) says so.
+const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-source', 'record-keeping'];
+
+// STOP C Q2: the app and the sources part, or the app makes a minimum out of a schedule.
+const STOP_C_Q2 = [
+  'ACWY-HIGHRISK-BOOSTER-GAP',
+  'ACWY-TRAVEL-BOOSTER-GAP',
+  'ACWY-ANY-TWO-DOSES-GAP',
+  'MENB-HIGHRISK-DOSE-2-GAP',
+  'MENB-HIGHRISK-EARLY-DOSE-3',
+  'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
+  'MENB-HIGHRISK-BOOSTER-GAP',
+  'MENB-HEALTHY-EARLY-DOSE-2',
+];
+// STOP C Q4: no source covers it — keep as an app rule, and in what words?
+const STOP_C_Q4 = [
+  'ACWY-UNDATED-COUNTS',
+  'MENB-UNDATED-COUNTS',
+  'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE',
+  'SERIES-CAP-EXTRA-DOSE',
+];
+// The day the sentences beside the rows were read live (Phase 2.2).
+const READ_LIVE_ON = '2026-11-15';
+
+describe('5 · what the sources say, beside every row', () => {
+  for (const rule of DOSE_RULES) {
+    it(`${rule.id} says what the sources say`, () => {
+      const s = rule.sourcesSay;
+      expect(s, 'every row needs a sourcesSay field').toBeTruthy();
+      expect(VERDICTS).toContain(s.verdict);
+      expect(s.note).toMatch(/\S.{20,}/);
+      expect(Array.isArray(s.refs)).toBe(true);
+      for (const key of s.refs) {
+        const c = CITATIONS[key];
+        expect(c, `${key} is not in refs.js`).toBeTruthy();
+        // A sentence, not a landing page: STOP C is argued from the words.
+        expect(c.quote, `${key} has no quote`).toMatch(/\S/);
+      }
+      // A rule that leans on a source names it; one about the entry names none.
+      if (['stated', 'schedule-only', 'differs'].includes(s.verdict)) {
+        expect(s.refs.length, `${rule.id} is '${s.verdict}' but quotes no source`).toBeGreaterThan(0);
+        // Those quotes are the ones held against the rule: read live in 2.2 or later.
+        for (const key of s.refs) {
+          expect(CITATIONS[key].lastVerified >= READ_LIVE_ON, `${key} last read ${CITATIONS[key].lastVerified}`).toBe(true);
+        }
+      }
+      if (s.verdict === 'record-keeping') expect(s.refs).toEqual([]);
+      if (s.verdict === 'record-keeping') expect(rule.enforcement).toBe('record-problem');
+    });
+  }
+
+  it('the rows that differ from the sources are exactly STOP C Q2', () => {
+    const q2 = DOSE_RULES.filter((r) => ['differs', 'schedule-only'].includes(r.sourcesSay.verdict)).map((r) => r.id);
+    expect(q2, 'a row now differs from the sources (or stopped differing): update STOP C Q2 and this list').toEqual(STOP_C_Q2);
+  });
+
+  it('the rows with no source are exactly STOP C Q4', () => {
+    const q4 = DOSE_RULES.filter((r) => r.sourcesSay.verdict === 'no-source').map((r) => r.id);
+    expect(q4, 'a row now has no source (or found one): update STOP C Q4 and this list').toEqual(STOP_C_Q4);
+  });
+
+  it('a row the code says has no source is not labelled as if the sources stated it', () => {
+    // authorityToday "None …" / "Nothing …" must not sit beside a 'stated' verdict.
+    const mislabelled = DOSE_RULES
+      .filter((r) => /^(None|Nothing)\b/.test(r.authorityToday) && r.sourcesSay.verdict === 'stated')
+      .map((r) => r.id);
+    expect(mislabelled).toEqual([]);
+  });
+
+  it('sourcesSay never reaches the screen: no component reads it', () => {
+    for (const f of ['RecCard.jsx', 'Results.jsx', 'doseChipLabel.js']) {
+      const src = readFileSync(new URL(`../../components/${f}`, import.meta.url), 'utf8');
+      expect(src.includes('sourcesSay'), `${f} reads sourcesSay`).toBe(false);
     }
   });
 });

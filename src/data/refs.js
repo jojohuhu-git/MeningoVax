@@ -137,7 +137,7 @@ export const CITATIONS = {
     quote: 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years',
     label: 'ACIP 2020 MMWR: routine 11–12y dose, 16y booster',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   // N5 (2026-11-15): the 8 weeks between dose 1 and the 16-year booster.
   acwyBooster8WeeksAfterDose1: {
@@ -152,21 +152,21 @@ export const CITATIONS = {
     quote: 'Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease for which boosters are recommended should still receive MenACWY according to the recommended adolescent schedule, with the first dose at age 11–12 years and a booster dose at age 16 years',
     label: 'ACIP 2020 MMWR: doses before age 10 do not count toward the adolescent series',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   boosterBeforeAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
     label: 'ACIP 2020 MMWR: booster cadence, primary completed before age 7',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   boosterAtOrAfterAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
     label: 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   acwyInfantHighRisk2to6mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
@@ -180,7 +180,7 @@ export const CITATIONS = {
     quote: '2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)',
     label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   // M4 (2026-09-23, MenQuadfi 6-week floor queue). The ONE source for a
   // LICENSED-age claim, not a schedule claim — the authority rule ranks FDA
@@ -227,7 +227,7 @@ export const CITATIONS = {
     quote: 'MenB series at age 16\u201323 yrs on basis of shared clinical decision-making (preferred age 16\u201318 yrs)',
     label: 'ACIP 2020 MMWR Table 2: healthy MenB shared clinical decision-making, preferred age 16\u201318 years',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-09-15',
+    lastVerified: '2026-11-15',
   },
   menbPregnancyDeferral: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
@@ -241,7 +241,7 @@ export const CITATIONS = {
     quote: 'MenB vaccines are licensed in the United States only for persons aged 10–25 years',
     label: 'ACIP 2020 MMWR: MenB licensure (age 10–25 years)',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   acwyCatchup1921: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
@@ -282,14 +282,14 @@ export const CITATIONS = {
     quote: 'ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease',
     label: 'ACIP Oct 2024 MMWR: MenB-4C high-risk 3-dose series, 0/1–2/6 months',
     short: 'ACIP Oct 2024 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   menbHealthy2Dose0and6: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'ACIP recommends that MenB-4C be administered to healthy adolescents and young adults aged 16–23 years as a 2-dose series at 0 and 6 months for the prevention of serogroup B meningococcal disease, based on shared clinical decision-making',
     label: 'ACIP Oct 2024 MMWR: MenB-4C healthy 2-dose series, 0/6 months',
     short: 'ACIP Oct 2024 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   // MenB dose-3 rescue (2026-09-17). The one sentence that says an early dose 3
   // is credited rather than repeated. It lives in the CDC schedule notes, not in
@@ -300,14 +300,14 @@ export const CITATIONS = {
     quote: 'if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3',
     label: 'CDC Child/Adolescent Schedule, MenB special situations: an early dose 3 counts and adds a 4th dose',
     short: 'CDC MenB Notes',
-    lastVerified: '2026-09-17',
+    lastVerified: '2026-11-15',
   },
   menbRescueDoseRule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose',
     label: 'ACIP Oct 2024 MMWR: healthy 2-dose interval and the early-dose-2 rescue-dose rule',
     short: 'ACIP Oct 2024 MMWR',
-    lastVerified: '2026-07-24',
+    lastVerified: '2026-11-15',
   },
   menbAcceleratedRapidProtection: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
@@ -425,6 +425,102 @@ export const CITATIONS = {
     label: 'CDC ACIP General Best Practice Guidelines — Altered Immunocompetence',
     short: 'CDC Altered Immunocompetence',
     lastVerified: '2026-09-12',
+  },
+
+  // ── What the sources say beside each dose rule (port Phase 2.2, 2026-11-15) ──
+  // These entries are read by the rule table (`sourcesSay.refs` in
+  // src/logic/doseRules.js), not shown on a card. Each quote was confirmed
+  // live on 2026-11-15 as an exact piece of the page's text, in a real
+  // browser (CDC refuses scripted downloads). They are the sentences the
+  // rulebook rests on, so STOP C (decision packet 1) can be argued from the
+  // words, not from memory. Several sit beside an existing entry that quotes
+  // the same page for a card; a separate key keeps a card's [N] highlight
+  // from changing when a rulebook quote is added.
+  cdcChildAcwyMinAge: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]',
+    label: 'CDC Child/Adolescent Schedule Notes: MenACWY minimum ages',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcChildMenveoLiquid10y: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'The liquid formulation should not be used before age 10 years.',
+    label: 'CDC Child/Adolescent Schedule Notes: Menveo one-vial (liquid) not before age 10',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcChildAcwyInfantSeries: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months',
+    label: 'CDC Child/Adolescent Schedule Notes: MenACWY infant series minimum gaps',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcChildAcwyRisk2DoseFrom24m: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart',
+    label: 'CDC Child/Adolescent Schedule Notes: high-risk MenACWY 2-dose series from 24 months',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcChildAcwyBefore10OngoingRisk: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'Children for whom boosters are recommended because of an ongoing increased risk of meningococcal disease (e.g., those with complement component deficiency, HIV, or asplenia): Follow the booster schedule for persons at increased risk.',
+    label: 'CDC Child/Adolescent Schedule Notes: MenACWY before age 10 with an ongoing risk',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcCatchupAcwyBooster8Weeks: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)',
+    label: 'CDC Child/Adolescent Schedule Notes: MenACWY catch-up, booster at least 8 weeks after dose 1',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-15',
+  },
+  cdcChildMenbMinAge: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    quote: 'minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]',
+    label: 'CDC Child/Adolescent Schedule Notes: MenB minimum age',
+    short: 'CDC MenB Notes',
+    lastVerified: '2026-11-15',
+  },
+  acip2020Acwy8WeekMinimum: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained',
+    label: 'ACIP 2020 MMWR: 8-week minimum between the two MenACWY primary doses',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
+  // In the MenB section of the MMWR (after the paragraph on mismatched MenB
+  // products). The only "4 weeks between any 2 doses" sentence the page has.
+  acip2020MenbRepeat4Weeks: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses',
+    label: 'ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
+  acip2020MenbNotInterchangeable: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'MenB vaccines are not interchangeable, and the same vaccine product must be used for all doses',
+    label: 'ACIP 2020 MMWR: MenB products are not interchangeable',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
+  acip2020MenbBoosterCadence: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter',
+    label: 'ACIP 2020 MMWR: high-risk MenB booster schedule',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
+  menbHighRiskEarlyD3Unless: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose',
+    label: 'ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated unless it was 6 months after dose 1',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-15',
   },
 };
 

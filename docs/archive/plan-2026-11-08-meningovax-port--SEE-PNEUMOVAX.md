@@ -5,7 +5,7 @@ instead of working from a copy that has drifted.
 
 **The plan:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-meningovax-port.md`
 **Its latest handoff:** the newest `~/Downloads/PneumoVax/docs/archive/handoff-*meningovax*.md`
-without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase2-1-rule-table.md`).
+without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase2-2-sources.md`).
 **The CDC CDSI half:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-cdsi-checks-both-apps.md`
 (this repo's CDC files are already in `scripts/cdsi/cdc-files/`).
 
@@ -20,6 +20,7 @@ wording, a rulebook held to the code, citations. **Status 2026-11-15: Phase 0 do
 built** — `report-2026-11-15-phase0-measured.md`, `inventory-2026-11-15-every-place-a-dose-is-judged.md`,
 `report-2026-11-15-whole-app-checks.md` and `report-2026-11-15-cdsi-test-patients.md` in this
 folder. **STOP B answered 2026-11-15** (five answers, in the plan); 1.5 is a required test (PR #85, merged).
-**Phase 2.1 built** — the rule table `src/logic/doseRules.js` (PR #86). Next: 2.2, 2.3.
+**Phase 2.1 built** — the rule table `src/logic/doseRules.js` (PR #86, merged). **Phase 2.2 built** —
+`sourcesSay` beside each row (what the sources say, quoted and read live). Next: 2.3, then STOP C.
 
 When a phase finishes, its new rule goes into this repo's `CLAUDE.md` (plan review item R-9).
