@@ -76,7 +76,7 @@ const MIGRATED = [
 ];
 
 describe('P2-1 · a migrated interval is written down once', () => {
-  for (const file of ['recommend.js', 'validate.js']) {
+  for (const file of ['recommend.js', 'validate.js', 'doseRules.js']) {
     for (const [literal, owner] of MIGRATED) {
       it(`${file} does not hand-type ${literal} (${owner} owns it)`, () => {
         const hits = code(file).split(literal).length - 1;

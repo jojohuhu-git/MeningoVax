@@ -42,7 +42,8 @@ diff, typical patients, whole-app checks, CDC's CDSI test patients) — findings
 `docs/archive/report-2026-11-15-whole-app-checks.md` and
 `docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. **STOP B answered
 2026-11-15** (five owner answers, recorded in the plan; applied in Phase 3). CDC's test patients
-are now a required test (`cdsi-test-patients-gate.test.js`). Next: Phase 2 (the rule table).
+are now a required test (`cdsi-test-patients-gate.test.js`). **Phase 2.1 built** (the rule table,
+`src/logic/doseRules.js`, PR #86, 0 answers moved). Next: 2.2 (sources beside each row), 2.3 (CDSI comparison).
 The newest handoff (in PneumoVax) says which PRs are open.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
@@ -60,16 +61,16 @@ ACIP/CDC/AAP/immunize.org over FDA package inserts. Never revert to FDA-labeled 
 Within that group, AAP is a tiebreak, not a ranking (owner decision, 2026-08-10): where ACIP/CDC and AAP agree, cite either; where they disagree, AAP governs; never adopt a CDC revision recommending fewer doses or narrower eligibility than AAP; where AAP is silent, CDC/MMWR stands.
 
 ### Engine Logic Stays in the Engine
-Brand eligibility, the MenB antigen-family lock, booster cadence, and dose validation are computed in `recommend.js` and `validate.js`. Do NOT re-derive clinical logic in components.
+Brand eligibility, the MenB antigen-family lock, booster cadence, and dose validation are computed in `recommend.js` and `doseRules.js` (the rule table `validate.js` walks, one row per rule). Do NOT re-derive clinical logic in components.
 
 ### Brand Strings — Do Not Strip in Engine
 Engine brand strings carry an antigen suffix (`'Menveo (MenACWY)'`, `'Bexsero (MenB)'`). Tests assert these exact strings. Strip for display only via `stripAntigen()` in `RecCard.jsx` and `Results.jsx`.
 
-### Booster Cadence — Keep recommend.js and validate.js in Sync
-MenACWY high-risk booster timing is keyed off age at Dose 2 in BOTH files. Changing one without the other will produce inconsistent results (the engine predicts one interval; the validator flags a different one as too soon).
+### Booster Cadence — Keep recommend.js and doseRules.js in Sync
+MenACWY high-risk booster timing is keyed off the age at the LAST primary dose (Dose 2 in a 2-dose series) in BOTH files (`intervals.js` primary-completion age; `ACWY-HIGHRISK-BOOSTER-GAP` row). Changing one without the other will produce inconsistent results (the engine predicts one interval; the validator flags a different one as too soon).
 
 ### MenB D3 — Both Floors Required, but an early D3 is never discarded
-D3 is due after BOTH ≥6 months from D1 AND ≥4 months from D2. `earliestNextDate` = the later of the two. Enforced in both `recommend.js` and `validate.js`.
+D3 is due after BOTH ≥6 months from D1 AND ≥4 months from D2. `earliestNextDate` = the later of the two. Enforced in both `recommend.js` and `doseRules.js`.
 
 A D3 that was ALREADY GIVEN earlier than 4 months after D2 still counts: CDC adds a 4th dose ≥4 months later instead of repeating it. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 
@@ -103,7 +104,7 @@ Four questions, at the end of any session and in any PR body. They take two minu
 ## Testing Expectations
 
 - When changing the engine: add/adjust a test in `recommend.test.js`.
-- When changing validation rules: update `validate-new-rules.test.js` and confirm `recommend.js` mirrors the same logic.
+- When changing validation rules: change the row in `doseRules.js`, update `validate-new-rules.test.js`, and confirm `recommend.js` mirrors the same logic.
 - Regression tests must fail when the fix is reverted.
 → See [docs/agent/testing.md](docs/agent/testing.md)
 

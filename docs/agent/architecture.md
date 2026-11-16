@@ -36,7 +36,10 @@ src/
   logic/
     recommend.js         THE engine. recommend(input) → { menacwy[], menb[], pentavalent, meta }.
     validate.js          analyzeHistory(vaccine, doses, ageMonths, riskIds, today)
-                         → { perDose, effective }.
+                         → { perDose, effective, sortedDoses, decidedBy }. The walk only.
+    doseRules.js         DOSE_RULES: every rule that can judge a recorded dose, one row
+                         each (schedule, measured from, enforcement, grace, authority,
+                         chip label). judgeDose() walks it once per dose.
     dateUtils.js         todayISO, addDays, daysBetween, intervalElapsed, DAYS helpers.
     format.js            fmtAgeMonths, fmtDate, ageGroup, dobToAgeMonths, stripAntigen.
     __tests__/           Engine + validate unit tests.
@@ -71,6 +74,9 @@ Engine brand strings are `'Menveo (MenACWY)'`, `'Bexsero (MenB)'`, `'Penmenvy (M
 `analyzeHistory(vaccine, doses, ageMonths, riskIds, today)` is the single source of truth. One chronological "last-kept" walk returns:
 - `perDose` — parallel to input; each `{ status:'valid'|'invalid'|'unknown', effectiveDoseNum, reasons[], detail? }` for display.
 - `effective` — the KEPT dose list fed into `recommend()`. Invalid doses are dropped BEFORE the engine counts.
+- `decidedBy` — parallel to `perDose`: the `DOSE_RULES` row id that decided each dose (null = no row spoke; it counts).
+
+**The rules themselves are rows of `DOSE_RULES` in `doseRules.js`** (port Phase 2.1, 2026-11-15). Each row states its schedule, what it is measured from, its enforcement (`floor`, `set-aside`, `counts-with-note`, `counts`, `needs-input`, `record-problem`, `extra`, `none`), whether the 4-day grace applies, who the code says it comes from, and the chip it leads to. Rows are walked in order and the first that returns a verdict decides; order is part of the rule. The table is the authority for what the app does today — where the summary below and a row disagree, the row is right (two bullets below were already out of date when the table was built: the infant series gap is 8 weeks, not 4, and the first high-risk booster keys off the age at the LAST primary dose, which is Dose 2 only in a 2-dose series).
 
 **Counting policy:**
 - Invalid → dropped, does NOT count.

@@ -82,6 +82,7 @@ describe('H1: Infant high-risk MenACWY series completion', () => {
     const a = acwy(r);
     // Core assertion: label must say "Booster", not "Dose N (infant high-risk series)"
     expect(a.doseLabel).toMatch(/[Bb]ooster/);
+    // extinct: the pre-fix label "Dose N (infant high-risk series)"; the phrase lived on only in a validate.js comment until port 2.1 (2026-11-15).
     expect(a.doseLabel).not.toMatch(/infant high-risk series/);
     expect(a.status).toBe('risk-based');
     // dueToday depends on lastDate (null for age-only doses -> treated as immediately due).
@@ -101,6 +102,7 @@ describe('H1: Infant high-risk MenACWY series completion', () => {
       ], menbDoses: [] });
     const a = acwy(r);
     expect(a.doseLabel).toMatch(/[Bb]ooster/);
+    // extinct: the pre-fix label "Dose N (infant high-risk series)"; the phrase lived on only in a validate.js comment until port 2.1 (2026-11-15).
     expect(a.doseLabel).not.toMatch(/infant high-risk series/);
     expect(a.status).toBe('risk-based');
     // dueToday depends on lastDate (null for age-only doses -> treated as immediately due).

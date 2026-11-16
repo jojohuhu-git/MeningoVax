@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 143 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 92 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 144 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 93 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -282,6 +282,27 @@ on change that nobody explained:
 Shown to fail on 2026-11-15 by three breaks, each undone: healthy MenB rescue gap
 4 → 5 months (1 new, 12 moved); high-risk MenACWY gap 8 → 12 weeks (2 new, 3
 moved); an agreeing patient added to the known list (1 healed).
+
+## The rule table holds itself to what it says (port Phase 2.1, 2026-11-15)
+
+Every rule that can judge a recorded dose is one row of `DOSE_RULES` in
+`src/logic/doseRules.js`; `validate.js` walks the doses and asks the table once
+per dose. [`dose-rules-table.test.js`](../../src/logic/__tests__/dose-rules-table.test.js)
+checks four things: every row answers the five questions from a closed list;
+every row that can decide a dose has been seen deciding one (on the three
+saved grids, or on a hand-written patient in the file); every dose a row
+decided got the verdict and chip the row's `enforcement` and `label` say; and
+the orderings the comments promise hold, with no age or interval test left in
+`validate.js`.
+
+Shown to fail on 2026-11-15 by six breaks, each undone: a row's `enforcement`
+changed to a wrong value (1 fails); a row that can never fire (2); two rows
+swapped (1); an age test imported into `validate.js` (1); the "high risk
+confirmed" note dropped (8 across 5 files); the dated/undated filter removed
+(8, both saved-answer tests among them).
+
+**Found while building it:** no saved grid holds a dose recorded without a
+date, so the six undated-dose rows are reached only by the hand patients.
 
 ## The worktree trap
 
