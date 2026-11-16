@@ -35,6 +35,7 @@ const KNOWN_UNCITED = {
 const SOURCE_FILES = [
   'src/logic/recommend.js',
   'src/logic/validate.js',
+  'src/logic/doseRules.js',
   'src/data/riskFactors.js',
   'src/components/RecCard.jsx',
   'src/components/Results.jsx',

@@ -88,7 +88,7 @@ const SCANNED = {
 };
 
 describe('P2-3 · a migrated age threshold is written down once', () => {
-  for (const file of ['recommend.js', 'validate.js', 'seriesTotals.js', 'intervals.js']) {
+  for (const file of ['recommend.js', 'validate.js', 'doseRules.js', 'seriesTotals.js', 'intervals.js']) {
     for (const [literal, owner] of Object.entries(SCANNED)) {
       it(`${file} does not hand-type ${literal} months (${owner} owns it)`, () => {
         const src = code(file);
