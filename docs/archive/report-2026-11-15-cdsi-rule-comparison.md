@@ -41,9 +41,29 @@ this one have the same shape as the owner's B-1 answer ("use the grace only when
 the grace would mean one dose fewer. B-1 was asked about age lines, not gaps, so it is a question,
 not a ruling.
 
-**Not read live yet** (read before STOP C): what CDC/ACIP say about pentavalents from 26 years
-(N1), and whether ACIP's October 2024 Bexsero statement (`mm7349a3`) says a completed 2-dose
-course stands (N2).
+**Read live 2026-11-15, after this report was first written** (in a real browser; quotes in
+`src/data/refs.js`):
+
+- **N1.** Both ACIP pentavalent statements recommend them, when both vaccines are due at the same
+  visit, for "persons aged ≥10 years who are at increased risk for meningococcal disease" (mm7315a4,
+  mm7501a2), with **no upper age**. Both MMWRs give the licence as "10–25 years". CDC's adult notes
+  (updated July 2, 2025): "Adults may receive a single dose of Penbraya … when both vaccines would
+  be given on the same clinic day." So CDSI's 26 matches the licence, not ACIP's wording.
+- **N2.** mm7349a3: "There is no recommendation to administer additional doses to persons
+  vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule." It
+  names no risk group. **New:** it covers healthy patients too, and the app asks them a dose 3 as
+  well. Born 2005-08-01, healthy, Bexsero 2022-11-01 and 2022-12-01 → "Dose 3 of 3 (rescue: dose 2
+  given early)"; the dose 2 chip says a third dose "is now required". CDSI completes that course too
+  (its healthy dose-2 gap is 4 weeks for doses given until 24 Oct 2024). One-day edge: ACIP says
+  "before October 24"; CDSI's cutoff is 25 October.
+- **Undated records** (two rows, `ACWY-UNDATED-COUNTS`, `MENB-UNDATED-COUNTS`; moved from STOP C Q4
+  to Q2). ACIP's General Best Practice Guidelines, Timing and Spacing (page updated July 24, 2024):
+  "With the exception of influenza vaccine and PPSV23, providers should only accept written, dated
+  records as evidence of vaccination" and "If records cannot be located within a reasonable time,
+  these persons should be considered susceptible and started on the age-appropriate vaccination
+  schedule." The app counts an undated dose. Biggest effect found: asplenia, age 20, Menveo with no
+  date plus Menveo 2026-01-10 → primary series complete, booster 2031-01-10. Without the undated
+  dose: "Dose 2 of 2" due today. AAP's Red Book was not read (not freely available).
 
 ## Already on the STOP C Q2 list from 2.2 — CDSI confirms each
 
@@ -60,10 +80,12 @@ course stands (N2).
   **both** brands. *Correction:* the 2.2 note said Trumenba 4 months; that is CDSI's 2-dose series
   only. The note in `doseRules.js` is corrected.
 
-## Labelled owner-decided — please confirm
+## Following from the MenQuadfi-from-6-weeks decision — asked, then answered (STOP C C13, C14)
 
-These follow from the owner's MenQuadfi-from-6-weeks decision (2026-09-23). Labelled so; say if
-either should be a question instead.
+These follow from the owner's MenQuadfi-from-6-weeks decision (2026-09-23). First labelled
+owner-decided; the owner asked for them to be questions (2026-11-15), and answered them at STOP C:
+unknown brand counts only from 2 months (C13); a MenQuadfi infant dose 1 from 6 weeks keeps
+counting (C14).
 
 - **An unknown-brand MenACWY counts from 6 weeks** (it might have been MenQuadfi). CDSI's
   "unspecified" codes start at 2 months less 4 days.

@@ -327,7 +327,7 @@ export const CDSI_ONLY = [
     what: 'Penbraya and Penmenvy: no dose counts at 26 or older',
     pick: 'pentavalent upper age', app: { n: Math.min(brand('Penbraya').maxAgeM, brand('Penmenvy').maxAgeM), unit: 'months' },
     covers: [],
-    why: 'In every MenACWY and MenB series CDSI allows the pentavalents only up to 26 years. The app has no upper age for any product (maxAgeM 999), so it counts a pentavalent given at 26 or older. Not read live yet: what CDC\'s notes and ACIP say about pentavalent use from 26.',
+    why: 'In every MenACWY and MenB series CDSI allows the pentavalents only up to 26 years. The app has no upper age for any product (maxAgeM 999), so it counts a pentavalent given at 26 or older. Read live 2026-11-15: both ACIP statements (mm7315a4, mm7501a2) recommend the pentavalents for "persons aged ≥10 years who are at increased risk" with no upper age, and CDC\'s adult notes say "Adults may receive a single dose of Penbraya"; the 10–25 years is the licence (stated in both MMWRs), which is where CDSI\'s 26 comes from.',
   },
   {
     id: 'ROUTINE-UPPER-AGES', status: 'open', stopC: 'Q2 (new in 2.3)',
@@ -339,7 +339,7 @@ export const CDSI_ONLY = [
     id: 'MENB-4C-OLD-2-DOSE-COURSE', status: 'open', stopC: 'Q2 (new in 2.3)',
     what: 'High-risk Bexsero: two doses given before 25 Oct 2024 complete the primary series',
     covers: [/^B · Meningococcal B risk 3-dose series MenB-4C increased risk · Dose 3 · skip \(Both\) set 1 condition 1$/],
-    why: 'CDSI skips high-risk Bexsero dose 3 when two valid Bexsero doses were given before 25 Oct 2024 (the old 2-dose high-risk course). The app asks a dose 3 (checked 2026-11-15: asplenia, Bexsero 2023-01-01 and 2023-02-15 → "Dose 3 of 3 (high-risk, 4C)"). Not read live yet: whether ACIP\'s October 2024 statement (mm7349a3) says a completed 2-dose course stands. Not a dose row: series size lives in seriesTotals.js menbSeriesInfo().',
+    why: 'CDSI skips high-risk Bexsero dose 3 when two valid Bexsero doses were given before 25 Oct 2024 (the old 2-dose high-risk course). The app asks a dose 3 (checked 2026-11-15: asplenia, Bexsero 2023-01-01 and 2023-02-15 → "Dose 3 of 3 (high-risk, 4C)"). Read live 2026-11-15 (mm7349a3): "There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule." The sentence names no risk group, so it covers healthy patients too: the app also asks a healthy patient for a rescue dose 3 after Bexsero 0 and 1 month before that date (checked 2026-11-15). ACIP says "before October 24"; CDSI\'s cutoff is 25 October (a one-day difference, for a dose given on the 24th). Not a dose row: series size lives in seriesTotals.js menbSeriesInfo().',
   },
 ];
 
