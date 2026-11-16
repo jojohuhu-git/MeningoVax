@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 144 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 93 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 145 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 94 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,697 | `npm test`, 2026-11-15, CDC test patients made a required test |
+| Individual `it()` tests, total | 1,824 | `npm test`, 2026-11-15, port 2.3 (rule table held against CDSI) |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -321,6 +321,31 @@ Shown to fail on 2026-11-15 by four breaks, each undone: the 4-week MenACWY
 row relabelled `stated` (2 fail); one row's `sourcesSay` deleted (3); a quoted
 source's date set back to before the live read (1); a key naming a source that
 does not exist (1).
+
+## The rule table held against CDC's CDSI rules (port Phase 2.3, 2026-11-15)
+
+[`cdsi-rule-comparison.test.js`](../../src/logic/__tests__/cdsi-rule-comparison.test.js)
+reads CDC's two meningococcal rule files (`scripts/cdsi/cdc-files/AntigenSupportingData-*.xml`,
+CDSI 4.65) directly: every rule in them becomes a named fact (442 of them,
+`scripts/cdsi/cdsiRules.mjs`). `scripts/cdsi/cdsiRuleMap.mjs` holds every row of
+`doseRules.js` against the facts it corresponds to, reading the app's number
+from its own constants and CDSI's from the file. No CDSI number is typed in.
+Each comparison looks at the number, the 4-day grace, and whether a dose below
+the line counts, and **declares** which of them differ. Every difference has a
+status: `wording` (the app follows a sentence the row itself cites), `owner`
+(dated decision), or `open` (a STOP C question). The test fails on: a row with
+no map entry; a declaration that is no longer true; a difference without its
+evidence; a new open question not on the frozen list; a CDSI rule nothing
+accounts for; or CDSI's rules differing from the saved copy
+(`scripts/cdsi/cdc-files/meningo-cdsi-rules.json`). It never requires the app
+to agree with CDSI. Printed version: `npx vite-node scripts/cdsi/runRuleComparison.mjs`.
+
+First run, 2026-11-15: 57 comparisons agree; 26 differ (3 follow the wording,
+7 owner-decided, 16 open, several of them the same question for both MenB
+families). Shown to fail by five breaks, each undone: the infant 8-week gap set
+to 7 (1 fails); one booster floor in CDC's file changed from 3 to 4 years (2);
+the age-10 row's grace turned off (1); a row renamed so the map misses it (1);
+a "not compared" reason deleted so CDSI rules go unexplained (2).
 
 ## The worktree trap
 
