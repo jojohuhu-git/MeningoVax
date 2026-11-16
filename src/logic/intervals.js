@@ -139,6 +139,21 @@ export function menacwyInfantNextDoseGate({ d1AgeM, d2AgeM = null, given }) {
 // corrected.
 export const MENACWY_HIGHRISK_PRIMARY_GAP = WEEKS(8);
 
+// ── The routine 16-year booster ──────────────────────────
+//
+// N5 (owner ruling 2026-11-15). ACIP 2020 MMWR 69(RR-9), read live 2026-11-15:
+//
+//   "Adolescents who receive their first dose at age 13–15 years should receive
+//    a booster dose at age 16–18 years; the booster dose can be administered at
+//    any time, as long as a minimum interval of 8 weeks between doses is
+//    maintained."
+//
+// So the 16-year booster is due on the LATER of the 16th birthday and 8 weeks
+// after dose 1, and a booster given sooner (beyond the 4-day grace) does not
+// count. Before this the card asked for it on the birthday whatever the gap,
+// and the validator accepted anything 4 weeks or more apart.
+export const MENACWY_ROUTINE_BOOSTER_MIN_GAP = WEEKS(8);
+
 // ── Booster cadences ────────────────────────────────────
 //
 // P2-1 group 2 (2026-09-17). FOUR branches each decided how long until the next

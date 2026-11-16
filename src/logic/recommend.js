@@ -88,7 +88,7 @@ import {
   MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
-  MENACWY_INFANT_FINAL_GAP,
+  MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
 
@@ -211,6 +211,27 @@ function routineBoosterCurrentlyUnmet(am, doses, today, dob) {
   });
 }
 
+// N5 (owner ruling 2026-11-15): when the routine 16-year booster may be given.
+// ACIP: "as long as a minimum interval of 8 weeks between doses is maintained"
+// (see MENACWY_ROUTINE_BOOSTER_MIN_GAP in intervals.js). One helper for every
+// card that asks for this booster — routine, college residence, and the
+// military / outbreak "routine booster still owed" cards — so none of them can
+// advise a dose the validator would then set aside. `lastDate` is the last
+// dose that counted; an undated one cannot be measured from, so the booster
+// stays due as before.
+function routineBoosterTiming(lastDate, today) {
+  if (!lastDate) return { dueToday: true, earliestNextDate: null };
+  const elapsed = intervalElapsed(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP, today);
+  return {
+    dueToday: elapsed,
+    earliestNextDate: elapsed ? null : addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP),
+  };
+}
+
+// The sentence and source a card adds while it is waiting out those 8 weeks.
+const ROUTINE_BOOSTER_WAIT_SENTENCE =
+  ` It can be given once ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} have passed since that dose [c].`;
+
 // Shared wording for "your occupational/outbreak requirement is met, but the
 // separate routine age-16 booster is not" -- found 2026-09-19 (plan item D,
 // relation 1a): military and outbreak_acwy each declared the whole MenACWY
@@ -220,9 +241,10 @@ function routineBoosterCurrentlyUnmet(am, doses, today, dob) {
 // booster read as fully done the moment military/outbreak_acwy was ticked.
 // college_dorm's own rule already got this right, by construction (its OWN
 // requirement IS "a dose at >=16"), which is why it alone was never affected.
-function routineBoosterStillOwedNote(indicationLabel) {
+function routineBoosterStillOwedNote(indicationLabel, waiting = false) {
   return {
-    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then.',
+    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then.'
+      + (waiting ? ROUTINE_BOOSTER_WAIT_SENTENCE : ''),
     detail: `The ${indicationLabel} requirement is already met by that dose, but ACIP's routine age-16 `
       + 'booster is a separate rule that applies regardless of other indications. The next dose given '
       + 'will satisfy both at once.',
@@ -636,12 +658,19 @@ function menacwyRec(am, riskIds, doses, today, dob) {
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
       if (given >= 1) {
         const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');
+        // N5: the dose this card asks for is also the routine 16-year booster,
+        // so it waits 8 weeks after the last dose like every other card that
+        // asks for it. Only measurable when that dose has a date.
+        const timing = datesKnown ? routineBoosterTiming(lastDate, today) : { dueToday: true, earliestNextDate: null };
         return [rec({
           vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (booster at ≥16y)',
-          doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+          doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
+          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
           note: datesKnown
             ? {
-              lead: 'The recorded dose was given before age 16, so one dose is due now.',
+              lead: timing.dueToday
+                ? 'The recorded dose was given before age 16, so one dose is due now.'
+                : `The recorded dose was given before age 16, so one more dose is needed.${ROUTINE_BOOSTER_WAIT_SENTENCE}`,
               detail: 'The college-residence requirement is met only by a dose given on or after the 16th birthday. An earlier dose still counts as vaccination — it just does not satisfy this requirement.',
             }
             : {
@@ -699,10 +728,13 @@ function menacwyRec(am, riskIds, doses, today, dob) {
         // and the routine age-16 requirement are separate ACIP rules; only
         // report "Complete" once both are.
         if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
+          // N5: no sooner than 8 weeks after the last dose.
+          const timing = routineBoosterTiming(lastDate, today);
           return [rec({
             vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at ≥16y still owed)',
-            doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
-            note: routineBoosterStillOwedNote('outbreak'),
+            doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
+            note: routineBoosterStillOwedNote('outbreak', !timing.dueToday),
+            noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
             refs: refsExposure(),
           })];
         }
@@ -757,10 +789,13 @@ function menacwyRec(am, riskIds, doses, today, dob) {
       // routine age-16 requirement are separate ACIP rules; only report
       // "Complete" once both are.
       if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
+        // N5: no sooner than 8 weeks after the last dose.
+        const timing = routineBoosterTiming(lastDate, today);
         return [rec({
           vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at \u226516y still owed)',
-          doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
-          note: routineBoosterStillOwedNote('military recruitment'),
+          doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
+          note: routineBoosterStillOwedNote('military recruitment', !timing.dueToday),
+          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
           refs: refsExposure(),
         })];
       }
@@ -1225,13 +1260,11 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
   // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
-    const boosterDueDate = routineBoosterDate(dob, am, today);
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
-      boosterDueDate,
-      boosterDueDateExact: !!dob,
+      ...routineBoosterDueDate(dob, am, today, lastDate),
       // U2: the age-16 booster was stated three times on this card -- the dated
       // banner, the booster line, and this sentence. The banner carries the
       // date, the line carries the fact; the note keeps only what is unique to
@@ -1269,13 +1302,11 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
     // an approximate due date (the patient's 16th birthday) so it's not just
     // "complete" with no further information.
-    const boosterDueDate = routineBoosterDate(dob, am, today);
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
-      boosterDueDate,
-      boosterDueDateExact: !!dob,
+      ...routineBoosterDueDate(dob, am, today, lastDate),
       // U2: same three-way repeat as the under-11 card above.
       note: doseAtAge10
         ? {
@@ -1305,23 +1336,33 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
     // (at ≥16y) is the patient's first ever — 1 dose suffices, no booster.
     // given>=1 means an earlier <16y dose already exists and this ≥16y dose
     // is the booster it was owed — 2 total.
+    // N5 (2026-11-15): the booster waits 8 weeks after dose 1, whatever the age.
+    const boosterTiming = given === 0 ? { dueToday: true, earliestNextDate: null } : routineBoosterTiming(lastDate, today);
     return [rec({ vaccine: 'MenACWY', status: given === 0 ? 'catchup' : 'due',
       doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : 'Booster (16y)',
       // P2-2 (2026-09-15): primaryTotal was omitted, so rec() defaulted it to
       // seriesTotal (2 in the booster case) and RecCard's headings would have
       // filed the 16-year BOOSTER under "Primary series". Routine MenACWY is the
       // one schedule whose primary series is shorter than its total.
-      doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
+      doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, ...boosterTiming, brands: menacwyBrands(am),
       note: given === 0
         ? {
           lead: 'A single MenACWY dose now; given at 16 years or older, it needs no booster [c].',
           detail: 'Nothing is on record for this patient. ACIP asks for no booster after a first dose given on or after the 16th birthday.',
         }
-        : {
-          lead: 'The routine 16-year booster is due [c].',
-          detail: `The dose given at 11–12 years is the first dose of the series, not the booster, so a second dose is due from the 16th birthday.${undatedNote}`,
-        },
-      noteCites: given === 0 ? [cite('acwyFirstDoseAfter16NoBooster')] : routineCite, refs })];
+        : boosterTiming.dueToday
+          ? {
+            lead: 'The routine 16-year booster is due [c].',
+            detail: `The dose given at 11–12 years is the first dose of the series, not the booster, so a second dose is due from the 16th birthday.${undatedNote}`,
+          }
+          : {
+            lead: `The routine 16-year booster is due once ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} have passed since dose 1 [c].`,
+            detail: `Dose 1 was given less than ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} ago. ACIP allows the booster at any time from the 16th birthday, as long as the doses are at least ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} apart.`,
+          },
+      noteCites: given === 0
+        ? [cite('acwyFirstDoseAfter16NoBooster')]
+        : boosterTiming.dueToday ? routineCite : [cite('acwyBooster8WeeksAfterDose1')],
+      refs })];
   }
   // 19–21y: catch-up if no dose at ≥16y; otherwise not indicated
   // D2: Job aid rule — all patients 17–21y with no MenACWY on/after the 16th birthday
@@ -1799,6 +1840,18 @@ function riskAgeCheck(riskIds, am) {
 function routineBoosterDate(dob, am, today) {
   if (dob) return addCalendarYears(dob, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS / 12);
   return addDays(today, DAYS.months(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am));
+}
+
+// N5 (2026-11-15): the date printed under "Booster due at 16y" is the LATER of
+// the 16th birthday and 8 weeks after the last dose, so a dose 1 given in the
+// last weeks before the 16th birthday does not get a booster date inside 8
+// weeks of it. An 8-week date is exact (it is counted from a recorded date),
+// even when the birthday itself is only estimated.
+function routineBoosterDueDate(dob, am, today, lastDate) {
+  const birthday = routineBoosterDate(dob, am, today);
+  const afterGap = lastDate ? addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP) : null;
+  if (afterGap && afterGap > birthday) return { boosterDueDate: afterGap, boosterDueDateExact: true };
+  return { boosterDueDate: birthday, boosterDueDateExact: !!dob };
 }
 
 export function recommend(input) {

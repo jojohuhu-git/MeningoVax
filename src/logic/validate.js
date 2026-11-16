@@ -65,7 +65,7 @@ import {
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP,
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
-  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
+  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
 // P2-3 (2026-09-17): the age thresholds. This file used to keep FIVE private
 // copies -- AGE_7Y_MONTHS, AGE_16Y_MONTHS, a function-local AGE_10Y_MONTHS,
@@ -715,6 +715,30 @@ function validateOneMenACWY(dose, effectiveIdx, kept, ageMonths, riskIds, today,
           return invalidResult(
             [`Booster given only ${fmtDays(interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
             `Actual interval: ${fmtDays(interval)}. Required cadence: ${cadenceLabel}.`
+          );
+        }
+      }
+
+      // ── N5 (owner ruling 2026-11-15): the routine 16-year booster ────────
+      // At least 8 weeks after dose 1 (4-day grace). ACIP 2020: "the booster
+      // dose can be administered at any time, as long as a minimum interval of
+      // 8 weeks between doses is maintained." Same patients as the age-16 rule
+      // further down (no ongoing risk, not on the infant series, not an outbreak
+      // contact), and only for the dose that would BE the booster: the second
+      // counted dose, given at 16 or older, after a dose 1 given before 16. The
+      // card waits the same 8 weeks (recommend.js routineBoosterTiming), so it
+      // never advises a booster this rule would set aside. Checked before the
+      // 4-week baseline below so the reason names the rule that applies.
+      if (!ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule && effectiveIdx === 1
+        && ageAtDose !== null && ageMeetsMinimum(ageAtDose, AGE_16Y_MONTHS, whenGiven)
+        && !intervalMeetsMinimum(interval, MENACWY_ROUTINE_BOOSTER_MIN_GAP)) {
+        const d1Age = ageAtDoseFromDate(prevKeptDated, ageMonths, today, dob);
+        const d1Before16 = d1Age != null && !ageMeetsMinimum(d1Age, AGE_16Y_MONTHS, { doseDate: prevKeptDated.date, ageMonths, today, dob });
+        if (d1Before16) {
+          return invalidResult(
+            [`Given only ${fmtDays(interval)} after dose 1. The 16-year booster must be at least 8 weeks after dose 1 [c].`],
+            `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENACWY_ROUTINE_BOOSTER_MIN_GAP)}.`,
+            [cite('acwyBooster8WeeksAfterDose1')],
           );
         }
       }
