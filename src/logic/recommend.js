@@ -51,7 +51,7 @@ import {
 // impossible P1-2: the note prints the patient's age in the same words the
 // results header uses, so the two cannot disagree. format.js imports only
 // dateUtils, so there is no cycle back into the engine.
-import { fmtAgeMonths } from './format.js';
+import { fmtAgeMonths, fmtDate } from './format.js';
 import { todayISO, addDays, addCalendarMonths, addCalendarYears, calendarIntervalElapsed, daysBetween, calendarMonthsBetween, intervalElapsed, DAYS } from './dateUtils.js';
 // Calendar P1-3: one rule for how old the patient is — the date of birth wins
 // over a stored ageMonths, which is only ever a snapshot of it.
@@ -89,6 +89,7 @@ import {
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
+  MENACWY_REPEAT_DOSE_FLOOR, MENB_REPEAT_MIN_INTERVAL,
 } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
 
@@ -252,10 +253,16 @@ function routineBoosterStillOwedNote(indicationLabel, waiting = false) {
 }
 
 // ── MenACWY ────────────────────────────────────────────────────────────────
-function menacwyRec(am, riskIds, doses, today, dob) {
+function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
   const given = doses.length;
   const last = doses[given - 1] || null;
-  const lastDate = last?.date || null;
+  // RULING D (owner, STOP C C2/C9, 2026-11-15): the next dose is timed from
+  // the last dose GIVEN — a dose that did not count included — not from the
+  // last dose that counted. `clockDate` is validate.js's anchor (read, never
+  // recomputed here); dose numbers and totals still come from `doses`, the
+  // counted list. CDC: "The repeat dose should be spaced after the invalid
+  // dose by the recommended minimum interval."
+  const lastDate = clockDate || last?.date || null;
   const riskClass = menacwyRiskClass(riskIds);
   // C5/2026-07-24: ACIP 2020 MMWR (RR-9) is the source-of-truth citation for
   // these risk-based schedules. cdcAdultMening (the CDC adult schedule note)
@@ -350,7 +357,7 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today, dob) : null;
   const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
-    return [menacwyInfantSeries(am, given, doses, last, today, riskIds, dob)];
+    return [menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate)];
   }
 
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
@@ -829,14 +836,15 @@ function menacwyRec(am, riskIds, doses, today, dob) {
   }
 
   // ── No MenACWY risk → routine adolescent schedule ────────────────────────
-  return menacwyRoutine(am, given, doses, last, today, dob);
+  return menacwyRoutine(am, given, doses, last, today, dob, clockDate);
 }
 
-function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
+function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate = null) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   const refs = collectRefs(riskIds, [], ['acip2020']);
-  const lastDate = last?.date || null;
+  // Ruling D: see menacwyRec.
+  const lastDate = clockDate || last?.date || null;
   // M10: which indication put this infant on the series. The SCHEDULE is the
   // same for all three — ACIP prints one "2–23 mos" row in Tables 4–6, 8 and 9 —
   // so only the wording varies here, plus the booster phase for outbreak below.
@@ -1207,14 +1215,15 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob) {
 // analyzeHistory()-filtered "effective" list, which excludes those doses when
 // the patient has no current high-risk indication — see validate.js. This
 // function only needs the ordinary routine schedule logic.
-function menacwyRoutine(am, given, doses, last, today, dob) {
+function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   // C2/2026-07-24: upgraded from the whole-document chip to the Table 2
   // (routine schedule) anchor -- a precision upgrade, not a Penmenvy fix.
   const refs = ['acip2020Table2'];
   const routineCite = [cite('acwyRoutine1112and16')];
-  const lastDate = last?.date || null;
+  // Ruling D: see menacwyRec.
+  const lastDate = clockDate || last?.date || null;
   // P1-1 (2026-09-17): a dose up to 4 days before the 16th birthday satisfies
   // the routine booster. Before this the validator counted such a dose while
   // this line did not, so the card went on asking for a booster the patient had.
@@ -1432,10 +1441,20 @@ function menacwyRoutine(am, given, doses, last, today, dob) {
 }
 
 // ── MenB ─────────────────────────────────────────────────────────────────
-function menbRec(am, riskIds, doses, today) {
+function menbRec(am, riskIds, doses, today, clockDate = null) {
   const given = doses.length;
   const last = doses[given - 1] || null;
-  const lastDate = last?.date || null;
+  // RULING D (owner, STOP C C2/C9, 2026-11-15): the next dose is timed from
+  // the last dose GIVEN — a dose that did not count included — not from the
+  // last dose that counted. `clockDate` is validate.js's anchor (read, never
+  // recomputed here); dose numbers and totals still come from `doses`, the
+  // counted list. CDC: "The repeat dose should be spaced after the invalid
+  // dose by the recommended minimum interval."
+  // NOT used for the healthy 6-month line from dose 1, a series-length line
+  // (`lastCountedDate`); the 4-week floor after an uncounted dose is applied
+  // to every card afterwards (applyRepeatFloor).
+  const lastDate = clockDate || last?.date || null;
+  const lastCountedDate = last?.date || null;
   // M3: anchor family on the first KEPT dose with a known brand (mirrors validate.js)
   // Do not use doses[0]?.brand — D1 may be unknown while a later dose establishes the family.
   const family = menbFamily((doses.find(d => d.brand)?.brand) || '');
@@ -1567,7 +1586,9 @@ function menbRec(am, riskIds, doses, today) {
     // The total comes from menbSeriesInfo(), never a literal 4, so this card,
     // the validator and the booster clock move together.
     if (given === 3 && hrSeries.total === MENB_HIGHRISK_RESCUE_TOTAL) {
-      const d3Date = doses[2]?.date ?? null;
+      // Ruling D: from the last dose given — dose 3, or a 4th dose that
+      // itself came too soon (validate.js MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3).
+      const d3Date = clockDate || (doses[2]?.date ?? null);
       // P0-4: calendar months, not 122 days.
       const elapsed = d3Date ? calendarIntervalElapsed(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS, today) : true;
       return [rec({ vaccine: 'MenB', status: 'risk-based',
@@ -1646,9 +1667,9 @@ function menbRec(am, riskIds, doses, today) {
     if (given === 1) {
       // P0-4 (2026-09-15): calendar months, not an averaged 183 days -- and the
       // date shown is the real six-month anniversary, not lastDate + 183 days.
-      const elapsed = calendarIntervalElapsed(lastDate, MENB_HEALTHY_D2_MONTHS, today);
+      const elapsed = calendarIntervalElapsed(lastCountedDate, MENB_HEALTHY_D2_MONTHS, today);
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastDate, MENB_HEALTHY_D2_MONTHS), minIntervalDays: DAYS.months(MENB_HEALTHY_D2_MONTHS),
+        dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastCountedDate, MENB_HEALTHY_D2_MONTHS), minIntervalDays: DAYS.months(MENB_HEALTHY_D2_MONTHS),
         family, brands: menbBrands(family),
         note: {
           lead: `Dose 2 is due at least ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
@@ -1671,12 +1692,15 @@ function menbRec(am, riskIds, doses, today) {
       const needsRescue = dose1date != null && dose2date != null
         && !calendarIntervalElapsed(dose1date, MENB_HEALTHY_D2_MONTHS, dose2date);
       if (needsRescue) {
-        const elapsed = calendarIntervalElapsed(dose2date, MENB_HEALTHY_RESCUE_MONTHS, today);
+        // Ruling D: from the last dose given — dose 2, or a rescue dose that
+        // itself came too soon (validate.js MENB-HEALTHY-RESCUE-DOSE-3-GAP).
+        const rescueFrom = clockDate || dose2date;
+        const elapsed = calendarIntervalElapsed(rescueFrom, MENB_HEALTHY_RESCUE_MONTHS, today);
         return [rec({
           vaccine: 'MenB', status: 'shared-decision',
           doseLabel: 'Dose 3 of 3 (rescue: dose 2 given early)',
           doseNum: 3, seriesTotal: 3, dueToday: elapsed,
-          earliestNextDate: elapsed ? null : addCalendarMonths(dose2date, MENB_HEALTHY_RESCUE_MONTHS),
+          earliestNextDate: elapsed ? null : addCalendarMonths(rescueFrom, MENB_HEALTHY_RESCUE_MONTHS),
           minIntervalDays: DAYS.months(MENB_HEALTHY_RESCUE_MONTHS),
           family, brands: menbBrands(family),
           note: {
@@ -1854,6 +1878,38 @@ function routineBoosterDueDate(dob, am, today, lastDate) {
   return { boosterDueDate: birthday, boosterDueDateExact: !!dob };
 }
 
+// RULING D, the floor (owner, STOP C C2 and E1/E2, 2026-11-15). After a dose
+// that did not count, no card may ask for the next dose sooner than the
+// any-two-doses minimum after it. This is what times:
+//   • the repeat of a dose 1 given too young (E1: 4 weeks after it — a
+//     deliberate difference from CDC's "on or after the date when the child
+//     reaches at least the minimum age", matching PneumoVax);
+//   • the next dose after a wrong-family MenB dose (E2: when it would be due
+//     from the established family's doses, AND at least 4 weeks after it;
+//     ACIP 2020: "a minimum interval of 4 weeks should be used between any 2
+//     doses").
+// Every other repeat is already timed from the failed dose by the card's own
+// clock (`clockDate`), so for those this floor is never the later date. The
+// validator's twins: ACWY-ANY-TWO-DOSES-GAP and MENB-REPEAT-GAP.
+function applyRepeatFloor(recs, uncountedDate, minDays, today) {
+  if (!uncountedDate) return recs;
+  const floor = addDays(uncountedDate, minDays);
+  if (floor <= today) return recs;
+  return recs.map((r) => {
+    const asks = r.dueToday || r.earliestNextDate;
+    if (!asks || (r.earliestNextDate && r.earliestNextDate >= floor)) return r;
+    const why = ` Not before ${fmtDate(floor)}: ${weeksLabel(minDays)} after the dose of ${fmtDate(uncountedDate)}, which did not count.`;
+    return {
+      ...r,
+      dueToday: false,
+      earliestNextDate: floor,
+      note: r.note && typeof r.note === 'object'
+        ? { ...r.note, lead: `${r.note.lead}${why}` }
+        : r.note,
+    };
+  });
+}
+
 export function recommend(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -1911,8 +1967,16 @@ export function recommend(input) {
   const effectiveMenacwyDoses = menacwyHistory.effective;
   const effectiveMenbDoses    = menbHistory.effective;
 
-  const menacwy = menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob);
-  const menb = menbRec(am, riskIds, effectiveMenbDoses, today);
+  // Ruling D: each card is timed from the validator's anchor, then held to
+  // the 4-week floor after any dose that did not count (owner E1/E2).
+  const menacwy = applyRepeatFloor(
+    menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
+    menacwyHistory.uncountedDate, MENACWY_REPEAT_DOSE_FLOOR, today,
+  );
+  const menb = applyRepeatFloor(
+    menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate),
+    menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL, today,
+  );
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y). MenB can

@@ -35,7 +35,7 @@ const REPEAT_SENTENCE = 'This dose does not count toward the series: repeat this
 
 const VACCINES = ['any', 'MenACWY', 'MenB'];
 const MEASURED_FROM = [
-  'birth', 'last counted dose', 'dose 1', 'dose 2', 'dose 3',
+  'birth', 'last counted dose', 'last dose given', 'dose 1', 'dose 2', 'dose 3',
   'first counted branded dose', 'today', 'the record', 'the series total',
 ];
 const ENFORCEMENT = [

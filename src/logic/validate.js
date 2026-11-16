@@ -87,6 +87,18 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
   // spoke and the dose simply counts). Parallel to perDose. Read by
   // dose-rules-table.test.js; nothing on screen uses it yet.
   const decidedBy = [];
+  // RULING D (STOP C C2, 2026-11-15): the clock for the next dose. The last
+  // DATED dose actually given — counted, or not counted because it was given
+  // too soon or too young — so a repeat is timed from the dose that failed,
+  // not from the last one that counted. Never a record problem (no dose was
+  // given), never a set-aside, pending or extra dose (those are not repeats),
+  // and never a wrong-family MenB dose (owner, E2: that dose sets only the
+  // 4-week floor below, not the schedule's clock).
+  let anchor = null;
+  // E2: the last dated MenB dose given that did not count, wrong family
+  // included — the start of ACIP's "4 weeks between any 2 doses" when a dose
+  // must be repeated. Cleared once a later dose counts.
+  let lastUncounted = null;
 
   for (let rawIdx = 0; rawIdx < rawDoses.length; rawIdx++) {
     const dose = rawDoses[rawIdx];
@@ -100,6 +112,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
     // vaccine rule runs — there is no dose to grade when the date is wrong.
     const { result, ruleId } = judgeDose(doseContext({
       vaccine, dose, effectiveIdx: effectiveCount, kept, ageMonths, riskIds, today, riskAnswer, dob,
+      anchor, lastUncounted,
     }));
     decidedBy.push(ruleId);
 
@@ -125,6 +138,10 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
+      if (dose.date && !result.recordProblem) {
+        if (!result.wrongFamily) anchor = dose;
+        lastUncounted = dose;
+      }
     } else if (result.notAdolescentCount) {
       // A3: a valid dose given before age 10 — does not advance the
       // adolescent series count, but it is NOT invalid and does NOT need to
@@ -216,11 +233,21 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           effectiveDoseNum,
         });
         kept.push(dose);
+        if (dose.date) {
+          anchor = dose;
+          lastUncounted = null;
+        }
       }
     }
   }
 
-  return { perDose, effective: kept, decidedBy };
+  // `anchor` / `lastUncounted` after the last dose: what the card times the
+  // NEXT dose from (recommend.js reads them; never recomputes them).
+  return {
+    perDose, effective: kept, decidedBy,
+    anchorDate: anchor?.date ?? null,
+    uncountedDate: lastUncounted?.date ?? null,
+  };
 }
 
 // ── Public API ────────────────────────────────────────────────────────────
@@ -266,7 +293,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // so a just-added blank row is already changing the answer on screen with
   // no "leaving" moment to sweep at.
   const filtered = sortDosesChronologically(dropBlankDoseRows(doses));
-  if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [], decidedBy: [] };
+  if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [], decidedBy: [], anchorDate: null, uncountedDate: null };
   const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob);
 
   // G8 (2026-09-16): a row with NO date must never take the place of a dose

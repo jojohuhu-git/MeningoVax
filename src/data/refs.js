@@ -474,6 +474,23 @@ export const CITATIONS = {
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-15',
   },
+  // RULING D (owner, STOP C C2, 2026-11-15). Read live 2026-11-15.
+  gbpRepeatSpacedFromInvalidDose: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
+    quote: 'The repeat dose should be spaced after the invalid dose by the recommended minimum interval',
+    label: 'ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose',
+    short: 'ACIP Best Practice',
+    lastVerified: '2026-11-15',
+  },
+  // The sentence the owner's E1 answer deliberately differs from (2026-11-15):
+  // for an inactivated vaccine CDC sets no wait after a too-young first dose.
+  gbpTooYoungFirstDoseRepeat: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
+    quote: 'If the first dose in a series is given ≥5 days before the recommended minimum age, the dose should be repeated on or after the date when the child reaches at least the minimum age',
+    label: 'ACIP General Best Practice Guidelines: a too-young first dose is repeated once the minimum age is reached',
+    short: 'ACIP Best Practice',
+    lastVerified: '2026-11-15',
+  },
   gbpRecordsNotFoundSusceptible: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
     quote: 'If records cannot be located within a reasonable time, these persons should be considered susceptible and started on the age-appropriate vaccination schedule.',
@@ -553,6 +570,14 @@ export const CITATIONS = {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses',
     label: 'ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
+  // E2 (owner, 2026-11-15). Read live 2026-11-15.
+  acip2020MenbMixedProductsSelectOne: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid',
+    label: 'ACIP 2020 MMWR: after two different MenB products, pick one to finish the series',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
   },
