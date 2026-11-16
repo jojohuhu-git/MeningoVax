@@ -16,8 +16,9 @@ disagreed with itself within hours, and no test compares planning documents. One
 
 All of it. The plan brings PneumoVax's way of working to MeningoVax in nine phases (0–9): measure,
 safety nets, one rule table, the clinical decisions, one label per dose, dates stated plainly,
-wording, a rulebook held to the code, citations. **Status 2026-11-15: Phase 0 done; Phase 1 items 1.1–1.4
-built** — `report-2026-11-15-phase0-measured.md`, `inventory-2026-11-15-every-place-a-dose-is-judged.md`
-and `report-2026-11-15-whole-app-checks.md` in this folder. Next: 1.5, then STOP B.
+wording, a rulebook held to the code, citations. **Status 2026-11-15: Phase 0 done; Phase 1 items 1.1–1.5
+built** — `report-2026-11-15-phase0-measured.md`, `inventory-2026-11-15-every-place-a-dose-is-judged.md`,
+`report-2026-11-15-whole-app-checks.md` and `report-2026-11-15-cdsi-test-patients.md` in this
+folder. Next: STOP B.
 
 When a phase finishes, its new rule goes into this repo's `CLAUDE.md` (plan review item R-9).

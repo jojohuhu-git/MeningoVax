@@ -1,0 +1,3862 @@
+[
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0487",
+  "name": "#1 @ 11 yrs, 0 days, MCV4",
+  "dob": "2015-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2031-08-05",
+  "recommended": "2031-08-05",
+  "pastDue": "2032-09-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: At Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose 1 of a Mening vaccine is given at 11 years that the dose is considered to be valid.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0488",
+  "name": "#2 @ 16 yr - 4 days, MCV4",
+  "dob": "2010-08-09",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2021-08-09",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: At Absolute Minimum",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is given at 16 years - 4 days, that the dose is considered valid.  The series is complete.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0489",
+  "name": "#2 @ 10 16 yr - 5 days, MCV4",
+  "dob": "2010-08-10",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2021-08-10",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Not Valid",
+    "reason": "Age: Too Young",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2026-09-30",
+  "recommended": "2026-09-30",
+  "pastDue": "2027-09-06",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: Below Absolute Minimum",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is given at 16 years - 5 days, that the dose is considered invalid.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0491",
+  "name": "#2 @ 16 years, MCV4",
+  "dob": "2010-08-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2021-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: At Recommended",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when dose #1 and dose #2 of a Mening vaccine are administered at the recommended ages (11 and 16 years), that the doses are considered valid.  The series is complete.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0495",
+  "name": "#2 with interval of 5 years of #1",
+  "dob": "2008-08-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2021-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: At Recommended",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is administered 5 years after dose #1 (age 13), that the dose in considered valid. The series is complete.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0497",
+  "name": "#1 @ 10 yrs - 1 day, #2 @ 10 yrs + 8 weeks - 5 days",
+  "dob": "2016-06-15",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-06-14",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Not Valid",
+    "reason": "Age: Too Young",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2032-06-15",
+  "recommended": "2032-06-15",
+  "pastDue": "2033-07-12",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: Below Absolute Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered before 10 years of age (invalid) and a repeat dose is administered at 8 weeks - 5 days later that the second dose is considered valid.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0498",
+  "name": "#1 @ 10 yrs - 1 day, #2 @ 10 yrs + 8 weeks",
+  "dob": "2016-06-10",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-06-09",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Not Valid",
+    "reason": "Age: Too Young",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2032-06-10",
+  "recommended": "2032-06-10",
+  "pastDue": "2033-07-07",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: Below Absolute Minimum",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered at 10 years - 1 day (invalid) and a repeat dose is administered at 8 weeks later that the dose is considered valid.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0499",
+  "name": "#1 @ 10 yrs, MCV4",
+  "dob": "2016-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2032-08-05",
+  "recommended": "2032-08-05",
+  "pastDue": "2033-09-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: At Absolute Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered at age 10 years that the dose is considered valid.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0500",
+  "name": "#1 @ 10 yrs - 1 day, MCV4",
+  "dob": "2016-08-06",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Not Valid",
+    "reason": "Age: Too Young",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "1",
+  "earliest": "2027-08-06",
+  "recommended": "2027-08-06",
+  "pastDue": "2029-09-02",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: Below Absolute Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered at 10 years-1 day that the dose is not valid. Another dose should forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0501",
+  "name": "#1 @ 10 yrs - 1 day, #2 @ 10 yrs, 8 weeks - 4 days",
+  "dob": "2016-06-14",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-06-13",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Not Valid",
+    "reason": "Age: Too Young",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2032-06-14",
+  "recommended": "2032-06-14",
+  "pastDue": "2033-07-11",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: Below Absolute Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered at 10 years - 1 day and a repeat dose is administered at 10 years + 8 weeks - 4 days later that the repeat dose is considered valid.  Another dose should forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0502",
+  "name": "10 year old",
+  "dob": "2016-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2027-08-05",
+  "recommended": "2027-08-05",
+  "pastDue": "2029-09-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when a newborn is assessed for the first dose of a Mening that a CDS engine should forecast the dose at the recommended age.",
+  "changedIn": "1.0"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0503",
+  "name": "Dose 1 to dose 2 interval 8 wks-5 days",
+  "dob": "2015-04-15",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-06-15",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Not Valid",
+    "reason": "Interval: too Soon",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2031-04-15",
+  "recommended": "2031-04-15",
+  "pastDue": "2032-05-12",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: Below Absolute Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is administered too early (8 weeks - 5 days after dose #1), that the dose is not valid.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0504",
+  "name": "Dose 1 to dose 2 interval 8 wks-4 days",
+  "dob": "2010-06-24",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-06-10",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-01",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: At Absolute Minimum",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is administered at an interval of 8 wks - 4 days from dose #1 (age 15 years + 11 months) that the dose is considered valid.  The series is complete.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0505",
+  "name": "Dose 1 to dose 2 interval 8 weeks",
+  "dob": "2010-06-16",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-06-04",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-07-30",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: At Minimum",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when dose #2 of a Mening vaccine is administered at an interval of 8 wks from dose #1 (age 15 years + 11 months) that the dose is considered valid.  The series is complete.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0507",
+  "name": "# 1 at age 11 years",
+  "dob": "2015-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2031-08-05",
+  "recommended": "2031-08-05",
+  "pastDue": "2032-09-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Age: At Minimum",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when dose #1 of a Mening vaccine is administered at age 11 years + 0 days that the dose is considered to be valid.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0508",
+  "name": "age 22.  No doses; No forecast",
+  "dob": "2004-08-05",
+  "observations": [],
+  "seriesStatus": "Aged out",
+  "doses": [],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "No Doses Administered",
+  "forecastType": "Not recommended: too old",
+  "guidance": "",
+  "description": "This test case describes when an individual, age 22 years, is assessed for the first dose of a Mening vaccine that a CDS engine should not forecast a dose.  A dose is not recommended. The series status is Aged Out.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0509",
+  "name": "# 1 at age 15 years",
+  "dob": "2011-07-28",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-07-28",
+  "recommended": "2027-07-28",
+  "pastDue": "2028-08-24",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when the first dose of a Mening vaccine is administered at 15 years + 8 days, that the dose is considered to be valid.",
+  "changedIn": "1.6"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0510",
+  "name": "# 1 at age 16 years -5 days",
+  "dob": "2010-08-10",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2026-09-30",
+  "recommended": "2026-09-30",
+  "pastDue": "2027-09-06",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on minimum interval from previous dose (catch-up)",
+  "guidance": "",
+  "description": "This test case describes when a first dose of a Mening vaccine is administered at 16 years - 5 days that the dose is considered to be valid.",
+  "changedIn": "1.0"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0511",
+  "name": "# 1 at age 16 years -4 days",
+  "dob": "2010-08-09",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a dose of a Mening vaccine is administered at 16 years - 4 days, that the dose is considered to be valid. The series is complete.",
+  "changedIn": "1.0"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2013-0512",
+  "name": "# 1 at age 16 years",
+  "dob": "2010-08-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal MCV4, unspecified formulation",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a dose of a Mening vaccine is administered at 16 years + 0 days, that the dose is considered to be valid. The series is complete.",
+  "changedIn": "1.0"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2023-0105",
+  "name": "Patient is 11 years of age and has been administered CVX 316 as a first dose",
+  "dob": "2015-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2031-08-05",
+  "recommended": "2031-08-05",
+  "pastDue": "2032-09-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when a patient is administered CVX Code 316 (Penbraya) at 11 years of age, that the dose is considered to be valid. Another dose should be forecast.",
+  "changedIn": "4.35"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2023-0106",
+  "name": "Patient is 16 years of age and has been administered an extraneous dose of the Meningococcal vaccine.",
+  "dob": "2010-06-10",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-06-10",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Extraneous",
+    "reason": "Series Already Complete",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 years and has been administered two doses of CVX 316, with an interval of 8 weeks, that the second dose in considered \"Extraneous\" because the series was already complete.",
+  "changedIn": "4.36"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2023-0107",
+  "name": "Patient is 16 years of age and has been administered CVX 316 as a second dose",
+  "dob": "2010-08-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2021-08-05",
+    "name": "MENVEO",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 years of age and has been administered CVX 316 (Penbraya) as a second dose, that the dose is considered to be valid. The series is complete.",
+  "changedIn": "4.35"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2024-0015",
+  "name": "Patient is 16 years of age and has been administered two doses of the Meningococcal vaccine (CVX 316)",
+  "dob": "2010-07-01",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-06-01",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-07-27",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 year of age is administered a first dose of the Meningococcal vaccine (CVX 316) at 15 years and 11 months of age and a second dose of the vaccine at an interval of 8 weeks, that the doses are considered to be valid. The series is complete.",
+  "changedIn": "4.36"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2025-0017",
+  "name": "Patient is 12 years of age and has been administered a dose of Penmenvy vaccine",
+  "dob": "2014-07-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2030-07-05",
+  "recommended": "2030-07-05",
+  "pastDue": "2031-08-01",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 12 years of age has been administered a dose of Meningococcal vaccine (Penmenvy) that the dose is valid.  Another dose should be forecast.",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2025-0018",
+  "name": "Patient is 16 years of age and has been administered two doses of Meningococcal vaccine (Menquadfi and Penmenvy)",
+  "dob": "2010-07-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2023-07-05",
+    "name": "MenQuadfi",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 years of age and has been administered two doses of a Meningococcal vaccine with the first dose as Menquadfi (CVX 203) and the second dose as Penmenvy (CVX 328) that the doses are valid.  The series is complete.",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenACWY",
+  "id": "2025-0019",
+  "name": "Patient is 16 years of age and has been administered two doses of Meningococcal vaccine one dose Penbraya and another dose as Penmenvy",
+  "dob": "2010-08-02",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-06-02",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 years of age and has been administered two doses of the Meningococcal vaccine with the first dose as Penbraya and the second dose as Penmenvy that the doses are valid.  The series is complete.",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0032",
+  "name": "Patient is 20 years of age with no doses of the MenB vaccine",
+  "dob": "2006-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2022-08-05",
+  "recommended": "2022-08-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 20 years of age and hasn't been administered a dose of the Men B vaccine, that the first dose should be recommended.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0033",
+  "name": "Patient is 20 years of age with one dose of the MenB (Bexsero) vaccine",
+  "dob": "2006-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-02-05",
+  "recommended": "2027-02-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 20 years of age and has been administered a dose of the Men B (Bexsero) vaccine, that the first dose is valid.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0034",
+  "name": "Patient is 20 years of age with two doses of the MenB (Bexsero) vaccine 4 weeks a part.",
+  "dob": "2006-07-08",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-07-08",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2027-01-08",
+  "recommended": "2027-01-08",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 20 years of age and has been administered two doses of the Men B (Bexsero) vaccine, four weeks apart, that the second dose is valid.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0035",
+  "name": "Patient is 18 years of age with two doses of the MenB (Bexsero) vaccine 4 weeks - 4 days  a part.",
+  "dob": "2008-07-08",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-07-08",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2027-01-08",
+  "recommended": "2027-01-08",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes a patient that is 18 years of age and has been administered a second dose of the Men B (Bexsero) vaccine at an interval of 4 weeks - 4 days, that the dose is valid.  Another dose should forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0036",
+  "name": "Patient is 16 years of age with two doses of the MenB (Bexsero) vaccine 4 weeks - 5 days apart.",
+  "dob": "2010-07-13",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-07-13",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Not Valid",
+    "reason": "Interval: too Soon",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-01-13",
+  "recommended": "2027-01-13",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: Below Absolute Minimum",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes a patient that is 16 years of age and has been administered a second dose of the Men B (Bexsero) vaccine, at an interval of 4 weeks - 5 days that the dose is not valid.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0037",
+  "name": "Patient is 19 years of age with a dose of the Men B vaccine (Trumemba)",
+  "dob": "2007-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-02-05",
+  "recommended": "2027-02-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 19 years of age and has been administered a dose of the Men B (Trumemba) vaccine, that the first dose is valid.  Another dose should be forecast.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0038",
+  "name": "Patient is 19 years of age with a second dose of the Men B vaccine (Trumemba)",
+  "dob": "2007-02-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 19 years of age and has been administered a second dose of the Men B (Trumemba) vaccine at an interval of 6 months that the dose is valid.  Series is complete.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0039",
+  "name": "Patient is 19 years of age with a second dose of the Men B vaccine (Trumemba) at an interval 6 months - 4 days",
+  "dob": "2007-02-09",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-09",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: At Absolute Minimum",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 19 years of age and has been administered a second dose of the Men B (Trumemba) vaccine at an interval of 6 months - 4 days that the dose is valid.  Series is complete.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0040",
+  "name": "Patient is 17 years of age with a second dose of the Men B vaccine (Trumemba) at an interval 6 months - 5 days",
+  "dob": "2009-02-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-07-31",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2026-12-01",
+  "recommended": "2026-12-01",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 19 years of age and has been administered a second dose of the Men B (Trumemba) vaccine at an interval of 6 months - 5 days that the dose is valid in the 3-dose rapid protection series.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0041",
+  "name": "Patient is 23 years of age with a dose of MenB (Penbraya) vaccine",
+  "dob": "2003-08-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-02-05",
+  "recommended": "2027-02-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 23 years of age and has been administered a dose of the MenB (Penbraya) vaccine that the dose is valid.  Another dose should be forecast.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0042",
+  "name": "Patient is 23 years of age with a two doses of MenB (Penbraya) vaccine",
+  "dob": "2003-02-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 23 years of age and has been administered a second dose of the MenB (Penbraya) vaccine at an interval of 6 months that the dose is valid. Series is complete.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0043",
+  "name": "Patient is 21 years of age with two doses of the MenB vaccine (Trumenba and Penbraya)",
+  "dob": "2005-02-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENBRAYA",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 21 years of age and has been administered two doses of the Men B vaccine (Trumenba + Penbraya) at an interval of 6 months that the doses are valid.  Series is complete.",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0044",
+  "name": "Patient is 24 years of age and has not been administered a dose of the Men B vaccine",
+  "dob": "2002-08-05",
+  "observations": [],
+  "seriesStatus": "Aged out",
+  "doses": [],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "No Doses Administered",
+  "forecastType": "Not Recommended: Aged Out",
+  "guidance": "",
+  "description": "This test case describes a SCDM patient that is 24 years of age and hasn't been administered a dose of the Men B vaccine that the patient has aged out and should not be recommended a dose..",
+  "changedIn": "4.37"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0068",
+  "name": "Patient is 15 years of age and has been administered an unspecified dose of the Men B vaccine",
+  "dob": "2011-01-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal B, unspecified",
+    "cvx": "164",
+    "status": "Not Valid",
+    "reason": "Not a preferable or allowable vaccine",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "1",
+  "earliest": "2027-01-05",
+  "recommended": "2027-01-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Vaccine: Invalid Usage",
+  "forecastType": "Recommended based on age",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 15 years old and has been administered an unspecified dose of the Men B vaccine that the dose is not valid because the formulation must be known. Another dose should forecast at age 16 years.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0069",
+  "name": "Patient is 17 years of age and has been administered an unspecified dose of the Men B vaccine",
+  "dob": "2009-06-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "meningococcal B, unspecified",
+    "cvx": "164",
+    "status": "Not Valid",
+    "reason": "Not a preferable or allowable vaccine",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "1",
+  "earliest": "2026-09-02",
+  "recommended": "2026-09-02",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Vaccine: Invalid Usage",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 17 years old and has been administered an unspecified dose of the Men B vaccine that the dose is not valid because the formulation must be known. Another dose should forecast in four weeks.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0075",
+  "name": "Patient is 18 years of age with two doses of the MenB (Bexsero) vaccine 4 weeks - 4 days  a part.",
+  "dob": "2006-07-11",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2024-07-22",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2024-08-15",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2024-08-15",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes a patient that is 18 years of age and has been administered a second dose of the Men B (Bexsero) vaccine at an interval of 4 weeks - 4 days, before the 10/24/2024 recommendation update, that the dose is valid. The series is complete. Patients are not recommended to be recalled for further vaccination under the new Bexsero recommendations.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0076",
+  "name": "Patient is 16 years of age with two doses of the MenB (Bexsero) vaccine 4 weeks a part.",
+  "dob": "2008-01-10",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2024-02-13",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2024-03-12",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2024-03-12",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient that is 16 years of age and has been administered a second dose of the Men B (Bexsero) vaccine at an interval of 4 weeks, before the recommended guidance update on 10/24/2024, that the dose is valid.  Series is complete. Patients are not recommended to be recalled for further vaccination under the new Bexsero recommendations.",
+  "changedIn": "4.41"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0077",
+  "name": "Patient is 17 years of age and has been administered three doses of the Meningococcal vaccine (Bexsero)",
+  "dob": "2009-08-01",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-03-29",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient is desiring rapid protection against serogroup B and has been administered three doses of the Meningococcal vaccine (Bexsero) at the appropriate intervals that the doses are valid.  The series is complete.",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0078",
+  "name": "Patient is 17 years of age and has been administered a second dose of the Meningococcal vaccine (Bexsero) at 6 months",
+  "dob": "2009-02-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient is administered the second dose of the Meningococcal vaccine (Bexsero) at an interval of 6 months that the doses are valid.  The series is complete.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0079",
+  "name": "Patient is 22 years of age and has been administered a second dose of the Men B vaccine at 6 months - 5 days",
+  "dob": "2004-02-10",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-02-10",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2026-12-05",
+  "recommended": "2026-12-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on minimal interval from previous dose",
+  "guidance": "",
+  "description": "This test case describes when an adult patient has been administered a second dose of the Bexsero Men B vaccine at an interval of 6 months - 5 days that the dose is considered to be valid.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0080",
+  "name": "Patient is 21 years of age and has been administered three doses of the Meningococcal vaccine (Trumemba)",
+  "dob": "2005-02-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-03-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test case describes when a patient is desiring rapid protection against serogroup B and has been administered three doses of the Meningococcal vaccine (Trumemba) at the appropriate intervals, that the doses are valid.  The series is complete",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2024-0081",
+  "name": "Patient is 16 years of age and has been administered one dose of Bexsero and one dose of the Trumemba  MenB vaccine",
+  "dob": "2010-02-05",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "Trumenba",
+    "cvx": "162",
+    "status": "Not Valid",
+    "reason": "Not a preferable or allowable vaccine",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2026-12-05",
+  "recommended": "2026-12-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "vaccine: Invalid Usage",
+  "forecastType": "Recommended based on minimal interval from invalid dose",
+  "guidance": "",
+  "description": "This test case describes when a patient has been administered a dose of the Bexsero (CVX 163) Meningococcal vaccine as the first dose and a dose of the Trumemba Meningococcal vaccine as the second dose, that the second dose is not valid.  Another dose should be forecast.",
+  "changedIn": "4.40"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0011",
+  "name": "Patient is 18 years and has been administered a dose of the MenB (Penmenvy) vaccine",
+  "dob": "2008-06-30",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-02-05",
+  "recommended": "2027-02-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "This test describes when a patient that is 18 years of age has been administered a dose of the Men B (Penmenvy) vaccine that the dose is valid.  Another dose should be forecast",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0012",
+  "name": "Patient is 22 years and has been administered two doses of the MenB (Bexsero & Penmenvy) vaccine at an interval of 6 months",
+  "dob": "2004-01-10",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-01",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test describes when a patient that is 22 years of age has been administered a first dose of the Men B vaccine as Bexsero and a second dose of the Men B vaccine as Penmenvy at an interval of 6 months that the doses are valid.  The series is complete",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0013",
+  "name": "Patient is 23 years and has been administered three doses of the MenB (2 Bexsero & Penmenvy) vaccine",
+  "dob": "2003-01-10",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-03-01",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-01",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test describes when a patient that is 23 years of age has been administered two doses of the Men B (Bexsero) vaccine as a first and second dose and Men B (Penmenvy) as a third dose at an interval of 6 months from dose 1 that the doses are valid.  The series is complete",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0014",
+  "name": "Patient is 23 years and has been administered a second dose of the MenB (Penmenvy) vaccine at an interval of 4 weeks - 5 days",
+  "dob": "2003-07-13",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-07-13",
+    "name": "Bexsero",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Not Valid",
+    "reason": "Interval: too Soon",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2027-01-13",
+  "recommended": "2027-01-13",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: Below Absolute Minimum",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test describes that when a patient that is 23 years of age has been administered a second dose of a Men B (Penmenvy) vaccine at an interval of 4 weeks - 5 days that the dose is not valid.  Another dose should be forecast",
+  "changedIn": "4.44"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0015",
+  "name": "Patient is 19 years and has been administered a second dose of the MenB (Penmenvy) vaccine at an interval of 6 months - 5 days",
+  "dob": "2007-02-10",
+  "observations": [],
+  "seriesStatus": "Not complete",
+  "doses": [
+   {
+    "date": "2026-02-10",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Not Valid",
+    "reason": "Interval: too Soon",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2026-12-05",
+  "recommended": "2026-12-05",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: Below Absolute Minimum",
+  "forecastType": "Recommended based on minimum interval from invalid dose",
+  "guidance": "",
+  "description": "This test describes when a patient that is 19 years of age has been administered a second dose of the Men B (Penmenvy) vaccine at an interval of 6 months-5 days that the dose is not valid.  Another dose should be forecast",
+  "changedIn": "4.46"
+ },
+ {
+  "source": "healthy-4.46",
+  "group": "MenB",
+  "id": "2025-0016",
+  "name": "Patient is 18 years and has been administered a second dose of the MenB (Penmenvy) vaccine at an interval of 6 months",
+  "dob": "2008-01-05",
+  "observations": [],
+  "seriesStatus": "Complete",
+  "doses": [
+   {
+    "date": "2026-02-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   },
+   {
+    "date": "2026-08-05",
+    "name": "PENMENVY",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": ""
+   }
+  ],
+  "forecastNum": "",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2026-08-05",
+  "evalType": "Interval: At Minimum",
+  "forecastType": "Not recommended: series complete",
+  "guidance": "",
+  "description": "This test describes when a patient that is 18 years of age has been administered a second dose of the Men B (Penmenvy) vaccine at an interval of 6 months that the dose is valid.  The series is complete",
+  "changedIn": "4.46"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0011",
+  "name": "Anaphylaxis to previous dose of MCV",
+  "dob": "2000-02-26",
+  "observations": [
+   {
+    "code": "095",
+    "text": "Severe allergic reaction after previous dose of Meningococcal"
+   }
+  ],
+  "seriesStatus": "Contraindicated",
+  "doses": [
+   {
+    "date": "2011-03-15",
+    "name": "Meningococcal MCV4 Unspecified",
+    "cvx": "147",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "standard"
+   }
+  ],
+  "forecastNum": "-",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2011-03-15",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: contraindication",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0100",
+  "name": "Patient is 10 years of age, has anatomical or functional asplenia and has not received the Meningococcal B vaccine.",
+  "dob": "2006-03-28",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2016-03-28",
+  "recommended": "2016-03-28",
+  "pastDue": "",
+  "assessmentDate": "2016-03-28",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0101",
+  "name": "Patient is 10 years of age, has anatomical or functional asplenia, and has received the first dose of the Men B risk 2-dose MenB-4C IR vaccine.",
+  "dob": "2006-03-28",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-03-28",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2016-04-25",
+  "recommended": "2016-04-25",
+  "pastDue": "",
+  "assessmentDate": "2016-03-28",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0102",
+  "name": "Patient is 10 years of age, has anatomical or functional asplenia, and has received the second dose  of the Men B risk 2-dose MenB-4C IR vaccine.",
+  "dob": "2006-03-28",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-03-28",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-09-28",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2017-09-28",
+  "recommended": "2017-09-28",
+  "pastDue": "",
+  "assessmentDate": "2016-09-28",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0103",
+  "name": "Patient is a microbiologist routinely exposed to Neisseria Meningitidis and has not received a dose of a Meningococcal vaccine.",
+  "dob": "1976-10-01",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "1986-10-01",
+  "recommended": "1986-10-01",
+  "pastDue": "",
+  "assessmentDate": "2016-06-23",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0104",
+  "name": "Patient is a microbiologist routinely exposed to Neisseria Meningitidis and has received the first dose of the Risk 3 dose MenB-FHbp IR vaccine",
+  "dob": "1976-10-01",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-06-23",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2016-07-21",
+  "recommended": "2016-07-21",
+  "pastDue": "2016-08-17",
+  "assessmentDate": "2016-06-23",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.1"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0105",
+  "name": "Microbiologist routinely exposed to Neisseria Meningitidis and has received the second dose  of the Risk 3 dose MenB-FHbp IR vaccine",
+  "dob": "1976-10-01",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-06-23",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-07-21",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2016-12-23",
+  "recommended": "2016-12-23",
+  "pastDue": "",
+  "assessmentDate": "2016-07-21",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.1"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0106",
+  "name": "Microbiologist routinely exposed to Neisseria Meningitidis and has received the third dose of the Risk 3 dose MenB-FHbp IR vaccine.",
+  "dob": "1976-10-01",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-06-23",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-07-21",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2017-01-21",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2018-01-21",
+  "recommended": "2018-01-21",
+  "pastDue": "",
+  "assessmentDate": "2017-01-21",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0107",
+  "name": "8 week old infant with anatomical or functional asplenia and has not received Meningococcal vaccine.",
+  "dob": "2015-02-14",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2015-04-14",
+  "recommended": "2015-04-14",
+  "pastDue": "",
+  "assessmentDate": "2015-04-14",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0108",
+  "name": "Patient is an infant with anatomical or functional asplenia and has received the first dose of the Meningococcal ACWY vaccine.",
+  "dob": "2015-02-14",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-04-14",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2015-06-09",
+  "recommended": "2015-06-14",
+  "pastDue": "",
+  "assessmentDate": "2015-04-14",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0109",
+  "name": "Patient is an infant with anatomical or functional asplenia and has received the second dose of the Meningococcal ACWY vaccine.",
+  "dob": "2015-02-14",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-04-14",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-06-09",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2015-08-04",
+  "recommended": "2015-08-14",
+  "pastDue": "",
+  "assessmentDate": "2015-06-09",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0110",
+  "name": "Patient is an  infant with anatomical or functional asplenia and has receive the third  dose of the Meningococcal ACWY vaccine.",
+  "dob": "2015-02-14",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-04-14",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-06-09",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-08-04",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2016-02-04",
+  "recommended": "2016-02-14",
+  "pastDue": "",
+  "assessmentDate": "2015-08-04",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0111",
+  "name": "Patient is an 12 month old infant with anatomical or  functional asplenia and has  received all four doses of the Meningococcal ACWY vaccine.",
+  "dob": "2015-02-14",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-04-14",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-06-09",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-08-04",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-02-14",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "5",
+  "earliest": "2019-02-14",
+  "recommended": "2019-02-14",
+  "pastDue": "",
+  "assessmentDate": "2016-02-14",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0112",
+  "name": "Patient is a 4 year old child who has anatomical or functional asplenia, has completed the primary doses, and has received the first booster dose at 3 years later.",
+  "dob": "2012-08-23",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2012-10-23",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2012-12-18",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2013-02-12",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2013-08-23",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-08-23",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "6",
+  "earliest": "2021-08-23",
+  "recommended": "2021-08-23",
+  "pastDue": "",
+  "assessmentDate": "2016-08-23",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0114",
+  "name": "7 month old infant (with no previous history of Meningococcal vaccine)  at risk for Meningococcal disease during a community outbreak.",
+  "dob": "2015-05-10",
+  "observations": [
+   {
+    "code": "070",
+    "text": "Persons at risk during an outbreak"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2015-07-10",
+  "recommended": "2015-07-10",
+  "pastDue": "",
+  "assessmentDate": "2015-12-10",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0115",
+  "name": "Patient is a 7 month old infant and is at risk during a community outbreak of Meningococcal disease and has received the first dose of the Meningococcal ACWY vaccine.",
+  "dob": "2015-05-10",
+  "observations": [
+   {
+    "code": "070",
+    "text": "Persons at risk during an outbreak"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-12-10",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2016-05-10",
+  "recommended": "2016-05-10",
+  "pastDue": "",
+  "assessmentDate": "2015-12-10",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0116",
+  "name": "Patient is a 12 months old and was at risk during a community outbreak of Meningococcal disease and has received the second dose of the Meningococcal ACWY risk start after 7 months 2 dose vaccine.",
+  "dob": "2015-05-10",
+  "observations": [
+   {
+    "code": "070",
+    "text": "Persons at risk during an outbreak"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2015-12-10",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-05-10",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2019-05-10",
+  "recommended": "2019-05-10",
+  "pastDue": "",
+  "assessmentDate": "2016-05-10",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0117",
+  "name": "2 month old infant, with persistent complement deficiencies, and has not received any doses of the Meningococcal vaccine.",
+  "dob": "2015-07-28",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2015-09-28",
+  "recommended": "2015-09-28",
+  "pastDue": "",
+  "assessmentDate": "2015-09-30",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.1"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0123",
+  "name": "Adult with no known history of meningococcal vaccination and has  anatomical or functional asplenia",
+  "dob": "1992-04-18",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "1994-04-18",
+  "recommended": "1994-04-18",
+  "pastDue": "",
+  "assessmentDate": "2016-05-02",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0124",
+  "name": "Patient is and adult with anatomical or functional asplenia and has received the first dose of the Meningococcal ACWY risk 2 dose series vaccine",
+  "dob": "1992-04-18",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-05-02",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2016-06-27",
+  "recommended": "2016-06-27",
+  "pastDue": "2016-07-24",
+  "assessmentDate": "2016-05-02",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0125",
+  "name": "Patient is an adult with anatomical or functional asplenia and has received the second dose of the Meningococcal ACWY risk 2 dose series vaccines.",
+  "dob": "1992-04-18",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-05-02",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-06-27",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2021-06-27",
+  "recommended": "2021-06-27",
+  "pastDue": "",
+  "assessmentDate": "2016-06-27",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "If MenACWY-D is used, it should be administered at least 4 weeks after completion of all PCV doses.",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0128",
+  "name": "Patient is 60 years of age (vaccine na\u00efve) and at risk during a Meningococcal outbreak.",
+  "dob": "1956-03-07",
+  "observations": [
+   {
+    "code": "070",
+    "text": "Persons at risk during an outbreak"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "1958-03-07",
+  "recommended": "1958-03-07",
+  "pastDue": "",
+  "assessmentDate": "2016-08-30",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "Meningococcal vaccines that are licensed for use in person aged \u226556 year are not currently available in the United States\n\nPersons aged \u226556 years who are recommended meningococcal vaccination because they are at increased risk for meningococcal disease should receive MenACWY conjugate vaccine",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0129",
+  "name": "Patient is 60 years of age, at risk during a Meningococcal outbreak, and has received the Meningococcal risk 1 dose vaccine.",
+  "dob": "1956-03-07",
+  "observations": [
+   {
+    "code": "070",
+    "text": "Persons at risk during an outbreak"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-05-23",
+    "name": "Meningococcal, MPSV4",
+    "cvx": "32",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2021-05-23",
+  "recommended": "2021-05-23",
+  "pastDue": "",
+  "assessmentDate": "2016-05-23",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "Meningococcal vaccines that are licensed for use in person aged \u226556 year are not currently available in the United States\n\nPersons aged \u226556 years who are recommended meningococcal vaccination because they are at increased risk for meningococcal disease should receive MenACWY conjugate vaccine",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2016-UC-0198",
+  "name": "Patient is 39 years of age,  a microbiologist who is frequently exposed to Neisseria meningitidis, and  who plans to travel to countries where meningococcal disease is endemic.",
+  "dob": "1977-07-13",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   },
+   {
+    "code": "164",
+    "text": "Travel to or are residents of countries in which meningococcal disease is hyperendemic or epidemic"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "1979-07-13",
+  "recommended": "1979-07-13",
+  "pastDue": "",
+  "assessmentDate": "2016-08-02",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2016-UC-0203",
+  "name": "Patient has had a severe allergic reaction after previous dose of Meningococcal B vaccine.",
+  "dob": "1995-01-13",
+  "observations": [
+   {
+    "code": "116",
+    "text": "Severe allergic reaction after previous dose of Meningococcal B"
+   }
+  ],
+  "seriesStatus": "Contraindicated",
+  "doses": [
+   {
+    "date": "2016-06-28",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "-",
+  "earliest": "",
+  "recommended": "",
+  "pastDue": "",
+  "assessmentDate": "2016-06-28",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Not recommended: contraindicated",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.6"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2017-UC-0011",
+  "name": "Patient is an adult with persistent complement component deficiencies and has not received any previous doses of the Men B vaccine",
+  "dob": "1995-09-02",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [],
+  "forecastNum": "1",
+  "earliest": "2005-09-02",
+  "recommended": "2005-09-02",
+  "pastDue": "",
+  "assessmentDate": "2017-03-02",
+  "evalType": "No Doses Administered",
+  "forecastType": "Recommended based on Condition",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2017-UC-0012",
+  "name": "Patient is an adult with persistent complement component deficiencies and has received the first dose of the 2 dose Men B (Bexsero) vaccine",
+  "dob": "1995-09-02",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2017-03-02",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2017-03-30",
+  "recommended": "2017-03-30",
+  "pastDue": "",
+  "assessmentDate": "2017-03-02",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.1"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2017-UC-0013",
+  "name": "Patient is an adult with persistent complement component deficiencies and has received the second dose of the 2 dose Men B (Bexsero) vaccine",
+  "dob": "1995-09-02",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2017-03-02",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2017-09-02",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2018-09-02",
+  "recommended": "2018-09-02",
+  "pastDue": "",
+  "assessmentDate": "2018-09-02",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2017-UC-0014",
+  "name": "Patient is 38 years of age, a microbiologist  who is routinely exposed to Neisseria Meningitis, and who has received the Risk 1 dose and the 5 years booster dose   for Men ACWY",
+  "dob": "1977-07-13",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2010-07-13",
+    "name": "Meningococcal, MCV4P",
+    "cvx": "114",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2015-07-13",
+    "name": "Meningococcal, MCV4P",
+    "cvx": "114",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2020-07-13",
+  "recommended": "2020-07-13",
+  "pastDue": "",
+  "assessmentDate": "2015-07-13",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.0"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2018-UC-0001",
+  "name": "Patient is 15 years of age with persistent complement and has received the second dose, of the Risk 3 dose Men B vaccine series, at greater than or equal to 6 months after the first administered dose.",
+  "dob": "2003-03-10",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2018-03-22",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2018-09-22",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2019-09-22",
+  "recommended": "2019-09-22",
+  "pastDue": "",
+  "assessmentDate": "2018-09-22",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2018-UC-0002",
+  "name": "Patient is a child that has persistent complement and has received the first dose of the MenACWY vaccine at 9 months, second dose at 7 years.",
+  "dob": "2011-01-02",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2011-10-02",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2018-01-02",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2023-01-02",
+  "recommended": "2023-01-02",
+  "pastDue": "",
+  "assessmentDate": "2018-01-02",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.1"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2019-UC-0007",
+  "name": "Patient is 43 years of age,  a microbiologist who is frequently exposed to Neisseria meningitidis, who has received two dose of the Meningococcal B vaccine and the one year booster dose.",
+  "dob": "1976-09-23",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2018-05-19",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2018-06-16",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-02-20",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2022-02-20",
+  "recommended": "2022-02-20",
+  "pastDue": "2024-02-19",
+  "assessmentDate": "2020-02-20",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2020-UC-0001",
+  "name": "Patient is 13 years of age, has anatomical or functional asplenia, has received two primary doses and the one year booster dose of the Men B vaccine.",
+  "dob": "2006-03-28",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-03-28",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-09-28",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-02-20",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2022-02-20",
+  "recommended": "2022-02-20",
+  "pastDue": "2024-02-19",
+  "assessmentDate": "2020-02-20",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2020-UC-0002",
+  "name": "Patient is an adult with persistent complement component deficiencies and has received the primary 2 dose Bexsero vaccine and the one year booster dose.",
+  "dob": "1995-09-02",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2017-03-02",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2017-09-02",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-02-20",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2022-02-20",
+  "recommended": "2022-02-20",
+  "pastDue": "2024-02-19",
+  "assessmentDate": "2020-02-20",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2020-UC-0003",
+  "name": "Patient is an adult seeking protection from MenB and has received dose #2 of the Risk 2 dose MenB-FH-bp at an interval of 4 months.",
+  "dob": "2000-06-01",
+  "observations": [
+   {
+    "code": "177",
+    "text": "Patient seeks Meningococcal B protection"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2018-06-01",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2018-10-01",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Not Valid",
+    "reason": "Interval too soon",
+    "seriesType": "Risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2019-02-01",
+  "recommended": "2019-02-01",
+  "pastDue": "",
+  "assessmentDate": "2018-10-01",
+  "evalType": "Interval: Below Absolute Minimum",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2020-UC-0004",
+  "name": "Patient is an adolescent with anatomical or functional asplenia and has received the third dose of the Risk 3 dose Men B vaccine at 4 months.",
+  "dob": "2008-05-02",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2020-05-02",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-05-30",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-09-30",
+    "name": "meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "Risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2021-09-30",
+  "recommended": "2021-09-30",
+  "pastDue": "",
+  "assessmentDate": "2020-09-30",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.2"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2023-UC-0020",
+  "name": "Patient is a 4 year old child who has anatomical or functional asplenia and has received two previous dose of the Meningococal vaccine and one booster dose.",
+  "dob": "2017-04-11",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2018-02-03",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2018-05-16",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2021-06-01",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2026-06-01",
+  "recommended": "2026-06-01",
+  "pastDue": "",
+  "assessmentDate": "2021-06-01",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2023-UC-0021",
+  "name": "Patient is a child who has persistent complement deficiencies, and has received four doses of the MenACWY-TT vaccine",
+  "dob": "2015-12-13",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-06-16",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-08-16",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-10-11",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2017-05-22",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "5",
+  "earliest": "2020-05-22",
+  "recommended": "2020-05-22",
+  "pastDue": "",
+  "assessmentDate": "2017-05-22",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2023-UC-0022",
+  "name": "Patient is a child who has persistent complement deficiencies, has received 4 doses of the Mengingococcal vaccine.",
+  "dob": "2022-07-10",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2022-10-01",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2022-12-01",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2023-02-01",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2023-07-10",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "5",
+  "earliest": "2026-07-10",
+  "recommended": "2026-07-10",
+  "pastDue": "",
+  "assessmentDate": "2023-07-10",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2023-UC-0023",
+  "name": "Patient is a child who has persistent complement deficiencies, has received four doses of the Meningococcal vaccine and one booster dose.",
+  "dob": "2015-12-13",
+  "observations": [
+   {
+    "code": "151",
+    "text": "Persistent complement, properdin, or factor B deficiency"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2016-06-16",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-08-16",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2016-10-11",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "Risk"
+   },
+   {
+    "date": "2017-05-22",
+    "name": "Meningococcal C/Y-HIB PRP",
+    "cvx": "148",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2020-05-22",
+    "name": "Meningococcal Polysaccharid A,C, Y,W-135 TT Conjugate",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "Risk"
+   }
+  ],
+  "forecastNum": "6",
+  "earliest": "2025-05-22",
+  "recommended": "2025-05-22",
+  "pastDue": "",
+  "assessmentDate": "2020-05-22",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2023-UC-0024",
+  "name": "Patient is 32 years of age, a microbiologist  who is routinely exposed to Neisseria Meningitis, and who has received the Risk 1 dose and the 5 years booster dose for MenACWY",
+  "dob": "1991-06-28",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2018-11-05",
+    "name": "Meningococcal, MCV4O",
+    "cvx": "136",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2023-11-05",
+    "name": "Meningocococcal Polysaccharide (menAWY-TT conjugate), Men B, PF",
+    "cvx": "203",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2028-11-05",
+  "recommended": "2028-11-05",
+  "pastDue": "",
+  "assessmentDate": "2023-11-05",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2023-UC-0028",
+  "name": "Patient is 10 years of age, has anatomical or functional asplenia, and has received the first dose of the Risk 3-dose MenB-FHbp IR (Pembraya vaccine) series.",
+  "dob": "2013-05-01",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2023-11-10",
+    "name": "MenACWY-TT conjugate, MenB, PF",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2023-12-08",
+  "recommended": "2023-12-08",
+  "pastDue": "2024-01-04",
+  "assessmentDate": "2023-11-10",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2023-UC-0029",
+  "name": "Patient is 43 years of age, and a microbiologist who is frequently exposed to Neisseria meningitidis, who has received two doses of the Meningococcal B (Trumemba) vaccine and the one year booster dose.",
+  "dob": "1980-09-02",
+  "observations": [
+   {
+    "code": "050",
+    "text": "Microbiologists routinely exposed to Neisseria meningitidis"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2022-05-10",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2022-11-10",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2023-11-10",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2025-11-10",
+  "recommended": "2025-11-10",
+  "pastDue": "2027-11-09",
+  "assessmentDate": "2023-11-10",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2023-UC-0030",
+  "name": "Patient is 13 years of age, has anatomical or functional asplenia, has received two primary doses and the one year booster dose of the Meningococcal B vaccine with CVX 316",
+  "dob": "2010-11-02",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2022-05-03",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2022-12-01",
+    "name": "Meningococcal B, recombinant",
+    "cvx": "162",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "Risk"
+   },
+   {
+    "date": "2023-12-01",
+    "name": "Meningococcal polysaccharide (MenACWY-TT conjugate), (MenB), PF",
+    "cvx": "316",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "Risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2025-12-01",
+  "recommended": "2025-12-01",
+  "pastDue": "2027-11-30",
+  "assessmentDate": "2023-12-01",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2025-UC-0004",
+  "name": "Patient is 11 years of age and has sickle cell disease and has been administered a two doses of the Men B (Bexsero) vaccine at an interval of 4 weeks.",
+  "dob": "2014-01-08",
+  "observations": [
+   {
+    "code": "259",
+    "text": "Sickle cell disease"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2025-02-03",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2025-03-03",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "3",
+  "earliest": "2025-08-03",
+  "recommended": "2025-08-03",
+  "pastDue": "",
+  "assessmentDate": "2025-03-03",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2025-UC-0005",
+  "name": "Patient is 11 years of age and has sickle cell disease and has been administered three doses of the Men B (Bexsero) vaccine.",
+  "dob": "2014-01-08",
+  "observations": [
+   {
+    "code": "259",
+    "text": "Sickle cell disease"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2025-02-03",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2025-03-03",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2025-09-03",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2026-09-03",
+  "recommended": "2026-09-03",
+  "pastDue": "",
+  "assessmentDate": "2025-09-03",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2025-UC-0017",
+  "name": "Patient is 13 years of age and has sickle cell disease and has been administered a dose of Meningoccal (Penmenvy) vaccine.",
+  "dob": "2012-02-10",
+  "observations": [
+   {
+    "code": "259",
+    "text": "Sickle cell disease"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2025-07-07",
+    "name": "Meningococcal oligosacchride (MenACWY), Men B",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2025-08-04",
+  "recommended": "2025-08-04",
+  "pastDue": "",
+  "assessmentDate": "2025-07-07",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "Penmenvy (MenACWY &B -GSK) may be used when both MenACWY and MenB are indicated at the same visit",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenB",
+  "id": "2025-UC-0018",
+  "name": "Patient 16 years of age has anatomical or functional asplenia and has been administered three dose of the Meningococcal vaccine (2 doses of CVX 163 and one dose of CVX 328)",
+  "dob": "2009-05-17",
+  "observations": [
+   {
+    "code": "160",
+    "text": "Anatomical or functional asplenia"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2024-12-02",
+    "name": "Meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2025-01-15",
+    "name": "meningococcal B, OMV",
+    "cvx": "163",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   },
+   {
+    "date": "2025-07-06",
+    "name": "Meningococcal oligosaccharide (MenACWY), (MenB)",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "4",
+  "earliest": "2026-07-06",
+  "recommended": "2026-07-06",
+  "pastDue": "",
+  "assessmentDate": "2025-07-06",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "Penmenvy (MenACWY &B -GSK) may be used when both MenACWY and MenB are indicated at the same visit",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ },
+ {
+  "source": "conditions-4.6",
+  "group": "MenACWY",
+  "id": "2025-UC-0019",
+  "name": "Patient is 20 years of age a military recruit and has been administered a dose of the Meningococcal (Penmenvy) vaccine",
+  "dob": "2005-01-29",
+  "observations": [
+   {
+    "code": "064",
+    "text": "Military recruits"
+   }
+  ],
+  "seriesStatus": "Not Complete",
+  "doses": [
+   {
+    "date": "2025-07-06",
+    "name": "Meningococcal oligosacchride (MenACWY), Men B",
+    "cvx": "328",
+    "status": "Valid",
+    "reason": "",
+    "seriesType": "risk"
+   }
+  ],
+  "forecastNum": "2",
+  "earliest": "2030-07-06",
+  "recommended": "2030-07-06",
+  "pastDue": "",
+  "assessmentDate": "2025-07-06",
+  "evalType": "All Valid: Forecast Test",
+  "forecastType": "Recommended based on interval",
+  "guidance": "Penbraya (MenACWY & B- Pfizer) or Penmenvy (MenACWY & B -GSK) may be used when both MenACWY and Men B are indicated at the same visit.",
+  "description": "",
+  "changedIn": "4.5999999999999996"
+ }
+]
