@@ -47,7 +47,15 @@ panel counted a dose while the card went on asking for it.
 
 ### Routine Adolescent
 - 11–12y: D1
-- 16y: booster (D2)
+- 16y: booster (D2), **no sooner than 8 weeks after D1** (N5, owner ruling 2026-11-15). ACIP
+  2020: *"the booster dose can be administered at any time, as long as a minimum interval of 8
+  weeks between doses is maintained."* `MENACWY_ROUTINE_BOOSTER_MIN_GAP` in `intervals.js`.
+  Card: due on the later of the 16th birthday and D1 + 8 weeks (`routineBoosterTiming`,
+  `routineBoosterDueDate` in `recommend.js`; also the college, military and outbreak cards
+  that ask for this booster). Validator: a second counted dose at ≥16y less than 8 weeks −
+  4 days after a D1 given before 16 does not count (`validate.js`, routine population only).
+  Its repeat is still measured from D1 until Ruling D is decided for MeningoVax. Test:
+  `regression-2026-11-15-n5-16y-booster-8-weeks.test.js`.
 - 17–21y with no dose on/after 16th birthday: catch-up D1 of 1 (no booster; especially for first-year college residence-hall students)
 - ≥22y healthy: not indicated
 

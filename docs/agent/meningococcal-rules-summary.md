@@ -57,6 +57,14 @@ Two deliberate limits:
 - **11–12 years:** Dose 1.
 - **16 years:** booster (this is the "real" booster — a dose 1 given at 11–12
   does not itself count as the 16y booster).
+- **The booster waits at least 8 weeks after dose 1** (owner decision
+  2026-11-15). ACIP: *"the booster dose can be administered at any time, as long
+  as a minimum interval of 8 weeks between doses is maintained."* Example: dose 1
+  at 15 years 11 months on July 20; the booster is due September 14, not on the
+  16th birthday in August. A booster given sooner than 8 weeks (beyond the
+  4-day grace) does not count and is asked for again, 8 weeks after dose 1. The
+  college-residence, military and outbreak cards wait the same 8 weeks when the
+  dose they ask for is this booster.
 - **17–21 years, no dose recorded on/after the 16th birthday:** one catch-up
   dose. Because it's given at ≥16, no further booster is needed. Especially
   called out for first-year college students in dorms.
