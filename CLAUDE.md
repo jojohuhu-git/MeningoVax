@@ -42,7 +42,8 @@ diff, typical patients, whole-app checks, CDC's CDSI test patients) — findings
 `docs/archive/report-2026-11-15-whole-app-checks.md` and
 `docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. **STOP B answered
 2026-11-15** (five owner answers, recorded in the plan; applied in Phase 3). CDC's test patients
-are now a required test (`cdsi-test-patients-gate.test.js`). Next: Phase 2 (the rule table).
+are now a required test (`cdsi-test-patients-gate.test.js`). **Phase 2.1 built** (the rule table,
+`src/logic/doseRules.js`, PR #86, 0 answers moved). Next: 2.2 (sources beside each row), 2.3 (CDSI comparison).
 The newest handoff (in PneumoVax) says which PRs are open.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
