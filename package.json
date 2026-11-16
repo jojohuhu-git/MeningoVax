@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepare": "git config core.hooksPath .githooks || true"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "sweep:update": "node scripts/updateSavedAnswers.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

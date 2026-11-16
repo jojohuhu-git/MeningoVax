@@ -264,3 +264,414 @@ export function completedDoseCount(analysis) {
     .filter((d) => d.status === 'valid' && d.effectiveDoseNum != null)
     .reduce((max, d) => Math.max(max, d.effectiveDoseNum), 0);
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// THE SAVED ANSWERS (port Phase 1.1, 2026-11-15)
+// ─────────────────────────────────────────────────────────────────────────
+//
+// Brought over from PneumoVax (its S8, 2026-10-11, and the owner's decision of
+// 2026-10-12 to keep impossible entries in a second file). The rule, not the
+// code: the shape of MeningoVax's engine is different, so everything below is
+// written against MeningoVax's own `recommend()` result.
+//
+// ── Why ──────────────────────────────────────────────────────────────────
+//
+// The three sweeps above check PROPERTIES (no "Dose 3 of 2", a valid history
+// is never told to restart, following the card does not make things worse).
+// None of them notices when a patient's ANSWER changes. A change that moves
+// thousands of answers — on purpose or not — leaves them all green. PneumoVax
+// learned that twice in one week (P0-2 and ANCHOR-1: 19,546 answers moved and
+// every check it had came out identical).
+//
+// So: run the engine over a fixed grid of synthetic patients, write each
+// answer as one line, commit the file, and fail the suite when any line moves.
+// `npm run sweep:update` rewrites the files and prints how many answers moved;
+// that number goes in the pull request, and somebody says why.
+//
+// ── Two files ────────────────────────────────────────────────────────────
+//
+//   saved-answers.tsv          patients a clinician could really enter.
+//   saved-answers-record-problems.tsv
+//                              records they could not: a dose dated before
+//                              birth, after today, or the same shot on two rows.
+//
+// Kept apart (PneumoVax owner decision, 2026-10-12) so that "300 answers moved"
+// means 300 real patients, not 300 lost among impossible records.
+//
+// ── No sentences in an answer ────────────────────────────────────────────
+//
+// An answer records what the app DECIDES: what is due, when, which dose number,
+// which brands, whether the pentavalent is offered, and for every recorded
+// dose whether it counts. It records HOW MANY reasons a dose was given, never
+// their words, and no card note, dose label or chip text. Wording changes
+// would otherwise turn thousands of lines red, and a gate that cries wolf is a
+// gate someone deletes. Wording gets its own check (Phase 1.2, the prose diff).
+//
+// ── What it is not ───────────────────────────────────────────────────────
+//
+// A CHANGE detector, not a correctness check. A wrong answer that has always
+// been wrong is saved as it is. Correctness is the rulebook's, the regression
+// tests' and the owner's job.
+//
+// ── Its clock ────────────────────────────────────────────────────────────
+//
+// Every date is built from TEST_TODAY, the one date the whole suite pretends
+// it is, so the files are the same on any machine on any day. Moving
+// TEST_TODAY moves every line: rerun `npm run sweep:update` in the same commit.
+
+import { recommend } from './logic/recommend.js';
+import { dobToAgeMonths } from './logic/format.js';
+
+/**
+ * Ages in months, ON the lines the meningococcal rules turn on (plan item 1.4
+ * lists them: 2, 7, 12, 24 months; 10, 11, 16, 19, 22, 24 years). An evenly
+ * spaced grid misses exactly the cells that break.
+ *
+ *   2         Menveo's minimum age; the infant high-risk series starts
+ *   7         the infant high-risk series changes shape
+ *   12, 24    the infant bands' upper edges
+ *   60        a young child, booster at 3 years
+ *   84        7 years: the first high-risk booster moves from 3 to 5 years
+ *   119, 120  the day before and on the 10th birthday: MenB, the pentavalent
+ *             and the adolescent count start
+ *   132       11 years: the routine MenACWY dose
+ *   191, 192  either side of the 16th birthday: the routine booster
+ *   228       19 years: routine catch-up ends
+ *   264       22 years
+ *   288       24 years: MenB shared decision ends (16–23)
+ *   600       50 years: an adult
+ */
+export const SAVED_ANSWER_AGES_MONTHS = [
+  2, 7, 12, 24, 60, 84, 119, 120, 132, 191, 192, 228, 264, 288, 600,
+];
+
+/**
+ * Risk profiles: none, every risk factor on its own (derived, so a new risk
+ * factor widens the grid with no edit here), and three pairs that put two
+ * different pathways on one patient.
+ */
+export const SAVED_ANSWER_RISK_PROFILES = [
+  ...SINGLE_RISK_PROFILES,
+  ['asplenia', 'travel'],          // high-risk primary + travel booster rule
+  ['college_dorm', 'outbreak_b'],  // the ≥16y rule + a MenB-only risk
+  ['military', 'microbiologist'],  // single-dose + single-plus-booster
+];
+
+/**
+ * MenACWY histories, as [brand key, days before today]. Brand keys are what
+ * the app's dose form stores (`DoseEditor.jsx`: `value={b.key}`); '' is its
+ * "Unknown brand" option. Day gaps straddle each floor with CDC's 4-day grace:
+ *
+ *   56 / 52 / 51   8 weeks; 8 weeks − 4 days (counts on the grace); one day past
+ *   24 / 23        the 4-week floor − 4 days; one day past
+ *   ~5 years       a booster
+ *   40             a single recent dose: the 16-year booster's 8-week wait (N5)
+ *   150            a Penmenvy inside 6 months (N1)
+ *
+ * The three-dose row whose second dose does not count is the shape the
+ * open Ruling D (R-2) turns on: a later dose measured from a dose that did not
+ * count. Without it, that ruling would move nothing in this file.
+ */
+export const SAVED_ANSWER_MENACWY_HISTORIES = [
+  [],
+  [['MenQuadfi', 3650]],
+  [['Menveo', 1825]],
+  [['MenQuadfi', 365]],
+  [['MenQuadfi', 40]],
+  [['MenQuadfi', 400], ['MenQuadfi', 344]],
+  [['MenQuadfi', 400], ['MenQuadfi', 348]],
+  [['MenQuadfi', 400], ['MenQuadfi', 349]],
+  [['Menveo', 400], ['Menveo', 376]],
+  [['Menveo', 400], ['Menveo', 377]],
+  [['Menveo', 400], ['Menveo', 377], ['Menveo', 340]],
+  [['MenQuadfi', 2200], ['MenQuadfi', 375]],
+  [['MenQuadfi', 2000], ['MenQuadfi', 1944], ['MenQuadfi', 100]],
+  [['Menveo 2-vial', 160], ['Menveo 2-vial', 104], ['Menveo 2-vial', 48]],
+  [['Menveo 1-vial', 365]],
+  [['Menactra', 3650]],
+  // 330, not 365: no MenB history has a dose on that day. On 365 it sat on the
+  // same date as the basic MenB dose, and the app (rule G7) reads a pentavalent
+  // and a MenB dose on one date as one shot typed twice — an impossible entry
+  // by the app's own rule, which belongs in the other file (it is there, on
+  // purpose: SAVED_ANSWER_CROSS_DUPLICATES).
+  [['Penbraya', 330]],
+  [['Penmenvy', 150]],
+  [['', 365]],
+];
+
+/**
+ * MenB histories, same convention.
+ *
+ *   183 / 130 / 100  healthy dose 2: 6 months; over 4 months (counts, a third
+ *                    dose follows); under 4 months
+ *   24 / 23          the high-risk 4-week floor − 4 days; one day past
+ *   three doses      dose 3 on time; dose 3 early from both dose 1 and dose 2
+ *   Bexsero then Trumenba   the antigen-family lock
+ */
+export const SAVED_ANSWER_MENB_HISTORIES = [
+  [],
+  [['Bexsero', 365]],
+  [['Trumenba', 400], ['Trumenba', 217]],
+  [['Trumenba', 400], ['Trumenba', 270]],
+  [['Trumenba', 400], ['Trumenba', 300]],
+  [['Bexsero', 400], ['Bexsero', 376]],
+  [['Bexsero', 400], ['Bexsero', 377]],
+  [['Bexsero', 400], ['Bexsero', 370], ['Bexsero', 217]],
+  [['Bexsero', 400], ['Bexsero', 370], ['Bexsero', 260]],
+  [['Bexsero', 400], ['Trumenba', 300]],
+  [['', 365]],
+];
+
+const savedKey = (ageMonths, riskIds, acwy, menb) => [
+  `a${ageMonths}`,
+  `r:${riskIds.join('+')}`,
+  `A:${acwy.map(([b, d]) => `${b || '?'}@${d}`).join(',')}`,
+  `B:${menb.map(([b, d]) => `${b || '?'}@${d}`).join(',')}`,
+].join('|');
+
+function savedInput(ageMonths, riskIds, acwy, menb, today) {
+  const dob = addCalendarMonths(today, -ageMonths);
+  const toDoses = (pattern) => pattern.map(([brand, d]) => ({ date: addDays(today, -d), brand }));
+  // Exactly what Results.jsx passes: ageMonths as the app derives it from the
+  // date of birth, the dob itself, and no risk-at-dose answers yet.
+  return {
+    ageMonths: dobToAgeMonths(dob, today),
+    dob,
+    riskIds,
+    menacwyDoses: toDoses(acwy),
+    menbDoses: toDoses(menb),
+    riskAtDoseAnswers: { MenACWY: {}, MenB: {} },
+    today,
+  };
+}
+
+const beforeBirth = (pattern, dob, today) => pattern.some(([, d]) => addDays(today, -d) < dob);
+
+/**
+ * The two MenB histories every MenACWY history is paired with: none, and one
+ * dose. Both are in SAVED_ANSWER_MENB_HISTORIES above (the test checks).
+ */
+export const SAVED_ANSWER_MENB_BASIC = [[], [['Bexsero', 365]]];
+const sameHistory = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const isBasicMenb = (menb) => SAVED_ANSWER_MENB_BASIC.some((h) => sameHistory(h, menb));
+
+/**
+ * Which [MenACWY, MenB] history pairs a patient of this age gets.
+ *
+ * Not the full cross. The first draft crossed all of them: 35,925 patients,
+ * 10 MB, and only 3,507 different answers among them. The trimming is by what
+ * can change an answer, not by size:
+ *
+ *   • Every MenACWY history × {no MenB, one MenB dose}. That is every MenACWY
+ *     shape, and whether a MenB dose on record changes the MenACWY card.
+ *   • From the MenB minimum age only (10 years; read from the brand table),
+ *     every other MenB history × the MenACWY histories with at most one dose.
+ *     Those are the MenACWY states the MenB side reads: nothing, recent, old,
+ *     and each pentavalent (which credits MenB, and which the pentavalent card
+ *     checks for both vaccines being due today). Under 10, MenB is not given,
+ *     so more MenB shapes only repeat "too young" answers.
+ */
+export function savedAnswerHistoryPairs(ageMonths) {
+  const pairs = [];
+  for (const acwy of SAVED_ANSWER_MENACWY_HISTORIES) {
+    for (const menb of SAVED_ANSWER_MENB_BASIC) pairs.push([acwy, menb]);
+  }
+  if (ageMonths >= MENB_SWEEP_BRAND_MIN_AGE) {
+    for (const acwy of SAVED_ANSWER_MENACWY_HISTORIES.filter((h) => h.length <= 1)) {
+      for (const menb of SAVED_ANSWER_MENB_HISTORIES.filter((h) => !isBasicMenb(h))) {
+        pairs.push([acwy, menb]);
+      }
+    }
+  }
+  return pairs;
+}
+
+/**
+ * Every real patient on the grid. A case is SKIPPED (not trimmed) when any
+ * dose would fall before birth: trimming would collapse different histories
+ * onto one key. The skipped cases are the record-problem file's part 1.
+ */
+export function buildSavedAnswerCases({ today = TEST_TODAY } = {}) {
+  const cases = [];
+  for (const ageMonths of SAVED_ANSWER_AGES_MONTHS) {
+    const dob = addCalendarMonths(today, -ageMonths);
+    for (const riskIds of SAVED_ANSWER_RISK_PROFILES) {
+      for (const [acwy, menb] of savedAnswerHistoryPairs(ageMonths)) {
+        if (beforeBirth(acwy, dob, today) || beforeBirth(menb, dob, today)) continue;
+        cases.push({
+          key: savedKey(ageMonths, riskIds, acwy, menb),
+          input: savedInput(ageMonths, riskIds, acwy, menb, today),
+        });
+      }
+    }
+  }
+  return cases;
+}
+
+const nn = (v) => (v == null ? '-' : String(v));
+const flag = (v) => (v ? '1' : '0');
+
+/**
+ * A brand offered, as a short code: 'Menveo 2-vial (MenACWY)' → 'MV2'. WHICH
+ * product is the decision; its spelling is display wording, and short codes
+ * keep the file small (brand lists were a third of every line). A brand not
+ * listed here falls back to its key, so a new brand still shows up; the test
+ * checks every brand in the app has its own code.
+ */
+export const SAVED_ANSWER_BRAND_CODES = {
+  'Menveo 2-vial': 'MV2',
+  'Menveo 1-vial': 'MV1',
+  Menveo: 'MV',
+  MenQuadfi: 'MQ',
+  Menactra: 'MA',
+  Bexsero: 'BX',
+  Trumenba: 'TR',
+  Penbraya: 'PB',
+  Penmenvy: 'PM',
+};
+const brandCode = (b) => {
+  const k = String(typeof b === 'string' ? b : b?.key ?? b?.label ?? '?').split(' (')[0];
+  return SAVED_ANSWER_BRAND_CODES[k] ?? k;
+};
+
+/** One recommendation card: decisions only, no note, label or summary text. */
+function cardAnswer(rec) {
+  return [
+    rec.vaccine,
+    rec.status,
+    flag(rec.dueToday),
+    nn(rec.earliestNextDate),
+    nn(rec.doseNum),
+    nn(rec.seriesTotal),
+    nn(rec.primaryTotal),
+    nn(rec.minIntervalDays),
+    nn(rec.family),
+    nn(rec.boosterDueDate),
+    flag(rec.boosterDueDateExact),
+    (rec.brands ?? []).map(brandCode).join('/'),
+  ].join('/');
+}
+
+/**
+ * One recorded dose: does it count, as which dose, and why not. `reasons`
+ * contributes its COUNT only. `recordProblem` is a one-word kind (future,
+ * before birth, duplicate), not a sentence.
+ */
+function doseAnswer(d) {
+  return [
+    d.status,
+    nn(d.effectiveDoseNum),
+    flag(d.doesNotCount),
+    flag(d.notAdolescentCount),
+    flag(d.extraDose),
+    flag(d.extraDoseUnverified),
+    flag(d.needsInput),
+    nn(d.promptDate),
+    nn(d.recordProblem),
+    `n${(d.reasons ?? []).length}`,
+  ].join(':');
+}
+
+/** One patient's whole answer, as one line with no sentences in it. */
+export function savedAnswerOf(input) {
+  const r = recommend(input);
+  if (r.excluded) return 'EXCLUDED';
+  const p = r.pentavalent ?? {};
+  return [
+    `A=${(r.menacwy ?? []).map(cardAnswer).join(';')}`,
+    `B=${(r.menb ?? []).map(cardAnswer).join(';')}`,
+    `P=${flag(p.eligible)}/${(p.brands ?? []).map(brandCode).join('/')}`,
+    `dA=${(r.history?.MenACWY?.perDose ?? []).map(doseAnswer).join(',')}`,
+    `dB=${(r.history?.MenB?.perDose ?? []).map(doseAnswer).join(',')}`,
+    `ageNote=${flag(r.riskAgeNote)}`,
+  ].join(' ');
+}
+
+/** The real-patient file, one `key<TAB>answer` line per case, sorted. */
+export function savedAnswerLines({ today = TEST_TODAY } = {}) {
+  return buildSavedAnswerCases({ today })
+    .map((c) => `${c.key}\t${savedAnswerOf(c.input)}`)
+    .sort();
+}
+
+export const SAVED_ANSWERS_RELATIVE_PATH = 'src/logic/__tests__/__saved__/saved-answers.tsv';
+
+// ── The impossible entries ───────────────────────────────────────────────
+//
+// Part 1: every combination buildSavedAnswerCases() skips because a dose
+// falls before birth — its exact complement, the same loops with the
+// condition negated, so the two can never fall out of step.
+// Part 2: doses dated after today (a negative offset = days AFTER today).
+// −1 is one day past the line: a dose dated TODAY still counts, and only a
+// case on each side stops someone "simplifying" `<=` to `<`.
+// Part 3: the same shot on two rows — same brand, and named plus unnamed
+// (`duplicateEntryProblem` treats a blank brand as a match).
+export const SAVED_ANSWER_FUTURE_MENACWY = [
+  [],
+  [['MenQuadfi', -1]],
+  [['MenQuadfi', -30]],
+  [['MenQuadfi', 365], ['MenQuadfi', -365]],
+];
+export const SAVED_ANSWER_FUTURE_MENB = [
+  [],
+  [['Bexsero', -1]],
+  [['Bexsero', 365], ['Bexsero', -30]],
+];
+export const SAVED_ANSWER_DUPLICATE_MENACWY = [
+  [],
+  [['MenQuadfi', 365], ['MenQuadfi', 365]],
+  [['MenQuadfi', 365], ['', 365]],
+];
+export const SAVED_ANSWER_DUPLICATE_MENB = [
+  [],
+  [['Bexsero', 365], ['Bexsero', 365]],
+];
+
+/**
+ * The same shot on two rows ACROSS the two lists: a pentavalent counts as a
+ * MenB dose too, so a pentavalent and a MenB dose on one date is, by the app's
+ * rule G7 (`duplicateEntryProblem`), one dose typed twice. Named MenB and
+ * unnamed. Pairs, not crossed, because each half alone is an ordinary history.
+ */
+export const SAVED_ANSWER_CROSS_DUPLICATES = [
+  [[['Penbraya', 365]], [['Bexsero', 365]]],
+  [[['Penbraya', 365]], [['', 365]]],
+];
+
+export function buildRecordProblemCases({ today = TEST_TODAY } = {}) {
+  const cases = [];
+  for (const ageMonths of SAVED_ANSWER_AGES_MONTHS) {
+    const dob = addCalendarMonths(today, -ageMonths);
+    for (const riskIds of SAVED_ANSWER_RISK_PROFILES) {
+      const push = (acwy, menb) => cases.push({
+        key: savedKey(ageMonths, riskIds, acwy, menb),
+        input: savedInput(ageMonths, riskIds, acwy, menb, today),
+      });
+      for (const [acwy, menb] of savedAnswerHistoryPairs(ageMonths)) {
+        if (beforeBirth(acwy, dob, today) || beforeBirth(menb, dob, today)) push(acwy, menb);
+      }
+      for (const [acwyShapes, menbShapes] of [
+        [SAVED_ANSWER_FUTURE_MENACWY, SAVED_ANSWER_FUTURE_MENB],
+        [SAVED_ANSWER_DUPLICATE_MENACWY, SAVED_ANSWER_DUPLICATE_MENB],
+      ]) {
+        for (const acwy of acwyShapes) {
+          for (const menb of menbShapes) {
+            if (!acwy.length && !menb.length) continue; // nothing impossible in it
+            push(acwy, menb);
+          }
+        }
+      }
+      for (const [acwy, menb] of SAVED_ANSWER_CROSS_DUPLICATES) push(acwy, menb);
+    }
+  }
+  return cases;
+}
+
+export function recordProblemLines({ today = TEST_TODAY } = {}) {
+  return buildRecordProblemCases({ today })
+    .map((c) => `${c.key}\t${savedAnswerOf(c.input)}`)
+    .sort();
+}
+
+export const RECORD_PROBLEM_RELATIVE_PATH =
+  'src/logic/__tests__/__saved__/saved-answers-record-problems.tsv';
