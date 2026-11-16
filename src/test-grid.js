@@ -675,3 +675,160 @@ export function recordProblemLines({ today = TEST_TODAY } = {}) {
 
 export const RECORD_PROBLEM_RELATIVE_PATH =
   'src/logic/__tests__/__saved__/saved-answers-record-problems.tsv';
+
+// ─────────────────────────────────────────────────────────────────────────
+// THE TYPICAL PATIENTS (port Phase 1.3, 2026-11-15)
+// ─────────────────────────────────────────────────────────────────────────
+//
+// Brought over from PneumoVax's typical-patient grid (2026-11-05). The saved-
+// answer grid above writes every dose as "N days before today", so it cannot
+// build an ordinary record: a 17-year-old who had MenACWY at 11 and 16, or a
+// 5-year-old with asplenia who finished the infant series. Its doses sit on
+// interval edges on purpose; nobody's real record looks like that.
+//
+// This is a SECOND list, not a change to the first. These patients are in
+// NEITHER saved-answer file, so `npm run sweep:update` never touches them.
+// They are for the whole-app checks (Phase 1.4), which ask whether the app
+// agrees with itself for the patients clinicians actually see.
+//
+// A dose is written the way a clinician thinks of it:
+//   { at: 132 }            given at 132 months (11 years) of age, by the calendar
+//   { ago: 2, days: -10 }  given 2 calendar months before today, minus 10 days
+//
+// The schedules these follow (routine 11–12 and 16, catch-up 13–18; MenB 2
+// doses at 0 and 6 months under shared decision; high-risk MenACWY 2 doses 8
+// weeks apart then boosters; high-risk MenB 0, 1–2, 6 months; the infant
+// high-risk series at 2, 4, 6, 12 months) are the ones in
+// docs/agent/meningococcal-rules-summary.md. They are ordinary histories for
+// the checks to run on, not assertions that the app's answer to them is right.
+
+/** Children who could have had the infant high-risk series, and young children. */
+export const TYPICAL_YOUNG_AGES_MONTHS = [9, 15, 24, 36, 60, 84];
+
+/** Every birthday from 10 through 23, then 24, and adults. */
+export const TYPICAL_AGES_MONTHS = [
+  120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 252, 264, 276, 288, 360, 600,
+];
+
+/** None, and every risk factor on its own except the transplant hard stop. */
+export const TYPICAL_RISK_PROFILES = [[], ...SWEEPABLE_RISK_FACTORS.map((r) => [r.id])];
+
+const at = (brand, months) => [brand, { at: months }];
+
+/** MenACWY records a child or teenager really arrives with. */
+export const TYPICAL_MENACWY_HISTORIES = [
+  [],                                                    // never vaccinated
+  [at('MenQuadfi', 132)],                                // routine dose at 11
+  [at('MenQuadfi', 132), at('MenQuadfi', 192)],          // routine, booster at 16: on time
+  [at('Menveo', 132), at('MenQuadfi', 192)],             // brand changed at the booster
+  [at('MenQuadfi', 156)],                                // catch-up at 13
+  [at('MenQuadfi', 192)],                                // first dose at 16
+  [at('MenQuadfi', 180), at('MenQuadfi', 192)],          // first at 15, booster at 16
+  [at('', 132)],                                         // brand not recorded
+  [at('Menveo 1-vial', 132), at('Menveo 1-vial', 192)],  // the 1-vial Menveo (10 and older)
+  [at('Menactra', 132), at('Menveo', 192)],              // older record, discontinued brand
+  [at('MenQuadfi', 132), at('MenQuadfi', 134)],          // high-risk primary, 8 weeks apart
+  [at('MenQuadfi', 132), at('MenQuadfi', 134), at('MenQuadfi', 194)], // + 5-year booster
+  [at('Menveo 2-vial', 2), at('Menveo 2-vial', 4), at('Menveo 2-vial', 6), at('Menveo 2-vial', 12)], // infant series
+  [['Penbraya', { at: 192 }]],                           // pentavalent at 16 (FHbp MenB)
+  [['Penmenvy', { at: 192 }]],                           // pentavalent at 16 (4C MenB)
+  [['MenQuadfi', { ago: 1, days: 0 }]],                  // a dose last month
+];
+
+/** MenB records, for patients 10 and older. */
+export const TYPICAL_MENB_HISTORIES = [
+  [],
+  [at('Bexsero', 192)],                                  // one dose at 16
+  [at('Bexsero', 192), at('Bexsero', 198)],              // healthy 2-dose series, 6 months
+  [at('Trumenba', 192), at('Trumenba', 198)],
+  [at('Bexsero', 132), at('Bexsero', 134), at('Bexsero', 138)],                    // high-risk 0, 2, 6 months
+  [at('Bexsero', 132), at('Bexsero', 134), at('Bexsero', 138), at('Bexsero', 150)], // + booster at 1 year
+  [['Trumenba', { at: 198 }]],                            // the MenB dose after a Penbraya at 16
+  [['Bexsero', { at: 198 }]],                             // the MenB dose after a Penmenvy at 16
+];
+
+const typicalDate = (w, dob, today) => (w.at != null
+  ? addCalendarMonths(dob, w.at)
+  : addDays(addCalendarMonths(today, -w.ago), w.days ?? 0));
+const typicalWord = (w) => (w.at != null ? `${w.at}m` : `-${w.ago}m${w.days ? `${w.days > 0 ? '+' : ''}${w.days}d` : ''}`);
+const typicalKey = (age, riskIds, acwy, menb) => [
+  `t${age}`,
+  `r:${riskIds.join('+')}`,
+  `A:${acwy.map(([b, w]) => `${b || '?'}@${typicalWord(w)}`).join(',')}`,
+  `B:${menb.map(([b, w]) => `${b || '?'}@${typicalWord(w)}`).join(',')}`,
+].join('|');
+
+function typicalCase(ageMonths, riskIds, acwy, menb, today) {
+  const dob = addCalendarMonths(today, -ageMonths);
+  const toDoses = (h) => h.map(([brand, w]) => ({ date: typicalDate(w, dob, today), brand }));
+  const menacwyDoses = toDoses(acwy);
+  const menbDoses = toDoses(menb);
+  // A dose that would fall before birth or after today is not a typical record.
+  if ([...menacwyDoses, ...menbDoses].some((d) => d.date < dob || d.date > today)) return null;
+  return {
+    key: typicalKey(ageMonths, riskIds, acwy, menb),
+    input: {
+      ageMonths: dobToAgeMonths(dob, today),
+      dob,
+      riskIds,
+      menacwyDoses,
+      menbDoses,
+      riskAtDoseAnswers: { MenACWY: {}, MenB: {} },
+      today,
+    },
+  };
+}
+
+/**
+ * The same patient after the clinician has answered every "was this patient at
+ * high risk when this dose was given?" question with YES.
+ *
+ * ASSUMPTION, stated once: a typical patient with a risk box ticked had that
+ * risk when each dose was given (asplenia, complement deficiency and HIV are
+ * usually lifelong). The app asks; a first screen shows the question
+ * unanswered, which is the case above. Answers are keyed by each dose's place
+ * in its date-ordered list (`doseAnswerKey`); every place is answered, so an
+ * answer is never missing because a pentavalent added a MenB row.
+ */
+function answeredYes(c) {
+  const yes = (doses) => Object.fromEntries(doses.map((_, i) => [i, 'yes']));
+  // A pentavalent counts on both lists, so the MenB list can be longer by
+  // the number of pentavalents recorded.
+  const menbRows = [...c.input.menbDoses, ...c.input.menacwyDoses];
+  return {
+    key: c.key.replace(/^t/, 'ty'),
+    input: {
+      ...c.input,
+      riskAtDoseAnswers: { MenACWY: yes(c.input.menacwyDoses), MenB: yes(menbRows) },
+    },
+  };
+}
+
+const asksAQuestion = (input) => {
+  const h = recommend(input).history ?? {};
+  return [...(h.MenACWY?.perDose ?? []), ...(h.MenB?.perDose ?? [])].some((d) => d.needsInput);
+};
+
+/**
+ * Every typical patient. Under 10, MenB is not given, so only the MenACWY
+ * records are used (with no MenB). From 10, every MenACWY record with every
+ * MenB record. A patient the app asks a risk-at-dose question about appears
+ * twice: as first seen (key `t…`), and answered yes (key `ty…`).
+ */
+export function buildTypicalCases({ today = TEST_TODAY } = {}) {
+  const cases = [];
+  for (const ageMonths of [...TYPICAL_YOUNG_AGES_MONTHS, ...TYPICAL_AGES_MONTHS]) {
+    const menbList = ageMonths >= MENB_SWEEP_BRAND_MIN_AGE ? TYPICAL_MENB_HISTORIES : [[]];
+    for (const riskIds of TYPICAL_RISK_PROFILES) {
+      for (const acwy of TYPICAL_MENACWY_HISTORIES) {
+        for (const menb of menbList) {
+          const c = typicalCase(ageMonths, riskIds, acwy, menb, today);
+          if (!c) continue;
+          cases.push(c);
+          if (asksAQuestion(c.input)) cases.push(answeredYes(c));
+        }
+      }
+    }
+  }
+  return cases;
+}
