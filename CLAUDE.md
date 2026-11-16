@@ -37,11 +37,12 @@ dates stated plainly, a rulebook held to the code, citations per card) is being 
 nine phases. **The plan lives in PneumoVax, not here** (owner decision 2026-10-16: both-apps plans
 are one file plus a pointer): read
 [docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md](docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md)
-first. **Status 2026-11-15: Phase 0 done; Phase 1 items 1.1–1.4 built** (saved answers, prose
-diff, typical patients, whole-app checks) — findings in
-`docs/archive/report-2026-11-15-whole-app-checks.md`, listed not fixed. Next: 1.5 (CDC's CDSI
-test patients), then STOP B. The newest handoff (in PneumoVax) says which PRs are open.
-CDC's CDSI files for this app are in `scripts/cdsi/` (read for Phase 0; no script run yet).
+first. **Status 2026-11-15: Phase 0 done; Phase 1 (items 1.1–1.5) built** (saved answers, prose
+diff, typical patients, whole-app checks, CDC's CDSI test patients) — findings in
+`docs/archive/report-2026-11-15-whole-app-checks.md` and
+`docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. Next: STOP B (the
+owner sees both reports). The newest handoff (in PneumoVax) says which PRs are open.
+CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
 ## Non-Negotiable Rules
 

@@ -4,11 +4,10 @@ CDSI is CDC's machine-readable version of ACIP's schedule (CDC's software rules 
 test patients). It is a **cross-check, never the authority**: where CDSI and CDC/ACIP wording
 differ, the wording wins. Nothing here is part of the app.
 
-**Files only so far — nothing in this folder has been run against MeningoVax yet.** The scripts
-come with the MeningoVax port (plan in PneumoVax, see below): item 1.5 runs CDC's meningococcal
-test patients through the app; item 2.3 holds the rule table against CDSI's rules.
-PneumoVax's working versions to copy from: `~/Downloads/PneumoVax/scripts/cdsi/`
-(`extractTestCases.py`, `runTestCases.mjs`, `README.md`).
+**Item 1.5 done 2026-11-15:** CDC's 104 meningococcal test patients now run through the app
+(`runTestCases.mjs`). Item 2.3 (holding the rule table against CDSI's rules) comes later.
+Both scripts were copied from PneumoVax's (`~/Downloads/PneumoVax/scripts/cdsi/`) and adapted.
+Results of the first run: `docs/archive/report-2026-11-15-cdsi-test-patients.md`.
 
 | File | What it is |
 |---|---|
@@ -17,6 +16,10 @@ PneumoVax's working versions to copy from: `~/Downloads/PneumoVax/scripts/cdsi/`
 | `cdc-files/ScheduleSupportingData-4.65.xml` | CDC's vaccine-code list (CVX), same release |
 | `cdc-files/cdsi-healthy-childhood-and-adult-test-cases-v4.46.xlsx` | CDC's test patients, healthy (27 MenACWY, 28 MenB) |
 | `cdc-files/CDSi-underlying-conditions-test-cases-v4.6.xlsx` | CDC's test patients, with conditions (25 MenACWY, 24 MenB) |
+| `cdc-files/meningo-test-cases.json` | The 104 meningococcal patients pulled out of the two workbooks (made by `extractTestCases.py`) |
+| `cdc-files/meningo-app-answers.json` | The app's answer for each of the 104, saved, so a run can say which answers moved |
+| `extractTestCases.py` | Workbooks → JSON. Python standard library only |
+| `runTestCases.mjs` | Runs the 104 patients through the app and compares, dose by dose and next step |
 
 Source: https://www.cdc.gov/iis/cdsi/index.html (downloaded by the owner 2026-11-08).
 
@@ -29,6 +32,26 @@ MenB paragraph is absent, so nothing changed for MenB:
   the app's MenQuadfi-from-6-weeks rule** (owner decision 2026-09-23, on AAP's word);
 - MCV4 unspecified (CVX 147) allowed in every risk series.
 
-**When CDC publishes a new release:** replace the files here (keep the version in the file name),
-read the release notes' meningococcal paragraphs, and re-run whatever scripts exist by then. The
+## How to run
+
+```bash
+npx vite-node scripts/cdsi/runTestCases.mjs           # summary + every disagreement
+npx vite-node scripts/cdsi/runTestCases.mjs --all     # every patient
+```
+
+Read the last lines. **"NEW disagreements"** and **"answers moved since saved"** must both be 0.
+Every known disagreement is listed by family in the `KNOWN` table at the top of the script,
+each marked OPEN (a question for the owner), DELIBERATE (the app follows CDC/ACIP wording or
+newer CDC data on purpose), SAME ADVICE, or NOT COMPARABLE. A moved answer is read first, then
+saved with `--save-answers` only once the reason is understood.
+
+**Not yet a required test.** It becomes one after the owner has seen the families (STOP B).
+
+## When CDC publishes a new release
+
+Replace the files here (keep the version in the file name), read the release notes'
+meningococcal paragraphs, update the two workbook names in `extractTestCases.py`, run
+`python3 -I scripts/cdsi/extractTestCases.py`, then run the script above. A NEW disagreement
+is a question for the owner, never a fix by itself: read the CDC/ACIP wording live first
+(`verify-clinical-source` skill). The
 monthly scheduled task `monthly-vaccine-source-check` says when a new release is out.
