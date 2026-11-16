@@ -19,7 +19,8 @@ Results of the first run: `docs/archive/report-2026-11-15-cdsi-test-patients.md`
 | `cdc-files/meningo-test-cases.json` | The 104 meningococcal patients pulled out of the two workbooks (made by `extractTestCases.py`) |
 | `cdc-files/meningo-app-answers.json` | The app's answer for each of the 104, saved, so a run can say which answers moved |
 | `extractTestCases.py` | Workbooks → JSON. Python standard library only |
-| `runTestCases.mjs` | Runs the 104 patients through the app and compares, dose by dose and next step |
+| `cdsiCore.mjs` | The comparing: runs the 104 patients through the app, dose by dose and next step, and holds the `KNOWN` table of families. Used by both the script below and the test |
+| `runTestCases.mjs` | Prints the comparison (summary, every disagreement, what moved) |
 
 Source: https://www.cdc.gov/iis/cdsi/index.html (downloaded by the owner 2026-11-08).
 
@@ -40,12 +41,14 @@ npx vite-node scripts/cdsi/runTestCases.mjs --all     # every patient
 ```
 
 Read the last lines. **"NEW disagreements"** and **"answers moved since saved"** must both be 0.
-Every known disagreement is listed by family in the `KNOWN` table at the top of the script,
+Every known disagreement is listed by family in the `KNOWN` table in `cdsiCore.mjs`,
 each marked OPEN (a question for the owner), DELIBERATE (the app follows CDC/ACIP wording or
 newer CDC data on purpose), SAME ADVICE, or NOT COMPARABLE. A moved answer is read first, then
 saved with `--save-answers` only once the reason is understood.
 
-**Not yet a required test.** It becomes one after the owner has seen the families (STOP B).
+**A required test since 2026-11-15** (after the owner saw the families at STOP B):
+`src/logic/__tests__/cdsi-test-patients-gate.test.js` fails `npm test` on a NEW disagreement, a
+known one that now agrees (take it off the list), or a moved answer.
 
 ## When CDC publishes a new release
 
