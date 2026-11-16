@@ -13,7 +13,8 @@
     "test:coverage": "vitest run --coverage",
     "prepare": "git config core.hooksPath .githooks || true",
     "sweep:update": "node scripts/updateSavedAnswers.mjs",
-    "prose": "vite-node scripts/proseDiff.mjs --"
+    "prose": "vite-node scripts/proseDiff.mjs --",
+    "whole-app": "node scripts/wholeApp/run.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

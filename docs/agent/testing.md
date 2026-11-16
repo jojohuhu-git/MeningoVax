@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 141 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 90 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 142 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 91 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,682 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.3 typical patients |
+| Individual `it()` tests, total | 1,692 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.4 whole-app checks |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -228,6 +228,39 @@ These patients are in **neither** saved-answer file. The whole-app checks
 (Phase 1.4) run on them. [`typical-patients.test.js`](../../src/logic/__tests__/typical-patients.test.js)
 checks only the list itself (real dates, every risk factor and brand, the answered copies),
 not what the app answers.
+
+## The whole-app checks (port Phase 1.4, 2026-11-15)
+
+`scripts/wholeApp/` follows every saved and typical patient (35,281) down every
+road the app advises — give the dose on the date the card names, look again,
+repeat, years ahead — and asks seven questions of the app's own answers.
+About a million screens; `npm run whole-app` takes about a minute on all cores
+and prints distinct patients per check and per kind (`--out file.json` keeps
+every group with examples).
+
+| # | Check | Asks |
+|---|---|---|
+| 1 | Advice is accepted | a dose given when and how the card said is never rejected, discounted or called extra, and not asked for again that day |
+| 2 | The plan holds | no "final dose" followed by another; no series total that grows partway |
+| 3 | Complete means complete | no later visit asks for more of a vaccine whose card said Complete |
+| 4 | Options agree | a pentavalent and the two separate shots it replaces lead to the same next screen |
+| 5 | Card and chip agree | a "repeat this dose" chip has a card asking; "Dose k of N" matches the chips; a shown booster date is the day it is asked |
+| 6 | Age lines are clean | on a birthday reads like the day after; a dose on a line reads like one a day later; inside the 4-day grace like on the line |
+| 7 | Stable over time | a later look never changes whether a recorded dose counted; a dated card says DUE on its date |
+
+How the walk chooses (in `replay.mjs`): the first MenACWY brand a card lists,
+the first brand of each MenB family, every pentavalent; only the doses on the
+earliest date a screen names; an optional (shared-decision) dose, once
+declined, stays declined while it stays optional; the walk stops at 25 years
+of age or 6 years from today, whichever is later. A card it cannot read is
+reported, never guessed at.
+
+**Findings are listed, not fixed** (plan Phase 1.4):
+`docs/archive/report-2026-11-15-whole-app-checks.md`. Only the parts at zero
+today are in the suite: [`whole-app-gate.test.js`](../../src/logic/__tests__/whole-app-gate.test.js)
+(forward checks on every 20th patient, age lines on all). Each part was shown
+to go red by breaking the app on purpose; the report lists the eight breaks.
+When a finding is fixed, move its kind into the gate test.
 
 ## The worktree trap
 
