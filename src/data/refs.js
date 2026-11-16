@@ -139,6 +139,14 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
   },
+  // N5 (2026-11-15): the 8 weeks between dose 1 and the 16-year booster.
+  acwyBooster8WeeksAfterDose1: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained',
+    label: 'ACIP 2020 MMWR: at least 8 weeks between dose 1 and the 16-year booster',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-15',
+  },
   acwyBeforeAge10: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease for which boosters are recommended should still receive MenACWY according to the recommended adolescent schedule, with the first dose at age 11–12 years and a booster dose at age 16 years',
