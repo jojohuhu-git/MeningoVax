@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
 import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
 import { doseChipLabel, doseChipClass, NEEDS_INPUT_LABEL } from './doseChipLabel.js';
+import { OpenAllDisclosures } from './openAllDisclosures.js';
 // C1 (2026-10-17): the inline [N] hover text names its document. Lives beside
 // cite() in refs.js, the same file PneumoVax keeps it in.
 import { citeTitle } from '../data/refs.js';
@@ -271,7 +272,9 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
 // whole list by cardCiteNumberer, so a source keeps the same [N] whether the
 // disclosure happens to be open or shut.
 export function RecNote({ note, noteCites = [], numberFor, className = 'rec-note' }) {
-  const [open, setOpen] = useState(false);
+  // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
+  const openAll = useContext(OpenAllDisclosures);
+  const [open, setOpen] = useState(openAll);
   const leadCiteCount = (note.lead.match(/\[c\]/g) || []).length;
   return (
     <div className={className}>
@@ -381,7 +384,9 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
   // clinician is being asked to do.
   const pending = hasPendingDoses(doseValidations);
   const collapsible = isNeutral && !boosterDueDate && !pending;
-  const [expanded, setExpanded] = useState(!collapsible);
+  // Port 1.2: the prose tool opens every card (openAllDisclosures.js); the app never does.
+  const openAll = useContext(OpenAllDisclosures);
+  const [expanded, setExpanded] = useState(!collapsible || openAll);
   // U5 (2026-09-17): `expanded` is seeded ONCE, at mount. When props change so
   // that a neutral card becomes a due one, `collapsible` flips true -> false and
   // the header stops rendering the toggle button -- so a stale `expanded: false`

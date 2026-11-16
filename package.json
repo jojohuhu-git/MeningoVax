@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prepare": "git config core.hooksPath .githooks || true",
-    "sweep:update": "node scripts/updateSavedAnswers.mjs"
+    "sweep:update": "node scripts/updateSavedAnswers.mjs",
+    "prose": "vite-node scripts/proseDiff.mjs --"
   },
   "dependencies": {
     "react": "^18.3.1",
