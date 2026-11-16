@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 139 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 88 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 140 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 89 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 1,670 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.1 saved answers |
+| Individual `it()` tests, total | 1,675 | `npx vitest run --reporter=json`, 2026-11-15, port Phase 1.2 prose diff |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -182,6 +182,32 @@ crossing all of them. The full cross was 35,925 patients and 10 MB with no
 more MenACWY or pentavalent answers. Its only extra MenB answers were under-10s
 with several rejected MenB doses. Every file it reads is dated by `TEST_TODAY`:
 moving that date moves every line, so rerun `npm run sweep:update` in the same commit.
+
+## The prose diff (port Phase 1.2, 2026-11-15)
+
+The saved answers hold no wording, so a wording change can break hundreds of
+cards with every test green. `scripts/proseDiff.mjs` is how a wording change
+gets **counted**:
+
+```bash
+npm run prose -- dump /tmp/prose-before.tsv
+# ... make the wording change ...
+npm run prose -- dump /tmp/prose-after.tsv
+npm run prose -- diff /tmp/prose-before.tsv /tmp/prose-after.tsv
+```
+
+It draws the real results screen (`Results.jsx`) for every saved patient
+(23,400, about 10 seconds) and keeps every word on it, plus the hover text on
+each source number. It reads the screen, not the engine, because some lines are
+put together in the card itself ("Next dose not yet due - eligible …").
+Every "Why this" and every collapsed quiet card is drawn **open**, through the
+switch in `src/components/openAllDisclosures.js`. The switch is off unless the
+tool turns it on, so the app is unchanged. Put the "N of 23,400 patients read
+different wording" line in the PR. Dumps are about 80 MB: keep them out of the repo.
+
+It is a tool, not a gate. [`prose-diff-tool.test.js`](../../src/logic/__tests__/prose-diff-tool.test.js)
+only checks the tool still opens "Why this" and collapsed cards, still reads
+hover text, and that the app's own screen still starts closed.
 
 ## The worktree trap
 
