@@ -50,11 +50,14 @@ describe('C10: a travel booster is checked like a high-risk one', () => {
     }
   });
 
-  it('control: military and college residence are not changed (no booster gap is checked)', () => {
-    for (const risk of ['military', 'college_dorm']) {
-      const r = run({ ...T, riskIds: [risk], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
-      expect(r.history.MenACWY.perDose[1].status, risk).not.toBe('invalid');
-    }
+  it('control: college residence is not changed (no booster gap is checked)', () => {
+    const r = run({ ...T, riskIds: ['college_dorm'], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
+    expect(r.history.MenACWY.perDose[1].status).not.toBe('invalid');
+  });
+
+  it('military IS checked since owner D6 (2026-11-17): 4 years is too soon', () => {
+    const r = run({ ...T, riskIds: ['military'], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
+    expect(r.history.MenACWY.perDose[1].status).toBe('invalid');
   });
 });
 

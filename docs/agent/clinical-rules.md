@@ -192,7 +192,10 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   "no date"): "Booster (dose N) if required by assignment"; ACIP Table 10 (read live
   2026-11-16): *"Military recruits: Every 5 yrs on basis of assignment"*; footnote ††: the
   U.S. **Department of Defense** sets it from high-risk travel, which the app cannot see.
-  The validator does not check a military booster gap (C10 did not name it; asked).
+  **A military booster given at 16 or older under 5 years (less the 4-day grace) after the
+  dose before it does not count** (owner D6, 2026-11-17: checked like travel, C10); the next
+  booster is timed from it (C9). The routine 16-year booster keeps its own 8 weeks. Row
+  `ACWY-TRAVEL-BOOSTER-GAP` (`militaryBoosterNow` in `doseRules.js`).
 - `outbreak_acwy`: **while the box is ticked, the card keeps asking for the booster** —
   3 years after the last dose if the series finished before 7, otherwise 5, then every 5 —
   and never says "Complete" or "top-up" (owner STOP B B-2, 2026-11-15, replacing M12's

@@ -63,7 +63,8 @@ describe('P0-2 (UI): a dose the patient really had is not written off as surplus
   });
 
   it('the military second dose counts', () => {
-    const { rendered } = chips(264, ['military'], ['2021-09-15', '2025-09-15']);
+    // 5 years apart: since owner D6 (2026-11-17) a military booster under 5 years does not count.
+    const { rendered } = chips(264, ['military'], ['2020-09-15', '2025-09-15']);
     expect(rendered).toEqual(['Dose 1 of 1', 'Booster']);
   });
 

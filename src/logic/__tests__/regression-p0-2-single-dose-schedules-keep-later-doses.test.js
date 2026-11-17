@@ -93,7 +93,8 @@ describe('P0-2: an outbreak top-up counts', () => {
 });
 
 describe('P0-2: a military booster counts', () => {
-  const { perDose } = both(264, ['military'], ['2021-09-15', '2025-09-15']);
+  // 5 years apart: since owner D6 (2026-11-17) a military booster under 5 years does not count.
+  const { perDose } = both(264, ['military'], ['2020-09-15', '2025-09-15']);
 
   it('the second dose is not discarded', () => {
     expect(perDose[1].extraDose).toBeFalsy();

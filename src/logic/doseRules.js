@@ -429,6 +429,12 @@ const acwy = (ctx) => once(ctx, '_acwy', () => {
   // residents ('single' too) keep the routine treatment: Table 10 gives them no
   // booster schedule to follow.
   const onOutbreakSchedule = ctx.riskIds.includes('outbreak_acwy');
+  // D6 (owner, 2026-11-17): a military recruit's booster is checked like a
+  // travel booster (Table 10: "Every 5 yrs on basis of assignment"), from 16
+  // only — under 16 the military box adds nothing (owner B-4). Outbreak and
+  // travel, when also ticked, already check it.
+  const militaryBoosterNow = !isHighRiskNow && cls !== 'single+boost' && !onOutbreakSchedule
+    && ctx.riskIds.includes('military') && ctx.ageMonths >= AGE_16Y_MONTHS;
   return {
     isHighRiskNow,
     // STOP C C10 (owner, 2026-11-15): travel, microbiologist and A/C/W/Y
@@ -437,8 +443,9 @@ const acwy = (ctx) => once(ctx, '_acwy', () => {
     // with STOP B answer B-2, which gave the outbreak card the same booster
     // date (before it, the card advised doses this check would reject).
     // Military and college residence are not on this list (Table 10).
-    otherBoosterScheduleNow: !isHighRiskNow && (cls === 'single+boost' || onOutbreakSchedule),
+    otherBoosterScheduleNow: !isHighRiskNow && (cls === 'single+boost' || onOutbreakSchedule || militaryBoosterNow),
     travelOrLabNow: cls === 'single+boost',
+    militaryBoosterNow,
     routineOnly: !ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule,
   };
 });
@@ -904,18 +911,18 @@ export const DOSE_RULES = [
   {
     id: 'ACWY-TRAVEL-BOOSTER-GAP',
     inventory: 'A5 (travel)',
-    what: 'A MenACWY booster for travel, a microbiologist or an A/C/W/Y outbreak, sooner than 3 or 5 years',
+    what: 'A MenACWY booster for travel, a microbiologist, an A/C/W/Y outbreak or a military recruit (16+), sooner than 3 or 5 years',
     vaccine: 'MenACWY',
     dated: true,
-    schedule: 'travel, microbiologist, A/C/W/Y outbreak (not its routine 16-year booster)',
+    schedule: 'travel, microbiologist, A/C/W/Y outbreak, military recruit from 16 (not the routine 16-year booster)',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP 2020 Tables 7, 8, 9; owner, STOP C C10 (2026-11-15)',
+    authorityToday: 'ACIP 2020 Tables 7, 8, 9, 10; owner, STOP C C10 (2026-11-15) and D6 (2026-11-17)',
     sourcesSay: {
       verdict: 'owner-decided',
       refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
-      note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9.',
+      note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9. Owner answer D6 (2026-11-17): military recruits the same, from 16 (Table 10: "Every 5 yrs on basis of assignment"; CDC\'s software also floors it).',
     },
     label: 'Invalid',
     check: (ctx) => {
@@ -925,9 +932,15 @@ export const DOSE_RULES = [
       // comes first (the card asks for it before any outbreak booster; relation
       // 1a, 2026-09-19): judged by the routine 8 weeks, not by this floor.
       if (!a.travelOrLabNow && acwyIsRoutineBooster(ctx)) return null;
+      // D6: a military booster is a dose given at 16 or older; an earlier dose
+      // was a routine one (owner B-4) and the routine rows judge it.
+      if (a.militaryBoosterNow && (ctx.ageAtDose === null
+        || !ageMeetsMinimum(ctx.ageAtDose, AGE_16Y_MONTHS, ctx.whenGiven))) return null;
       return acwyBoosterTooSoon(ctx, a.travelOrLabNow
         ? 'MenACWY boosters for travel or laboratory exposure'
-        : 'MenACWY boosters for an outbreak');
+        : a.militaryBoosterNow
+          ? 'MenACWY boosters for military recruits'
+          : 'MenACWY boosters for an outbreak');
     },
   },
   {

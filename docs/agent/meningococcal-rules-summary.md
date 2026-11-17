@@ -156,7 +156,11 @@ receive another.
   card then shows **the booster date 5 years on, "if required by assignment"** — never
   "Complete" (your B-3 answer). ACIP: *"Military recruits: Every 5 yrs on basis of
   assignment"*; the Department of Defense sets it from high-risk travel, which the app
-  cannot see, so the card says to check the service's current requirement.
+  cannot see, so the card says to check the service's current requirement. **A
+  military booster given under 5 years after the dose before it does not count**
+  (your D6 answer, 2026-11-17: checked like travel); the next booster is timed from
+  it, so the date usually stays and only the dose label changes. The routine
+  16-year booster is not affected.
 - **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
   ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
   and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
