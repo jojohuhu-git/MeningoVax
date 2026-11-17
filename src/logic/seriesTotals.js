@@ -197,9 +197,10 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
       // every 5 years thereafter" for children under 7). So primaryTotal
       // equals the whole total here — the 12-month dose is NOT a booster.
       primaryTotal: infantTotal,
-      // Outbreak has no standing booster cadence (ACIP Table 8 gives a one-off
-      // top-up on re-exposure instead), but every other infant indication does.
-      hasBoosterPhase: riskClass !== 'single',
+      // STOP B B-2 (owner, 2026-11-15): while the outbreak box is ticked, an
+      // outbreak series has a booster countdown too (it used to be read as a
+      // one-off top-up on re-exposure), so every infant indication has one.
+      hasBoosterPhase: true,
     };
   }
   if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, primaryTotal: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };

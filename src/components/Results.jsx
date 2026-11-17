@@ -374,7 +374,9 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
           </div>
         )}
         <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group-body' : undefined}>
-        {acwyDueToday && bDueToday && !pentavalent.eligible && (
+        {/* B-5 (owner, 2026-11-15): no "Both are due today" while a recorded
+            dose still waits on its answer — the same rule as the summary line. */}
+        {acwyDueToday && bDueToday && !pentavalent.eligible && pendingAnswers === 0 && (
           <div className="dual-due-banner" data-testid="dual-due-banner">
             These are two separate vaccines.{' '}
             {bRequiredToday

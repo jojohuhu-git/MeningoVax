@@ -132,6 +132,16 @@ export const CITATIONS = {
     lastVerified: '2026-09-15',
   },
 
+  // STOP B B-3 (owner, 2026-11-15): the military booster date. Read live
+  // 2026-11-16 (Table 10's Boosters row, and its footnote ††).
+  acip2020MilitaryBooster5Years: {
+    url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('Military recruits: Every 5 yrs on basis of assignment')}`,
+    quote: 'Military recruits: Every 5 yrs on basis of assignment',
+    label: 'ACIP 2020 MMWR, Table 10: military recruits, a booster every 5 years on the basis of assignment',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-16',
+  },
+
   acwyRoutine1112and16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years',

@@ -610,6 +610,25 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
   if (riskClass === 'single') {
     const isCollege = riskIds.includes('college_dorm');
 
+    // STOP B B-4 (owner, 2026-11-15): under 16, the college-residence and
+    // military boxes add nothing — the card follows the routine schedule and
+    // says the college/military dose is given at 16 or older. The validator
+    // already treats these patients as routine (doseRules.js acwy().routineOnly),
+    // so card and chip now agree (whole-app check 1, Phase 0 N9). Outbreak is
+    // 'single' too but has its own schedule at every age (ACIP Table 8).
+    if (am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS && !riskIds.includes('outbreak_acwy')) {
+      const which = isCollege && riskIds.includes('military')
+        ? 'college-residence or military'
+        : isCollege ? 'college-residence' : 'military';
+      const line = ` The ${which} dose is given at 16 or older.`;
+      return menacwyRoutine(am, given, doses, last, today, dob, clockDate).map((r) => ({
+        ...r,
+        note: r.note && typeof r.note === 'object'
+          ? { ...r.note, detail: `${r.note.detail ?? ''}${line}`.trim() }
+          : `${r.note ?? ''}${line}`.trim(),
+      }));
+    }
+
     // College-dorm rule keys off whether a dose was given at age ≥16y.
     //
     // M17 (owner decision 2026-09-15): a ≥16y dose satisfies the requirement
@@ -722,47 +741,49 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
     // deliberately unchanged: Table 10 really is a single dose for them.
     const isOutbreakACWY = riskIds.includes('outbreak_acwy');
     if (isOutbreakACWY && given >= 1) {
-      const topUpYears = menacwyOutbreakTopUpYears(am);
-      const topUpDays = DAYS.years(topUpYears);
-      const elapsedTopUp = calendarIntervalElapsed(lastDate, topUpYears * 12, today);
-      if (!elapsedTopUp) {
-        // Found 2026-09-19 (plan item D, relation 1a): this used to say
-        // "Complete" the moment the outbreak top-up requirement itself was
-        // satisfied, even when every recorded dose was given before age 16 --
-        // so a 16-year-old still owed their routine booster read as fully
-        // done the moment an outbreak was ticked. The outbreak requirement
-        // and the routine age-16 requirement are separate ACIP rules; only
-        // report "Complete" once both are.
-        if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
-          // N5: no sooner than 8 weeks after the last dose.
-          const timing = routineBoosterTiming(lastDate, today);
-          return [rec({
-            vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at ≥16y still owed)',
-            doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
-            note: routineBoosterStillOwedNote('outbreak', !timing.dueToday),
-            noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
-            refs: refsExposure(),
-          })];
-        }
+      // The routine 16-year booster comes first, and is its own ACIP rule
+      // (relation 1a, 2026-09-19); the validator exempts it from the outbreak
+      // booster floor for the same reason (doseRules.js acwyIsRoutineBooster).
+      if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
+        // N5: no sooner than 8 weeks after the last dose.
+        const timing = routineBoosterTiming(lastDate, today);
         return [rec({
-          vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete for this outbreak', seriesTotal: 1,
-          earliestNextDate: addCalendarYears(lastDate, topUpYears),
-          minIntervalDays: topUpDays,
-          note: {
-            lead: 'The recorded dose covers this outbreak.',
-            detail: `If the patient is identified as being at increased risk in another outbreak, a single further dose is given once ${menacwyOutbreakTopUpYears(am)} years or more have passed since the last one (${am < MENACWY_BOOSTER_AGE_SPLIT_MONTHS ? `under age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}` : `age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} or older`}) [c].`,
-          },
-          noteCites: [cite('acip2020Table8')],
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at ≥16y still owed)',
+          doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
+          note: routineBoosterStillOwedNote('outbreak', !timing.dueToday),
+          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
           refs: refsExposure(),
         })];
       }
+      // STOP B B-2 (owner, 2026-11-15): while the outbreak box is ticked, keep
+      // asking for the booster 5 years on (3 if the series finished before 7),
+      // and never say "Complete"; "booster", never "top-up". ACIP 2020 Table 8
+      // (read live 2026-11-16): "Aged <7 yrs: Single dose if ≥3 yrs since
+      // vaccination • Aged ≥7 yrs: single dose if ≥5 yrs since vaccination".
+      // The years come from the same rule the validator checks (C10:
+      // doseRules.js acwyBoosterTooSoon): the first booster by the age at the
+      // last primary dose, every later one 5 years.
+      const primaryTotal = 1;
+      const lastAge = ageAtDose(doses[given - 1], am, today, dob);
+      const boosterYears = given === primaryTotal
+        ? menacwyFirstBoosterYears(lastAge)
+        : MENACWY_BOOSTER_CADENCE_YEARS;
+      const boosterOn = addCalendarYears(lastDate, boosterYears);
+      const boosterNow = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
       return [rec({
-        vaccine: 'MenACWY', status: 'exposure', doseLabel: `Outbreak top-up (dose ${given + 1})`, seriesTotal: 1,
-        doseNum: given + 1, dueToday: true, brands: menacwyBrands(am),
-        minIntervalDays: topUpDays,
+        vaccine: 'MenACWY', status: 'exposure',
+        doseLabel: boosterNow
+          ? `Booster (dose ${given + 1}) for this outbreak`
+          : `Booster (dose ${given + 1}) if outbreak risk continues`,
+        doseNum: given + 1, seriesTotal: 1,
+        dueToday: boosterNow, earliestNextDate: boosterNow ? null : boosterOn,
+        minIntervalDays: DAYS.years(boosterYears),
+        brands: menacwyBrands(am),
         note: {
-          lead: 'A single dose now, to top up protection for this outbreak [c].',
-          detail: `More than ${menacwyOutbreakTopUpYears(am)} years have passed since the last MenACWY dose (${am < MENACWY_BOOSTER_AGE_SPLIT_MONTHS ? `under age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}` : `age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} or older`}), which is the interval at which ACIP gives a further dose to someone identified at increased risk in an outbreak. It does not start a repeating schedule.`,
+          lead: boosterNow
+            ? `A booster now: ${yearsLabel(boosterYears)} or more since the last MenACWY dose [c].`
+            : `Booster ${fmtDate(boosterOn)} if outbreak risk continues [c].`,
+          detail: `For someone at increased risk in a serogroup A, C, W or Y outbreak, ACIP gives a booster once ${yearsLabel(boosterYears)} have passed since the last dose (3 years if the series finished before age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}, otherwise 5). If the patient is no longer at risk, untick the outbreak box.`,
         },
         noteCites: [cite('acip2020Table8')],
         refs: refsExposure(),
@@ -805,16 +826,27 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
           refs: refsExposure(),
         })];
       }
+      // STOP B B-3 (owner, 2026-11-15): show the 5-year booster date with the
+      // assignment caveat, never "Complete". ACIP 2020 Table 10 (read live
+      // 2026-11-16): "Military recruits: Every 5 yrs on basis of assignment";
+      // footnote ††: the U.S. Department of Defense sets it "on the basis of
+      // high-risk travel requirements", which this app cannot see.
+      const boosterOn = addCalendarYears(lastDate, MENACWY_BOOSTER_CADENCE_YEARS);
+      const boosterNow = calendarIntervalElapsed(lastDate, MENACWY_BOOSTER_CADENCE_YEARS * 12, today);
       return [rec({
-        vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: 1,
-        // U4 (2026-09-17): the longest note on any card, and it spent its first
-        // two sentences on what the app knows and cannot do before reaching the
-        // thing the clinician has to go and do. Same facts, action first.
-        // Clinical content unchanged (M18's live-verified Table 10 + footnote).
+        vaccine: 'MenACWY', status: 'exposure',
+        doseLabel: `Booster (dose ${given + 1}) if required by assignment`,
+        doseNum: given + 1, seriesTotal: 1,
+        dueToday: boosterNow, earliestNextDate: boosterNow ? null : boosterOn,
+        minIntervalDays: DAYS.years(MENACWY_BOOSTER_CADENCE_YEARS),
+        brands: menacwyBrands(am),
         note: {
-          lead: 'Check the service\'s current requirement \u2014 do not assume nothing more is due.',
-          detail: 'The dose on record satisfies the single-dose recruitment requirement. ACIP gives military recruits a booster every 5 years on the basis of assignment, and the U.S. Department of Defense sets that timing from high-risk travel, which this app cannot see. A separate ongoing-risk indication would add its own schedule on top.',
+          lead: boosterNow
+            ? 'A booster now if the service\'s assignment requires it [c].'
+            : `Booster ${fmtDate(boosterOn)} if the service's assignment requires it [c].`,
+          detail: 'ACIP gives military recruits a booster every 5 years on the basis of assignment; the U.S. Department of Defense sets that timing from high-risk travel, which this app cannot see. Check the service\'s current requirement.',
         },
+        noteCites: [cite('acip2020MilitaryBooster5Years')],
         refs: refsExposure(),
       })];
     }
@@ -824,7 +856,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
       note: isOutbreakACWY
         ? {
           lead: 'A single MenACWY dose, for someone at increased risk in a serogroup A, C, W or Y outbreak.',
-          detail: 'One dose covers this outbreak. It does not start a booster schedule — a further dose comes only if the patient is identified at risk in a new outbreak, after the interval ACIP sets for their age.',
+          detail: 'While the outbreak risk continues, a booster follows 5 years later (3 if given before age 7).',
         }
         : {
           lead: 'A single MenACWY dose, for a military recruit.',
@@ -884,16 +916,18 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // boosterSummary must stay EMPTY for outbreak: RecCard turns any non-empty
   // value into the pill "Dose due today, future boosters needed", which would
   // contradict the very thing the text says. The top-up rule goes in the note.
-  const boosterSummaryText = infantOutbreak
-    ? null
-    : `Boosters: first in ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)}, then every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while at risk [c]`;
+  // STOP B B-2 (owner, 2026-11-15) replaced the "one-off top-up" reading: while
+  // the outbreak box is ticked, an infant outbreak series gets the same booster
+  // countdown as the other infant indications (3 years, then every 5), as CDC's
+  // software books it (test patient 2016-UC-0116).
+  const boosterSummaryText = `Boosters: first in ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)}, then every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while at risk [c]`;
   // U2: the source for that line. Empty for outbreak, where there IS no line --
   // and where the notes used to promise the countdown anyway, two sentences
   // before saying no such countdown exists.
-  const infantBoosterCites = infantOutbreak ? [] : [cite('boosterBeforeAge7')];
-  const outbreakTopUp = infantOutbreak
-    ? ` There is no standing booster schedule for an outbreak indication: another dose is given only if the patient is identified at risk in a NEW outbreak, and ≥${MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7} years have passed since the last dose (≥${MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7} years from age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}).`
-    : '';
+  const infantBoosterCites = [cite('boosterBeforeAge7')];
+  // Was the "no standing booster schedule … only in a NEW outbreak" sentence;
+  // retired by B-2. Kept as an empty string so the notes below read unchanged.
+  const outbreakTopUp = '';
   // Nothing can be due before any MenACWY product is licensed. Found 2026-09-17
   // during the calendar P1-1 sweep: an at-risk NEWBORN was told "Dose 1 (infant
   // high-risk series)", due today, with a Menveo chip to pick. The minimum age
@@ -1098,25 +1132,6 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // construction, which is the whole point of seriesTotals.js.
   const infantSeriesTotal = menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
   const seriesComplete = given >= infantSeriesTotal;
-  if (seriesComplete && infantOutbreak) {
-    // M10: ACIP Table 8 gives an outbreak contact a one-off top-up when they are
-    // identified at risk in a NEW outbreak — "Boosters (if previously vaccinated
-    // and identified as being at increased risk): • Aged <7 yrs: Single dose if
-    // ≥3 yrs since vaccination • Aged ≥7 yrs: single dose if ≥5 yrs since
-    // vaccination". That is re-exposure driven, not a standing countdown
-    // (owner-confirmed 2026-09-15), so this must NOT fall through to the
-    // 3-then-5-year booster cadence below, which travel and medical risk use.
-    return rec({ vaccine: 'MenACWY', status: 'complete',
-      doseLabel: 'Complete (infant outbreak series)',
-      seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }),
-      note: {
-        lead: 'The outbreak infant series is complete.',
-        // This branch is reached only when infantOutbreak is true, so the
-        // top-up sentence is always present -- it is the whole detail here.
-        detail: outbreakTopUp.trim(),
-      },
-      brands: menacwyBrands(am), refs });
-  }
   if (seriesComplete) {
     // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
     // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
@@ -1129,7 +1144,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     });
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
-    return rec({ vaccine: 'MenACWY', status: 'risk-based',
+    return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? `first booster, ${yearsLabel(infantBoostYears)} after primary` : `every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}`})`,
       // F1 (2026-09-14): was hardcoded 2 for the d1WasInfant7to11 bucket —
       // drifted from the `given >= 3` completion guard just above (should
@@ -1258,7 +1273,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
+    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
@@ -1300,7 +1315,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
     // an approximate due date (the patient's 16th birthday) so it's not just
     // "complete" with no further information.
-    return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
+    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
@@ -1860,11 +1875,16 @@ function routineBoosterDate(dob, am, today) {
 // last weeks before the 16th birthday does not get a booster date inside 8
 // weeks of it. An 8-week date is exact (it is counted from a recorded date),
 // even when the birthday itself is only estimated.
+// PneumoVax owner rule (2026-11-01), applied here at STOP B: "Complete should
+// only be used if no additional doses/boosters are needed." The two routine
+// "Booster due at 16y" cards are therefore status 'due' with nothing due today,
+// and the booster date doubles as their next-dose date (earliestNextDate), as
+// every other card with a dose coming later has. RecCard shows it once.
 function routineBoosterDueDate(dob, am, today, lastDate) {
   const birthday = routineBoosterDate(dob, am, today);
   const afterGap = lastDate ? addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP) : null;
-  if (afterGap && afterGap > birthday) return { boosterDueDate: afterGap, boosterDueDateExact: true };
-  return { boosterDueDate: birthday, boosterDueDateExact: !!dob };
+  if (afterGap && afterGap > birthday) return { boosterDueDate: afterGap, boosterDueDateExact: true, earliestNextDate: afterGap };
+  return { boosterDueDate: birthday, boosterDueDateExact: !!dob, earliestNextDate: birthday };
 }
 
 // RULING D, the floor (owner, STOP C C2 and E1/E2, 2026-11-15). After a dose
@@ -2026,8 +2046,13 @@ export function recommend(input) {
   // family allows, the combined injection is simply not an option today. The
   // card falls back to the existing "two separate vaccines" banner, which is
   // the clinically correct answer — plus a line saying why.
-  const pentavalentEligible =
-    am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
+  // STOP B B-5 (owner, 2026-11-15): wait for the answers. While any recorded
+  // dose still waits on its risk-at-dose question, the cards below withhold
+  // their verdict ("Answers needed"), so the combined shot cannot be offered
+  // on the strength of a "due today" that may not survive the answer.
+  const answersPending = [...menacwyHistory.perDose, ...menbHistory.perDose].some((d) => d?.status === 'pending');
+  const pentavalentEligible = !answersPending
+    && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
@@ -2051,7 +2076,7 @@ export function recommend(input) {
         eligible: false,
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
-        unavailableReason: (am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && (penbrayaTooRecent || penmenvyTooRecent))
+        unavailableReason: (!answersPending && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && (penbrayaTooRecent || penmenvyTooRecent))
           ? `A combined pentavalent shot is not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} may only be repeated once 6 months have passed since the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`
           : null,
       };
