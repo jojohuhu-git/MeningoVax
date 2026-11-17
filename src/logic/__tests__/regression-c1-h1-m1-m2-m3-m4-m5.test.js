@@ -183,15 +183,22 @@ describe('M4: MenACWY validator uses menacwyRiskClass()', () => {
     expect(results.perDose[1].status).toBe('invalid');
     expect(results.perDose[1].reasons[0]).toMatch(/8 weeks|56/i);
   });
-  it('travel (single+boost) -> 8-week rule NOT applied at D2', () => {
+  // STOP C C11 (owner, 2026-11-15): 8 weeks now separate ANY two MenACWY
+  // doses, so a dose 5 weeks after another no longer counts on any schedule
+  // (these two held "the high-risk 8-week rule is not applied" and passed
+  // under the old 4-week baseline). What M4 guards is still held: the
+  // HIGH-RISK primary rule's own reason does not appear for these schedules.
+  it('travel (single+boost): a dose 5 weeks later does not count (C11 / C10), and not by the high-risk primary rule', () => {
     const results = analyzeHistory('MenACWY',
       [{ date: '2026-01-01' }, { date: '2026-02-05' }], 240, ['travel'], TODAY);
-    expect(results.perDose[1].status).toBe('valid');
+    expect(results.perDose[1].status).toBe('invalid');
+    expect(results.decidedBy[1]).not.toBe('ACWY-HIGHRISK-PRIMARY-GAP');
   });
-  it('college_dorm (single) -> 8-week rule NOT applied', () => {
+  it('college_dorm (single): a dose 5 weeks later does not count (C11), and not by the high-risk primary rule', () => {
     const results = analyzeHistory('MenACWY',
       [{ date: '2026-01-01' }, { date: '2026-02-05' }], 240, ['college_dorm'], TODAY);
-    expect(results.perDose[1].status).toBe('valid');
+    expect(results.perDose[1].status).toBe('invalid');
+    expect(results.decidedBy[1]).toBe('ACWY-ANY-TWO-DOSES-GAP');
   });
   it('menacwyRiskClass returns correct class for each risk', () => {
     expect(menacwyRiskClass(['asplenia'])).toBe('primary2');

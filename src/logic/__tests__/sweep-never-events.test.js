@@ -117,6 +117,20 @@ const UNDATED_ROW = { date: '', brand: '', detailsUnknown: true };
 //   9b. a dose 3 given ≥6 months after dose 1 never leads to a 4th dose (C6).
 const p9 = [];
 let p9Rows = 0;
+// Property 10 (STOP C C11): no two COUNTED MenACWY doses are under 8 weeks less
+// the 4-day grace apart (52 days), on the generous and the tight histories.
+const p10 = [];
+let p10Rows = 0;
+const dayGap = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
+function checkProperty10(where, am, dob, riskIds, doses) {
+  if (doses.length < 2) return;
+  const counted = analyzeHistory('MenACWY', doses, am, riskIds, TODAY, undefined, dob).effective.filter((d) => d.date);
+  p10Rows += 1;
+  for (let i = 1; i < counted.length; i++) {
+    const gap = dayGap(counted[i - 1].date, counted[i].date);
+    if (gap < 52) p10.push(`${where}: counted MenACWY doses ${counted[i - 1].date} and ${counted[i].date} are ${gap} days apart`);
+  }
+}
 {
   const d1 = '2025-01-06';
   const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
@@ -232,6 +246,10 @@ for (const [dobs, profiles] of GRID_BATCHES) {
         const tightMenacwyDoses = makeTightDoses(am, count, MENACWY_SWEEP_BRAND, TODAY);
         const tightMenbDoses = makeTightDoses(am, count, MENB_SWEEP_BRAND, TODAY);
         checkProperties1to5(`${where} [tight]`, am, dob, riskIds, tightMenacwyDoses, tightMenbDoses);
+        if (profiles === SINGLE_RISK_PROFILES) {
+          checkProperty10(`${where} [generous]`, am, dob, riskIds, menacwyDoses);
+          checkProperty10(`${where} [tight]`, am, dob, riskIds, tightMenacwyDoses);
+        }
 
         if (allRecs == null) continue; // excluded or threw on the generous pass — nothing left to check below
 
@@ -365,6 +383,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report(`Property 9 (high-risk MenB dose 3, C5/C6; ${p9Rows} timings, not the grid rows)`, p9);
     expect(p9Rows).toBe(23 * 40);
     expect(p9).toEqual([]);
+  });
+
+  it('property 10 (STOP C C11) — no two counted MenACWY doses are under 8 weeks (less the grace) apart', () => {
+    report(`Property 10 (counted MenACWY doses under 52 days apart; ${p10Rows} histories)`, p10);
+    expect(p10Rows).toBeGreaterThan(1000);
+    expect(p10).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {

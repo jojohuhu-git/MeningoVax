@@ -10,7 +10,7 @@
  "2013-0500": "Complete, booster date shown @ 2032-08-06; doses valid",
  "2013-0501": "Complete, booster date shown @ 2032-06-14; doses valid, valid/notAdolescentCount",
  "2013-0502": "nothing owed; doses none",
- "2013-0503": "Complete, booster date shown @ 2031-04-15; doses valid, valid/notAdolescentCount",
+ "2013-0503": "Complete, booster date shown @ 2031-04-15; doses valid, invalid/doesNotCount",
  "2013-0504": "nothing owed; doses valid, valid",
  "2013-0505": "nothing owed; doses valid, valid",
  "2013-0507": "Complete, booster date shown @ 2031-08-05; doses valid",

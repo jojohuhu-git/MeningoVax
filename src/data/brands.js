@@ -219,11 +219,22 @@ export function brandMinAge(brandStr) {
  * 8 weeks would need this reasoned through again, not just re-derived.
  *
  * This answers "could a dose of SOME MenACWY product have been given at this
- * age" — e.g. the unknown-brand permissive fallback in validate.js. It is
+ * age". Since STOP C C13 it is NOT the unknown-brand floor (see
+ * MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS below). It is
  * NOT the age the schedule asks for a dose; that is
  * MENACWY_SCHEDULE_MIN_AGE_MONTHS in ages.js, and the two now differ.
  */
 export const MENACWY_LICENCE_MIN_AGE_DAYS = MENACWY_BRANDS.find((b) => b.key === 'MenQuadfi').minAgeDays;
+
+/**
+ * STOP C C13 (owner, 2026-11-15): the age from which a MenACWY dose of UNKNOWN
+ * brand counts — 2 months, Menveo's (2-vial) floor, which is also CDC's
+ * software's floor for an unspecified MenACWY product (2 months less 4 days).
+ * Not MENACWY_LICENCE_MIN_AGE_DAYS: MenQuadfi's 6 weeks (owner 2026-09-23,
+ * following AAP) is MenQuadfi's alone, and an unknown brand might not have
+ * been MenQuadfi.
+ */
+export const MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS = MENACWY_BRANDS.find((b) => b.key === 'Menveo 2-vial').minAgeM;
 
 /**
  * The youngest age any MenB-containing product may be given (10 years).

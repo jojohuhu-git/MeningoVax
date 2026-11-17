@@ -4,8 +4,8 @@
 code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth**.
 
-**Last verified against code:** 2026-11-16 (MenB dose 3, STOP C C5–C7; an undated dose
-does not count, C1);
+**Last verified against code:** 2026-11-16 (MenACWY gaps, STOP C C10, C11, C13; MenB dose
+3, C5–C7; an undated dose does not count, C1);
 before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
 the 2026-09-15 dose-counter and primary/booster-boundary fixes (M5, M9, M10, M12,
@@ -102,7 +102,10 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
     given at 6 or 7 weeks is licensed and **counts**: the card for a patient in
     that gap says so and states the schedule that follows ("6 weeks, then 4, 6
     and 12 months") instead of pretending nothing happened. Menveo's own floor
-    is unchanged at 2 months. See `MENACWY_LICENCE_MIN_AGE_DAYS` (brands.js) vs
+    is unchanged at 2 months. **A dose whose brand is unknown counts only from 2
+    months** (your C13 answer, 2026-11-15): the 6 weeks is MenQuadfi's alone,
+    and an unknown brand might not have been MenQuadfi (CDC's software also
+    starts an unspecified MenACWY at 2 months). See `MENACWY_LICENCE_MIN_AGE_DAYS` (brands.js) vs
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
@@ -168,6 +171,11 @@ receive another.
 - **Microbiologists** routinely handling *N. meningitidis*: 1 dose, then every 5 years
   while the exposure continues — a flat interval with no under-7 variation, because
   ACIP's microbiologist table covers ages ≥10 only.
+- **A booster given too soon does not count, for both** (your C10 answer,
+  2026-11-15): checked like a medical high-risk booster — 3 or 5 years, less
+  the 4-day grace. Before, a dose 6 weeks after a travel dose was counted as
+  "the booster". (C10 also names the A/C/W/Y outbreak booster; that half comes
+  with the outbreak card's booster date, your STOP B answer B-2.)
 
 ---
 
@@ -331,6 +339,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   follows PneumoVax here on purpose).
 - **Given too soon after the previous dose** (violates a minimum interval):
   invalid — does not count. Repeat that dose only.
+- **Any two MenACWY doses must be at least 8 weeks apart** (your C11 answer,
+  2026-11-15; ACIP: *"an 8-week minimum interval between doses"*; less the
+  4-day grace). It was 4 weeks, which ACIP says only of MenB. One exception,
+  your E1 answer: the repeat of a too-young **first** dose waits 4 weeks after
+  it.
 - **The repeat is timed from the dose that did not count** (owner, STOP C,
   2026-11-15 — "Ruling D", the same rule as PneumoVax). CDC: *"The repeat dose
   should be spaced after the invalid dose by the recommended minimum
