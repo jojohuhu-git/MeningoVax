@@ -155,12 +155,34 @@ describe('MenB family mismatch → invalid, does not count', () => {
 
 // ── MENACWY HIGH-RISK: D2 invalid interval → renumbering guarantee ────────
 describe('MenACWY high-risk: D2 with invalid interval, D3 valid', () => {
-  it('D1 valid, D2 too soon (invalid), D3 after correct interval from D1 → D3 is effective D2, NOT flagged for interval', () => {
-    // High-risk adult (asplenia). D1 at ~12 months ago, D2 only 3 weeks after D1 (invalid),
-    // D3 given 10 weeks after D1 (valid — re-evaluated against D1, not D2).
+  // RULING D (owner, STOP C C2, 2026-11-15) changed this fixture. It used to put
+  // D3 10 weeks after D1 but only 7 weeks after the failed D2, and expected D3
+  // to count "measured from D1". CDC Timing and Spacing (read live 2026-11-15):
+  // "The repeat dose should be spaced after the invalid dose by the recommended
+  // minimum interval." So D3 now sits 8 weeks after D2; the renumbering
+  // guarantee this block exists for is unchanged. The old dates are kept below
+  // as the case that no longer counts.
+  it('Ruling D: D3 7 weeks after the failed D2 (10 weeks after D1) does not count', () => {
+    const { perDose, effective } = analyze(
+      'MenACWY',
+      [
+        { date: weeksAgo(20), brand: 'Menveo (MenACWY)' },
+        { date: weeksAgo(17), brand: 'Menveo (MenACWY)' },
+        { date: weeksAgo(10), brand: 'Menveo (MenACWY)' },
+      ],
+      360,
+      ['asplenia']
+    );
+    expect(perDose.map(p => p.status)).toEqual(['valid', 'invalid', 'invalid']);
+    expect(effective).toHaveLength(1);
+  });
+
+  it('D1 valid, D2 too soon (invalid), D3 8 weeks after D2 → D3 is effective D2, NOT flagged for interval', () => {
+    // High-risk adult (asplenia). D2 only 3 weeks after D1 (invalid); D3 8 weeks
+    // after D2 (valid — Ruling D times the repeat from the dose that failed).
     const d1 = weeksAgo(20);
     const d2 = weeksAgo(17); // 3 weeks after d1 → invalid (needs ≥8 weeks)
-    const d3 = weeksAgo(10); // 10 weeks after d1 → valid when re-evaluated as D2
+    const d3 = weeksAgo(9);  // 8 weeks after d2 → valid as effective D2
 
     const { perDose, effective } = analyze(
       'MenACWY',

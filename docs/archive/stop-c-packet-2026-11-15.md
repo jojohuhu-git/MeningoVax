@@ -272,5 +272,13 @@ each with `verify-clinical-source` re-read before the code changes. **No code ch
 | C17 | Moot (C1: an undated dose does not count) | Row `MENB-HIGHRISK-DOSE-2-UNVERIFIABLE` goes with C1 |
 | C18 | **Keep the rule; words at Phase 4 Q8** — and *"eventually would like all language to match what is in pneumovax"* | No change now; Phase 4/6 wording copies PneumoVax |
 
+**Two follow-up answers, given 2026-11-15 while building C2 (Phase 3 family 1).** Asked because
+C2's patient had a dose given too soon; these two cases have no "previous dose" gap to time from.
+
+| # | Owner answer | What changes |
+|---|---|---|
+| E1 | **A too-young FIRST dose starts a 4-week wait** before it is repeated | A deliberate difference from CDC Timing and Spacing (*"repeated on or after the date when the child reaches at least the minimum age"*, `gbpTooYoungFirstDoseRepeat`); matches PneumoVax. Rows `ACWY-ANY-TWO-DOSES-GAP`, `MENB-REPEAT-GAP` |
+| E2 | **After a wrong-family MenB dose, the next dose waits 4 weeks after it**, and is otherwise due when it would be due from the established family's doses. Also noted with E2: a card option to switch to the other family's product (the build commit `c0ec1ff` calls it "the owner's E2 alternative"; her exact words were not saved). ACIP 2020: *"one product should be selected for administration of an additional dose"* | 4-week floor built (`MENB-REPEAT-GAP`; `applyRepeatFloor`). **The switch-product option is NOT built** — open, to be asked as its own question |
+
 **Not asked at STOP C, found while building it:** the minimum-age wording bug (above) — a fix-queue
 item, not a clinical decision.

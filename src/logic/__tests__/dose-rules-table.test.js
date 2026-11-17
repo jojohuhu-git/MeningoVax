@@ -35,7 +35,7 @@ const REPEAT_SENTENCE = 'This dose does not count toward the series: repeat this
 
 const VACCINES = ['any', 'MenACWY', 'MenB'];
 const MEASURED_FROM = [
-  'birth', 'last counted dose', 'dose 1', 'dose 2', 'dose 3',
+  'birth', 'last counted dose', 'last dose given', 'dose 1', 'dose 2', 'dose 3',
   'first counted branded dose', 'today', 'the record', 'the series total',
 ];
 const ENFORCEMENT = [
@@ -115,6 +115,18 @@ const HAND_PATIENTS = [
       { date: '2026-01-01', brand: 'Bexsero (MenB)' },
       { date: '2026-02-01', brand: 'Bexsero (MenB)' },
       { date: '2026-06-05', brand: 'Bexsero (MenB)' },
+    ],
+  },
+  {
+    // Ruling D, E2 (owner, 2026-11-15). No grid patient has a dose after a
+    // MenB dose that did not count, so the row needs this one.
+    rule: 'MENB-REPEAT-GAP',
+    why: '17-year-old with asplenia; Bexsero 2026-06-01, Trumenba 2026-08-01 (wrong family), Bexsero 2026-08-15 (2 weeks after the Trumenba)',
+    vaccine: 'MenB', ageMonths: 212, dob: '2009-01-01', riskIds: ['asplenia'],
+    doses: [
+      { date: '2026-06-01', brand: 'Bexsero (MenB)' },
+      { date: '2026-08-01', brand: 'Trumenba (MenB)' },
+      { date: '2026-08-15', brand: 'Bexsero (MenB)' },
     ],
   },
 ];

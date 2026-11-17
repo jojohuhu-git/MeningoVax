@@ -113,7 +113,7 @@ import {
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP,
+  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
@@ -199,6 +199,8 @@ const MENACWY_BOOSTER_5Y_YEARS         = MENACWY_BOOSTER_CADENCE_YEARS;
 const MENACWY_BOOSTER_3Y_YEARS         = MENACWY_FIRST_BOOSTER_YEARS_UNDER_7;
 // MenB high-risk: D2 ≥4 weeks after D1
 const MENB_HR_D2_MIN_INTERVAL          = MENB_HIGHRISK_D2_GAP;
+// MenB: 4 weeks after a dose that did not count, and healthy D2 (Ruling D, C12)
+const MENB_REPEAT_MIN                  = MENB_REPEAT_MIN_INTERVAL;
 // MenB high-risk: D3 ≥6 months after D1 AND ≥4 months after D2.
 // P0-4 (2026-09-15): MONTH counts compared on the calendar, not day counts
 // against an averaged month (DAYS.months(6) = 183 days, while a real six-month
@@ -314,6 +316,12 @@ function invalidResult(reasons, detail, reasonCites) {
   return r;
 }
 
+// E2 (owner, 2026-11-15): marks a wrong-family MenB dose, so the walk keeps it
+// off the schedule's clock and holds the next dose only to the 4-week floor.
+function wrongFamily(r) {
+  return { ...r, wrongFamily: true };
+}
+
 // A dose that was validly given but does not advance THIS series (A3, P0-1).
 function setAsideResult(reasons, reasonCites) {
   return { status: 'valid', reasons, reasonCites, notAdolescentCount: true };
@@ -335,10 +343,17 @@ const brandLabelOf = (brand, fallback) => (brand
  * row says otherwise; `whenGiven` carries what ageMeetsMinimum() needs to
  * re-derive the age as if the dose were 4 days later.
  */
-export function doseContext({ vaccine, dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer, dob }) {
+export function doseContext({ vaccine, dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer, dob, anchor = null, lastUncounted = null }) {
   const dated = !!dose?.date;
   return {
     vaccine, dose, effectiveIdx, kept, ageMonths, riskIds, today, riskAnswer, dob,
+    // RULING D (STOP C C2): the last dated dose given before this one, counted
+    // or not (validate.js runWalk decides which doses qualify). The gap rows
+    // measure from it, so a repeat is timed from the dose that failed.
+    anchor,
+    // E2: the last dated dose before this one that did not count, a
+    // wrong-family MenB dose included; null once a later dose counted.
+    lastUncounted,
     dated,
     brand: dose?.brand || '',
     whenGiven: { doseDate: dose?.date || null, ageMonths, today, dob },
@@ -355,12 +370,23 @@ function once(ctx, key, make) {
   return ctx[key];
 }
 
-// The last COUNTED dose that has a date, and the gap from it.
-const prevDated = (ctx) => once(ctx, '_prev', () => {
-  if (!ctx.dated || ctx.effectiveIdx === 0) return null;
-  const d = [...ctx.kept].reverse().find((k) => k.date);
+// The dose the gap is measured from, and the gap. RULING D (owner, STOP C C2,
+// 2026-11-15; CDC Timing and Spacing: "The repeat dose should be spaced after
+// the invalid dose by the recommended minimum interval"): the last DATED dose
+// GIVEN — a dose that did not count for being too soon or too young included
+// — not the last dose that counted. Hand-built contexts with no anchor fall
+// back to the last counted dated dose, which is what the anchor is whenever
+// no dose has failed. WHICH rule applies still comes from the counted doses
+// (`effectiveIdx`, `kept`): only the clock moves.
+const prevGiven = (ctx) => once(ctx, '_prevGiven', () => {
+  if (!ctx.dated) return null;
+  const d = ctx.anchor ?? [...ctx.kept].reverse().find((k) => k.date) ?? null;
   return d ? { dose: d, interval: daysBetween(d.date, ctx.dose.date) } : null;
 });
+// The same, for rows about the gap from a previous SERIES dose: none for the
+// first counted dose. (A repeat of a dose 1 that did not count is held only to
+// the any-two-doses rows, which read prevGiven — owner, E1.)
+const prevDated = (ctx) => (ctx.effectiveIdx === 0 ? null : prevGiven(ctx));
 
 const keptDated = (ctx) => once(ctx, '_keptDated', () => ctx.kept.filter((d) => d.date));
 
@@ -729,7 +755,7 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'infant series (asplenia, complement, HIV, travel, outbreak; dose 1 under 2 years)',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'CDC child schedule notes',
@@ -773,7 +799,7 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'high-risk, series begun at 2 years or older',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'ACIP 2020',
@@ -800,7 +826,7 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'medical high-risk only (asplenia, complement, HIV, complement inhibitor)',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'ACIP 2020 Tables 4–6',
@@ -848,7 +874,7 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'travel, microbiologist, A/C/W/Y outbreak',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'none',
     grace: null,
     authorityToday: 'Nothing: an open gap, not a decision',
@@ -873,7 +899,7 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'routine (no ongoing risk, not on the infant series, not an outbreak contact)',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'ACIP 2020 (acwyBooster8WeeksAfterDose1); owner ruling 2026-11-15',
@@ -895,11 +921,16 @@ export const DOSE_RULES = [
       if (ctx.ageAtDose === null || !ageMeetsMinimum(ctx.ageAtDose, AGE_16Y_MONTHS, ctx.whenGiven)) return null;
       if (intervalMeetsMinimum(prev.interval, MENACWY_ROUTINE_BOOSTER_MIN_GAP)) return null;
       const { ageMonths, today, dob } = ctx;
-      const d1Age = ageAtDoseFromDate(prev.dose, ageMonths, today, dob);
-      const d1Before16 = d1Age != null && !ageMeetsMinimum(d1Age, AGE_16Y_MONTHS, { doseDate: prev.dose.date, ageMonths, today, dob });
+      // Which rule applies is read from the COUNTED dose 1; the gap is from
+      // the last dose given (Ruling D), which is dose 1 unless a dose failed.
+      const d1 = keptDated(ctx)[0];
+      if (!d1) return null;
+      const d1Age = ageAtDoseFromDate(d1, ageMonths, today, dob);
+      const d1Before16 = d1Age != null && !ageMeetsMinimum(d1Age, AGE_16Y_MONTHS, { doseDate: d1.date, ageMonths, today, dob });
       if (!d1Before16) return null;
+      const fromWhat = prev.dose === d1 ? 'dose 1' : 'the previous dose, which did not count';
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after dose 1. The 16-year booster must be at least 8 weeks after dose 1 [c].`],
+        [`Given only ${fmtDays(prev.interval)} after ${fromWhat}. The 16-year booster must be at least 8 weeks after ${fromWhat === 'dose 1' ? 'dose 1' : 'it'} [c].`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_ROUTINE_BOOSTER_MIN_GAP)}.`,
         [cite('acwyBooster8WeeksAfterDose1')],
       );
@@ -912,20 +943,22 @@ export const DOSE_RULES = [
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'any',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'None for MenACWY (the 4-week repeat rule appears only in the MenB section of ACIP 2020)',
     sourcesSay: {
       verdict: 'differs',
-      refs: ['acip2020MenbRepeat4Weeks', 'acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1'],
-      note: 'ACIP\'s only "4 weeks between any 2 doses" sentence is in the MenB section, about repeating a dose. For MenACWY, ACIP and CDC state 8 weeks. The app voids any MenACWY dose under 4 weeks, and no source says so (finding R-4a). For STOP C Q2.',
+      refs: ['acip2020MenbRepeat4Weeks', 'acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'gbpTooYoungFirstDoseRepeat'],
+      note: 'ACIP\'s only "4 weeks between any 2 doses" sentence is in the MenB section, about repeating a dose. For MenACWY, ACIP and CDC state 8 weeks. The app voids any MenACWY dose under 4 weeks, and no source says so (finding R-4a; owner answer C11 makes it 8 weeks, Phase 3 family 4). Since Ruling D (E1, owner, 2026-11-15) this row also holds the repeat of a dose 1 given too young to 4 weeks after it; CDC instead repeats such a dose "on or after the date when the child reaches at least the minimum age" — a deliberate difference, matching PneumoVax.',
     },
     label: 'Invalid',
     // Catches two doses days apart (Task 3). The stricter rows above handle
     // the cases they name.
     check: (ctx) => {
-      const prev = prevDated(ctx);
+      // prevGiven, not prevDated: also the repeat of a dose 1 that did not
+      // count (owner, E1, 2026-11-15).
+      const prev = prevGiven(ctx);
       if (!prev || intervalMeetsMinimum(prev.interval, MENACWY_BASELINE_MIN_INTERVAL)) return null;
       return invalidResult(
         [`Given only ${fmtDays(prev.interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks.`],
@@ -1206,12 +1239,12 @@ export const DOSE_RULES = [
       const d1Family = menbFamily(firstKeptWithBrand.brand);
       const thisFamily = menbFamily(ctx.brand);
       if (!d1Family || !thisFamily || d1Family === thisFamily) return null;
-      return invalidResult(
+      return wrongFamily(invalidResult(
         [
           `MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are not interchangeable: this dose must match the established antigen family (${d1Family}), but was given as ${thisFamily}.`,
         ],
         `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${ctx.brand} (family: ${thisFamily}). Does not count: give the correct dose in the ${d1Family} family.`
-      );
+      ));
     },
   },
   {
@@ -1245,7 +1278,7 @@ export const DOSE_RULES = [
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'MMWR mm7349a3',
@@ -1262,6 +1295,39 @@ export const DOSE_RULES = [
       return invalidResult(
         [`Given only ${fmtDays(prev.interval)} after dose 1. High-risk schedule requires ≥4 weeks between D1 and D2.`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`
+      );
+    },
+  },
+  {
+    id: 'MENB-REPEAT-GAP',
+    inventory: 'Ruling D (new 2026-11-15)',
+    what: 'A MenB dose under 4 weeks after a MenB dose that did not count (too soon, too young, or the other antigen family)',
+    vaccine: 'MenB',
+    dated: true,
+    schedule: 'any',
+    measuredFrom: 'last dose given',
+    enforcement: 'floor',
+    grace: true,
+    authorityToday: 'ACIP 2020 (acip2020MenbRepeat4Weeks, acip2020MenbMixedProductsSelectOne); owner STOP C C2 and E1/E2, 2026-11-15',
+    sourcesSay: {
+      verdict: 'stated',
+      refs: ['acip2020MenbRepeat4Weeks', 'acip2020MenbMixedProductsSelectOne', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat'],
+      note: 'ACIP states 4 weeks between any 2 doses when a MenB dose must be repeated, and that after a mixed-product series the other product\'s dose is invalid. The app voids a dose under 4 weeks after a dose that did not count. One owner-decided difference: CDC repeats a too-young FIRST dose "on or after the date when the child reaches at least the minimum age" (no wait for an inactivated vaccine); the owner chose 4 weeks after it (E1, 2026-11-15), matching PneumoVax.',
+    },
+    label: 'Invalid',
+    // E2: a wrong-family dose reaches this row through `lastUncounted` (it is
+    // kept off `anchor`, so the schedule rows still time the next dose from
+    // the established family's doses). Before the dose-3 rows below, which
+    // count their dose outright.
+    check: (ctx) => {
+      const failed = ctx.lastUncounted;
+      if (!failed?.date) return null;
+      const interval = daysBetween(failed.date, ctx.dose.date);
+      if (intervalMeetsMinimum(interval, MENB_REPEAT_MIN)) return null;
+      return invalidResult(
+        [`Given only ${fmtDays(interval)} after the MenB dose of ${fmtDate(failed.date)}, which did not count. A repeated MenB dose must be at least 4 weeks after the dose it repeats [c].`],
+        `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENB_REPEAT_MIN)}.`,
+        [cite('acip2020MenbRepeat4Weeks')],
       );
     },
   },
@@ -1364,7 +1430,7 @@ export const DOSE_RULES = [
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
-    measuredFrom: 'last counted dose',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'ACIP 2020',
@@ -1393,6 +1459,35 @@ export const DOSE_RULES = [
     },
   },
   {
+    id: 'MENB-HEALTHY-DOSE-2-GAP',
+    inventory: 'R-4c (new 2026-11-15)',
+    what: 'Healthy MenB dose 2 under 4 weeks after dose 1',
+    vaccine: 'MenB',
+    dated: true,
+    schedule: 'healthy (shared decision)',
+    measuredFrom: 'last dose given',
+    enforcement: 'floor',
+    grace: true,
+    authorityToday: 'ACIP 2020 (acip2020MenbRepeat4Weeks); CDSI; owner STOP C C12, 2026-11-15',
+    sourcesSay: {
+      verdict: 'stated',
+      refs: ['acip2020MenbRepeat4Weeks'],
+      note: 'Owner answer C12: a healthy dose 2 under 4 weeks does not count; 4 weeks to 6 months counts with the rescue dose 3. ACIP states 4 weeks between any 2 MenB doses where a dose is repeated; CDC\'s software (CDSI) sets 4 weeks less 4 days for dose 2 in both families.',
+    },
+    label: 'Invalid',
+    // Before MENB-HEALTHY-EARLY-DOSE-2, which counts every dose 2 it sees.
+    check: (ctx) => {
+      const prev = prevDated(ctx);
+      if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
+      if (intervalMeetsMinimum(prev.interval, MENB_REPEAT_MIN)) return null;
+      return invalidResult(
+        [`Given only ${fmtDays(prev.interval)} after dose 1. MenB dose 2 must be at least 4 weeks after dose 1 [c].`],
+        `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_REPEAT_MIN)}.`,
+        [cite('acip2020MenbRepeat4Weeks')],
+      );
+    },
+  },
+  {
     id: 'MENB-HEALTHY-EARLY-DOSE-2',
     inventory: 'B13',
     what: 'Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed',
@@ -1413,11 +1508,13 @@ export const DOSE_RULES = [
     // series-length question. Granting grace would drop a dose from the plan.
     // No lower limit at all today (Phase 0 R-4c; CDSI has one).
     check: (ctx) => {
-      const prev = prevDated(ctx);
-      if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
-      if (calendarIntervalElapsed(prev.dose.date, MENB_HEALTHY_D2_MIN_MONTHS, ctx.dose.date)) return null;
+      // The 6-month line is from the COUNTED dose 1 — a series-length
+      // question, not a repeat clock (Ruling D moves only the latter).
+      const d1 = keptDated(ctx)[0];
+      if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !d1 || !prevDated(ctx)) return null;
+      if (calendarIntervalElapsed(d1.date, MENB_HEALTHY_D2_MIN_MONTHS, ctx.dose.date)) return null;
       return validResult([
-        `Dose 2 was given ${fmtDays(prev.interval)} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
+        `Dose 2 was given ${fmtDays(daysBetween(d1.date, ctx.dose.date))} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
       ]);
     },
   },
@@ -1428,7 +1525,7 @@ export const DOSE_RULES = [
     vaccine: 'MenB',
     dated: true,
     schedule: 'healthy (shared decision)',
-    measuredFrom: 'dose 2',
+    measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
     authorityToday: 'CDC notes',
@@ -1447,10 +1544,14 @@ export const DOSE_RULES = [
       // Only a rescue dose if dose 2 was early — no grace, the same
       // series-length question as MENB-HEALTHY-EARLY-DOSE-2.
       if (calendarIntervalElapsed(d1Date, MENB_HEALTHY_D2_MIN_MONTHS, d2Date)) return null;
-      if (calendarIntervalMeetsMinimum(d2Date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
+      // Ruling D: from the last dose given — dose 2, or a rescue dose 3 that
+      // itself came too soon.
+      const from = prevDated(ctx)?.dose?.date ?? d2Date;
+      if (calendarIntervalMeetsMinimum(from, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
+      const fromWhat = from === d2Date ? 'dose 2' : 'the previous rescue dose, which did not count';
       return invalidResult(
-        [`Rescue dose given only ${fmtDays(daysBetween(d2Date, ctx.dose.date))} after dose 2. Must be ≥4 months after the early dose 2.`],
-        `D2→D3: ${fmtDays(daysBetween(d2Date, ctx.dose.date))} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
+        [`Rescue dose given only ${fmtDays(daysBetween(from, ctx.dose.date))} after ${fromWhat}. Must be ≥4 months after ${from === d2Date ? 'the early dose 2' : 'it'}.`],
+        `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${fmtDays(daysBetween(from, ctx.dose.date))} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
       );
     },
   },

@@ -32,7 +32,7 @@ import {
   MENACWY_ROUTINE_BOOSTER_MIN_GAP, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
-  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
+  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENB_REPEAT_MIN_INTERVAL,
 } from '../../src/logic/intervals.js';
 import {
   MENACWY_SCHEDULE_MIN_AGE_MONTHS, MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
@@ -286,15 +286,21 @@ export const ROW_MAP = {
         differs: ['grace'], status: 'open', stopC: 'Q2 (new in 2.3)',
         why: 'CDSI gives the 6-month line the 4-day grace: a dose 2 given 1–4 days before 6 months completes the 2-dose series. The app gives it none (the row says grace must never decide how many doses a series has), so it asks a dose 3. Under the owner\'s B-1 "only when it helps", the grace here would mean one dose fewer.',
       })),
-      ...['H3_4C', 'H3_FH'].map((s) => ({
-        what: `Healthy MenB (${s}) dose 2: lowest gap from dose 1`, app: { absent: true },
-        cdsi: f(s, 2, `gap from previous dose${SINCE_2017}`), differs: ['absent'], status: 'open', stopC: 'Q2',
-        why: 'CDSI\'s 3-dose healthy series needs dose 2 at least 4 weeks less 4 days after dose 1, for BOTH families. The app has no lower limit (finding R-4c, already on the STOP C Q2 list from 2.2; the 2.2 note said Trumenba 4 months, which is CDSI\'s 2-dose series only).',
-      })),
     ],
     // In the 2-dose series the previous dose IS dose 1, so the 4-month "gap
     // from previous" can never decide anything the 6-month line has not.
     covers: [/^B · Meningococcal B 2-dose series MenB-(4C|FHbp) .* · Dose 2 · gap from previous dose( \[doses given from 20241025\])?$/],
+  },
+  // Owner answer C12 (STOP C, 2026-11-15) closed finding R-4c: the app now has
+  // CDSI's lower limit, so the two compare with no difference.
+  'MENB-HEALTHY-DOSE-2-GAP': {
+    compare: ['H3_4C', 'H3_FH'].map((s) => ({
+      what: `Healthy MenB (${s}) dose 2: lowest gap from dose 1`, app: fromRow('MENB-HEALTHY-DOSE-2-GAP', days(MENB_REPEAT_MIN_INTERVAL)),
+      cdsi: f(s, 2, `gap from previous dose${SINCE_2017}`),
+    })),
+  },
+  'MENB-REPEAT-GAP': {
+    none: 'CDSI has no separate rule for a repeated dose: its MenB gaps are each series\' "gap from previous dose" (marked fromPrevious in its files), compared on MENB-HIGHRISK-DOSE-2-GAP, MENB-HEALTHY-DOSE-2-GAP and the dose-3 rows. The app\'s 4-week floor after a dose that did not count is ACIP 2020\'s sentence (acip2020MenbRepeat4Weeks; Ruling D, owner STOP C C2 and E1/E2, 2026-11-15).',
   },
   'MENB-HEALTHY-RESCUE-DOSE-3-GAP': {
     compare: [

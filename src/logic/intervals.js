@@ -249,6 +249,14 @@ export function yearsLabel(years) {
 // interval; CDC child & adolescent schedule notes, MenB special situations,
 // for the rescue rules — the citations the cards already carry.
 
+/**
+ * MenB, any two doses when a dose must be repeated: at least 4 weeks (RULING D,
+ * owner STOP C C2/C12 and E1/E2, 2026-11-15). ACIP 2020 (rr6909a1), read live
+ * 2026-11-15: "For situations in which a MenB dose or doses must be repeated, a
+ * minimum interval of 4 weeks should be used between any 2 doses." Also the
+ * healthy dose 2 floor (C12). The checker and the card both read this one.
+ */
+export const MENB_REPEAT_MIN_INTERVAL = WEEKS(4);
 /** MenB high-risk dose 2: at least 4 weeks after dose 1 (the 0/1-2/6 schedule). */
 export const MENB_HIGHRISK_D2_GAP = WEEKS(4);
 /** MenB high-risk dose 3: at least 6 months after dose 1... */
