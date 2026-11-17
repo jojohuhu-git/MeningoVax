@@ -54,7 +54,10 @@ built 2026-11-16** (Ruling D; PR #90, merged). **Phase 3 families 2–5 and STOP
 2026-11-16/17** (#91–#95, approved; landed on main by #96, because stacked PRs had merged into
 each other's branches): undated doses do not count (C1); MenB dose 3 (C5–C7); MenACWY gaps
 (C10, C11, C13); relabels (C3, C4, C8, C9, C14, C15, C18); outbreak/military booster dates,
-routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Not built: B-1**
+routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Owner answers D1–D8
+(2026-11-17) built** (`docs/archive/decisions-2026-11-17-open-questions.md`): college 5-year cover
+(reverses M17), set-aside dose starts the clock, MenB 6-month grace lines, MenACWY too-young repeat
+8 weeks, military booster check, outbreak wording, MenB switch line. **Not built: B-1**
 (4-day grace at age lines "only when it helps") — next, then Phase 4. Open owner questions are
 in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
