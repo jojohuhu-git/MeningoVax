@@ -94,7 +94,15 @@ rule applies stay on the doses that COUNTED.
   least 4 weeks after the wrong-family dose. ACIP 2020: *"a minimum interval of 4 weeks should
   be used between any 2 doses"* (`acip2020MenbRepeat4Weeks`). Validator: `MENB-REPEAT-GAP`
   (reads `lastUncounted`); card: `applyRepeatFloor` in `recommend.js`
-  (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_REPEAT_DOSE_FLOOR`).
+  (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_ANY_TWO_DOSES_MIN_GAP`, 8 weeks, since D5).
+  **D8 (owner, 2026-11-17) — the other product, as one line:** with exactly one dose of each
+  MenB product on record, the card still finishes with the first product and its always-shown
+  lead adds *"Or finish with Trumenba instead: dose 2 from … (the Bexsero dose then does not
+  count)"*. ACIP 2020: *"one product should be selected for administration of an additional
+  dose …; the dose from the product not selected for series completion should be considered
+  invalid"* (`acip2020MenbMixedProductsSelectOne`). The date is `menbRec()`'s own answer for a
+  record holding only the other product's dose (`withMenbSwitchLine` in `recommend.js`). The
+  dose chip still says to give the established family; the card carries the alternative.
 
 Test: `regression-2026-11-15-ruling-d-repeat-from-the-dose-given.test.js`.
 
@@ -320,7 +328,8 @@ Products within a family:
 
 Once D1 brand is known, subsequent doses must stay in the same family. Family anchor = first KNOWN-brand dose.
 A wrong-family dose does not count; the next dose of the established family waits at least 4
-weeks after it (E2, Ruling D section above).
+weeks after it (E2, Ruling D section above). With one dose of each product, the card also
+offers finishing with the other product instead (D8).
 
 ## Pentavalent (Penbraya/Penmenvy)
 

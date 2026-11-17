@@ -1980,6 +1980,44 @@ function outbreakWording(cards, applies) {
   });
 }
 
+// D8 (owner, 2026-11-17; E2's unbuilt option): after one dose of each MenB
+// product, the card still finishes with the first product (E2) and adds one
+// line — the date to finish with the other product instead. ACIP 2020 (read
+// live 2026-11-17): "If 2 doses were administered using different MenB
+// products, one product should be selected for administration of an
+// additional dose at an appropriate interval to ensure valid completion of a
+// MenB series; the dose from the product not selected for series completion
+// should be considered invalid". The other product's date is the engine's own
+// answer for a record holding only that product's dose — never re-derived.
+const MENB_PRODUCT_BY_FAMILY = { '4C': 'Bexsero', FHbp: 'Trumenba' };
+function withMenbSwitchLine(cards, history, am, riskIds, today) {
+  const sorted = history.sortedDoses ?? [];
+  const per = history.perDose ?? [];
+  if (sorted.length !== 2 || !per[1]?.wrongFamily) return cards;
+  const [first, other] = sorted;
+  const firstFam = menbFamily(first.brand);
+  const otherFam = menbFamily(other.brand);
+  if (!first.date || !other.date || !firstFam || !otherFam || firstFam === otherFam) return cards;
+  const card = cards[0];
+  if (!card || !(card.dueToday || card.earliestNextDate) || !card.note || typeof card.note !== 'object') return cards;
+  const alt = menbRec(am, riskIds, [other], today, other.date)[0];
+  if (!alt || !(alt.dueToday || alt.earliestNextDate) || !alt.doseNum) return cards;
+  const when = alt.dueToday ? 'today' : `from ${fmtDate(alt.earliestNextDate)}`;
+  const line = ` Or finish with ${MENB_PRODUCT_BY_FAMILY[otherFam]} instead: dose ${alt.doseNum} ${when} `
+    + `(the ${MENB_PRODUCT_BY_FAMILY[firstFam]} dose then does not count) [c].`;
+  // In the lead (always shown, not behind "Why this"): a clinic that stocks
+  // only the other product needs to see it. The lead's citations come first in
+  // noteCites, so the new one goes right after them.
+  const cites = [...(card.noteCites ?? [])];
+  const leadCiteCount = (card.note.lead.match(/\[c\]/g) || []).length;
+  cites.splice(leadCiteCount, 0, cite('acip2020MenbMixedProductsSelectOne'));
+  return [{
+    ...card,
+    note: { ...card.note, lead: `${card.note.lead}${line}` },
+    noteCites: cites,
+  }, ...cards.slice(1)];
+}
+
 export function recommend(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -2047,10 +2085,10 @@ export function recommend(input) {
     MENACWY_ANY_TWO_DOSES_MIN_GAP,
     today,
   ), outbreakIsTheOnlyBoosterReason('MenACWY', riskIds));
-  const menb = outbreakWording(applyRepeatFloor(
+  const menb = withMenbSwitchLine(outbreakWording(applyRepeatFloor(
     menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate),
     menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL, today,
-  ), outbreakIsTheOnlyBoosterReason('MenB', riskIds));
+  ), outbreakIsTheOnlyBoosterReason('MenB', riskIds)), menbHistory, am, riskIds, today);
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y). MenB can

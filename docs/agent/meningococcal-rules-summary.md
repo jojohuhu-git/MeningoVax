@@ -382,7 +382,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   counted.
 - **A MenB dose of the wrong antigen family** does not count, and the next
   dose of the right family waits at least 4 weeks after it (owner,
-  2026-11-15), as well as being due by the schedule.
+  2026-11-15), as well as being due by the schedule. With one dose of each
+  product on record, the card also says how to finish with the other product
+  instead, e.g. *"Or finish with Trumenba instead: dose 2 from Apr 1, 2027 (the
+  Bexsero dose then does not count)"* (your D8 answer, 2026-11-17; ACIP: "one
+  product should be selected").
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above) —
   different from "invalid," no repeat needed, it's just not counted.
