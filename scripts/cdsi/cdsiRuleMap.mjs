@@ -124,7 +124,7 @@ export const ROW_MAP = {
       {
         what: 'Youngest age a first MenACWY dose counts (any product)', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
         cdsi: f('INFANT', 1, 'absolute minimum age'), field: 'value', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
+        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak); confirmed 2026-11-15, STOP C C14',
         why: 'CDSI 4.65 lists MenQuadfi from 6 weeks less 4 days, but its infant series still starts at 2 months less 4 days, so CDSI would NOT count a MenQuadfi given at 6–7 weeks as dose 1. The app counts it (owner, following AAP). The README said CDSI "now agrees" with the 6-week rule: true for the product, not for the series.',
       },
     ],
@@ -327,20 +327,23 @@ export const ROW_MAP = {
 // ─────────────────────────────────────────────────────────────────────────
 export const CDSI_ONLY = [
   {
-    id: 'PENTAVALENT-UPPER-AGE', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'PENTAVALENT-UPPER-AGE', status: 'owner',
+    decided: '2026-11-15, STOP C C4: keep counting and offering pentavalents from 26 (stop-c-packet-2026-11-15.md)',
     what: 'Penbraya and Penmenvy: no dose counts at 26 or older',
     pick: 'pentavalent upper age', app: { n: Math.min(brand('Penbraya').maxAgeM, brand('Penmenvy').maxAgeM), unit: 'months' },
     covers: [],
     why: 'In every MenACWY and MenB series CDSI allows the pentavalents only up to 26 years. The app has no upper age for any product (maxAgeM 999), so it counts a pentavalent given at 26 or older. Read live 2026-11-15: both ACIP statements (mm7315a4, mm7501a2) recommend the pentavalents for "persons aged ≥10 years who are at increased risk" with no upper age, and CDC\'s adult notes say "Adults may receive a single dose of Penbraya"; the 10–25 years is the licence (stated in both MMWRs), which is where CDSI\'s 26 comes from.',
   },
   {
-    id: 'ROUTINE-UPPER-AGES', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'ROUTINE-UPPER-AGES', status: 'owner',
+    decided: '2026-11-15, STOP C C15: no change, never refuse a recorded dose for being given older (stop-c-packet-2026-11-15.md)',
     what: 'Routine MenACWY and healthy MenB: an upper age for counting a dose',
     covers: [/^(ACWY · Meningococcal ACWY 2-dose series|B · Meningococcal B [23]-dose series .*) · Dose [12] · maximum age$/],
     why: 'CDSI gives routine MenACWY dose 1 a maximum age of 19 years and dose 2 of 22, and healthy MenB dose 1 of 24. The app uses the same numbers (ages.js) only to decide when to stop RECOMMENDING; it never refuses to count a recorded dose for being given too old. Low stakes (no more doses are owed either way), but it is a difference.',
   },
   {
-    id: 'MENB-4C-OLD-2-DOSE-COURSE', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'MENB-4C-OLD-2-DOSE-COURSE', status: 'owner',
+    decided: '2026-11-15, STOP C C3: current schedule for everyone; a deliberate difference from ACIP mm7349a3 (stop-c-packet-2026-11-15.md)',
     what: 'High-risk Bexsero: two doses given before 25 Oct 2024 complete the primary series',
     covers: [/^B · Meningococcal B risk 3-dose series MenB-4C increased risk · Dose 3 · skip \(Both\) set 1 condition 1$/],
     why: 'CDSI skips high-risk Bexsero dose 3 when two valid Bexsero doses were given before 25 Oct 2024 (the old 2-dose high-risk course). The app asks a dose 3 (checked 2026-11-15: asplenia, Bexsero 2023-01-01 and 2023-02-15 → "Dose 3 of 3 (high-risk, 4C)"). Read live 2026-11-15 (mm7349a3): "There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule." The sentence names no risk group, so it covers healthy patients too: the app also asks a healthy patient for a rescue dose 3 after Bexsero 0 and 1 month before that date (checked 2026-11-15). ACIP says "before October 24"; CDSI\'s cutoff is 25 October (a one-day difference, for a dose given on the 24th). Not a dose row: series size lives in seriesTotals.js menbSeriesInfo().',
