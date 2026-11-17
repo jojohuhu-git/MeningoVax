@@ -431,17 +431,29 @@ const acwy = (ctx) => once(ctx, '_acwy', () => {
   const onOutbreakSchedule = ctx.riskIds.includes('outbreak_acwy');
   return {
     isHighRiskNow,
-    // STOP C C10 (owner, 2026-11-15): travel and microbiologist boosters are
-    // checked like medical high-risk ones (ACIP 2020 Tables 7 and 9: 3 years if
-    // under 7, else 5). C10 also names A/C/W/Y outbreak boosters, but the
-    // outbreak CARD has no booster schedule yet (it changes with STOP B answer
-    // B-2), and checking the record before the card would reject the dose the
-    // card advises — so outbreak joins this check in the same PR as B-2.
+    // STOP C C10 (owner, 2026-11-15): travel, microbiologist and A/C/W/Y
+    // outbreak boosters are checked like medical high-risk ones (ACIP 2020
+    // Tables 7, 8 and 9: 3 years if under 7, else 5). The outbreak half landed
+    // with STOP B answer B-2, which gave the outbreak card the same booster
+    // date (before it, the card advised doses this check would reject).
     // Military and college residence are not on this list (Table 10).
-    otherBoosterScheduleNow: !isHighRiskNow && cls === 'single+boost',
+    otherBoosterScheduleNow: !isHighRiskNow && (cls === 'single+boost' || onOutbreakSchedule),
+    travelOrLabNow: cls === 'single+boost',
     routineOnly: !ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule,
   };
 });
+
+// Is this dose the routine 16-year booster? Given at 16 or older (with the
+// grace), when no dose counted so far was. The card's twin is
+// recommend.js routineBoosterCurrentlyUnmet().
+function acwyIsRoutineBooster(ctx) {
+  if (ctx.ageAtDose === null || !ageMeetsMinimum(ctx.ageAtDose, AGE_16Y_MONTHS, ctx.whenGiven)) return false;
+  const { ageMonths, today, dob } = ctx;
+  return !keptDated(ctx).some((d) => {
+    const a = ageAtDoseFromDate(d, ageMonths, today, dob);
+    return a != null && ageMeetsMinimum(a, AGE_16Y_MONTHS, { doseDate: d.date, ageMonths, today, dob });
+  });
+}
 
 // A MenACWY booster too soon after the dose before it, on a schedule with
 // boosters (medical high risk; since C10 also travel, microbiologist and
@@ -892,10 +904,10 @@ export const DOSE_RULES = [
   {
     id: 'ACWY-TRAVEL-BOOSTER-GAP',
     inventory: 'A5 (travel)',
-    what: 'A MenACWY booster for travel or a microbiologist, sooner than 3 or 5 years (A/C/W/Y outbreak: with STOP B B-2)',
+    what: 'A MenACWY booster for travel, a microbiologist or an A/C/W/Y outbreak, sooner than 3 or 5 years',
     vaccine: 'MenACWY',
     dated: true,
-    schedule: 'travel, microbiologist',
+    schedule: 'travel, microbiologist, A/C/W/Y outbreak (not its routine 16-year booster)',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
@@ -906,9 +918,17 @@ export const DOSE_RULES = [
       note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9.',
     },
     label: 'Invalid',
-    check: (ctx) => (acwy(ctx).otherBoosterScheduleNow
-      ? acwyBoosterTooSoon(ctx, 'MenACWY boosters for travel or laboratory exposure')
-      : null),
+    check: (ctx) => {
+      const a = acwy(ctx);
+      if (!a.otherBoosterScheduleNow) return null;
+      // An outbreak contact's routine 16-year booster is its own ACIP rule and
+      // comes first (the card asks for it before any outbreak booster; relation
+      // 1a, 2026-09-19): judged by the routine 8 weeks, not by this floor.
+      if (!a.travelOrLabNow && acwyIsRoutineBooster(ctx)) return null;
+      return acwyBoosterTooSoon(ctx, a.travelOrLabNow
+        ? 'MenACWY boosters for travel or laboratory exposure'
+        : 'MenACWY boosters for an outbreak');
+    },
   },
   {
     id: 'ACWY-ROUTINE-BOOSTER-GAP',

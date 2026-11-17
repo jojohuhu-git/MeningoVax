@@ -155,15 +155,16 @@ describe('imp P1-2: a risk factor that cannot apply at that age is noted', () =>
     // The card a 2-month-old military recruit gets, with and without the note
     // in the build, must be identical. Compare against the values recorded
     // from the engine before this fix existed (2026-09-18 reproduction run).
+    // STOP B B-4 (owner, 2026-11-15) moved what "unchanged" is: under 16 the
+    // military box adds nothing, so a 2-month-old gets the routine card (no
+    // dose yet) plus one sentence. Still identical with and without the note.
     const r = rec(['military'], '2026-07-18');
     const card = r.menacwy[0];
-    expect(card.status).toBe('exposure');
-    expect(card.dueToday).toBe(true);
-    expect(card.seriesTotal).toBe(1);
-    expect(card.note.lead).toBe('A single MenACWY dose, for a military recruit.');
-    // M2 (2026-09-22): MenQuadfi is now also licensed at 2 months (its floor
-    // is 6 weeks), so a 2-month-old is offered both brands, not Menveo alone.
-    expect(card.brands.map(b => b.name || b)).toEqual(['Menveo 2-vial (MenACWY)', 'MenQuadfi (MenACWY)']);
+    const routine = rec([], '2026-07-18').menacwy[0];
+    expect(card.status).toBe(routine.status);
+    expect(card.dueToday).toBe(routine.dueToday);
+    expect(JSON.stringify(card.note)).toContain('The military dose is given at 16 or older.');
+    // (B-4: no dose is offered, so there is no brand list to check.)
     // And the note is an ADDITION, sitting outside the card.
     expect(r.riskAgeNote).toBeTruthy();
   });

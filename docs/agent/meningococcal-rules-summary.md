@@ -4,8 +4,8 @@
 code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth**.
 
-**Last verified against code:** 2026-11-16 (MenACWY gaps, STOP C C10, C11, C13; MenB dose
-3, C5–C7; an undated dose does not count, C1);
+**Last verified against code:** 2026-11-16 (STOP B B-2–B-5 and the Complete rule; MenACWY
+gaps, STOP C C10, C11, C13; MenB dose 3, C5–C7; an undated dose does not count, C1);
 before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
 the 2026-09-15 dose-counter and primary/booster-boundary fixes (M5, M9, M10, M12,
@@ -143,20 +143,28 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
   - Completion age unknown: treated conservatively as "before 7" (3-year first booster).
   - Only the *first* booster varies. Every booster after it is 5 years.
 
-### Single-dose indications (one primary dose, no standing countdown)
+### Single-dose indications (one primary dose)
 "Single" means the *primary series* is one dose — not that the patient may never
 receive another.
-- **Military recruits**: one documented dose satisfies the recruitment requirement.
-  ACIP also gives recruits a booster every 5 years *on the basis of assignment*, and the
-  **Department of Defense** sets that requirement according to high-risk travel. The app
-  cannot see the assignment, so it computes no date; the card says to check the service's
-  current requirement rather than assume nothing further is due.
-- **Serogroup A/C/W/Y outbreak exposure**: one dose covers the outbreak. If the patient
-  is identified as being at increased risk in an outbreak *again*, a single **top-up**
-  dose is given once ≥3 years (under age 7 today) or ≥5 years (age 7 or older today)
-  have passed since the last dose. It is driven by re-exposure, not by a repeating
-  schedule. Note the clock: this threshold keys off the patient's age **today**, where
-  every other 3-vs-5-year rule keys off the age at the primary dose.
+- **Under 16, the college-residence and military boxes add nothing** (your B-4 answer,
+  2026-11-15): the card follows the routine schedule and adds "The college-residence
+  (military) dose is given at 16 or older."
+- **Military recruits**: one documented dose satisfies the recruitment requirement. The
+  card then shows **the booster date 5 years on, "if required by assignment"** — never
+  "Complete" (your B-3 answer). ACIP: *"Military recruits: Every 5 yrs on basis of
+  assignment"*; the Department of Defense sets it from high-risk travel, which the app
+  cannot see, so the card says to check the service's current requirement.
+- **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
+  ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
+  and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
+  outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
+  routine 16-year booster still comes first. Untick the box when the risk is over.
+- **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
+  10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
+  complete.
+- **The combined pentavalent shot waits for the dose questions** (your B-5 answer): while
+  a recorded dose shows "Needs input", the app offers no pentavalent and does not say
+  both vaccines are due.
 - **First-year college students in dorms**: one dose satisfies the requirement *only if
   given at ≥16 years old* — and then permanently. There is no 5-year expiry (owner
   decision, 2026-09-15: ACIP's footnote governs, not immunize.org's enrolment-recency

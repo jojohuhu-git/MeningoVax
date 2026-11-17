@@ -174,7 +174,7 @@ describe('L2-4: the rule documents state the booster timing the code uses', () =
 
   it('military recruits are documented as the Department of Defense rule the card states', () => {
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
-      expect(doc, why(path, 'M18 changed the military card: ACIP gives recruits a booster every 5 years on the basis of assignment, and the Department of Defense sets that requirement. The app does not compute a date, and the document must not say nothing further is due.'))
+      expect(doc, why(path, 'M18 changed the military card: ACIP gives recruits a booster every 5 years on the basis of assignment, and the Department of Defense sets that requirement. Since STOP B B-3 (2026-11-15) the card shows that 5-year date with the assignment caveat; the document must name who owns the timing.'))
         .toMatch(/Department of Defense/i);
     }
   });

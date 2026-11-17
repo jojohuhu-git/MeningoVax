@@ -42,12 +42,9 @@ describe('C10: a travel booster is checked like a high-risk one', () => {
     expect(verdicts(run({ ...T, menacwyDoses: [MV('2018-01-01'), MV('2022-12-29')] }))).toEqual(['dose 1', 'dose 2']);
   });
 
-  // A/C/W/Y outbreak is named in C10 too, but joins in the STOP B B-2 PR,
-  // with the outbreak card's booster date: checking the record first would
-  // reject the dose today's outbreak card advises (the whole-app walk found
-  // 629 such dead ends).
-  it('microbiologist: the same', () => {
-    for (const risk of ['microbiologist']) {
+  // A/C/W/Y outbreak joined with STOP B B-2 (the outbreak card's booster date).
+  it('microbiologist and A/C/W/Y outbreak: the same', () => {
+    for (const risk of ['microbiologist', 'outbreak_acwy']) {
       const r = run({ ...T, riskIds: [risk], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
       expect(verdicts(r), risk).toEqual(['dose 1', 'invalid']);
     }
