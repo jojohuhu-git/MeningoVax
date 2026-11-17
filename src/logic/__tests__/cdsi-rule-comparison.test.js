@@ -113,9 +113,8 @@ describe('every difference is named, with its evidence', () => {
     expect(open).toEqual([
       // 2026-11-16 (family 4): ACWY-ANY-TWO-DOSES-GAP (C11) and
       // ACWY-TRAVEL-BOOSTER-GAP (C10) left.
-      'CDSI only: MENB-4C-OLD-2-DOSE-COURSE',
-      'CDSI only: PENTAVALENT-UPPER-AGE',
-      'CDSI only: ROUTINE-UPPER-AGES',
+      // 2026-11-16 (family 5): the three CDSI-only rules are owner-decided
+      // (C3, C4, C15).
       // 2026-11-16 (family 3): MENB-HEALTHY-EARLY-DOSE-2 (C7) and
       // MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) left. EARLY-DOSE-3 stays for one
       // follow-up: the 4-day grace on C6's 6-months-from-dose-1 line.

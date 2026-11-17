@@ -281,16 +281,13 @@ const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-sou
 // MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) and MENB-HEALTHY-EARLY-DOSE-2 (C7, C12,
 // C3) left: owner-decided. ACWY-TRAVEL-BOOSTER-GAP (C10) and
 // ACWY-ANY-TWO-DOSES-GAP (C11, E1) left on 2026-11-16 (family 4).
-const STOP_C_Q2 = [
-  'ACWY-HIGHRISK-BOOSTER-GAP',
-  'MENB-HIGHRISK-DOSE-2-GAP',
-  'MENB-HIGHRISK-BOOSTER-GAP',
-];
+// 2026-11-16 (family 5): ACWY-HIGHRISK-BOOSTER-GAP and MENB-HIGHRISK-BOOSTER-GAP
+// (C9), MENB-HIGHRISK-DOSE-2-GAP (C8) left. Every STOP C Q2 row is answered.
+const STOP_C_Q2 = [];
 // STOP C Q4: no source covers it — keep as an app rule, and in what words?
 // MENB-HIGHRISK-DOSE-2-UNVERIFIABLE left on 2026-11-16 (C17: removed with C1).
-const STOP_C_Q4 = [
-  'SERIES-CAP-EXTRA-DOSE',
-];
+// 2026-11-16 (family 5): SERIES-CAP-EXTRA-DOSE left (C18: keep the rule).
+const STOP_C_Q4 = [];
 // The day the sentences beside the rows were read live (Phase 2.2).
 const READ_LIVE_ON = '2026-11-15';
 

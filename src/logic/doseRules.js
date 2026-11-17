@@ -879,11 +879,11 @@ export const DOSE_RULES = [
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP 2020 Tables 4–6',
+    authorityToday: 'ACIP 2020 Tables 4–6; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
-      verdict: 'schedule-only',
+      verdict: 'owner-decided',
       refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
-      note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum. The app voids an earlier booster; CDC\'s software (CDSI) also treats 3 or 5 years less 4 days as a hard minimum. For STOP C Q2: floor or advice?',
+      note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum; CDC\'s software (CDSI) treats 3 or 5 years less 4 days as a hard minimum. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Invalid',
     // The shared check (acwyBoosterTooSoon, above) is also the travel row's.
@@ -1282,11 +1282,11 @@ export const DOSE_RULES = [
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'MMWR mm7349a3',
+    authorityToday: 'ACIP 2020 (MenB, 4 weeks between any 2 doses); MMWR mm7349a3; owner, STOP C C8 (2026-11-15)',
     sourcesSay: {
-      verdict: 'schedule-only',
-      refs: ['menbHighRisk3DoseSchedule'],
-      note: 'ACIP gives dose 2 "at 0, 1–2 … months" as a schedule. The 4 weeks the app uses as a minimum is not stated for this gap (ACIP\'s 4-week sentence is about repeating doses); CDC\'s software also has a 4-weeks-less-4-days row. For STOP C Q2.',
+      verdict: 'stated',
+      refs: ['menbHighRisk3DoseSchedule', 'acip2020MenbRepeat4Weeks'],
+      note: 'ACIP gives dose 2 "at 0, 1–2 … months" as a schedule, and its MenB section states "a minimum interval of 4 weeks should be used between any 2 doses" (said of repeats); CDC\'s software has the same 4 weeks less 4 days. Owner, STOP C C8 (2026-11-15): keep the 4-week minimum, relabelled as sourced.',
     },
     label: 'Invalid',
     check: (ctx) => {
@@ -1430,11 +1430,11 @@ export const DOSE_RULES = [
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP 2020',
+    authorityToday: 'ACIP 2020; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
-      verdict: 'schedule-only',
+      verdict: 'owner-decided',
       refs: ['acip2020MenbBoosterCadence'],
-      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum. The app voids an earlier booster (1 year, then 2); CDC\'s software also treats 1 and 2 years less 4 days as minimums. For STOP C Q2.',
+      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Invalid',
     // Only too-soon is flagged; a late booster is ordinary catch-up.
@@ -1564,11 +1564,11 @@ export const DOSE_RULES = [
     measuredFrom: 'the series total',
     enforcement: 'extra',
     grace: null,
-    authorityToday: 'This app (F2/F3; G6 2026-09-16 for an undated row)',
+    authorityToday: 'This app (F2/F3); owner, STOP C C18 (2026-11-15)',
     sourcesSay: {
-      verdict: 'no-source',
+      verdict: 'owner-decided',
       refs: [],
-      note: 'The sources give each series\' size; calling a dose past it "Extra" is the app\'s own wording. For STOP C Q4: keep as an app rule, and in what words?',
+      note: 'The sources give each series\' size; calling a dose past it "Extra" is the app\'s own rule. Owner, STOP C C18 (2026-11-15): keep the rule; its words are Phase 4\'s question Q8, and all wording is eventually to match PneumoVax.',
     },
     label: 'Extra dose — more than this series needs (undated: Extra dose? — no date recorded)',
     // runWalk applies this after a dose has been judged to count, because it
