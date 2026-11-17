@@ -110,6 +110,33 @@ const cardFacts = (r) => [...r.menacwy, ...r.menb].map((c) => [
 ].join('|')).join(' / ');
 const UNDATED_ROW = { date: '', brand: '', detailsUnknown: true };
 
+// Property 9 (STOP C C5, C6): every high-risk MenB dose-3 timing, week by week.
+// Dose 1 on 2025-01-06 (20-year-old with asplenia); dose 2 at 4–26 weeks after
+// it; dose 3 at 1–40 weeks after dose 2; judged on 2026-12-31. Two never-events:
+//   9a. a dose 3 given ≥4 months after dose 2 is never voided (C5);
+//   9b. a dose 3 given ≥6 months after dose 1 never leads to a 4th dose (C6).
+const p9 = [];
+let p9Rows = 0;
+{
+  const d1 = '2025-01-06';
+  const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
+  const plusMonths = (iso, m) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCMonth(t.getUTCMonth() + m); return t.toISOString().slice(0, 10); };
+  for (let w2 = 4; w2 <= 26; w2++) {
+    for (let w3 = 1; w3 <= 40; w3++) {
+      const d2 = at(d1, w2 * 7);
+      const d3 = at(d2, w3 * 7);
+      const r = recommend({
+        today: '2026-12-31', dob: '2005-01-01', riskIds: ['asplenia'], menacwyDoses: [],
+        menbDoses: [d1, d2, d3].map((date) => ({ date, brand: 'Bexsero (MenB)' })),
+      });
+      p9Rows += 1;
+      const dose3 = r.history.MenB.perDose[2];
+      if (d3 >= plusMonths(d2, 4) && dose3?.status === 'invalid') p9.push(`9a d1=${d1} d2=${d2} d3=${d3}: dose 3 voided`);
+      if (d3 >= plusMonths(d1, 6) && /Dose 4/.test(r.menb[0]?.doseLabel ?? '')) p9.push(`9b d1=${d1} d2=${d2} d3=${d3}: asks "${r.menb[0].doseLabel}"`);
+    }
+  }
+}
+
 // Properties 1-5 check whether the RECOMMENDATION stays sane — nothing here
 // depends on the recorded history being valid, so this same check runs once
 // for the generous doses and once for the deliberately-invalid tight ones
@@ -332,6 +359,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report('Property 8 (undated dose moved a card)', p8);
     expect(p8Rows).toBeGreaterThan(1000);
     expect(p8).toEqual([]);
+  });
+
+  it('property 9 (STOP C C5, C6) — high-risk MenB dose 3: never voided ≥4 months after dose 2; no 4th dose ≥6 months after dose 1', () => {
+    report(`Property 9 (high-risk MenB dose 3, C5/C6; ${p9Rows} timings, not the grid rows)`, p9);
+    expect(p9Rows).toBe(23 * 40);
+    expect(p9).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {

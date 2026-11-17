@@ -250,25 +250,25 @@ export const ROW_MAP = {
     compare: [
       ...[['R_4C', ''], ['R_FH', SINCE_2017]].map(([s, w]) => ({
         what: `High-risk MenB (${s}) dose 3: gap from dose 2`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D2)),
-        cdsi: f(s, 3, `gap from previous dose${w}`), differs: ['grace', 'floor'], status: 'open', stopC: 'Q2',
-        why: 'Under 4 months after dose 2, CDSI does not count dose 3 (with the 4-day grace) unless the allowable gap below rescues it; the app counts it with no grace and asks a 4th dose (CDC\'s notes). Already on the STOP C Q2 list from 2.2. New in 2.3: the 4-day grace — under the owner\'s B-1 "only when it helps", a dose 3 given 1–4 days early would mean one dose fewer.',
+        cdsi: f(s, 3, `gap from previous dose${w}`), differs: ['floor'], status: 'owner',
+        decided: '2026-11-15, STOP C C6 and C7 (stop-c-packet-2026-11-15.md)',
+        why: 'Under 4 months after dose 2 (and under 6 months after dose 1), CDSI does not count dose 3 and repeats it 4 months later; the app counts it and asks a 4th dose 4 months later (CDC\'s notes). The number of doses and the date of the last one are the same. Both now give the 4-month line the 4-day grace (C7).',
       })),
       ...['R_4C', 'R_FH'].map((s) => ({
-        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: { absent: true },
-        cdsi: f(s, 3, 'allowable gap from dose 1'), differs: ['absent'], status: 'open', stopC: 'Q2',
-        why: 'CDSI\'s second chance: a dose 3 under 4 months after dose 2 still counts, with no extra dose, if it is at least 6 months less 4 days after dose 1. This is ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose"; the app has no "unless" and asks a 4th dose. Already on the STOP C Q2 list from 2.2.',
+        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: { ...months(MENB_HIGHRISK_D3_MONTHS_FROM_D1), grace: false, floor: true },
+        cdsi: f(s, 3, 'allowable gap from dose 1'), differs: ['grace'], status: 'open', stopC: 'Q2 (follow-up to C6/C7)',
+        why: 'The app now has ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose" (owner, C6). CDSI gives that 6-month line the 4-day grace; the app does not, because the owner\'s C7 answer named two other lines. A follow-up question, not assumed.',
       })),
     ],
   },
   'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1': {
     compare: ['R_4C', 'R_FH'].map((s) => ({
       what: `High-risk MenB (${s}) dose 3: gap from dose 1`, app: fromRow('MENB-HIGHRISK-DOSE-3-FROM-DOSE-1', months(MENB_HIGHRISK_D3_MONTHS_FROM_D1)),
-      cdsi: f(s, 3, 'gap from dose 1'), differs: ['floor'], status: 'open', stopC: 'Q2',
-      why: 'CDSI\'s 6 months from dose 1 has an absolute minimum of 0 days: timing advice, never a reason not to count. The app voids the dose (finding R-4b). Already on the STOP C Q2 list from 2.2.',
+      cdsi: f(s, 3, 'gap from dose 1'),
     })),
   },
   'MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3': {
-    none: 'CDSI\'s high-risk series has no extra dose after an early dose 3: it counts such a dose 3 only when it is at least 6 months less 4 days after dose 1, and otherwise does not count it. The difference is recorded on MENB-HIGHRISK-EARLY-DOSE-3 (STOP C Q2).',
+    none: 'CDSI\'s high-risk series has no extra dose after an early dose 3: it counts such a dose 3 only when it is at least 6 months less 4 days after dose 1, and otherwise does not count it and repeats it. The difference is recorded on MENB-HIGHRISK-EARLY-DOSE-3 (owner, C6).',
   },
   'MENB-HIGHRISK-BOOSTER-GAP': {
     compare: ['R_4C', 'R_FH'].flatMap((s) => [
@@ -278,12 +278,12 @@ export const ROW_MAP = {
     covers: [/^B · Meningococcal B risk .* · Dose 5 · repeats$/],
   },
   'MENB-HEALTHY-EARLY-DOSE-2': {
+    // STOP C C7 (owner, 2026-11-15) gave the 6-month line the 4-day grace, as
+    // CDSI does: the two now compare with no difference.
     compare: [
       ...[['H2_4C', ' [doses given from 20241025]'], ['H2_FH', '']].map(([s, w]) => ({
         what: `Healthy MenB (${s}): the 6-month line between a 2-dose and a 3-dose series`, aspects: ['number', 'grace'],
         app: fromRow('MENB-HEALTHY-EARLY-DOSE-2', months(MENB_HEALTHY_D2_MONTHS)), cdsi: f(s, 2, `gap from dose 1${w}`),
-        differs: ['grace'], status: 'open', stopC: 'Q2 (new in 2.3)',
-        why: 'CDSI gives the 6-month line the 4-day grace: a dose 2 given 1–4 days before 6 months completes the 2-dose series. The app gives it none (the row says grace must never decide how many doses a series has), so it asks a dose 3. Under the owner\'s B-1 "only when it helps", the grace here would mean one dose fewer.',
       })),
     ],
     // In the 2-dose series the previous dose IS dose 1, so the 4-month "gap

@@ -102,16 +102,6 @@ const HAND_PATIENTS = [
     answers: { 0: 'unsure' },
   },
   {
-    rule: 'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
-    why: '20-year-old with asplenia; Bexsero 2026-01-01, 2026-02-01, 2026-06-05 (4 months after dose 2, 5 after dose 1)',
-    vaccine: 'MenB', ageMonths: 240, dob: '2006-09-15', riskIds: ['asplenia'],
-    doses: [
-      { date: '2026-01-01', brand: 'Bexsero (MenB)' },
-      { date: '2026-02-01', brand: 'Bexsero (MenB)' },
-      { date: '2026-06-05', brand: 'Bexsero (MenB)' },
-    ],
-  },
-  {
     // Ruling D, E2 (owner, 2026-11-15). No grid patient has a dose after a
     // MenB dose that did not count, so the row needs this one.
     rule: 'MENB-REPEAT-GAP',
@@ -287,15 +277,15 @@ const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-sou
 // ACIP's general guidance on records was read live: it accepts only dated
 // records. They left on 2026-11-16 (Phase 3 family 2, STOP C C1): the app now
 // does what the source says — an undated dose does not count.
+// 2026-11-16 (family 3): MENB-HIGHRISK-EARLY-DOSE-3 (C6, C7),
+// MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) and MENB-HEALTHY-EARLY-DOSE-2 (C7, C12,
+// C3) left: owner-decided.
 const STOP_C_Q2 = [
   'ACWY-HIGHRISK-BOOSTER-GAP',
   'ACWY-TRAVEL-BOOSTER-GAP',
   'ACWY-ANY-TWO-DOSES-GAP',
   'MENB-HIGHRISK-DOSE-2-GAP',
-  'MENB-HIGHRISK-EARLY-DOSE-3',
-  'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
   'MENB-HIGHRISK-BOOSTER-GAP',
-  'MENB-HEALTHY-EARLY-DOSE-2',
 ];
 // STOP C Q4: no source covers it — keep as an app rule, and in what words?
 // MENB-HIGHRISK-DOSE-2-UNVERIFIABLE left on 2026-11-16 (C17: removed with C1).

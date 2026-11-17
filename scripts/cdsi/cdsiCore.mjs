@@ -111,8 +111,11 @@ const KNOWN = {
     ['2024-0081'],
   'MenB of unspecified product at 16+: CDSI says it cannot count (the product must be known) and repeats in 4 weeks; the app counts it as dose 1 — OPEN':
     ['2024-0069'],
-  'High-risk MenB dose 3 under 6 months after dose 1 (but 4+ months after dose 2): the app does not count it and repeats it; CDSI counts it (its 6 months from dose 1 has an absolute minimum of 0 days) — OPEN (packet 1 Q2; the CDSI plan already lists it for item 2.3)':
-    ['2020-UC-0004'],
+  // Closed 2026-11-16 by owner answer C5 (STOP C): a high-risk MenB dose 3
+  // given 4+ months after dose 2 counts whatever the gap from dose 1, so
+  // 2020-UC-0004 now agrees with CDSI. (C7, the same PR, moved 2024-0039 —
+  // dose 2 four days short of 6 months — from an optional rescue dose to
+  // nothing owed; it agreed with CDSI before and after.)
   'Infant outbreak series complete: the app says no standing booster (only for a NEW outbreak); CDSI books a booster 3 years later — OPEN until Phase 3 (owner, STOP B 2026-11-15: while the outbreak box is ticked, show the booster date — 3 years if the last dose was before 7, else 5 — and drop "Complete"; ACIP RR-9 Table 8)':
     ['2016-UC-0116'],
   'Military recruit with one dose: the app says Complete and "check the service\'s current requirement"; CDSI books a booster 5 years later — OPEN until Phase 3 (owner, STOP B 2026-11-15: show the 5-year booster date with the assignment caveat, no "Complete"; ACIP RR-9 Table 10, "Every 5 yrs on basis of assignment")':

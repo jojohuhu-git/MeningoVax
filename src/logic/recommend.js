@@ -68,7 +68,7 @@ const EMPTY_HISTORY = Object.freeze({
 });
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut,
-  MENB_HIGHRISK_RESCUE_TOTAL,
+  menbHealthyDose2Early, MENB_HIGHRISK_RESCUE_TOTAL,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
@@ -1678,8 +1678,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
       // 2-dose series was told it needed a third injection, decided by nothing
       // but which month the patient started in. Must stay in step with
       // seriesTotals.js's menbSeriesInfo(), which makes the same test.
-      const needsRescue = dose1date != null && dose2date != null
-        && !calendarIntervalElapsed(dose1date, MENB_HEALTHY_D2_MONTHS, dose2date);
+      // STOP C C7: the one shared test (seriesTotals.js), 4-day grace included.
+      const needsRescue = menbHealthyDose2Early(dose1date, dose2date);
       if (needsRescue) {
         // Ruling D: from the last dose given — dose 2, or a rescue dose that
         // itself came too soon (validate.js MENB-HEALTHY-RESCUE-DOSE-3-GAP).

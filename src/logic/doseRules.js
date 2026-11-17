@@ -103,7 +103,9 @@ import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../
 import {
   menbFamily, ALL_BRANDS, brandMinAge, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS,
 } from '../data/brands.js';
-import { menacwyPrimaryTotal, menbSeriesInfo } from './seriesTotals.js';
+import {
+  menacwyPrimaryTotal, menbSeriesInfo, menbHealthyDose2Early, menbHighRiskDose3Early,
+} from './seriesTotals.js';
 import { ageAtDoseMonths } from './patientAge.js';
 // P0-1 (2026-09-17): the infant primary intervals come from one module,
 // shared with recommend.js, so the engine cannot recommend a dose the validator
@@ -114,7 +116,7 @@ import {
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
-  MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
 // P2-3 (2026-09-17): the age thresholds, from one module.
@@ -207,15 +209,12 @@ const MENB_REPEAT_MIN                  = MENB_REPEAT_MIN_INTERVAL;
 // span is 181-184, so an exact six-month dose was rejected about half the
 // time). The *_DAYS twins keep the "(min ~6 months)" text printing the same
 // approximate figure it always did.
-const MENB_HR_D3_MIN_MONTHS_FROM_D1    = MENB_HIGHRISK_D3_MONTHS_FROM_D1;
-const MENB_HR_D3_MIN_FROM_D1           = DAYS.months(MENB_HR_D3_MIN_MONTHS_FROM_D1); // display only
 const MENB_HR_D3_MIN_MONTHS_FROM_D2    = MENB_HIGHRISK_D3_MONTHS_FROM_D2;
 const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(MENB_HR_D3_MIN_MONTHS_FROM_D2); // display only
 // MenB high-risk booster: first booster ≥1 year after the primary; later ≥2 years
 const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(MENB_HIGHRISK_FIRST_BOOSTER_YEARS);
 const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS);
 // MenB healthy 2-dose: D2 ≥6 months after D1 (early D2 triggers rescue)
-const MENB_HEALTHY_D2_MIN_MONTHS       = MENB_HEALTHY_D2_MONTHS;
 // MenB healthy early-D2 rescue: D3 ≥4 months after early D2
 const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = MENB_HEALTHY_RESCUE_MONTHS;
 const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2); // display only
@@ -1313,30 +1312,33 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-EARLY-DOSE-3',
     inventory: 'B9',
-    what: 'High-risk MenB dose 3 under 4 months after dose 2 — counts, and a 4th dose is owed',
+    what: 'High-risk MenB dose 3 under 4 months after dose 2 (and under 6 months from dose 1) — counts, and a 4th dose is owed',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
     measuredFrom: 'dose 2',
     enforcement: 'counts-with-note',
-    grace: false,
-    authorityToday: 'CDC child schedule notes',
+    grace: true,
+    authorityToday: 'ACIP mm7349a3 (with its "unless"); owner, STOP C C6 and C7',
     sourcesSay: {
-      verdict: 'differs',
+      verdict: 'owner-decided',
       refs: ['menbHighRiskEarlyD3ExtraDose', 'menbHighRiskEarlyD3Unless'],
-      note: 'CDC\'s notes match the app: a dose 3 under 4 months after dose 2 counts, and a 4th dose is owed. ACIP 2024 adds "unless the third dose was administered ≥6 months after the first dose"; the app has no "unless", so it can ask for a 4th dose ACIP does not. For STOP C Q2.',
+      note: 'A dose 3 under 4 months after dose 2 counts, and a 4th dose is owed (CDC notes; ACIP says "repeated", the same count). Owner, STOP C 2026-11-15: C6 follows ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose" (the notes leave it out); C7 gives the 4-month line the 4-day grace (one dose fewer). No grace on the 6-month "unless" line (not asked).',
     },
     label: 'Dose N of M',
     // MenB dose-3 rescue (2026-09-17), CDC child notes: "...if dose 3 is
     // administered earlier than 4 months after dose 2, a 4th dose should be
     // administered at least 4 months after dose 3". First of the dose-3 rows,
-    // because it is CDC's explicit remedy for exactly this dose. NO grace: it
-    // decides how many doses the series has (menbSeriesInfo() makes the
-    // identical comparison, so the card and this verdict cannot drift).
+    // because it is CDC's explicit remedy for exactly this dose. The test is
+    // menbHighRiskDose3Early() (seriesTotals.js) — the same call the series
+    // total makes, so the card and this verdict cannot drift. C6: no 4th dose
+    // when dose 3 is ≥6 months after dose 1; C7: the 4-day grace on the
+    // 4-month line.
     check: (ctx) => {
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 2) return null;
+      const d1Date = keptDated(ctx)[0]?.date || null;
       const d2Date = keptDated(ctx)[1]?.date || null;
-      if (!d2Date || calendarIntervalElapsed(d2Date, MENB_HR_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
+      if (!menbHighRiskDose3Early(d1Date, d2Date, ctx.dose.date)) return null;
       return validResult([
         `Dose 3 was given ${fmtDays(daysBetween(d2Date, ctx.dose.date))} after dose 2, less than the 4-month minimum for the high-risk schedule. The dose counts — do not repeat it — but a 4th dose is now required at least 4 months after this dose.`
       ]);
@@ -1345,30 +1347,23 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
     inventory: 'B10',
-    what: 'High-risk MenB dose 3 under 6 months after dose 1',
+    what: 'High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2)',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
     measuredFrom: 'dose 1',
-    enforcement: 'floor',
-    grace: true,
-    authorityToday: 'MMWR mm7349a3 (schedule "0, 1–2, and 6 months")',
+    enforcement: 'none',
+    grace: null,
+    authorityToday: 'Owner, STOP C C5 (no source voids it)',
     sourcesSay: {
-      verdict: 'schedule-only',
+      verdict: 'owner-decided',
       refs: ['menbHighRisk3DoseSchedule', 'menbHighRiskEarlyD3Unless'],
-      note: 'ACIP gives dose 3 "at … 6 months" as a schedule; no sentence read states 6 months from dose 1 as a minimum, and CDC\'s software sets no minimum from dose 1 (0 days). The app voids the dose (finding R-4b). For STOP C Q2.',
+      note: 'ACIP gives dose 3 "at … 6 months" as a schedule; no sentence read states 6 months from dose 1 as a minimum, and CDC\'s software sets no minimum from dose 1 (0 days). Owner, STOP C C5 (2026-11-15): a dose 3 already given ≥4 months after dose 2 counts, whatever the gap from dose 1. The FORECAST keeps both lines (recommend.js: ≥6 months from dose 1 and ≥4 from dose 2).',
     },
-    label: 'Invalid',
-    check: (ctx) => {
-      if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 2) return null;
-      const d1Date = keptDated(ctx)[0]?.date || null;
-      if (!d1Date || calendarIntervalMeetsMinimum(d1Date, MENB_HR_D3_MIN_MONTHS_FROM_D1, ctx.dose.date)) return null;
-      const fromD1 = daysBetween(d1Date, ctx.dose.date);
-      return invalidResult(
-        [`Given only ${fmtDays(fromD1)} after dose 1. High-risk D3 requires ≥6 months from D1.`],
-        `D1→D3: ${fmtDays(fromD1)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D1)}).`
-      );
-    },
+    label: 'Dose N of M',
+    // Never voids a dose since C5. Kept as a row so the rule's absence is
+    // visible, with the reason, rather than silent (doseRules.js header).
+    check: null,
   },
   {
     id: 'MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3',
@@ -1475,23 +1470,24 @@ export const DOSE_RULES = [
     schedule: 'healthy (shared decision)',
     measuredFrom: 'dose 1',
     enforcement: 'counts-with-note',
-    grace: false,
-    authorityToday: 'CDC notes; immunize.org',
+    grace: true,
+    authorityToday: 'CDC notes; immunize.org; owner, STOP C C7 (the 4-day grace)',
     sourcesSay: {
-      verdict: 'differs',
+      verdict: 'owner-decided',
       refs: ['menbRescueDoseRule', 'menbBexseroOldCourseStands'],
-      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. What differs: the app has no lower limit for dose 2; CDC\'s software has one (4 weeks less 4 days for both families, in its 3-dose healthy series; corrected in port 2.3, which read the file), finding R-4c. CDC\'s software also gives the 6-month line the 4-day grace; the app does not. Also (read live 2026-11-15): ACIP asks no extra dose after Bexsero at 0 and 1 month given before 24 October 2024, but this row still asks the rescue dose 3 for those patients. For STOP C Q2.',
+      note: 'The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. The three differences found at port 2.3 are now owner-decided (STOP C, 2026-11-15): C12 a lower limit (dose 2 under 4 weeks does not count, row MENB-HEALTHY-DOSE-2-GAP); C7 the 4-day grace at the 6-month line, as CDC\'s software does; C3 a Bexsero 0 + 1 month course given before 24 October 2024 still gets the rescue dose 3 (current schedule for everyone), a deliberate difference from ACIP mm7349a3.',
     },
     label: 'Dose N of M',
-    // NO grace, on purpose: it decides whether a rescue dose 3 is owed — a
-    // series-length question. Granting grace would drop a dose from the plan.
-    // No lower limit at all today (Phase 0 R-4c; CDSI has one).
+    // STOP C C7 (owner, 2026-11-15): the 4-day grace APPLIES at this line
+    // (one dose fewer). The test is menbHealthyDose2Early() (seriesTotals.js),
+    // shared with the series total and the card. The lower limit is the
+    // separate row MENB-HEALTHY-DOSE-2-GAP (C12, family 1).
     check: (ctx) => {
       // The 6-month line is from the COUNTED dose 1 — a series-length
       // question, not a repeat clock (Ruling D moves only the latter).
       const d1 = keptDated(ctx)[0];
       if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !d1 || !prevDated(ctx)) return null;
-      if (calendarIntervalElapsed(d1.date, MENB_HEALTHY_D2_MIN_MONTHS, ctx.dose.date)) return null;
+      if (!menbHealthyDose2Early(d1.date, ctx.dose.date)) return null;
       return validResult([
         `Dose 2 was given ${fmtDays(daysBetween(d1.date, ctx.dose.date))} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
       ]);
@@ -1520,9 +1516,9 @@ export const DOSE_RULES = [
       const d1Date = kd[0]?.date || null;
       const d2Date = kd[1]?.date || null;
       if (!d1Date || !d2Date) return null;
-      // Only a rescue dose if dose 2 was early — no grace, the same
-      // series-length question as MENB-HEALTHY-EARLY-DOSE-2.
-      if (calendarIntervalElapsed(d1Date, MENB_HEALTHY_D2_MIN_MONTHS, d2Date)) return null;
+      // Only a rescue dose if dose 2 was early — the same shared test as
+      // MENB-HEALTHY-EARLY-DOSE-2 (4-day grace included, STOP C C7).
+      if (!menbHealthyDose2Early(d1Date, d2Date)) return null;
       // Ruling D: from the last dose given — dose 2, or a rescue dose 3 that
       // itself came too soon.
       const from = prevDated(ctx)?.dose?.date ?? d2Date;
