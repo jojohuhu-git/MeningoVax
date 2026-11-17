@@ -30,7 +30,7 @@ import { DOSE_RULES } from '../../src/logic/doseRules.js';
 import {
   MENACWY_INFANT_EARLY_GAP, MENACWY_INFANT_FINAL_GAP, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_ROUTINE_BOOSTER_MIN_GAP, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
+  MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENB_REPEAT_MIN_INTERVAL,
 } from '../../src/logic/intervals.js';
@@ -194,8 +194,9 @@ export const ROW_MAP = {
   'ACWY-ANY-TWO-DOSES-GAP': {
     compare: [{
       // STOP C C11 (owner, 2026-11-15): 8 weeks, as CDSI — no difference.
-      // (E1's 4 weeks after a too-young first dose has no CDSI counterpart:
-      // CDSI repeats at the minimum age, see MENB-REPEAT-GAP's note.)
+      // (The 8 weeks after a too-young first dose — owner D5, 2026-11-17 — has
+      // no CDSI counterpart: CDSI repeats at the minimum age, see
+      // MENB-REPEAT-GAP's note.)
       what: 'Smallest gap CDSI allows between any two MenACWY doses', app: fromRow('ACWY-ANY-TWO-DOSES-GAP', days(MENACWY_ANY_TWO_DOSES_MIN_GAP)),
       pick: 'smallest live MenACWY gap floor',
     }],

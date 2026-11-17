@@ -76,10 +76,13 @@ rule applies stay on the doses that COUNTED.
 - **Never a clock:** a record problem (date in the future, before birth, entered twice — no
   dose was given), an undated dose (which since C1 does not count either), a set-aside dose (valid but not advancing the series, e.g.
   MenACWY before 10), a pending or extra dose.
-- **E1 — a too-young FIRST dose:** the repeat waits 4 weeks after it. A deliberate difference
+- **E1 — a too-young FIRST dose:** the repeat waits the family's minimum interval after it —
+  **MenB 4 weeks** (ACIP's MenB repeat sentence), **MenACWY 8 weeks** (owner D5, 2026-11-17:
+  E1 had said 4 weeks for both, but 4 weeks is MenB's number; CDC: *"The repeat dose should be
+  spaced after the invalid dose by the recommended minimum interval"*). A deliberate difference
   from CDC's *"repeated on or after the date when the child reaches at least the minimum age"*
-  (`gbpTooYoungFirstDoseRepeat`); matches PneumoVax. Validator: `ACWY-ANY-TWO-DOSES-GAP` and
-  `MENB-REPEAT-GAP` read `prevGiven`.
+  (`gbpTooYoungFirstDoseRepeat`). PneumoVax uses PCV's 4 weeks. Validator:
+  `ACWY-ANY-TWO-DOSES-GAP` and `MENB-REPEAT-GAP` read `prevGiven`.
 - **E2 — a wrong-family MenB dose:** it does not count and is NOT the schedule clock; the next
   dose of the established family is due when it would be due from that family's doses, AND at
   least 4 weeks after the wrong-family dose. ACIP 2020: *"a minimum interval of 4 weeks should
@@ -217,13 +220,14 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   B-2, because today's outbreak card has no booster date and checking the record first
   would reject the dose the card advises (the whole-app walk found 629 dead ends).
 
-### Any Two MenACWY Doses (owner C11, E1)
+### Any Two MenACWY Doses (owner C11, D5)
 - **8 weeks** between any two MenACWY doses, less the 4-day grace
   (`MENACWY_ANY_TWO_DOSES_MIN_GAP`, row `ACWY-ANY-TWO-DOSES-GAP`; ACIP 2020: *"provided that
   an 8-week minimum interval between doses is maintained"*; CDSI's smallest MenACWY gap is
   the same). Was 4 weeks — ACIP's MenB repeat rule (finding R-4a).
-- **E1 exception:** with no dose counted yet (the dose before was given too young), the repeat
-  waits **4 weeks** (`MENACWY_REPEAT_DOSE_FLOOR`) — the more specific owner answer, kept.
+- **After a too-young first dose too** (owner D5, 2026-11-17): with no dose counted yet, the
+  repeat waits the same **8 weeks** after it. E1's earlier 4 weeks (and its constant,
+  `MENACWY_REPEAT_DOSE_FLOOR`) is gone — 4 weeks is MenB's repeat interval, not MenACWY's.
 - The card holds the same floors after a dose that did not count (`applyRepeatFloor`).
 
 ### Unknown Brand (owner C13)

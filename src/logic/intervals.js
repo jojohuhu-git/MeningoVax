@@ -277,17 +277,10 @@ export const MENB_HEALTHY_D2_MONTHS = 6;
  */
 export const MENB_HEALTHY_RESCUE_MONTHS = 4;
 
-/**
- * ACIP's floor for REPEATING a dose that did not count, and the baseline the
- * validator uses to spot two MenACWY doses entered impossibly close together.
- *
- * P0-1 (2026-09-17) is the reason this carries a name and a warning: this
- * 4-week floor had become the MenACWY infant PRIMARY interval, which is 8
- * weeks. In the MMWR the 4-week repeat rule appears only in the MenB section.
- * It is not a primary-series interval for any schedule. See
- * MENACWY_INFANT_EARLY_GAP and MENACWY_HIGHRISK_PRIMARY_GAP for those.
- */
-export const MENACWY_REPEAT_DOSE_FLOOR = WEEKS(4);
+// MENACWY_REPEAT_DOSE_FLOOR (4 weeks) was removed 2026-11-17 (owner D5): its
+// last use, E1's repeat of a too-young first MenACWY dose, now waits MenACWY's
+// own 8 weeks. 4 weeks is MenB's repeat interval (MENB_REPEAT_MIN_INTERVAL);
+// ACIP states it only in the MenB section.
 
 /**
  * STOP C C11 (owner, 2026-11-15): the minimum between ANY two MenACWY doses —
@@ -295,9 +288,9 @@ export const MENACWY_REPEAT_DOSE_FLOOR = WEEKS(4);
  * MMWR rr6909a1 states 8 weeks for MenACWY (*"provided that an 8-week minimum
  * interval between doses is maintained"*); its 4-week sentence is MenB's.
  *
- * MENACWY_REPEAT_DOSE_FLOOR (4 weeks) now has ONE use: owner answer E1 —
- * the repeat of a too-young FIRST dose waits 4 weeks after it (the more
- * specific rule; asked again as a follow-up, not assumed).
+ * D5 (owner, 2026-11-17): this also times the repeat of a too-young FIRST
+ * dose (CDC: "The repeat dose should be spaced after the invalid dose by the
+ * recommended minimum interval"). E1's earlier 4 weeks was MenB's number.
  */
 export const MENACWY_ANY_TWO_DOSES_MIN_GAP = WEEKS(8);
 

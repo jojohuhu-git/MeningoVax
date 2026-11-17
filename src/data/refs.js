@@ -490,7 +490,7 @@ export const CITATIONS = {
     quote: 'The repeat dose should be spaced after the invalid dose by the recommended minimum interval',
     label: 'ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose',
     short: 'ACIP Best Practice',
-    lastVerified: '2026-11-15',
+    lastVerified: '2026-11-17',
   },
   // The sentence the owner's E1 answer deliberately differs from (2026-11-15):
   // for an inactivated vaccine CDC sets no wait after a too-young first dose.

@@ -115,7 +115,7 @@ import {
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
+  MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
@@ -179,8 +179,8 @@ function meetsMenacwyFloor(floor, ageAtDoseMonthsVal, ageAtDoseDaysVal, whenGive
 
 // ── Interval constants ───────────────────────────────────────────────────
 // MenACWY: the minimum between ANY two doses regardless of risk class — 8
-// weeks since STOP C C11 (was 4). E1's 4 weeks after a too-young first dose
-// is MENACWY_REPEAT_DOSE_FLOOR, read directly by ACWY-ANY-TWO-DOSES-GAP.
+// weeks since STOP C C11 (was 4), and since D5 (2026-11-17) after a too-young
+// first dose too (E1 had said 4 weeks — MenB's number).
 const MENACWY_BASELINE_MIN_INTERVAL    = MENACWY_ANY_TWO_DOSES_MIN_GAP;
 // MenACWY high-risk 2-dose primary (≥2y): P2-1 (2026-09-17) moved this to
 // intervals.js, so the validator and the engine ask the same function.
@@ -977,18 +977,18 @@ export const DOSE_RULES = [
   {
     id: 'ACWY-ANY-TWO-DOSES-GAP',
     inventory: 'A6',
-    what: 'Any two MenACWY doses under 8 weeks apart (4 weeks after a too-young first dose)',
+    what: 'Any two MenACWY doses under 8 weeks apart (also after a too-young first dose)',
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'any',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP 2020 (8 weeks between MenACWY doses); owner STOP C C11 and E1, 2026-11-15',
+    authorityToday: 'ACIP 2020 (8 weeks between MenACWY doses); CDC Timing and Spacing (repeat spaced from the invalid dose by the minimum interval); owner STOP C C11 (2026-11-15) and D5 (2026-11-17)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'acip2020MenbRepeat4Weeks', 'gbpTooYoungFirstDoseRepeat'],
-      note: 'ACIP and CDC state 8 weeks between MenACWY doses; owner answer C11 (2026-11-15) made it the minimum between any two (it was 4 weeks, which ACIP says only of MenB — finding R-4a). One owner exception, E1 (2026-11-15): the repeat of a too-young FIRST dose waits 4 weeks after it; CDC instead repeats such a dose "on or after the date when the child reaches at least the minimum age" — a deliberate difference, matching PneumoVax.',
+      refs: ['acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat'],
+      note: 'ACIP and CDC state 8 weeks between MenACWY doses; owner answer C11 (2026-11-15) made it the minimum between any two (it was 4 weeks, which ACIP says only of MenB — finding R-4a). Owner answer D5 (2026-11-17) applies the same 8 weeks to the repeat of a too-young FIRST dose (E1 had said 4 weeks — MenB\'s number, carried over when E1 was asked for both families; CDC: "The repeat dose should be spaced after the invalid dose by the recommended minimum interval"). CDC also says a too-young first dose is repeated "on or after the date when the child reaches at least the minimum age" — the app waits the 8 weeks as well: a deliberate difference.',
     },
     label: 'Invalid',
     // Catches two doses days apart (Task 3). The stricter rows above handle
@@ -998,15 +998,17 @@ export const DOSE_RULES = [
       // count (owner, E1, 2026-11-15).
       const prev = prevGiven(ctx);
       if (!prev) return null;
-      // E1: with no dose counted yet, the dose before this one did not count
-      // because it was given too young — its repeat waits 4 weeks after it.
+      // D5 (owner, 2026-11-17): with no dose counted yet, the dose before this
+      // one did not count because it was given too young — its repeat waits
+      // MenACWY's own 8 weeks after it (E1's 4 weeks was MenB's number).
       const afterTooYoungDose1 = ctx.effectiveIdx === 0;
-      const floor = afterTooYoungDose1 ? MENACWY_REPEAT_DOSE_FLOOR : MENACWY_BASELINE_MIN_INTERVAL;
+      const floor = MENACWY_BASELINE_MIN_INTERVAL;
       if (intervalMeetsMinimum(prev.interval, floor)) return null;
       if (afterTooYoungDose1) {
         return invalidResult(
-          [`Given only ${fmtDays(prev.interval)} after the previous dose, which did not count. Its repeat must be at least 4 weeks after it.`],
-          `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`
+          [`Given only ${fmtDays(prev.interval)} after the previous dose, which did not count. Its repeat must be at least 8 weeks after it [c].`],
+          `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`,
+          [cite('gbpRepeatSpacedFromInvalidDose')],
         );
       }
       return invalidResult(

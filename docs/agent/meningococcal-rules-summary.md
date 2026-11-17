@@ -348,16 +348,16 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   time — and with no date it never starts a clock for the next dose.
 - **Given below the minimum age for the brand:** invalid — does not count.
   Repeat that dose only; do not restart the whole series. If it was the
-  **first** dose, the repeat waits at least 4 weeks after it (owner, 2026-11-15;
-  CDC would allow it as soon as the child reaches the minimum age — the app
-  follows PneumoVax here on purpose).
+  **first** dose, the repeat waits the vaccine's own minimum interval after
+  it: **8 weeks for MenACWY** (your D5 answer, 2026-11-17), **4 weeks for
+  MenB** (your E1 answer, 2026-11-15). CDC would allow it as soon as the child
+  reaches the minimum age; the app waits on purpose.
 - **Given too soon after the previous dose** (violates a minimum interval):
   invalid — does not count. Repeat that dose only.
 - **Any two MenACWY doses must be at least 8 weeks apart** (your C11 answer,
   2026-11-15; ACIP: *"an 8-week minimum interval between doses"*; less the
-  4-day grace). It was 4 weeks, which ACIP says only of MenB. One exception,
-  your E1 answer: the repeat of a too-young **first** dose waits 4 weeks after
-  it.
+  4-day grace). It was 4 weeks, which ACIP says only of MenB. The same 8 weeks
+  applies after a too-young **first** dose (your D5 answer, 2026-11-17).
 - **The repeat is timed from the dose that did not count** (owner, STOP C,
   2026-11-15 — "Ruling D", the same rule as PneumoVax). CDC: *"The repeat dose
   should be spaced after the invalid dose by the recommended minimum
