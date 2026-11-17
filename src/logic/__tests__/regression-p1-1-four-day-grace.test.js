@@ -154,18 +154,29 @@ describe('P1-1: the grace does NOT reach the scheduler', () => {
   });
 });
 
-describe('P1-1: the grace does NOT shorten a series', () => {
-  // Granting grace on a series-LENGTH test would drop a dose from the plan.
-  it('a healthy MenB dose 2 four days short of 6 months still owes a rescue dose', () => {
+describe('P1-1: the grace does NOT shorten a series — except at the two lines STOP C C7 named', () => {
+  // P1-1 held that granting grace on a series-LENGTH test would drop a dose
+  // from the plan. STOP C C7 (owner, 2026-11-15) overrode that at exactly two
+  // lines, because there the grace means one dose fewer: the healthy MenB
+  // 6-month line and the high-risk MenB dose-3 4-month line. Every other
+  // series-length line keeps no grace.
+  it('C7: a healthy MenB dose 2 four days short of 6 months completes the series (no rescue dose)', () => {
     // Six calendar months from 2026-01-15 is 2026-07-15; four days earlier is
-    // 2026-07-11. That dose is valid, but the series is still three doses.
+    // 2026-07-11.
     expect(menbSeriesInfo({
       highRisk: false,
       doses: [{ date: '2026-01-15' }, { date: '2026-07-11' }],
+    }).total).toBe(2);
+  });
+
+  it('a healthy MenB dose 2 FIVE days short of 6 months still owes a rescue dose', () => {
+    expect(menbSeriesInfo({
+      highRisk: false,
+      doses: [{ date: '2026-01-15' }, { date: '2026-07-10' }],
     }).total).toBe(3);
   });
 
-  it('a high-risk MenB dose 2 four days short of 6 months still owes dose 3', () => {
+  it('a high-risk MenB dose 2 four days short of 6 months still owes dose 3 (not one of C7\'s lines)', () => {
     // P1-2's exception must not be triggered by the grace rule.
     expect(menbSeriesInfo({
       highRisk: true,

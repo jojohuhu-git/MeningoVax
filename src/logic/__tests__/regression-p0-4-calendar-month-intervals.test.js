@@ -117,15 +117,16 @@ describe('P0-4: high-risk MenB dose 3 on the calendar anniversary is valid', () 
     expect(perDose[2].status).toBe('valid');
   });
 
-  it('control: a dose genuinely too soon is still invalid', () => {
-    // MenB dose-3 rescue (2026-09-17): this control used to be D2 2023-03-15,
-    // putting D3 only three months after dose 2 — which CDC now has us CREDIT,
-    // with a 4th dose to follow, so it stopped being a control. Moved D2 a month
-    // earlier: D2→D3 is a full four calendar months, and the only thing still
-    // wrong is the dose-1 floor (five months, where six is required).
-    const doses = [{ date: '2023-01-15' }, { date: '2023-02-15' }, { date: '2023-06-15' }];
+  it('control: a dose 3 genuinely early (3 months after dose 2) still owes a 4th dose', () => {
+    // STOP C C5 (owner, 2026-11-15): a dose 3 ≥4 months after dose 2 now
+    // counts whatever the gap from dose 1, so the old control (the dose-1
+    // floor) no longer voids anything. The calendar comparison is still held:
+    // three calendar months after dose 2 (and five after dose 1) is early, so
+    // the dose counts and the series grows to four.
+    const doses = [{ date: '2023-01-15' }, { date: '2023-03-15' }, { date: '2023-06-15' }];
     const perDose = analyzeHistory('MenB', doses, 300, ['asplenia'], '2026-09-15', allYes(3)).perDose;
-    expect(perDose[2].status).toBe('invalid');
+    expect(perDose[2].status).toBe('valid');
+    expect(menbSeriesInfo({ highRisk: true, doses }).total).toBe(4);
   });
 });
 
