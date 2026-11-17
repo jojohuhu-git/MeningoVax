@@ -60,19 +60,20 @@ describe('Dateless dose below brand minimum age → invalid', () => {
   });
 });
 
-// ── Counts when current age clears the minimum ─────────────────────────────
-describe('Dateless dose where current age clears the minimum → counts', () => {
-  it('Penbraya for a 30-year-old (no date) → unknown, counts', () => {
+// ── Current age clears the minimum: STOP C C1 (owner, 2026-11-15) ─────────
+// Before C1 these counted ("unknown"). Now an undated dose never counts: it is
+// a record problem, "No date recorded — not counted". The min-age rows above
+// still win where the brand rules the dose out, because they say more.
+describe('Dateless dose where current age clears the minimum → not counted (C1)', () => {
+  it('Penbraya for a 30-year-old (no date) → not counted', () => {
     const { perDose, effective } = analyze('MenB', [{ brand: 'Penbraya (MenABCWY)' }], 360);
-    expect(perDose[0].status).toBe('unknown');
-    expect(effective).toHaveLength(1);
-    expect(perDose[0].reasons[0]).toMatch(/must have been given at ≥10 years/);
+    expect(perDose[0].recordProblem).toBe('undated');
+    expect(effective).toHaveLength(0);
   });
 
-  it('MenQuadfi for a 20-year-old (no date) → unknown, counts with min-age note', () => {
+  it('MenQuadfi for a 20-year-old (no date) → not counted', () => {
     const res = validate('MenACWY', [{ brand: 'MenQuadfi (MenACWY)' }], 240);
-    expect(res[0].status).toBe('unknown');
-    expect(res[0].reasons[0]).toMatch(/≥6 weeks/);
+    expect(res[0].recordProblem).toBe('undated');
   });
 });
 
@@ -83,14 +84,14 @@ const undatedDose = () => ({ detailsUnknown: true });
 
 // ── Unknown brand → no brand-specific flag (ACIP: any brand acceptable) ─────
 describe('Dateless dose with unknown brand', () => {
-  it('MenACWY unknown brand for a 2-year-old (no date) → unknown, not flagged', () => {
+  it('MenACWY unknown brand for a 2-year-old (no date) → not counted (C1), no brand flag', () => {
     const res = validate('MenACWY', [undatedDose()], 24);
-    expect(res[0].status).toBe('unknown');
+    expect(res[0].recordProblem).toBe('undated');
   });
 
-  it('MenACWY unknown brand for a 6-month-old (no date) → unknown (≥2mo floor cleared)', () => {
+  it('MenACWY unknown brand for a 6-month-old (no date) → not counted (C1)', () => {
     const res = validate('MenACWY', [undatedDose()], 6);
-    expect(res[0].status).toBe('unknown');
+    expect(res[0].recordProblem).toBe('undated');
   });
 
   it('MenB unknown brand for a 2-year-old (no date) → invalid (≥10y category floor)', () => {
@@ -99,8 +100,8 @@ describe('Dateless dose with unknown brand', () => {
     expect(res[0].status).toBe('invalid');
   });
 
-  it('MenB unknown brand for a 30-year-old (no date) → unknown, counts', () => {
+  it('MenB unknown brand for a 30-year-old (no date) → not counted (C1)', () => {
     const res = validate('MenB', [undatedDose()], 360);
-    expect(res[0].status).toBe('unknown');
+    expect(res[0].recordProblem).toBe('undated');
   });
 });

@@ -101,7 +101,7 @@ export const ROW_MAP = {
   'RECORD-BEFORE-BIRTH': { none: RECORD },
   'RECORD-ENTERED-TWICE': { none: RECORD },
   'ACWY-UNDATED-BELOW-MIN-AGE': { none: NO_DATES },
-  'ACWY-UNDATED-COUNTS': { none: NO_DATES },
+  'ACWY-UNDATED-NOT-COUNTED': { none: NO_DATES },
 
   'ACWY-BELOW-MIN-AGE': {
     compare: [
@@ -207,7 +207,7 @@ export const ROW_MAP = {
 
   'MENB-UNDATED-BELOW-10': { none: NO_DATES },
   'MENB-UNDATED-HEALTHY-UNDER-16': { none: NO_DATES },
-  'MENB-UNDATED-COUNTS': { none: NO_DATES },
+  'MENB-UNDATED-NOT-COUNTED': { none: NO_DATES },
 
   'MENB-BELOW-MIN-AGE': {
     compare: [
@@ -241,7 +241,6 @@ export const ROW_MAP = {
     // a later dose follows a dose 1 that already cleared 10 years less 4 days.)
     covers: [/^B · .* · (preferred|allowable) CVX \d+$/],
   },
-  'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE': { none: NO_DATES },
   'MENB-HIGHRISK-DOSE-2-GAP': {
     compare: ['R_4C', 'R_FH'].map((s) => ({
       what: `High-risk MenB (${s}) dose 2: gap from dose 1`, app: fromRow('MENB-HIGHRISK-DOSE-2-GAP', days(MENB_HIGHRISK_D2_GAP)), cdsi: f(s, 2, `gap from previous dose${SINCE_2017}`),

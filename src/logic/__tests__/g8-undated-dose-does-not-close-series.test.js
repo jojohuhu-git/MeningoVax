@@ -25,6 +25,12 @@
 // at ≥16y still closes the series (total 1), and a dated dose genuinely past
 // the total still gets the assertive "extra dose" verdict (G6, and the
 // regression tests that pin it).
+//
+// STOP C C1 (owner, 2026-11-15): an undated dose now never counts at all, so
+// it can neither close a series nor take a dated dose's place. The tests that
+// held "two undated doses both count" and the card's "no date" sentence are
+// rewritten to C1: the card is the same as with no dose, and the row says
+// "No date recorded — not counted".
 // ─────────────────────────────────────────────────────────────────────────
 import { describe, it, expect } from 'vitest';
 import { analyzeHistory } from '../validate.js';
@@ -57,9 +63,9 @@ describe('G8: a dose with no date does not close the routine series', () => {
     expect(info.total).toBe(1);
   });
 
-  it('two undated doses both count — neither is called an extra dose', () => {
+  it('C1: two undated doses — neither counts, neither is called an extra dose', () => {
     const { perDose, effective } = analyzeHistory('MenACWY', [undated(), undated()], TEEN, [], TEST_TODAY);
-    expect(effective).toHaveLength(2);
+    expect(effective).toHaveLength(0);
     const said = perDose.map(d => d.reasons.join(' ')).join(' ');
     expect(said).not.toMatch(/extra dose/i);
     expect(said).not.toMatch(/already complete/i);
@@ -95,19 +101,17 @@ describe('G8: an undated row never displaces a dose that has a date', () => {
   });
 });
 
-describe('G8: the card says why it still wants the booster', () => {
-  it('names the missing date when no dose on record can be placed at ≥16y', () => {
+describe('G8 under C1: what the card says when a dose has no date', () => {
+  it('C1: with only undated doses, the card is the same as with none', () => {
     const card = acwyCard(TEEN, [undated(), undated()]);
-    expect(card.status).toBe('due');
-    expect(noteText(card)).toMatch(/no date/i);
-    expect(noteText(card)).toMatch(/16 years/);
+    const none = acwyCard(TEEN, []);
+    expect(card.status).toBe(none.status);
+    expect(card.doseLabel).toBe(none.doseLabel);
   });
 
-  it('19-21y catch-up says the ≥16y dose is unconfirmed, not absent', () => {
+  it('C1: 19-21y with one undated dose gets the first-ever catch-up dose, as with none', () => {
     const card = acwyCard(ADULT19, [undated()]);
-    expect(card.doseLabel).not.toMatch(/no dose at ≥16y/);
-    expect(card.doseLabel).toMatch(/not confirmed/i);
-    expect(noteText(card)).toMatch(/no date/i);
+    expect(card.doseLabel).toBe(acwyCard(ADULT19, []).doseLabel);
   });
 
   it('says nothing about missing dates when every dose has one', () => {

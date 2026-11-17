@@ -80,9 +80,11 @@ describe('the branches the two copies disagreed on', () => {
       .toBe(RECORD_PROBLEM_LABELS.duplicate);
   });
 
-  it('an undated row past the total asks rather than asserts', () => {
-    expect(doseChipLabel(valid(4, { extraDoseUnverified: true, extraDose: true }), 2))
-      .toBe('Extra dose? — no date recorded');
+  // STOP C C1 (2026-11-15): an undated row never counts, so it is never past
+  // the total; it reads as a record problem. G6's question chip was retired.
+  it('an undated row says it is not counted', () => {
+    expect(doseChipLabel({ status: 'invalid', recordProblem: 'undated', reasons: [] }, 2))
+      .toBe('No date recorded — not counted');
   });
 
   it('a dated row past a no-booster total asserts', () => {

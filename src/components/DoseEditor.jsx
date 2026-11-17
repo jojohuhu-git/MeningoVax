@@ -211,6 +211,16 @@ export default function DoseEditor({
                 date — if the patient has not had this dose yet, leave it out.
               </div>
             )}
+
+            {/* STOP C C1 (owner, 2026-11-15): a dose with no date does not
+                count. Said where the date is missing, not only on the card. */}
+            {!dose.date && (dose.brand || dose.detailsUnknown) && (
+              <div className="dose-row-problem" data-testid="dose-date-missing">
+                With no date, this dose is not counted: only written, dated
+                records count as evidence of vaccination. Add the date if a
+                record shows it.
+              </div>
+            )}
           </div>
         ))}
       </div>

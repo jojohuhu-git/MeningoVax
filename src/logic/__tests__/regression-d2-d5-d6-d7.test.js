@@ -101,14 +101,18 @@ const DAYS_WEEKS_8 = 8 * 7; // 56
 
 describe('D6: 3-dose shortcut when high-risk infant D2 at ≥7m', () => {
   it('D1 at 3m, D2 at 7.5m → D3 is the completing dose, labeled "3 of 3"', () => {
-    // D1 at ageMonths 3, D2 at ageMonths 7.5
+    // STOP C C1 (owner, 2026-11-15): an undated dose no longer counts, so the
+    // age-only fixtures became doses dated at the same ages (born 2025-05-05;
+    // 13 months on 2026-06-05), each answered "high-risk then".
     const r = run({
       ageMonths: 13,
+      dob: '2025-05-05',
       riskIds: ['asplenia'],
       menacwyDoses: [
-        { ageMonths: 3 },   // D1 at 3m (in 2–6m range)
-        { ageMonths: 7.5 }, // D2 at 7.5m (≥7m → 3-dose shortcut)
+        { date: '2025-08-05' }, // D1 at 3m (in 2–6m range)
+        { date: '2025-12-20' }, // D2 at 7.5m (≥7m → 3-dose shortcut)
       ],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseLabel).toMatch(/3 of 3|3-dose/i);
@@ -123,19 +127,24 @@ describe('D6: 3-dose shortcut when high-risk infant D2 at ≥7m', () => {
   it('D1 at 3m, D2 at 4m (NOT ≥7m) → D3 is NOT the completing dose (standard 4-dose path)', () => {
     const r = run({
       ageMonths: 13,
+      dob: '2025-05-05',
       riskIds: ['asplenia'],
+      // C1: dated. D1 moved from 3m to 2m so D2 at 4m keeps the 8-week gap
+      // (an undated fixture never checked it); D2 is still NOT ≥7m.
       menacwyDoses: [
-        { ageMonths: 3 },
-        { ageMonths: 4 }, // D2 at 4m — NOT ≥7m
+        { date: '2025-07-05' },
+        { date: '2025-09-05' }, // D2 at 4m — NOT ≥7m
       ],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).status).toBe('risk-based');
-    // Standard path — should NOT be "3 of 3"
+    // Standard path — should NOT be "3 of 3"; dose 3 of the 4-dose series.
     expect(acwy(r).doseLabel).not.toMatch(/3 of 3/i);
+    expect(acwy(r).doseNum).toBe(3);
   });
 
-  it('D1 unknown, D2 unknown → conservative 4-dose path', () => {
-    // No ageMonths or date → ageAtDose returns null → conservative path
+  it('D1 unknown, D2 unknown → no shortcut', () => {
+    // No ageMonths or date. Since STOP C C1 neither dose counts at all.
     const r = run({
       ageMonths: 14,
       riskIds: ['asplenia'],

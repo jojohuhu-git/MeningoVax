@@ -53,7 +53,7 @@ const HAND_PATIENTS = [
     doses: [{ brand: 'Menveo 1-vial (≥10y) (MenACWY)' }],
   },
   {
-    rule: 'ACWY-UNDATED-COUNTS',
+    rule: 'ACWY-UNDATED-NOT-COUNTED',
     // A row with neither date nor brand is a blank row, dropped before the
     // walk (K1, doseIdentity.js) — so this one names a brand.
     why: '13-year-old; one MenQuadfi with no date',
@@ -89,7 +89,7 @@ const HAND_PATIENTS = [
     doses: [{ brand: 'Bexsero (MenB)' }],
   },
   {
-    rule: 'MENB-UNDATED-COUNTS',
+    rule: 'MENB-UNDATED-NOT-COUNTED',
     why: 'Healthy 18-year-old; one MenB with no date',
     vaccine: 'MenB', ageMonths: 216, dob: '2008-09-15', riskIds: [],
     doses: [{ brand: 'Bexsero (MenB)' }],
@@ -100,12 +100,6 @@ const HAND_PATIENTS = [
     vaccine: 'MenB', ageMonths: 204, dob: '2009-09-15', riskIds: ['asplenia'],
     doses: [{ date: '2023-10-01', brand: 'Bexsero (MenB)' }],
     answers: { 0: 'unsure' },
-  },
-  {
-    rule: 'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE',
-    why: '20-year-old with asplenia; Bexsero dose 1 undated, dose 2 on 2026-03-01',
-    vaccine: 'MenB', ageMonths: 240, dob: '2006-09-15', riskIds: ['asplenia'],
-    doses: [{ brand: 'Bexsero (MenB)' }, { date: '2026-03-01', brand: 'Bexsero (MenB)' }],
   },
   {
     rule: 'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
@@ -290,13 +284,13 @@ const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-sou
 
 // STOP C Q2: the app and the sources part, or the app makes a minimum out of a schedule.
 // The two undated rows moved here from Q4 on 2026-11-15 (after 2.3), when
-// ACIP's general guidance on records was read live: it accepts only dated records.
+// ACIP's general guidance on records was read live: it accepts only dated
+// records. They left on 2026-11-16 (Phase 3 family 2, STOP C C1): the app now
+// does what the source says — an undated dose does not count.
 const STOP_C_Q2 = [
-  'ACWY-UNDATED-COUNTS',
   'ACWY-HIGHRISK-BOOSTER-GAP',
   'ACWY-TRAVEL-BOOSTER-GAP',
   'ACWY-ANY-TWO-DOSES-GAP',
-  'MENB-UNDATED-COUNTS',
   'MENB-HIGHRISK-DOSE-2-GAP',
   'MENB-HIGHRISK-EARLY-DOSE-3',
   'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
@@ -304,8 +298,8 @@ const STOP_C_Q2 = [
   'MENB-HEALTHY-EARLY-DOSE-2',
 ];
 // STOP C Q4: no source covers it — keep as an app rule, and in what words?
+// MENB-HIGHRISK-DOSE-2-UNVERIFIABLE left on 2026-11-16 (C17: removed with C1).
 const STOP_C_Q4 = [
-  'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE',
   'SERIES-CAP-EXTRA-DOSE',
 ];
 // The day the sentences beside the rows were read live (Phase 2.2).

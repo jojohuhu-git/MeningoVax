@@ -84,10 +84,11 @@ describe('K1: the engine reads a blank row as no row at all', () => {
 
 describe('K1: a half-filled row is still a recorded dose (must not regress)', () => {
   it('MenACWY: a brand with no date is still graded as a dose', () => {
+    // Graded and shown; since STOP C C1 (2026-11-15) not counted.
     const r = history('MenACWY', [{ date: '', brand: 'menquadfi' }]);
     expect(r.perDose).toHaveLength(1);
-    expect(r.effective).toHaveLength(1);
-    expect(r.perDose[0].status).toBe('unknown');
+    expect(r.effective).toHaveLength(0);
+    expect(r.perDose[0].recordProblem).toBe('undated');
   });
 
   it('MenB: a brand with no date is still graded as a dose', () => {
@@ -118,20 +119,21 @@ describe('K1: the recommendation does not move when a blank row is added', () =>
   });
 });
 
-describe('K1: a ticked row is a dose, and reads as one of unknown date', () => {
+describe('K1: a ticked row is a dose on the record, with no date', () => {
   const ticked = () => ({ date: '', brand: '', detailsUnknown: true });
 
-  it('counts, and is graded as a dose whose date is unknown', () => {
+  // STOP C C1 (owner, 2026-11-15): a dose with no date does not count. The
+  // ticked row is still a dose on the record — graded and shown — not a blank.
+  it('is graded as a dose with no date, and (C1) not counted', () => {
     const r = history('MenACWY', [ticked()]);
     expect(r.perDose).toHaveLength(1);
-    expect(r.perDose[0].status).toBe('unknown');
-    expect(r.effective).toHaveLength(1);
+    expect(r.perDose[0].recordProblem).toBe('undated');
+    expect(r.effective).toHaveLength(0);
   });
 
-  it('reads exactly like the old blank-row fixture used to — the rules are unchanged', () => {
-    // G6 and G8 (the undated-dose rules) are built on this case. All K1 changed
-    // is how the clinician says it, not what the engine does with it.
+  it('three ticked rows: three rows on the record, none counted', () => {
     const r = history('MenACWY', [ticked(), ticked(), ticked()], 204);
-    expect(r.perDose[2].extraDoseUnverified).toBe(true);
+    expect(r.perDose).toHaveLength(3);
+    expect(r.perDose.every((p) => p.recordProblem === 'undated')).toBe(true);
   });
 });

@@ -28,7 +28,9 @@
 // Counting policy (ACIP):
 //   - Invalid dose → dropped; does NOT count. Message: "does not count —
 //     repeat this dose only, do not restart the series."
-//   - Unknown (no date) → COUNTS; is not a timing anchor for later doses.
+//   - No date → NOT counted (STOP C C1, 2026-11-15: ACIP accepts only written,
+//     dated records). Kept on the record and shown, graded like a record
+//     problem: no "repeat" advice, never a timing anchor.
 //   - MenB family mismatch (4C vs FHbp) → invalid → does not count. Only
 //     checked when BOTH brands are known.
 //   - MenB healthy D2 given <6 months after D1 → VALID (counts); rescue
@@ -169,48 +171,20 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         && candidateKept.length > seriesInfo.total;
 
       if (isExtra) {
-        // G6 (2026-09-16, owner decision): ASK, don't assert — but only for an
-        // UNDATED row. A dose with no date cannot be placed in time, so the app
-        // cannot tell a genuine extra dose from an ordinary series dose whose
-        // date is missing, and old paper records routinely carry several
-        // undated doses. On a healthy 17-year-old the assertion also
-        // contradicts the card it sits on, which says the age-16 booster is
-        // still due: the series cannot be both complete and owed a dose.
-        //
-        // A DATED dose that genuinely exceeds the total keeps the assertion —
-        // there the app really does know (several regression tests pin it).
-        //
-        // The question needs no answer stored: an extra dose is excluded from
-        // `kept`, so the engine never sees this row and the recommendation is
-        // identical with or without it. Nothing downstream depends on which
-        // reading is true, which is why this is wording rather than state.
-        //
-        // The undated reasons are REPLACED, not appended to: the base sentence
-        // for an undated dose ends "Dose is counted in the series", which would
-        // sit directly above a line saying it is not counted.
-        const undatedExtra = !dose.date;
+        // A dose past the series total on a schedule with no booster phase.
+        // Only a DATED dose can land here: since STOP C C1 (2026-11-15) an
+        // undated dose never counts, so the G6 "Extra dose? — no date" wording
+        // and the G8 re-walk (an undated row taking a dated dose's slot) have
+        // nothing left to catch and were removed with it.
         decidedBy[decidedBy.length - 1] = 'SERIES-CAP-EXTRA-DOSE';
         perDose.push({
           ...result,
           effectiveDoseNum: null,
           extraDose: true,
-          ...(undatedExtra ? { extraDoseUnverified: true } : {}),
-          reasons: undatedExtra
-            ? [
-              'No date recorded, so this dose cannot be placed in time.',
-              // Deliberately says nothing about the series being COMPLETE.
-              // The cap that lands a row here is a counting rule, not a verdict
-              // on the patient: a healthy 17-year-old with two undated MenACWY
-              // doses is capped at a 1-dose total while the card above still
-              // says the age-16 booster is due. Claiming completeness here
-              // would contradict the card the row sits in. (Live-observed
-              // 2026-09-16; raised separately — the cap itself is not G6's.)
-              'Do you mean this was an extra dose given? With no date recorded, the app cannot tell whether this is a dose beyond the series or a series dose whose date is missing, so it is not counted. Whichever it is, the recommendation above is the same with or without this row. Adding the date settles it.',
-            ]
-            : [
-              ...result.reasons,
-              `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
-            ],
+          reasons: [
+            ...result.reasons,
+            `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
+          ],
         });
         // Do NOT add to kept; do NOT increment effectiveCount.
       } else {
@@ -283,8 +257,8 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // Sort chronologically before the last-kept walk. The walk and the engine both assume
   // ascending order (dose numbering, interval anchoring, MenB family lock on the first
   // kept dose), so doses entered out of order must be re-sorted. Dated doses ascending;
-  // undated doses sort FIRST (they count but are never a timing anchor, and an undated
-  // historical dose is assumed to be the earlier dose — matching existing convention).
+  // undated doses sort FIRST (since STOP C C1 they never count and never start a clock,
+  // so where they sit changes no answer; first keeps the record panel's order stable).
   // K1 (2026-09-24): drop rows the clinician added but never typed into. The
   // filter used to be `.filter(Boolean)`, which removed only null/undefined,
   // so an empty row reached the walk and was graded as a dose of unknown
@@ -294,31 +268,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // no "leaving" moment to sweep at.
   const filtered = sortDosesChronologically(dropBlankDoseRows(doses));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [], decidedBy: [], anchorDate: null, uncountedDate: null };
-  const firstPass = runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob);
-
-  // G8 (2026-09-16): a row with NO date must never take the place of a dose
-  // that has one. Undated rows sort first (above), so on a schedule with a
-  // series cap they fill the slots first and a DATED dose arriving later is
-  // the one thrown out as "extra" — the app then recommended a booster the
-  // patient demonstrably had, because a blank date field somewhere else in
-  // the record had claimed its place.
-  //
-  // The cap can only be judged once the walk has run, so this is decided by
-  // re-walking rather than by guessing an order up front: if the first pass
-  // dropped a DATED dose as an extra while an undated row was kept, walk
-  // again with the dated doses first. Each pass stays internally consistent
-  // (the alternative — reaching back into the finished pass to evict a row —
-  // would leave the earlier doses graded at positions they no longer hold).
-  const datedDoseDropped = firstPass.perDose.some((p, i) => p.extraDose && filtered[i]?.date);
-  const undatedRowKept = firstPass.effective.some((d) => !d.date);
-  if (datedDoseDropped && undatedRowKept) {
-    const datedFirst = [
-      ...filtered.filter((d) => d.date),
-      ...filtered.filter((d) => !d.date),
-    ];
-    return { ...runWalk(vaccine, datedFirst, ageMonths, riskIds, ref, riskAtDoseAnswers, dob), sortedDoses: datedFirst };
-  }
-  return { ...firstPass, sortedDoses: filtered };
+  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob), sortedDoses: filtered };
 }
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses

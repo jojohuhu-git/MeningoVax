@@ -21,8 +21,13 @@
 // state appears, it falls to 'Unknown' at the bottom, which is visible rather
 // than plausible.
 
-/** Rows that are not a clinical finding at all, but an entry that cannot be right. */
+/**
+ * Rows that are not a clinical finding at all, but an entry that cannot be
+ * right — or, for `undated`, an entry that cannot be counted (STOP C C1,
+ * 2026-11-15: only written, dated records count).
+ */
 export const RECORD_PROBLEM_LABELS = {
+  undated: 'No date recorded — not counted',
   future: 'Date is in the future — not counted',
   duplicate: 'Entered twice — this row not counted',
   // Impossible-entries P1-1: same shape as the future-dated chip, because it is
@@ -45,7 +50,7 @@ export function doseChipLabel(result, seriesTotal) {
   if (!result) return null;
   const {
     status, effectiveDoseNum, notAdolescentCount,
-    extraDose, extraDoseUnverified, recordProblem,
+    extraDose, recordProblem,
   } = result;
 
   if (status === 'pending') return NEEDS_INPUT_LABEL;
@@ -57,11 +62,6 @@ export function doseChipLabel(result, seriesTotal) {
 
   // Owner-agreed wording, 2026-07-23 handoff. Not to be reworded by a copy pass.
   if (notAdolescentCount) return 'Off-window - repeat';
-
-  // G6 (2026-09-16): before the assertive version below. With no date the app
-  // cannot tell an extra dose from a series dose whose date is missing, so it
-  // asks instead of announcing.
-  if (extraDoseUnverified) return 'Extra dose? — no date recorded';
 
   // U4 (2026-09-17): says what is true of the patient. The earlier wording,
   // "beyond the indicated series total", read out `seriesTotal` -- the code's

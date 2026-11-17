@@ -66,13 +66,14 @@ describe('G8 (UI): a blank date does not push out a documented dose', () => {
   });
 });
 
-describe('G8 (UI): when no dose can be placed at 16 years or older', () => {
-  it('says the date is missing rather than claiming there is no such dose', () => {
-    const { acwyCard } = renderWith([newDoseRow({ detailsUnknown: true }), newDoseRow({ detailsUnknown: true })]);
-    expect(acwyCard.textContent).toMatch(/Booster \(16y\)/);
-    expect(acwyCard.textContent).toMatch(/recorded doses have no date/);
-    expect(acwyCard.textContent).toMatch(/cannot be confirmed from this record/);
-    expect(acwyCard.textContent).toMatch(/Adding the date may remove this recommendation/);
+describe('G8 (UI) under C1: when no dose can be placed at 16 years or older', () => {
+  // STOP C C1 (owner, 2026-11-15): an undated dose does not count, so the
+  // card is the one an empty record gets; each row says why it is not counted
+  // (the card's old "recorded doses have no date" caveat was retired).
+  it('C1: each undated row says it is not counted', () => {
+    const { rows } = renderWith([newDoseRow({ detailsUnknown: true }), newDoseRow({ detailsUnknown: true })]);
+    expect(rows).toHaveLength(2);
+    for (const row of rows) expect(row.textContent).toMatch(/No date recorded — not counted/);
   });
 
   it('stops calling the second undated row an extra dose', () => {
@@ -85,7 +86,9 @@ describe('G8 (UI): when no dose can be placed at 16 years or older', () => {
   it('says nothing about missing dates when every dose is dated', () => {
     const { acwyCard } = renderWith([dated('2021-09-15')]); // age 12y
     expect(acwyCard.textContent).toMatch(/Booster \(16y\)/);
+    // extinct: the card's undated caveat was removed with STOP C C1, 2026-11-16.
     expect(acwyCard.textContent).not.toMatch(/have no date/);
+    // extinct: the card's undated caveat was removed with STOP C C1, 2026-11-16.
     expect(acwyCard.textContent).not.toMatch(/has no date/);
   });
 });
