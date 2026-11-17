@@ -1,7 +1,7 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-11-16 (port Phase 3 families 2–3: an undated dose does
-not count, STOP C C1; MenB dose 3, C5–C7); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
+**Last verified against code:** 2026-11-16 (port Phase 3 families 2–4: an undated dose does
+not count, STOP C C1; MenB dose 3, C5–C7; MenACWY gaps, C10, C11, C13); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
@@ -193,6 +193,25 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - `microbiologist`: D1 + booster every 5 years, flat — ACIP Table 7 covers ages ≥10 and
   has no under-7 row, so the 3-year rule must NOT be extended to them (L2-3 corrected the
   card copy that implied it did).
+- **Booster floor (owner C10, 2026-11-15):** a travel or microbiologist booster sooner than
+  3/5 years (less the 4-day grace) does not count — row `ACWY-TRAVEL-BOOSTER-GAP`, sharing
+  `acwyBoosterTooSoon()` with `ACWY-HIGHRISK-BOOSTER-GAP`. ACIP Tables 7 and 9 (read live
+  2026-11-16). C10 also names A/C/W/Y outbreak boosters; those join the check with STOP B
+  B-2, because today's outbreak card has no booster date and checking the record first
+  would reject the dose the card advises (the whole-app walk found 629 dead ends).
+
+### Any Two MenACWY Doses (owner C11, E1)
+- **8 weeks** between any two MenACWY doses, less the 4-day grace
+  (`MENACWY_ANY_TWO_DOSES_MIN_GAP`, row `ACWY-ANY-TWO-DOSES-GAP`; ACIP 2020: *"provided that
+  an 8-week minimum interval between doses is maintained"*; CDSI's smallest MenACWY gap is
+  the same). Was 4 weeks — ACIP's MenB repeat rule (finding R-4a).
+- **E1 exception:** with no dose counted yet (the dose before was given too young), the repeat
+  waits **4 weeks** (`MENACWY_REPEAT_DOSE_FLOOR`) — the more specific owner answer, kept.
+- The card holds the same floors after a dose that did not count (`applyRepeatFloor`).
+
+### Unknown Brand (owner C13)
+- A MenACWY dose of unknown brand counts from **2 months** (`MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS`
+  = Menveo's floor; CDSI's unspecified-MenACWY floor), not MenQuadfi's 6 weeks.
 
 ## MenB Schedule
 

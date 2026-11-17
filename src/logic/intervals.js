@@ -289,6 +289,18 @@ export const MENB_HEALTHY_RESCUE_MONTHS = 4;
  */
 export const MENACWY_REPEAT_DOSE_FLOOR = WEEKS(4);
 
+/**
+ * STOP C C11 (owner, 2026-11-15): the minimum between ANY two MenACWY doses —
+ * 8 weeks (less CDC's 4-day grace), replacing the 4 weeks above. ACIP 2020
+ * MMWR rr6909a1 states 8 weeks for MenACWY (*"provided that an 8-week minimum
+ * interval between doses is maintained"*); its 4-week sentence is MenB's.
+ *
+ * MENACWY_REPEAT_DOSE_FLOOR (4 weeks) now has ONE use: owner answer E1 —
+ * the repeat of a too-young FIRST dose waits 4 weeks after it (the more
+ * specific rule; asked again as a follow-up, not assumed).
+ */
+export const MENACWY_ANY_TWO_DOSES_MIN_GAP = WEEKS(8);
+
 /** "4 months" / "6 months" — for interpolating a floor into card text. */
 export function monthsLabel(months) {
   return `${months} month${months === 1 ? '' : 's'}`;

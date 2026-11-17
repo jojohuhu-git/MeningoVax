@@ -30,7 +30,7 @@ import { DOSE_RULES } from '../../src/logic/doseRules.js';
 import {
   MENACWY_INFANT_EARLY_GAP, MENACWY_INFANT_FINAL_GAP, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_ROUTINE_BOOSTER_MIN_GAP, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
+  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENB_REPEAT_MIN_INTERVAL,
 } from '../../src/logic/intervals.js';
@@ -41,7 +41,7 @@ import {
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS,
 } from '../../src/logic/ages.js';
 import { duration } from './cdsiRules.mjs';
-import { ALL_BRANDS, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS, menbFamily } from '../../src/data/brands.js';
+import { ALL_BRANDS, MENACWY_LICENCE_MIN_AGE_DAYS, MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS, menbFamily } from '../../src/data/brands.js';
 
 const ROW = new Map(DOSE_RULES.map((r) => [r.id, r]));
 
@@ -116,10 +116,10 @@ export const ROW_MAP = {
         why: 'CDSI has one code for Menveo (CVX 136) and cannot tell the vials apart, so it allows any Menveo from 2 months. CDC\'s notes say the liquid one-vial form is not for use before 10 years; the app follows the notes.',
       },
       {
-        what: 'Unknown-brand MenACWY minimum age', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
-        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
-        why: 'An unknown product might have been MenQuadfi, which the owner allows from 6 weeks, so the app counts an unknown-brand dose from 6 weeks. CDSI\'s "unspecified" codes start at 2 months less 4 days.',
+        // STOP C C13 (owner, 2026-11-15): an unknown brand counts from 2 months,
+        // CDSI's "unspecified" floor — no difference since family 4.
+        what: 'Unknown-brand MenACWY minimum age', app: fromRow('ACWY-BELOW-MIN-AGE', months(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)),
+        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin',
       },
       {
         what: 'Youngest age a first MenACWY dose counts (any product)', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
@@ -172,16 +172,13 @@ export const ROW_MAP = {
     covers: [/^ACWY · Meningococcal ACWY risk 2-(23 month · Dose 7|dose series · Dose 4) · repeats$/],
   },
   'ACWY-TRAVEL-BOOSTER-GAP': {
+    // STOP C C10 (owner, 2026-11-15): travel and microbiologist boosters are
+    // floored like high-risk ones. CDSI's one-dose risk series also covers
+    // outbreak (070; with STOP B B-2) and, from 19 years, college (046) and
+    // military (064), which the app does not check.
     compare: [
-      {
-        what: 'Travel / microbiologist / outbreak first booster', app: { absent: true }, cdsi: f('RISK1', 2, 'gap from previous dose'),
-        differs: ['absent'], status: 'open', stopC: 'Q2',
-        why: 'CDSI\'s one-dose risk series (travel 164, microbiologist 050, outbreak 070, and from 19 years college 046 and military 064) sets a 3-year floor before the first booster; the record checks no booster gap here at all (only the 4-week rule). Already on the STOP C Q2 list from 2.2.',
-      },
-      {
-        what: 'Travel / microbiologist / outbreak booster every 5 years', app: { absent: true }, cdsi: f('RISK1', 3, 'gap from previous dose'),
-        differs: ['absent'], status: 'open', stopC: 'Q2', why: 'As above: CDSI floors the 5-year booster; the record does not.',
-      },
+      { what: 'Travel / microbiologist first booster (primary before 7)', app: fromRow('ACWY-TRAVEL-BOOSTER-GAP', yrs(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)), cdsi: f('RISK1', 2, 'gap from previous dose') },
+      { what: 'Travel / microbiologist booster every 5 years', app: fromRow('ACWY-TRAVEL-BOOSTER-GAP', yrs(MENACWY_BOOSTER_CADENCE_YEARS)), cdsi: f('RISK1', 3, 'gap from previous dose') },
     ],
     covers: [/^ACWY · Meningococcal ACWY risk 1-dose series · Dose 3 · repeats$/],
   },
@@ -196,9 +193,11 @@ export const ROW_MAP = {
   },
   'ACWY-ANY-TWO-DOSES-GAP': {
     compare: [{
-      what: 'Smallest gap CDSI allows between any two MenACWY doses', app: fromRow('ACWY-ANY-TWO-DOSES-GAP', days(MENACWY_REPEAT_DOSE_FLOOR)),
-      pick: 'smallest live MenACWY gap floor', differs: ['number'], status: 'open', stopC: 'Q2',
-      why: 'CDSI has no 4-week MenACWY rule: no gap between any two MenACWY doses in any series is below 8 weeks less 4 days. The app voids any MenACWY dose under 4 weeks (finding R-4a). Already on the STOP C Q2 list from 2.2.',
+      // STOP C C11 (owner, 2026-11-15): 8 weeks, as CDSI — no difference.
+      // (E1's 4 weeks after a too-young first dose has no CDSI counterpart:
+      // CDSI repeats at the minimum age, see MENB-REPEAT-GAP's note.)
+      what: 'Smallest gap CDSI allows between any two MenACWY doses', app: fromRow('ACWY-ANY-TWO-DOSES-GAP', days(MENACWY_ANY_TWO_DOSES_MIN_GAP)),
+      pick: 'smallest live MenACWY gap floor',
     }],
   },
   'ACWY-ROUTINE-DOSE-2-BEFORE-16': {

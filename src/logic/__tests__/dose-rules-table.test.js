@@ -279,11 +279,10 @@ const VERDICTS = ['stated', 'schedule-only', 'differs', 'owner-decided', 'no-sou
 // does what the source says — an undated dose does not count.
 // 2026-11-16 (family 3): MENB-HIGHRISK-EARLY-DOSE-3 (C6, C7),
 // MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) and MENB-HEALTHY-EARLY-DOSE-2 (C7, C12,
-// C3) left: owner-decided.
+// C3) left: owner-decided. ACWY-TRAVEL-BOOSTER-GAP (C10) and
+// ACWY-ANY-TWO-DOSES-GAP (C11, E1) left on 2026-11-16 (family 4).
 const STOP_C_Q2 = [
   'ACWY-HIGHRISK-BOOSTER-GAP',
-  'ACWY-TRAVEL-BOOSTER-GAP',
-  'ACWY-ANY-TWO-DOSES-GAP',
   'MENB-HIGHRISK-DOSE-2-GAP',
   'MENB-HIGHRISK-BOOSTER-GAP',
 ];

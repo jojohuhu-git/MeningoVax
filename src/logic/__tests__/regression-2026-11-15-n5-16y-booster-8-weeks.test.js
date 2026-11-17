@@ -91,7 +91,9 @@ describe('N5: a booster given sooner than 8 weeks does not count', () => {
   });
 
   it('control: a dose 1 given at 16 or older is unaffected (a second dose is "extra", not invalid)', () => {
-    const r = run({ dob: '2008-01-01', doses: [{ date: '2026-03-01', brand: M }, { date: '2026-04-05', brand: M }], today: '2026-09-01' });
+    // C11 (2026-11-15): 8 weeks now separate ANY two MenACWY doses, so the
+    // second dose moved from 5 weeks (2026-04-05) to 9 weeks after the first.
+    const r = run({ dob: '2008-01-01', doses: [{ date: '2026-03-01', brand: M }, { date: '2026-05-03', brand: M }], today: '2026-09-01' });
     const p = r.history.MenACWY.perDose[1];
     expect(p.status).not.toBe('invalid');
     expect(p.extraDose).toBe(true);

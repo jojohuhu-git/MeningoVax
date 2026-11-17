@@ -108,15 +108,18 @@ describe('MenACWY — high-risk adult D2 interval check', () => {
     expect(results[1].status).toBe('valid');
   });
 
-  it('No interval check for non-high-risk D2', () => {
+  // STOP C C11 (owner, 2026-11-15): this held "no interval check for a
+  // non-high-risk dose 2" (4 weeks was valid). Now 8 weeks separate any two
+  // MenACWY doses, for everyone.
+  it('Non-high-risk D2 4 weeks after D1 → invalid (C11: 8 weeks between any two doses)', () => {
     const d1 = weeksAgo(20);
-    const d2 = weeksAgo(16); // 4 weeks — short, but no risk factor
+    const d2 = weeksAgo(16); // 4 weeks
     const results = validate('MenACWY', [
       { date: d1 },
       { date: d2 },
     ], ADULT_AM, []);
-    // Should be valid — only high-risk patients have the D2 interval check
-    expect(results[1].status).toBe('valid');
+    expect(results[1].status).toBe('invalid');
+    expect(results[1].reasons[0]).toMatch(/8 weeks/);
   });
 });
 

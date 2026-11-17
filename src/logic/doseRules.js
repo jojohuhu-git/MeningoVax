@@ -101,7 +101,7 @@
 import { daysBetween, calendarIntervalElapsed, DAYS, AVG_DAYS_PER_MONTH } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import {
-  menbFamily, ALL_BRANDS, brandMinAge, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS,
+  menbFamily, ALL_BRANDS, brandMinAge, MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
 } from '../data/brands.js';
 import {
   menacwyPrimaryTotal, menbSeriesInfo, menbHealthyDose2Early, menbHighRiskDose3Early,
@@ -115,7 +115,7 @@ import {
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
+  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
@@ -152,12 +152,10 @@ function brandMinAgeM(brandStr) {
 // P2-3 (2026-09-17): these come from the product table itself, so adding a
 // product cannot leave them behind.
 //
-// M2 (2026-09-22): the MenACWY floor is expressed in DAYS
-// (MENACWY_LICENCE_MIN_AGE_DAYS, brands.js) — MenQuadfi's 42-day floor is the
-// most permissive one, and converting it to an approximate months number
-// here would reintroduce exactly the imprecision the days unit exists to
-// avoid. See meetsMenacwyFloor() below.
-const MIN_AGE_MENACWY_PERMISSIVE = { unit: 'days', value: MENACWY_LICENCE_MIN_AGE_DAYS };
+// STOP C C13 (owner, 2026-11-15): a MenACWY dose of UNKNOWN brand counts from
+// 2 months (Menveo's floor; CDC's software's "unspecified" floor), not from
+// MenQuadfi's 6 weeks — the 6 weeks is MenQuadfi's alone (M2, 2026-09-22).
+const MIN_AGE_MENACWY_PERMISSIVE = { unit: 'months', value: MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS };
 const MIN_AGE_MENB_PERMISSIVE_MONTHS = MENB_MIN_AGE_MONTHS;
 
 /**
@@ -180,10 +178,10 @@ function meetsMenacwyFloor(floor, ageAtDoseMonthsVal, ageAtDoseDaysVal, whenGive
 }
 
 // ── Interval constants ───────────────────────────────────────────────────
-// MenACWY: the baseline minimum between ANY two doses regardless of risk class
-// (duplicate-dose detection, Task 3). The high-risk rule (8wk) is stricter and
-// wins when it applies.
-const MENACWY_BASELINE_MIN_INTERVAL    = MENACWY_REPEAT_DOSE_FLOOR;
+// MenACWY: the minimum between ANY two doses regardless of risk class — 8
+// weeks since STOP C C11 (was 4). E1's 4 weeks after a too-young first dose
+// is MENACWY_REPEAT_DOSE_FLOOR, read directly by ACWY-ANY-TWO-DOSES-GAP.
+const MENACWY_BASELINE_MIN_INTERVAL    = MENACWY_ANY_TWO_DOSES_MIN_GAP;
 // MenACWY high-risk 2-dose primary (≥2y): P2-1 (2026-09-17) moved this to
 // intervals.js, so the validator and the engine ask the same function.
 const MENACWY_HR_ADULT_MIN_INTERVAL    = MENACWY_HIGHRISK_PRIMARY_GAP;
@@ -268,6 +266,11 @@ function fmtAgeMClinical(m, exactDays) {
 // printed in weeks when it divides evenly (42 → "6 weeks", as the source
 // states it) and in days otherwise — never as a fractional month.
 function fmtMinAge(minAge) {
+  // Fix-queue item (found at STOP C, 2026-11-15): a {unit, value} age was
+  // always read as DAYS, so brandMinAge()'s months-stated floors printed as
+  // "2 days" (Menveo) or "9 days" (Menactra). Months now go through the
+  // months branch below.
+  if (minAge && typeof minAge === 'object' && minAge.unit === 'months') return fmtMinAge(minAge.value);
   if (minAge && typeof minAge === 'object') {
     const { value } = minAge;
     if (value % 7 === 0) {
@@ -428,9 +431,49 @@ const acwy = (ctx) => once(ctx, '_acwy', () => {
   const onOutbreakSchedule = ctx.riskIds.includes('outbreak_acwy');
   return {
     isHighRiskNow,
+    // STOP C C10 (owner, 2026-11-15): travel and microbiologist boosters are
+    // checked like medical high-risk ones (ACIP 2020 Tables 7 and 9: 3 years if
+    // under 7, else 5). C10 also names A/C/W/Y outbreak boosters, but the
+    // outbreak CARD has no booster schedule yet (it changes with STOP B answer
+    // B-2), and checking the record before the card would reject the dose the
+    // card advises — so outbreak joins this check in the same PR as B-2.
+    // Military and college residence are not on this list (Table 10).
+    otherBoosterScheduleNow: !isHighRiskNow && cls === 'single+boost',
     routineOnly: !ongoingRiskNow && !onInfantSeriesNow && !onOutbreakSchedule,
   };
 });
+
+// A MenACWY booster too soon after the dose before it, on a schedule with
+// boosters (medical high risk; since C10 also travel, microbiologist and
+// A/C/W/Y outbreak). M4: a dose is a booster only once the primary series is
+// behind it; the first booster's cadence keys off the age at the LAST primary
+// dose. Unknown age → 3 years (conservative). P0-5: compared on the calendar.
+// Only too-soon is flagged; a late booster is ordinary catch-up. `who` names
+// the schedule in the sentence.
+function acwyBoosterTooSoon(ctx, who) {
+  const prev = prevDated(ctx);
+  if (!prev) return null;
+  const { primaryTotal } = acwySeries(ctx);
+  if (ctx.effectiveIdx < primaryTotal) return null;
+  let cadenceYears;
+  let cadenceLabel;
+  if (ctx.effectiveIdx === primaryTotal) {
+    const kd = keptDated(ctx);
+    const lastPrimary = kd[primaryTotal - 1] || kd[kd.length - 1] || null;
+    const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ctx.ageMonths, ctx.today, ctx.dob);
+    const threeYears = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS);
+    cadenceYears = threeYears ? MENACWY_BOOSTER_3Y_YEARS : MENACWY_BOOSTER_5Y_YEARS;
+    cadenceLabel = threeYears ? '3 years' : '5 years';
+  } else {
+    cadenceYears = MENACWY_BOOSTER_5Y_YEARS;
+    cadenceLabel = '5 years';
+  }
+  if (calendarIntervalMeetsMinimum(prev.dose.date, cadenceYears * 12, ctx.dose.date)) return null;
+  return invalidResult(
+    [`Booster given only ${fmtDays(prev.interval)} after the previous dose. ${who} must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
+    `Actual interval: ${fmtDays(prev.interval)}. Required cadence: ${cadenceLabel}.`
+  );
+}
 
 // MenACWY: the shape of the series so far, for the gap rows.
 const acwySeries = (ctx) => once(ctx, '_acwySeries', () => {
@@ -843,61 +886,29 @@ export const DOSE_RULES = [
       note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum. The app voids an earlier booster; CDC\'s software (CDSI) also treats 3 or 5 years less 4 days as a hard minimum. For STOP C Q2: floor or advice?',
     },
     label: 'Invalid',
-    // M4: a dose is a booster only once the primary series is behind it, and
-    // how long that series is depends on the age at dose 1. The first
-    // booster's cadence keys off the age at the LAST primary dose — the dose
-    // the clock starts from. Unknown age → 3 years (conservative). P0-5:
-    // compared on the calendar, not as a day count. Only too-soon is flagged;
-    // a late booster is ordinary catch-up.
-    check: (ctx) => {
-      const prev = prevDated(ctx);
-      if (!prev || !acwy(ctx).isHighRiskNow) return null;
-      const { primaryTotal } = acwySeries(ctx);
-      if (ctx.effectiveIdx < primaryTotal) return null;
-      let cadenceYears;
-      let cadenceLabel;
-      if (ctx.effectiveIdx === primaryTotal) {
-        const kd = keptDated(ctx);
-        const lastPrimary = kd[primaryTotal - 1] || kd[kd.length - 1] || null;
-        const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ctx.ageMonths, ctx.today, ctx.dob);
-        const threeYears = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS);
-        cadenceYears = threeYears ? MENACWY_BOOSTER_3Y_YEARS : MENACWY_BOOSTER_5Y_YEARS;
-        cadenceLabel = threeYears ? '3 years' : '5 years';
-      } else {
-        cadenceYears = MENACWY_BOOSTER_5Y_YEARS;
-        cadenceLabel = '5 years';
-      }
-      if (calendarIntervalMeetsMinimum(prev.dose.date, cadenceYears * 12, ctx.dose.date)) return null;
-      return invalidResult(
-        [`Booster given only ${fmtDays(prev.interval)} after the previous dose. High-risk MenACWY boosters must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
-        `Actual interval: ${fmtDays(prev.interval)}. Required cadence: ${cadenceLabel}.`
-      );
-    },
+    // The shared check (acwyBoosterTooSoon, above) is also the travel row's.
+    check: (ctx) => (acwy(ctx).isHighRiskNow ? acwyBoosterTooSoon(ctx, 'High-risk MenACWY boosters') : null),
   },
   {
     id: 'ACWY-TRAVEL-BOOSTER-GAP',
-    inventory: 'A5 (not checked)',
-    what: 'A MenACWY booster for travel, a microbiologist or an outbreak contact, sooner than 3 or 5 years',
+    inventory: 'A5 (travel)',
+    what: 'A MenACWY booster for travel or a microbiologist, sooner than 3 or 5 years (A/C/W/Y outbreak: with STOP B B-2)',
     vaccine: 'MenACWY',
     dated: true,
-    schedule: 'travel, microbiologist, A/C/W/Y outbreak',
+    schedule: 'travel, microbiologist',
     measuredFrom: 'last dose given',
-    enforcement: 'none',
-    grace: null,
-    authorityToday: 'Nothing: an open gap, not a decision',
+    enforcement: 'floor',
+    grace: true,
+    authorityToday: 'ACIP 2020 Tables 7, 8, 9; owner, STOP C C10 (2026-11-15)',
     sourcesSay: {
-      verdict: 'differs',
+      verdict: 'owner-decided',
       refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
-      note: 'ACIP\'s travel table gives the same 3- and 5-year booster schedule as for medical risk, and the card advises it, but the record checks no booster gap here at all (only the 4-week rule). Card and record disagree. For STOP C Q2.',
+      note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9.',
     },
-    label: 'Booster',
-    // ⚠ NOT A DECISION. Only ACWY-ANY-TWO-DOSES-GAP's 4 weeks applies to these
-    // patients today: a dose 5 months after a travel dose counts as a
-    // "Booster" (Phase 0 report, patient P2). ACIP Table 9 gives travel the
-    // same 3/5-year wording as Tables 4–6; CDSI's risk 1-dose series has
-    // dose 2 absMin 3 years − 4 days. Written as a row so the hole is visible;
-    // it goes to the owner at STOP C (Q2).
-    check: null,
+    label: 'Invalid',
+    check: (ctx) => (acwy(ctx).otherBoosterScheduleNow
+      ? acwyBoosterTooSoon(ctx, 'MenACWY boosters for travel or laboratory exposure')
+      : null),
   },
   {
     id: 'ACWY-ROUTINE-BOOSTER-GAP',
@@ -946,18 +957,18 @@ export const DOSE_RULES = [
   {
     id: 'ACWY-ANY-TWO-DOSES-GAP',
     inventory: 'A6',
-    what: 'Any two MenACWY doses under 4 weeks apart',
+    what: 'Any two MenACWY doses under 8 weeks apart (4 weeks after a too-young first dose)',
     vaccine: 'MenACWY',
     dated: true,
     schedule: 'any',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'None for MenACWY (the 4-week repeat rule appears only in the MenB section of ACIP 2020)',
+    authorityToday: 'ACIP 2020 (8 weeks between MenACWY doses); owner STOP C C11 and E1, 2026-11-15',
     sourcesSay: {
-      verdict: 'differs',
-      refs: ['acip2020MenbRepeat4Weeks', 'acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'gbpTooYoungFirstDoseRepeat'],
-      note: 'ACIP\'s only "4 weeks between any 2 doses" sentence is in the MenB section, about repeating a dose. For MenACWY, ACIP and CDC state 8 weeks. The app voids any MenACWY dose under 4 weeks, and no source says so (finding R-4a; owner answer C11 makes it 8 weeks, Phase 3 family 4). Since Ruling D (E1, owner, 2026-11-15) this row also holds the repeat of a dose 1 given too young to 4 weeks after it; CDC instead repeats such a dose "on or after the date when the child reaches at least the minimum age" — a deliberate difference, matching PneumoVax.',
+      verdict: 'owner-decided',
+      refs: ['acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'acip2020MenbRepeat4Weeks', 'gbpTooYoungFirstDoseRepeat'],
+      note: 'ACIP and CDC state 8 weeks between MenACWY doses; owner answer C11 (2026-11-15) made it the minimum between any two (it was 4 weeks, which ACIP says only of MenB — finding R-4a). One owner exception, E1 (2026-11-15): the repeat of a too-young FIRST dose waits 4 weeks after it; CDC instead repeats such a dose "on or after the date when the child reaches at least the minimum age" — a deliberate difference, matching PneumoVax.',
     },
     label: 'Invalid',
     // Catches two doses days apart (Task 3). The stricter rows above handle
@@ -966,10 +977,22 @@ export const DOSE_RULES = [
       // prevGiven, not prevDated: also the repeat of a dose 1 that did not
       // count (owner, E1, 2026-11-15).
       const prev = prevGiven(ctx);
-      if (!prev || intervalMeetsMinimum(prev.interval, MENACWY_BASELINE_MIN_INTERVAL)) return null;
+      if (!prev) return null;
+      // E1: with no dose counted yet, the dose before this one did not count
+      // because it was given too young — its repeat waits 4 weeks after it.
+      const afterTooYoungDose1 = ctx.effectiveIdx === 0;
+      const floor = afterTooYoungDose1 ? MENACWY_REPEAT_DOSE_FLOOR : MENACWY_BASELINE_MIN_INTERVAL;
+      if (intervalMeetsMinimum(prev.interval, floor)) return null;
+      if (afterTooYoungDose1) {
+        return invalidResult(
+          [`Given only ${fmtDays(prev.interval)} after the previous dose, which did not count. Its repeat must be at least 4 weeks after it.`],
+          `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`
+        );
+      }
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after the previous dose. Minimum interval between any two MenACWY doses is 4 weeks.`],
-        `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_BASELINE_MIN_INTERVAL)}.`
+        [`Given only ${fmtDays(prev.interval)} after the previous dose. MenACWY doses must be at least 8 weeks apart [c].`],
+        `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`,
+        [cite('acip2020Acwy8WeekMinimum')],
       );
     },
   },
