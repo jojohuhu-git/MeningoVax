@@ -50,9 +50,13 @@ findings in `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`). **The thr
 are done** (2026-11-15: undated records, pentavalents from 26, the old Bexsero course; quoted in
 `src/data/refs.js` and the 2.3 report; 0 answers moved). **STOP C answered 2026-11-15** (18 owner
 answers, C1–C18, in `docs/archive/stop-c-packet-2026-11-15.md`; no code changed). **Phase 3 family 1
-built 2026-11-16** (Ruling D: a repeat is timed from the dose that did not count; C2, C9, C12, E1,
-E2; PR #90, waiting for the owner). Next: Phase 3 families 2–5 (one PR per family).
-The newest handoff (in PneumoVax) says which PRs are open.
+built 2026-11-16** (Ruling D; PR #90, merged). **Phase 3 families 2–5 and STOP B built
+2026-11-16/17** (#91–#95, approved; landed on main by #96, because stacked PRs had merged into
+each other's branches): undated doses do not count (C1); MenB dose 3 (C5–C7); MenACWY gaps
+(C10, C11, C13); relabels (C3, C4, C8, C9, C14, C15, C18); outbreak/military booster dates,
+routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Not built: B-1**
+(4-day grace at age lines "only when it helps") — next, then Phase 4. Open owner questions are
+in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
 ## Non-Negotiable Rules
