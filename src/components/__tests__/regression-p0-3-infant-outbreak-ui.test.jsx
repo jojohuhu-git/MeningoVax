@@ -54,10 +54,11 @@ describe('P0-3 (UI): the infant outbreak series reads as four doses of four', ()
     expect(chips(36, FULL_INFANT_SERIES).container.textContent).not.toMatch(/Extra dose/i);
   });
 
-  it('the card still says there is no standing booster schedule (M12)', () => {
+  it('the card shows the outbreak booster (B-2, owner 2026-11-15), not "no standing schedule"', () => {
     const { container } = chips(36, FULL_INFANT_SERIES);
-    expect(container.textContent).toMatch(/NEW outbreak/i);
-    expect(container.textContent).not.toMatch(/future boosters needed/i);
+    // extinct: the "NEW outbreak" one-off sentence, retired by B-2 (2026-11-16).
+    expect(container.textContent).not.toMatch(/NEW outbreak/i);
+    expect(container.textContent).toMatch(/Booster \(dose 5/);
   });
 
   it('a child with only the 2-month dose is asked for dose 2, not told they are done', () => {

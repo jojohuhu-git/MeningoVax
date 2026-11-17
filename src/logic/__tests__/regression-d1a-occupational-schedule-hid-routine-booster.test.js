@@ -53,10 +53,14 @@ describe('D1a — occupational/outbreak "done" never hides an unmet routine boos
     expect(`${c.note.lead} ${c.note.detail}`).toMatch(/16/);
   });
 
-  it('military: a dose at/after 16 still reads Complete — both requirements are met by the same dose', () => {
+  // STOP B B-3 (owner, 2026-11-15): never "Complete" — the next thing is the
+  // 5-year booster date. Both requirements are still met by the same dose:
+  // nothing is due today.
+  it('military: a dose at/after 16 meets both requirements — nothing due today, the 5-year booster dated (B-3)', () => {
     const c = card(['military'], DOSE_AT_OR_AFTER_16);
-    expect(c.status).toBe('complete');
-    expect(c.doseLabel).toBe('Complete');
+    expect(c.status).not.toBe('complete');
+    expect(c.dueToday).toBe(false);
+    expect(c.doseLabel).toMatch(/if required by assignment/);
   });
 
   it('outbreak_acwy: a pre-16 dose does NOT read Complete-for-this-outbreak — the routine booster is still owed', () => {
@@ -66,10 +70,12 @@ describe('D1a — occupational/outbreak "done" never hides an unmet routine boos
     expect(c.doseLabel).toMatch(/still owed/i);
   });
 
-  it('outbreak_acwy: a dose at/after 16, recent enough that no top-up is due, still reads Complete', () => {
+  // STOP B B-2 (owner, 2026-11-15): never "Complete" while the box is ticked.
+  it('outbreak_acwy: a dose at/after 16, recent enough that no booster is due — dated, not "Complete" (B-2)', () => {
     const c = card(['outbreak_acwy'], DOSE_AT_OR_AFTER_16);
-    expect(c.status).toBe('complete');
-    expect(c.doseLabel).toBe('Complete for this outbreak');
+    expect(c.status).not.toBe('complete');
+    expect(c.dueToday).toBe(false);
+    expect(c.doseLabel).toMatch(/if outbreak risk continues/);
   });
 
   it('control: college_dorm was already correct and is unaffected by this fix', () => {

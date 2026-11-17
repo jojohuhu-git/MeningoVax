@@ -4,7 +4,8 @@
 code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth**.
 
-**Last verified against code:** 2026-11-16 (an undated dose does not count, STOP C C1);
+**Last verified against code:** 2026-11-16 (STOP B B-2–B-5 and the Complete rule; MenACWY
+gaps, STOP C C10, C11, C13; MenB dose 3, C5–C7; an undated dose does not count, C1);
 before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
 the 2026-09-15 dose-counter and primary/booster-boundary fixes (M5, M9, M10, M12,
@@ -44,10 +45,12 @@ Two deliberate limits:
 - **It does not move the dates the app suggests.** If the next dose is due on the
   9th, the app still says the 9th — it simply accepts a dose given on the 5th.
   Accepting a dose that was given early is not the same as advising one.
-- **It never shortens a series.** Whether MenB dose 2 counts as "early" decides
-  whether a third rescue dose is owed; the four days are not applied there,
-  because that would take a dose out of the plan rather than accept one already
-  given.
+- **It shortens a series in only two places, both your ruling** (STOP C C7,
+  2026-11-15: use the grace where it means one dose fewer): a healthy MenB dose
+  2 given 1–4 days before 6 months completes the 2-dose series (no rescue dose);
+  a high-risk MenB dose 3 given 1–4 days before 4 months after dose 2 is not
+  "early" (no 4th dose). Every other line that decides how many doses a series
+  has keeps the full interval.
 
 ---
 
@@ -99,7 +102,10 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
     given at 6 or 7 weeks is licensed and **counts**: the card for a patient in
     that gap says so and states the schedule that follows ("6 weeks, then 4, 6
     and 12 months") instead of pretending nothing happened. Menveo's own floor
-    is unchanged at 2 months. See `MENACWY_LICENCE_MIN_AGE_DAYS` (brands.js) vs
+    is unchanged at 2 months. **A dose whose brand is unknown counts only from 2
+    months** (your C13 answer, 2026-11-15): the 6 weeks is MenQuadfi's alone,
+    and an unknown brand might not have been MenQuadfi (CDC's software also
+    starts an unspecified MenACWY at 2 months). See `MENACWY_LICENCE_MIN_AGE_DAYS` (brands.js) vs
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
@@ -137,20 +143,28 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
   - Completion age unknown: treated conservatively as "before 7" (3-year first booster).
   - Only the *first* booster varies. Every booster after it is 5 years.
 
-### Single-dose indications (one primary dose, no standing countdown)
+### Single-dose indications (one primary dose)
 "Single" means the *primary series* is one dose — not that the patient may never
 receive another.
-- **Military recruits**: one documented dose satisfies the recruitment requirement.
-  ACIP also gives recruits a booster every 5 years *on the basis of assignment*, and the
-  **Department of Defense** sets that requirement according to high-risk travel. The app
-  cannot see the assignment, so it computes no date; the card says to check the service's
-  current requirement rather than assume nothing further is due.
-- **Serogroup A/C/W/Y outbreak exposure**: one dose covers the outbreak. If the patient
-  is identified as being at increased risk in an outbreak *again*, a single **top-up**
-  dose is given once ≥3 years (under age 7 today) or ≥5 years (age 7 or older today)
-  have passed since the last dose. It is driven by re-exposure, not by a repeating
-  schedule. Note the clock: this threshold keys off the patient's age **today**, where
-  every other 3-vs-5-year rule keys off the age at the primary dose.
+- **Under 16, the college-residence and military boxes add nothing** (your B-4 answer,
+  2026-11-15): the card follows the routine schedule and adds "The college-residence
+  (military) dose is given at 16 or older."
+- **Military recruits**: one documented dose satisfies the recruitment requirement. The
+  card then shows **the booster date 5 years on, "if required by assignment"** — never
+  "Complete" (your B-3 answer). ACIP: *"Military recruits: Every 5 yrs on basis of
+  assignment"*; the Department of Defense sets it from high-risk travel, which the app
+  cannot see, so the card says to check the service's current requirement.
+- **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
+  ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
+  and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
+  outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
+  routine 16-year booster still comes first. Untick the box when the risk is over.
+- **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
+  10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
+  complete.
+- **The combined pentavalent shot waits for the dose questions** (your B-5 answer): while
+  a recorded dose shows "Needs input", the app offers no pentavalent and does not say
+  both vaccines are due.
 - **First-year college students in dorms**: one dose satisfies the requirement *only if
   given at ≥16 years old* — and then permanently. There is no 5-year expiry (owner
   decision, 2026-09-15: ACIP's footnote governs, not immunize.org's enrolment-recency
@@ -165,6 +179,11 @@ receive another.
 - **Microbiologists** routinely handling *N. meningitidis*: 1 dose, then every 5 years
   while the exposure continues — a flat interval with no under-7 variation, because
   ACIP's microbiologist table covers ages ≥10 only.
+- **A booster given too soon does not count, for both** (your C10 answer,
+  2026-11-15): checked like a medical high-risk booster — 3 or 5 years, less
+  the 4-day grace. Before, a dose 6 weeks after a travel dose was counted as
+  "the booster". (C10 also names the A/C/W/Y outbreak booster; that half comes
+  with the outbreak card's booster date, your STOP B answer B-2.)
 
 ---
 
@@ -184,7 +203,8 @@ MenB vaccines (Bexsero, Trumenba, and the pentavalents Penmenvy/Penbraya) are
   least 6 months after dose 1 (and at least 4 weeks after the uncounted dose).
 - **Dose 2 given early** (4 weeks to <6 months after dose 1) is **not
   invalid** — it's accepted, but a third "rescue" dose is then required ≥4
-  months after dose 2 to complete the series.
+  months after dose 2 to complete the series. A dose 2 only 1–4 days short of
+  6 months counts as on time (the 4-day grace; your C7 answer).
 
 ### Doses given before age 16 (healthy patients) don't count
 Mirrors the MenACWY pre-age-10 rule above: a MenB dose given before 16 to a
@@ -200,8 +220,11 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
 - Eligible starting at age 10 (no upper age limit).
 - **3-dose primary**: 0, 1–2 months, 6 months.
   - Dose 2: ≥4 weeks after dose 1.
-  - Dose 3: ≥6 months after dose 1 **and** ≥4 months after dose 2 (both must
-    be satisfied — whichever is later wins).
+  - Dose 3: the app **advises** it ≥6 months after dose 1 **and** ≥4 months
+    after dose 2 (both must be satisfied — whichever is later wins). A dose 3
+    **already given** ≥4 months after dose 2 counts, even if it came before 6
+    months from dose 1 (your C5 answer, 2026-11-15: no source says not to count
+    it, and CDC's software counts it).
   - **If dose 2 was already given 6 months or more after dose 1, dose 3 is not
     needed** (corrected 2026-09-17). Those two doses are the 0-and-6-month
     schedule, so the series is complete and the patient moves to boosters. CDC
@@ -217,9 +240,13 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     the early dose 3 invalid, tell the clinician to repeat it, and then ask for
     "dose 3 of 3" again — so it threw away a dose CDC credits and never
     mentioned the extra dose the patient actually needs. The booster clock then
-    starts from that 4th dose, not from the third. As with the rule above, the
-    four months are compared on the calendar, and a dose a few days early still
-    earns the extra dose (the 4-day grace never shortens a series).
+    starts from that 4th dose, not from the third. The four months are
+    compared on the calendar, **with the 4-day grace** (your C7 answer): a dose
+    3 given 1–4 days before 4 months is not early.
+  - **Unless dose 3 was 6 months or more after dose 1** — then no 4th dose,
+    even if dose 3 came under 4 months after dose 2 (your C6 answer: follow
+    ACIP's 2024 MMWR, *"…unless the third dose was administered ≥6 months after
+    the first dose"*; CDC's schedule notes leave the "unless" out).
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
@@ -320,6 +347,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   follows PneumoVax here on purpose).
 - **Given too soon after the previous dose** (violates a minimum interval):
   invalid — does not count. Repeat that dose only.
+- **Any two MenACWY doses must be at least 8 weeks apart** (your C11 answer,
+  2026-11-15; ACIP: *"an 8-week minimum interval between doses"*; less the
+  4-day grace). It was 4 weeks, which ACIP says only of MenB. One exception,
+  your E1 answer: the repeat of a too-young **first** dose waits 4 weeks after
+  it.
 - **The repeat is timed from the dose that did not count** (owner, STOP C,
   2026-11-15 — "Ruling D", the same rule as PneumoVax). CDC: *"The repeat dose
   should be spaced after the invalid dose by the recommended minimum

@@ -85,9 +85,10 @@ const noteText = (r) => (typeof r.note === 'string' ? r.note : `${r.note?.lead ?
 // First full run 2026-11-15 (CDSI test cases 4.46 healthy / 4.6 conditions).
 const KNOWN = {
   // ── Same date, different label ──
-  'Healthy 10–15 with a routine dose: card says "Complete" beside "Booster due at 16y"; CDSI calls the booster the next dose owed. Same date in 11 of 13; 2013-0489 and 2013-0500 differ for the reasons in their other family — OPEN until Phase 3 (owner rule 2026-11-01, "Complete should only be used if no additional doses/boosters are needed": the status stops saying Complete; the date already agrees)':
-    ['2013-0487', '2013-0489', '2013-0497', '2013-0498', '2013-0499', '2013-0500', '2013-0501', '2013-0503',
-      '2013-0507', '2013-0509', '2013-0510', '2023-0105', '2025-0017'],
+  // Closed 2026-11-16 (STOP B, the owner rule "Complete should only be used if
+  // no additional doses/boosters are needed"): the healthy 10–15 card is no
+  // longer "complete", so 2013-0487/-0499/-0503/-0507/-0509/-0510, 2023-0105
+  // and 2025-0017 now agree with CDSI (the others differ for their own family).
   'Healthy MenB at 16–23 is shared clinical decision-making (ACIP); CDSI names its own series "Shared Clinical Decision Making" but forecasts it like any dose. The app labels it optional — DELIBERATE (label only; dates are judged by the families below)':
     ['2024-0032', '2024-0033', '2024-0034', '2024-0035', '2024-0036', '2024-0037', '2024-0040', '2024-0041',
       '2024-0069', '2024-0079', '2024-0081', '2025-0011', '2025-0014', '2025-0015'],
@@ -111,16 +112,20 @@ const KNOWN = {
     ['2024-0081'],
   'MenB of unspecified product at 16+: CDSI says it cannot count (the product must be known) and repeats in 4 weeks; the app counts it as dose 1 — OPEN':
     ['2024-0069'],
-  'High-risk MenB dose 3 under 6 months after dose 1 (but 4+ months after dose 2): the app does not count it and repeats it; CDSI counts it (its 6 months from dose 1 has an absolute minimum of 0 days) — OPEN (packet 1 Q2; the CDSI plan already lists it for item 2.3)':
-    ['2020-UC-0004'],
-  'Infant outbreak series complete: the app says no standing booster (only for a NEW outbreak); CDSI books a booster 3 years later — OPEN until Phase 3 (owner, STOP B 2026-11-15: while the outbreak box is ticked, show the booster date — 3 years if the last dose was before 7, else 5 — and drop "Complete"; ACIP RR-9 Table 8)':
-    ['2016-UC-0116'],
-  'Military recruit with one dose: the app says Complete and "check the service\'s current requirement"; CDSI books a booster 5 years later — OPEN until Phase 3 (owner, STOP B 2026-11-15: show the 5-year booster date with the assignment caveat, no "Complete"; ACIP RR-9 Table 10, "Every 5 yrs on basis of assignment")':
-    ['2025-UC-0019'],
+  // Closed 2026-11-16 by owner answer C5 (STOP C): a high-risk MenB dose 3
+  // given 4+ months after dose 2 counts whatever the gap from dose 1, so
+  // 2020-UC-0004 now agrees with CDSI. (C7, the same PR, moved 2024-0039 —
+  // dose 2 four days short of 6 months — from an optional rescue dose to
+  // nothing owed; it agreed with CDSI before and after.)
   'Calendar: 4 months after Jul 31 is Nov 30 in the app, Dec 1 in CDSI — 1 day — OPEN (dateUtils.js is shared with PneumoVax, which lists the same family; a change goes to both or neither)':
     ['2024-0040'],
   'Microbiologist on Bexsero: the test patient (last changed in CDSI 4.2) predates Bexsero\'s 3-dose high-risk series; CDSI 4.65\'s own data (3 doses, booster 1 year later) gives the app\'s date — DELIBERATE':
     ['2019-UC-0007'],
+  // Closed 2026-11-16 by STOP B: B-2 (2016-UC-0116, the infant outbreak series
+  // now books its 3-year booster) and B-3 (2025-UC-0019, the military 5-year
+  // booster date) now agree with CDSI.
+  'A dose 1–4 days before the 16th birthday: CDSI gives the 16-year line the 4-day grace and calls the series complete; the app asks for the booster 8 weeks later. Uncovered when the healthy 10–15 card stopped being "complete" (STOP B) — OPEN until B-1 (owner, STOP B 2026-11-15: the grace at an age line "only when it helps"; not yet built)':
+    ['2013-0488', '2013-0511'],
   // ── Not comparable ──
   'Contraindication (severe allergic reaction to a previous dose): the app has no such input — NOT COMPARABLE':
     ['2016-UC-0011', '2016-UC-0203'],

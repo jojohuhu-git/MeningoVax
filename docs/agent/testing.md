@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 147 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 96 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 150 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 99 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -313,7 +313,9 @@ line. Section 5 of the same test checks that every row has one; that every key
 exists and carries a quote; that a `stated`, `schedule-only` or `differs` row
 quotes at least one source, read live on 2026-11-15 or later; and that the rows
 marked `differs`/`schedule-only` (STOP C Q2) and `no-source` (STOP C Q4) are
-exactly the lists written in the test. It also checks that no screen component
+exactly the lists written in the test. Since port Phase 3 (2026-11-16) both lists
+are EMPTY: every STOP C question is answered, so a new `differs`, `schedule-only` or
+`no-source` row turns the suite red until it is asked. It also checks that no screen component
 reads `sourcesSay`. The field is never shown on a card: the prose dump was
 byte-identical before and after (0 of 23,400).
 

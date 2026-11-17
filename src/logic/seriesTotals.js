@@ -35,7 +35,7 @@ import { ageAtDoseMonths } from './patientAge.js';
 // the same number -- that agreement is the whole point of both modules.
 import {
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
-  MENB_HEALTHY_D2_MONTHS,
+  MENB_HEALTHY_D2_MONTHS, calendarIntervalMeetsMinimum,
 } from './intervals.js';
 // P2-3 (2026-09-17): the same reasoning for AGES. This module kept its own
 // `AGE_16Y_MONTHS = 192` and hand-typed the second birthday in four places.
@@ -197,9 +197,10 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
       // every 5 years thereafter" for children under 7). So primaryTotal
       // equals the whole total here — the 12-month dose is NOT a booster.
       primaryTotal: infantTotal,
-      // Outbreak has no standing booster cadence (ACIP Table 8 gives a one-off
-      // top-up on re-exposure instead), but every other infant indication does.
-      hasBoosterPhase: riskClass !== 'single',
+      // STOP B B-2 (owner, 2026-11-15): while the outbreak box is ticked, an
+      // outbreak series has a booster countdown too (it used to be read as a
+      // one-off top-up on re-exposure), so every infant indication has one.
+      hasBoosterPhase: true,
     };
   }
   if (riskClass === 'primary2') return { total: MENACWY_HIGHRISK_PRIMARY_TOTAL, primaryTotal: MENACWY_HIGHRISK_PRIMARY_TOTAL, hasBoosterPhase: true };
@@ -267,6 +268,47 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
  * @param {Array<{date?: string}>} doses — chronological KEPT MenB doses
  * @returns {{ total: number, hasBoosterPhase: boolean }}
  */
+/**
+ * Healthy MenB: was dose 2 given too early to finish the 2-dose series, so a
+ * rescue dose 3 is owed? ACIP (mm7349a3): "If the second dose is administered
+ * <6 months after the first dose, a third dose should be administered ≥4
+ * months after the second dose."
+ *
+ * STOP C C7 (owner, 2026-11-15): CDC's 4-day grace APPLIES at this line — it
+ * means one dose fewer. (Before C7 it did not: P1-1 had settled that grace
+ * never shortens a series; the owner overrode that for this line and the
+ * high-risk dose-3 line below, and for no other.)
+ *
+ * The one copy of this test: menbSeriesInfo(), the card (recommend.js) and the
+ * dose verdict (doseRules.js MENB-HEALTHY-EARLY-DOSE-2) all call it.
+ */
+export function menbHealthyDose2Early(d1Date, d2Date) {
+  if (!d1Date || !d2Date) return false;
+  return !calendarIntervalMeetsMinimum(d1Date, MENB_HEALTHY_D2_MONTHS, d2Date);
+}
+
+/**
+ * High-risk MenB: was dose 3 given early enough that a 4th dose is owed?
+ * ACIP (mm7349a3): "If the third dose is administered <4 months after the
+ * second dose, the dose should be repeated ≥4 months after the last dose,
+ * unless the third dose was administered ≥6 months after the first dose."
+ *
+ *   C7 (owner, 2026-11-15): the 4-day grace applies to the 4-month line.
+ *   C6 (owner, 2026-11-15): the "unless" — no 4th dose when dose 3 is ≥6
+ *       months after dose 1. NO grace on that 6-month line: the owner's C7
+ *       answer named two lines, and this is not one of them (asked as a
+ *       follow-up, not assumed).
+ *
+ * The one copy of this test: menbSeriesInfo(), the card and the dose verdict
+ * (doseRules.js MENB-HIGHRISK-EARLY-DOSE-3) all call it.
+ */
+export function menbHighRiskDose3Early(d1Date, d2Date, d3Date) {
+  if (!d2Date || !d3Date) return false;
+  if (calendarIntervalMeetsMinimum(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3Date)) return false;
+  if (d1Date && calendarIntervalElapsed(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
+  return true;
+}
+
 export function menbSeriesInfo({ highRisk, doses }) {
   // CDC, "Meningococcal Vaccine Recommendations" (fetched live 2026-09-15):
   // people at increased risk get "A 3-dose primary series", then boosters
@@ -292,16 +334,14 @@ export function menbSeriesInfo({ highRisk, doses }) {
       return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
     }
     // MenB dose-3 rescue (2026-09-17): the SECOND half of the same CDC bullet.
+    // The test itself is menbHighRiskDose3Early() below (STOP C C6, C7).
     // "...if dose 3 is administered earlier than 4 months after dose 2, a 4th
     // dose should be administered at least 4 months after dose 3". So an early
     // dose 3 is not a wasted injection to repeat — it counts, and the series
     // grows by one. The app used to discard it and ask for dose 3 again, which
     // both lost a dose CDC credits and hid the extra dose the patient needs.
     //
-    // NO 4-day grace on this comparison, for the same reason as the healthy
-    // mirror below: this decides how many doses the series HAS, and P1-1
-    // settled that grace never shortens a series.
-    if (hr2?.date && hr3?.date && !calendarIntervalElapsed(hr2.date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, hr3.date)) {
+    if (menbHighRiskDose3Early(hr1?.date, hr2?.date, hr3?.date)) {
       return {
         total: MENB_HIGHRISK_RESCUE_TOTAL,
         primaryTotal: MENB_HIGHRISK_RESCUE_TOTAL,
@@ -311,15 +351,15 @@ export function menbSeriesInfo({ highRisk, doses }) {
     return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
   }
   // Healthy 2-dose schedule becomes a 3-dose total only once a D1→D2
-  // interval <6 months is on record (rescue dose) — mirrors recommend.js's
-  // own needsRescue check (daysBetween(d1,d2) < DAYS.months(6)) exactly.
+  // interval <6 months is on record (rescue dose) — menbHealthyDose2Early(),
+  // which recommend.js's needsRescue calls too.
   const d1 = doses[0];
   const d2 = doses[1];
   // P0-4 (2026-09-15): was `daysBetween(d1,d2) < DAYS.months(6)`, i.e. 183 days.
   // A real six-calendar-month gap is 181-184 days, so a correctly spaced 2-dose
   // series flipped to a 3-dose "rescue" series roughly half the time, decided by
   // nothing but the month the patient started in.
-  if (d1?.date && d2?.date && !calendarIntervalElapsed(d1.date, MENB_HEALTHY_D2_MONTHS, d2.date)) {
+  if (menbHealthyDose2Early(d1?.date, d2?.date)) {
     // The rescue dose is part of the primary series, not a booster. CDC child
     // & adolescent schedule notes, MenB shared clinical decision-making
     // (fetched live 2026-09-15): "2-dose series at least 6 months apart (if

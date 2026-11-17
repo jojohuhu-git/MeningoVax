@@ -83,7 +83,8 @@ describe('G7: one dose recorded on two rows', () => {
       []
     );
     const said = perDose[1].reasons.join(' ');
-    expect(said).toMatch(/minimum interval/i);
+    // C11 (2026-11-15): the interval sentence now reads "at least 8 weeks apart".
+    expect(said).toMatch(/at least 8 weeks apart/i);
     expect(said).toMatch(/repeat this dose/i);
     expect(said).not.toMatch(/same date|twice/i);
   });

@@ -1,7 +1,8 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-11-16 (port Phase 3 family 2: an undated dose does not
-count, STOP C C1); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
+**Last verified against code:** 2026-11-16 (port Phase 3: STOP B B-2–B-5 and the Complete
+rule; an undated dose does not count, STOP C C1; MenB dose 3, C5–C7; MenACWY gaps, C10, C11,
+C13); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
@@ -31,10 +32,15 @@ averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days
    grace there would advertise a date 4 days early and actively advise giving doses before
    the minimum interval, which the CDC sentence does not permit. The app says "eligible on
    the 9th" and *accepts* a dose given on the 5th.
-2. **Series-length tests** (`seriesTotals.js`, and the MenB "was dose 2 early?" test that
-   decides whether a rescue dose is owed). Those decide how many doses a series HAS, not
-   whether a dose was valid; grace there would REMOVE a dose from the plan, which the
-   authority rule forbids.
+2. **Series-length tests** (`seriesTotals.js`) — with TWO exceptions the owner ruled
+   (STOP C C7, 2026-11-15: the grace applies where it means one dose fewer):
+   - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?"), and
+   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?").
+   Both live in one function each in `seriesTotals.js` (`menbHealthyDose2Early`,
+   `menbHighRiskDose3Early`), called by the series total, the card and the dose verdict.
+   Every other series-length line keeps no grace (the high-risk "dose 2 ≥6 months after
+   dose 1, so no dose 3" line, and C6's "dose 3 ≥6 months after dose 1" line — the latter
+   asked as a follow-up, not assumed).
 
 Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
 (e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
@@ -173,13 +179,28 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - `college_dorm`: D1 only; a dose at ≥16y satisfies it **permanently** — no 5-year expiry
   (M17, owner decision 2026-09-15: ACIP Table 10's footnote over immunize.org P2018's
   enrolment-recency rule). This ≥16y rule applies uniquely to this class.
-- `military`: D1 satisfies recruitment. Card also states ACIP's every-5-years-by-assignment
-  booster and names the **Department of Defense** as the owner of that timing (M18); the
-  app computes no date, since it cannot see the assignment.
-- `acwy_outbreak`: D1 covers the outbreak. A **top-up** dose follows if the patient is
-  identified at increased risk again and ≥3y (age <7 today) or ≥5y (age ≥7 today) have
-  passed (M12, ACIP Table 8). Re-exposure driven, not a standing countdown. Note this
-  threshold keys off age **today**, unlike Tables 4–6/9 which key off completion age.
+- **Under 16, `college_dorm` and `military` add nothing** (owner STOP B B-4, 2026-11-15):
+  the card is the routine card plus one sentence, "The college-residence (military) dose is
+  given at 16 or older." The validator already treated them as routine, so card and chip
+  now agree (whole-app check 1: 0 faults).
+- `military`: D1 satisfies recruitment. **The card shows the 5-year booster date with the
+  assignment caveat, never "Complete"** (owner STOP B B-3, 2026-11-15, reversing M18's
+  "no date"): "Booster (dose N) if required by assignment"; ACIP Table 10 (read live
+  2026-11-16): *"Military recruits: Every 5 yrs on basis of assignment"*; footnote ††: the
+  U.S. **Department of Defense** sets it from high-risk travel, which the app cannot see.
+  The validator does not check a military booster gap (C10 did not name it; asked).
+- `outbreak_acwy`: **while the box is ticked, the card keeps asking for the booster** —
+  3 years after the last dose if the series finished before 7, otherwise 5, then every 5 —
+  and never says "Complete" or "top-up" (owner STOP B B-2, 2026-11-15, replacing M12's
+  one-off-top-up reading). The years key off the age at the **last primary dose**, the same
+  rule the validator checks (C10, `acwyBoosterTooSoon`). An outbreak contact's routine
+  16-year booster comes first and is exempt from the outbreak floor (`acwyIsRoutineBooster`).
+  Infant outbreak series: the same 3-then-5-year countdown (`hasBoosterPhase: true`).
+- **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
+  STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
+  booster date doubling as `earliestNextDate` (pill "Future booster needed").
+- **The pentavalent option waits for the dose questions** (owner STOP B B-5): no combined
+  shot, and no "both are due today" banner, while any recorded dose is "Needs input".
 - **Do not conflate these three.**
 
 ### Travel and Microbiologist (`single+boost` class)
@@ -188,6 +209,25 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - `microbiologist`: D1 + booster every 5 years, flat — ACIP Table 7 covers ages ≥10 and
   has no under-7 row, so the 3-year rule must NOT be extended to them (L2-3 corrected the
   card copy that implied it did).
+- **Booster floor (owner C10, 2026-11-15):** a travel or microbiologist booster sooner than
+  3/5 years (less the 4-day grace) does not count — row `ACWY-TRAVEL-BOOSTER-GAP`, sharing
+  `acwyBoosterTooSoon()` with `ACWY-HIGHRISK-BOOSTER-GAP`. ACIP Tables 7 and 9 (read live
+  2026-11-16). C10 also names A/C/W/Y outbreak boosters; those join the check with STOP B
+  B-2, because today's outbreak card has no booster date and checking the record first
+  would reject the dose the card advises (the whole-app walk found 629 dead ends).
+
+### Any Two MenACWY Doses (owner C11, E1)
+- **8 weeks** between any two MenACWY doses, less the 4-day grace
+  (`MENACWY_ANY_TWO_DOSES_MIN_GAP`, row `ACWY-ANY-TWO-DOSES-GAP`; ACIP 2020: *"provided that
+  an 8-week minimum interval between doses is maintained"*; CDSI's smallest MenACWY gap is
+  the same). Was 4 weeks — ACIP's MenB repeat rule (finding R-4a).
+- **E1 exception:** with no dose counted yet (the dose before was given too young), the repeat
+  waits **4 weeks** (`MENACWY_REPEAT_DOSE_FLOOR`) — the more specific owner answer, kept.
+- The card holds the same floors after a dose that did not count (`applyRepeatFloor`).
+
+### Unknown Brand (owner C13)
+- A MenACWY dose of unknown brand counts from **2 months** (`MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS`
+  = Menveo's floor; CDSI's unspecified-MenACWY floor), not MenQuadfi's 6 weeks.
 
 ## MenB Schedule
 
@@ -199,7 +239,9 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   Row `MENB-HEALTHY-DOSE-2-GAP`. The repeat is timed from it (Ruling D).
 - Dose 2 given 4 weeks to <6 months after dose 1 is **valid, not invalid**: it counts, and a
   third **rescue** dose is then due ≥4 months after dose 2 (`menbSeriesInfo()` flips the total
-  to 3). Compared on the calendar, not 183 days (P0-4). A rescue dose that itself came too
+  to 3). Compared on the calendar, not 183 days (P0-4), **with the 4-day grace** (owner C7,
+  2026-11-15): a dose 2 given 1–4 days before 6 months completes the series
+  (`menbHealthyDose2Early()`). A rescue dose that itself came too
   soon is repeated ≥4 months after IT (Ruling D).
 - A planned 3-dose accelerated series (0, 1–2, 6m) is allowed where rapid protection is
   needed (e.g. college entry <6 months away).
@@ -210,25 +252,31 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - Note: **HIV, immunocomp, and HSCT are NOT MenB high-risk indications**
 - Both 4C (Bexsero/Penmenvy) and FHbp (Trumenba/Penbraya) families: 3-dose primary
 - D2: ≥4 weeks after D1 (high-risk) vs ≥6 months (healthy)
-- D3: ≥6 months from D1 AND ≥4 months from D2 (later of the two floors)
+- D3 **forecast**: ≥6 months from D1 AND ≥4 months from D2 (later of the two floors).
+- D3 **already given**: counts if ≥4 months after D2, whatever the gap from D1 (owner C5,
+  2026-11-15: no source voids it; CDSI's floor from D1 is 0 days). Row
+  `MENB-HIGHRISK-DOSE-3-FROM-DOSE-1` is kept as an `enforcement: 'none'` row saying so.
 - **D3 is NOT needed when D2 already landed ≥6 months after D1** (P1-2, 2026-09-17).
   CDC MenB special situations, verbatim: *"3-dose series at 0, 1–2, 6 months (if dose 2
   was administered at least 6 months after dose 1, dose 3 not needed; …)"*. The total
-  comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4), and
-  this is the exact mirror of the healthy rescue rule below it — same 6-month test, other
-  direction. `recommend.js` reads that total rather than a literal 3, so a patient whose
-  D2 came six months on reaches the booster phase after two doses.
+  comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4).
+  `recommend.js` reads that total rather than a literal 3, so a patient whose
+  D2 came six months on reaches the booster phase after two doses. No 4-day grace here.
 - **An early D3 is CREDITED, not repeated** (MenB dose-3 rescue, 2026-09-17).
-  CDC MenB special situations, same bullet as above, verbatim: *"...if dose 3 is
-  administered earlier than 4 months after dose 2, a 4th dose should be administered at
-  least 4 months after dose 3"*. `menbSeriesInfo()` returns a total of **4** for those
-  patients, `validate.js` marks the dose valid with a note saying a 4th dose is owed, and
-  `recommend.js` emits a "Dose 4 of 4 (extra dose: dose 3 given early)" card due ≥4
-  calendar months after D3. The old behaviour discarded the dose and re-offered "Dose 3 of
-  3". Note this clause fires on the D2→D3 gap alone — it takes precedence over the ≥6
-  months-from-D1 floor, which now only invalidates a D3 that is ≥4 months after D2 but
-  still under 6 months from D1. No 4-day grace on the "was D3 early?" test (P1-1: grace
-  never shortens a series); grace DOES apply to whether the 4th dose itself counts.
+  CDC MenB special situations: *"...if dose 3 is administered earlier than 4 months after
+  dose 2, a 4th dose should be administered at least 4 months after dose 3"*.
+  `menbSeriesInfo()` returns a total of **4** for those patients, `doseRules.js`
+  (`MENB-HIGHRISK-EARLY-DOSE-3`) marks the dose valid with a note saying a 4th dose is owed,
+  and `recommend.js` emits a "Dose 4 of 4 (extra dose: dose 3 given early)" card due ≥4
+  calendar months after D3. One test decides it, `menbHighRiskDose3Early()`:
+  - **C6 (owner, 2026-11-15) — the MMWR "unless":** no 4th dose when D3 is ≥6 months after
+    D1. ACIP mm7349a3 (read live 2026-11-16): *"If the third dose is administered <4 months
+    after the second dose, the dose should be repeated ≥4 months after the last dose, unless
+    the third dose was administered ≥6 months after the first dose."* CDC's schedule notes
+    leave out the "unless"; the owner chose the MMWR. No grace on this 6-month line.
+  - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace — a D3 given 1–4 days
+    before 4 months after D2 is not early.
+  Grace also applies to whether the 4th dose itself counts.
 - First booster: ≥1 year after the LAST PRIMARY dose — which is D4, not D3, for a patient
   who got the extra dose above. Read from `menbSeriesInfo()`, never a literal 3.
 - Subsequent boosters: every 2 years

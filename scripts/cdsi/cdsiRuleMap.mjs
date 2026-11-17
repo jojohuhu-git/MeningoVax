@@ -30,7 +30,7 @@ import { DOSE_RULES } from '../../src/logic/doseRules.js';
 import {
   MENACWY_INFANT_EARLY_GAP, MENACWY_INFANT_FINAL_GAP, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_ROUTINE_BOOSTER_MIN_GAP, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
-  MENACWY_REPEAT_DOSE_FLOOR, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
+  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENB_REPEAT_MIN_INTERVAL,
 } from '../../src/logic/intervals.js';
@@ -41,7 +41,7 @@ import {
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS,
 } from '../../src/logic/ages.js';
 import { duration } from './cdsiRules.mjs';
-import { ALL_BRANDS, MENACWY_LICENCE_MIN_AGE_DAYS, MENB_MIN_AGE_MONTHS, menbFamily } from '../../src/data/brands.js';
+import { ALL_BRANDS, MENACWY_LICENCE_MIN_AGE_DAYS, MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS, menbFamily } from '../../src/data/brands.js';
 
 const ROW = new Map(DOSE_RULES.map((r) => [r.id, r]));
 
@@ -116,15 +116,15 @@ export const ROW_MAP = {
         why: 'CDSI has one code for Menveo (CVX 136) and cannot tell the vials apart, so it allows any Menveo from 2 months. CDC\'s notes say the liquid one-vial form is not for use before 10 years; the app follows the notes.',
       },
       {
-        what: 'Unknown-brand MenACWY minimum age', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
-        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
-        why: 'An unknown product might have been MenQuadfi, which the owner allows from 6 weeks, so the app counts an unknown-brand dose from 6 weeks. CDSI\'s "unspecified" codes start at 2 months less 4 days.',
+        // STOP C C13 (owner, 2026-11-15): an unknown brand counts from 2 months,
+        // CDSI's "unspecified" floor — no difference since family 4.
+        what: 'Unknown-brand MenACWY minimum age', app: fromRow('ACWY-BELOW-MIN-AGE', months(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)),
+        cdsi: f('INFANT', 1, 'allowable CVX 147'), field: 'begin',
       },
       {
         what: 'Youngest age a first MenACWY dose counts (any product)', app: fromRow('ACWY-BELOW-MIN-AGE', days(MENACWY_LICENCE_MIN_AGE_DAYS)),
         cdsi: f('INFANT', 1, 'absolute minimum age'), field: 'value', differs: ['number'], status: 'owner',
-        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak)',
+        decided: '2026-09-23, MenQuadfi from 6 weeks (brands.js header; CLAUDE.md AAP tiebreak); confirmed 2026-11-15, STOP C C14',
         why: 'CDSI 4.65 lists MenQuadfi from 6 weeks less 4 days, but its infant series still starts at 2 months less 4 days, so CDSI would NOT count a MenQuadfi given at 6–7 weeks as dose 1. The app counts it (owner, following AAP). The README said CDSI "now agrees" with the 6-week rule: true for the product, not for the series.',
       },
     ],
@@ -172,16 +172,13 @@ export const ROW_MAP = {
     covers: [/^ACWY · Meningococcal ACWY risk 2-(23 month · Dose 7|dose series · Dose 4) · repeats$/],
   },
   'ACWY-TRAVEL-BOOSTER-GAP': {
+    // STOP C C10 (owner, 2026-11-15): travel and microbiologist boosters are
+    // floored like high-risk ones. CDSI's one-dose risk series also covers
+    // outbreak (070; with STOP B B-2) and, from 19 years, college (046) and
+    // military (064), which the app does not check.
     compare: [
-      {
-        what: 'Travel / microbiologist / outbreak first booster', app: { absent: true }, cdsi: f('RISK1', 2, 'gap from previous dose'),
-        differs: ['absent'], status: 'open', stopC: 'Q2',
-        why: 'CDSI\'s one-dose risk series (travel 164, microbiologist 050, outbreak 070, and from 19 years college 046 and military 064) sets a 3-year floor before the first booster; the record checks no booster gap here at all (only the 4-week rule). Already on the STOP C Q2 list from 2.2.',
-      },
-      {
-        what: 'Travel / microbiologist / outbreak booster every 5 years', app: { absent: true }, cdsi: f('RISK1', 3, 'gap from previous dose'),
-        differs: ['absent'], status: 'open', stopC: 'Q2', why: 'As above: CDSI floors the 5-year booster; the record does not.',
-      },
+      { what: 'Travel / microbiologist first booster (primary before 7)', app: fromRow('ACWY-TRAVEL-BOOSTER-GAP', yrs(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)), cdsi: f('RISK1', 2, 'gap from previous dose') },
+      { what: 'Travel / microbiologist booster every 5 years', app: fromRow('ACWY-TRAVEL-BOOSTER-GAP', yrs(MENACWY_BOOSTER_CADENCE_YEARS)), cdsi: f('RISK1', 3, 'gap from previous dose') },
     ],
     covers: [/^ACWY · Meningococcal ACWY risk 1-dose series · Dose 3 · repeats$/],
   },
@@ -196,9 +193,11 @@ export const ROW_MAP = {
   },
   'ACWY-ANY-TWO-DOSES-GAP': {
     compare: [{
-      what: 'Smallest gap CDSI allows between any two MenACWY doses', app: fromRow('ACWY-ANY-TWO-DOSES-GAP', days(MENACWY_REPEAT_DOSE_FLOOR)),
-      pick: 'smallest live MenACWY gap floor', differs: ['number'], status: 'open', stopC: 'Q2',
-      why: 'CDSI has no 4-week MenACWY rule: no gap between any two MenACWY doses in any series is below 8 weeks less 4 days. The app voids any MenACWY dose under 4 weeks (finding R-4a). Already on the STOP C Q2 list from 2.2.',
+      // STOP C C11 (owner, 2026-11-15): 8 weeks, as CDSI — no difference.
+      // (E1's 4 weeks after a too-young first dose has no CDSI counterpart:
+      // CDSI repeats at the minimum age, see MENB-REPEAT-GAP's note.)
+      what: 'Smallest gap CDSI allows between any two MenACWY doses', app: fromRow('ACWY-ANY-TWO-DOSES-GAP', days(MENACWY_ANY_TWO_DOSES_MIN_GAP)),
+      pick: 'smallest live MenACWY gap floor',
     }],
   },
   'ACWY-ROUTINE-DOSE-2-BEFORE-16': {
@@ -250,25 +249,25 @@ export const ROW_MAP = {
     compare: [
       ...[['R_4C', ''], ['R_FH', SINCE_2017]].map(([s, w]) => ({
         what: `High-risk MenB (${s}) dose 3: gap from dose 2`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D2)),
-        cdsi: f(s, 3, `gap from previous dose${w}`), differs: ['grace', 'floor'], status: 'open', stopC: 'Q2',
-        why: 'Under 4 months after dose 2, CDSI does not count dose 3 (with the 4-day grace) unless the allowable gap below rescues it; the app counts it with no grace and asks a 4th dose (CDC\'s notes). Already on the STOP C Q2 list from 2.2. New in 2.3: the 4-day grace — under the owner\'s B-1 "only when it helps", a dose 3 given 1–4 days early would mean one dose fewer.',
+        cdsi: f(s, 3, `gap from previous dose${w}`), differs: ['floor'], status: 'owner',
+        decided: '2026-11-15, STOP C C6 and C7 (stop-c-packet-2026-11-15.md)',
+        why: 'Under 4 months after dose 2 (and under 6 months after dose 1), CDSI does not count dose 3 and repeats it 4 months later; the app counts it and asks a 4th dose 4 months later (CDC\'s notes). The number of doses and the date of the last one are the same. Both now give the 4-month line the 4-day grace (C7).',
       })),
       ...['R_4C', 'R_FH'].map((s) => ({
-        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: { absent: true },
-        cdsi: f(s, 3, 'allowable gap from dose 1'), differs: ['absent'], status: 'open', stopC: 'Q2',
-        why: 'CDSI\'s second chance: a dose 3 under 4 months after dose 2 still counts, with no extra dose, if it is at least 6 months less 4 days after dose 1. This is ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose"; the app has no "unless" and asks a 4th dose. Already on the STOP C Q2 list from 2.2.',
+        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: { ...months(MENB_HIGHRISK_D3_MONTHS_FROM_D1), grace: false, floor: true },
+        cdsi: f(s, 3, 'allowable gap from dose 1'), differs: ['grace'], status: 'open', stopC: 'Q2 (follow-up to C6/C7)',
+        why: 'The app now has ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose" (owner, C6). CDSI gives that 6-month line the 4-day grace; the app does not, because the owner\'s C7 answer named two other lines. A follow-up question, not assumed.',
       })),
     ],
   },
   'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1': {
     compare: ['R_4C', 'R_FH'].map((s) => ({
       what: `High-risk MenB (${s}) dose 3: gap from dose 1`, app: fromRow('MENB-HIGHRISK-DOSE-3-FROM-DOSE-1', months(MENB_HIGHRISK_D3_MONTHS_FROM_D1)),
-      cdsi: f(s, 3, 'gap from dose 1'), differs: ['floor'], status: 'open', stopC: 'Q2',
-      why: 'CDSI\'s 6 months from dose 1 has an absolute minimum of 0 days: timing advice, never a reason not to count. The app voids the dose (finding R-4b). Already on the STOP C Q2 list from 2.2.',
+      cdsi: f(s, 3, 'gap from dose 1'),
     })),
   },
   'MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3': {
-    none: 'CDSI\'s high-risk series has no extra dose after an early dose 3: it counts such a dose 3 only when it is at least 6 months less 4 days after dose 1, and otherwise does not count it. The difference is recorded on MENB-HIGHRISK-EARLY-DOSE-3 (STOP C Q2).',
+    none: 'CDSI\'s high-risk series has no extra dose after an early dose 3: it counts such a dose 3 only when it is at least 6 months less 4 days after dose 1, and otherwise does not count it and repeats it. The difference is recorded on MENB-HIGHRISK-EARLY-DOSE-3 (owner, C6).',
   },
   'MENB-HIGHRISK-BOOSTER-GAP': {
     compare: ['R_4C', 'R_FH'].flatMap((s) => [
@@ -278,12 +277,12 @@ export const ROW_MAP = {
     covers: [/^B · Meningococcal B risk .* · Dose 5 · repeats$/],
   },
   'MENB-HEALTHY-EARLY-DOSE-2': {
+    // STOP C C7 (owner, 2026-11-15) gave the 6-month line the 4-day grace, as
+    // CDSI does: the two now compare with no difference.
     compare: [
       ...[['H2_4C', ' [doses given from 20241025]'], ['H2_FH', '']].map(([s, w]) => ({
         what: `Healthy MenB (${s}): the 6-month line between a 2-dose and a 3-dose series`, aspects: ['number', 'grace'],
         app: fromRow('MENB-HEALTHY-EARLY-DOSE-2', months(MENB_HEALTHY_D2_MONTHS)), cdsi: f(s, 2, `gap from dose 1${w}`),
-        differs: ['grace'], status: 'open', stopC: 'Q2 (new in 2.3)',
-        why: 'CDSI gives the 6-month line the 4-day grace: a dose 2 given 1–4 days before 6 months completes the 2-dose series. The app gives it none (the row says grace must never decide how many doses a series has), so it asks a dose 3. Under the owner\'s B-1 "only when it helps", the grace here would mean one dose fewer.',
       })),
     ],
     // In the 2-dose series the previous dose IS dose 1, so the 4-month "gap
@@ -328,20 +327,23 @@ export const ROW_MAP = {
 // ─────────────────────────────────────────────────────────────────────────
 export const CDSI_ONLY = [
   {
-    id: 'PENTAVALENT-UPPER-AGE', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'PENTAVALENT-UPPER-AGE', status: 'owner',
+    decided: '2026-11-15, STOP C C4: keep counting and offering pentavalents from 26 (stop-c-packet-2026-11-15.md)',
     what: 'Penbraya and Penmenvy: no dose counts at 26 or older',
     pick: 'pentavalent upper age', app: { n: Math.min(brand('Penbraya').maxAgeM, brand('Penmenvy').maxAgeM), unit: 'months' },
     covers: [],
     why: 'In every MenACWY and MenB series CDSI allows the pentavalents only up to 26 years. The app has no upper age for any product (maxAgeM 999), so it counts a pentavalent given at 26 or older. Read live 2026-11-15: both ACIP statements (mm7315a4, mm7501a2) recommend the pentavalents for "persons aged ≥10 years who are at increased risk" with no upper age, and CDC\'s adult notes say "Adults may receive a single dose of Penbraya"; the 10–25 years is the licence (stated in both MMWRs), which is where CDSI\'s 26 comes from.',
   },
   {
-    id: 'ROUTINE-UPPER-AGES', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'ROUTINE-UPPER-AGES', status: 'owner',
+    decided: '2026-11-15, STOP C C15: no change, never refuse a recorded dose for being given older (stop-c-packet-2026-11-15.md)',
     what: 'Routine MenACWY and healthy MenB: an upper age for counting a dose',
     covers: [/^(ACWY · Meningococcal ACWY 2-dose series|B · Meningococcal B [23]-dose series .*) · Dose [12] · maximum age$/],
     why: 'CDSI gives routine MenACWY dose 1 a maximum age of 19 years and dose 2 of 22, and healthy MenB dose 1 of 24. The app uses the same numbers (ages.js) only to decide when to stop RECOMMENDING; it never refuses to count a recorded dose for being given too old. Low stakes (no more doses are owed either way), but it is a difference.',
   },
   {
-    id: 'MENB-4C-OLD-2-DOSE-COURSE', status: 'open', stopC: 'Q2 (new in 2.3)',
+    id: 'MENB-4C-OLD-2-DOSE-COURSE', status: 'owner',
+    decided: '2026-11-15, STOP C C3: current schedule for everyone; a deliberate difference from ACIP mm7349a3 (stop-c-packet-2026-11-15.md)',
     what: 'High-risk Bexsero: two doses given before 25 Oct 2024 complete the primary series',
     covers: [/^B · Meningococcal B risk 3-dose series MenB-4C increased risk · Dose 3 · skip \(Both\) set 1 condition 1$/],
     why: 'CDSI skips high-risk Bexsero dose 3 when two valid Bexsero doses were given before 25 Oct 2024 (the old 2-dose high-risk course). The app asks a dose 3 (checked 2026-11-15: asplenia, Bexsero 2023-01-01 and 2023-02-15 → "Dose 3 of 3 (high-risk, 4C)"). Read live 2026-11-15 (mm7349a3): "There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule." The sentence names no risk group, so it covers healthy patients too: the app also asks a healthy patient for a rescue dose 3 after Bexsero 0 and 1 month before that date (checked 2026-11-15). ACIP says "before October 24"; CDSI\'s cutoff is 25 October (a one-day difference, for a dose given on the 24th). Not a dose row: series size lives in seriesTotals.js menbSeriesInfo().',

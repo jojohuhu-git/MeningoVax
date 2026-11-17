@@ -35,18 +35,26 @@ const TODAY = '2026-09-15';
 const acwy = (ageMonths, riskIds, dates) =>
   recommend({ today: TODAY, ageMonths, riskIds, menacwyDoses: dates.map((d) => ({ date: d })), menbDoses: [] }).menacwy[0];
 
-describe('M12 — the outbreak top-up', () => {
-  it('under 7, a dose 3 years old earns a top-up rather than a repeat of dose 1', () => {
+// STOP B B-2 (owner, 2026-11-15) replaced M12's "one-off top-up on
+// re-exposure" reading: while the outbreak box is ticked the app keeps asking
+// for the booster 5 years on (3 if the series finished before 7), never says
+// "Complete", and says "booster", never "top-up". The tests below were moved
+// to that answer; what M12 fixed (the old dose is not discarded) still holds.
+describe('M12 under B-2 — the outbreak booster', () => {
+  it('under 7, a dose 3 years old earns a booster rather than a repeat of dose 1', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2023-09-14']);
     expect(r.doseNum).toBe(2);                       // was: 1 — the dose was discarded
-    expect(r.doseLabel).toMatch(/top-up/i);          // was: "1 dose"
+    // extinct: "top-up", retired by B-2 (owner wording 2026-11-15).
+    expect(r.doseLabel).not.toMatch(/top-up/i);
+    expect(r.doseLabel).toMatch(/Booster \(dose 2\)/);
     expect(r.dueToday).toBe(true);
     expect(r.minIntervalDays).toBe(DAYS.years(3));
   });
 
-  it('under 7 and only 2 years on, the recorded dose still covers the outbreak', () => {
+  it('under 7 and only 2 years on: the booster date, not "Complete"', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2024-09-15']);
-    expect(r.status).toBe('complete');
+    expect(r.status).toBe('exposure');
+    expect(r.doseLabel).toMatch(/if outbreak risk continues/);
     expect(r.dueToday).toBeFalsy();
     // P0-5 (2026-09-15): this expected '2027-09-16' — a day after the real
     // three-year anniversary — because DAYS.years(3) was Math.round(3 * 365.25)
@@ -63,17 +71,20 @@ describe('M12 — the outbreak top-up', () => {
     expect(r.earliestNextDate).toBe('2027-09-15');
   });
 
-  it('at 7 or older the threshold is 5 years, keyed to the age TODAY', () => {
-    expect(acwy(144, ['outbreak_acwy'], ['2022-09-15']).status).toBe('complete');   // 4 years
-    const fiveOn = acwy(144, ['outbreak_acwy'], ['2021-09-14']);
+  // B-2 keys the 3-or-5 years to the age at the LAST dose ("3 if last dose
+  // <7 y"), as the validator does (C10), not to the age today as M12 read
+  // Table 8. The patient moved to 13, so the dose 5 years ago was at 8.
+  it('a dose given at 7 or older: the threshold is 5 years', () => {
+    expect(acwy(156, ['outbreak_acwy'], ['2022-09-15']).dueToday).toBe(false);   // 4 years: dated, not due
+    const fiveOn = acwy(156, ['outbreak_acwy'], ['2021-09-14']);
     expect(fiveOn.doseNum).toBe(2);
     expect(fiveOn.minIntervalDays).toBe(DAYS.years(5));
   });
 
-  it('the copy does not promise a repeating schedule', () => {
+  it('the copy names the booster interval and how to stop it (untick the box)', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2023-09-14']);
-    expect(noteText(r)).toMatch(/does not start a repeating schedule/i);
-    expect(r.boosterSummary).toBeFalsy();
+    expect(noteText(r)).toMatch(/3 years/);
+    expect(noteText(r)).toMatch(/untick the outbreak box/i);
   });
 
   it('an outbreak contact with no doses is unchanged: 1 dose', () => {
@@ -84,11 +95,13 @@ describe('M12 — the outbreak top-up', () => {
 });
 
 describe('M12 — controls that must not move', () => {
-  it('a military recruit with a dose is still simply Complete', () => {
+  // STOP B B-3 (owner, 2026-11-15) moved this control: the military card now
+  // shows the 5-year booster date with the assignment caveat, never "Complete".
+  it('a military recruit with a dose gets the 5-year booster date, not "Complete"', () => {
     // Dose given at 18, so the pre-age-10 rule is not what is being tested here.
     const r = acwy(240, ['military'], ['2024-09-15']);
-    expect(r.status).toBe('complete');
-    expect(r.doseLabel).toBe('Complete');
+    expect(r.status).toBe('exposure');
+    expect(r.earliestNextDate).toBe('2029-09-15');
   });
 
   it('a traveler keeps the standing Table 9 cadence, not the top-up', () => {

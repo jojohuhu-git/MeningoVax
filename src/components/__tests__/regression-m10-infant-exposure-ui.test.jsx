@@ -46,44 +46,24 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     expect(container.textContent).not.toMatch(/asplenia|complement deficiency|HIV/i);
   });
 
-  it('the outbreak card does not promise a standing booster schedule', () => {
-    // ACIP Table 8 gives outbreak contacts a one-off top-up on re-exposure, not
-    // the recurring 3-then-5-year countdown travel and medical risk get
-    // (owner-confirmed 2026-09-15).
+  // STOP B B-2 (owner, 2026-11-15) replaced M10/M12's one-off-top-up reading:
+  // while the outbreak box is ticked, an infant outbreak series gets the same
+  // booster countdown as travel and medical risk, and the card says so.
+  it('the outbreak card shows the standing booster schedule (B-2)', () => {
     const { container } = show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(container.textContent).not.toMatch(/Boosters: first in 3 years/); // extinct: outbreak contacts get a one-off top-up, not this standing-cadence line (M10, 2026-09-15)
+    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
+    expect(container.textContent).toMatch(/future boosters needed/i);
+    // extinct: the "no standing booster schedule" sentence, retired by B-2 (2026-11-16).
+    expect(container.textContent).not.toMatch(/no standing booster schedule/i);
   });
 
-  it('the outbreak card does not claim "future boosters needed"', () => {
-    // RecCard derives that pill from boosterSummary being non-empty. Filling it
-    // with a sentence that says there IS no schedule made the card contradict
-    // itself: "Dose due today, future boosters needed" above "No standing
-    // booster schedule". The top-up rule lives in the note instead.
-    const { container } = show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(container.textContent).not.toMatch(/future boosters needed/i);
-    expect(container.textContent).toMatch(/no standing booster schedule/i);
-  });
-
-  it('a completed outbreak infant series is complete, not on a 3-year countdown', () => {
-    // P0-1 (2026-09-17): the old fixture's doses were 28 days apart, which the
-    // validator accepted only because the infant minimum was wrong. Its dose 1
-    // also landed at 8 months — the 7-23-month band, a TWO-dose series whose
-    // dose 2 needs 12 weeks AND the first birthday. Rebuilt as what it was
-    // always meant to be: a genuinely complete 4-dose series. Patient is 14
-    // months old, so DOB is 2025-07-15; dose 1 at 3 months, then 8 weeks,
-    // 8 weeks, and a final dose after the first birthday.
+  it('a completed outbreak infant series is on the 3-year countdown, not "complete" (B-2)', () => {
+    // Patient is 14 months old (DOB 2025-07-15); a genuinely complete 4-dose
+    // series (P0-1's rebuilt fixture).
     const rec = acwyRec(14, ['outbreak_acwy'], ['2025-10-15', '2025-12-10', '2026-02-04', '2026-07-20']);
     const { container } = show(rec);
-    expect(rec.status).toBe('complete');
-    // A "complete" card with no future booster collapses by default (the D5
-    // design decision: neutral cards stay out of the way). Open it the way a
-    // clinician would to read the reasoning underneath.
-    fireEvent.click(container.querySelector('.rec-card-head-toggle'));
-    // A collapsed card renders no note at all, so show()'s openWhyThis() found
-    // no button to click. Open the disclosure now that the card itself is open.
-    openWhyThis();
-    expect(container.textContent).not.toMatch(/first booster, 3 years after primary/i); // extinct: outbreak-completed series shows no 3-year countdown (P0-1, 2026-09-17)
-    expect(container.textContent).toMatch(/identified at risk in a NEW outbreak/i);
+    expect(rec.status).not.toBe('complete');
+    expect(container.textContent).toMatch(/first booster, 3 years after primary/i);
   });
 
   it('control: a travel infant DOES keep its standing booster schedule', () => {

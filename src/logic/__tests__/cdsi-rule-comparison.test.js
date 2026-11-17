@@ -111,13 +111,13 @@ describe('every difference is named, with its evidence', () => {
   it('the open questions for STOP C are these', () => {
     const open = [...new Set(differences.filter((c) => c.status === 'open').map((c) => c.source))].sort();
     expect(open).toEqual([
-      'ACWY-ANY-TWO-DOSES-GAP',
-      'ACWY-TRAVEL-BOOSTER-GAP',
-      'CDSI only: MENB-4C-OLD-2-DOSE-COURSE',
-      'CDSI only: PENTAVALENT-UPPER-AGE',
-      'CDSI only: ROUTINE-UPPER-AGES',
-      'MENB-HEALTHY-EARLY-DOSE-2',
-      'MENB-HIGHRISK-DOSE-3-FROM-DOSE-1',
+      // 2026-11-16 (family 4): ACWY-ANY-TWO-DOSES-GAP (C11) and
+      // ACWY-TRAVEL-BOOSTER-GAP (C10) left.
+      // 2026-11-16 (family 5): the three CDSI-only rules are owner-decided
+      // (C3, C4, C15).
+      // 2026-11-16 (family 3): MENB-HEALTHY-EARLY-DOSE-2 (C7) and
+      // MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) left. EARLY-DOSE-3 stays for one
+      // follow-up: the 4-day grace on C6's 6-months-from-dose-1 line.
       'MENB-HIGHRISK-EARLY-DOSE-3',
     ]);
   });

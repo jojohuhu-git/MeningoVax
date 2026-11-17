@@ -219,8 +219,11 @@ describe('Task 2b — MenB high-risk booster given too soon → invalid', () => 
 
 // ── Task 3: baseline ≥4wk MenACWY interval ───────────────────────────────
 
-describe('Task 3 — Baseline ≥4wk minimum interval between any two MenACWY doses', () => {
-  it('Two healthy-teen MenACWY doses 10 days apart → second invalid (≥4 weeks required)', () => {
+// STOP C C11 (owner, 2026-11-15): the baseline became 8 weeks between any two
+// MenACWY doses (ACIP states 8 weeks for MenACWY; 4 weeks is MenB's). The
+// tests below held 4 weeks and were moved to 8.
+describe('Task 3 — Baseline ≥8wk minimum interval between any two MenACWY doses (C11)', () => {
+  it('Two healthy-teen MenACWY doses 10 days apart → second invalid (≥8 weeks required)', () => {
     const d1 = daysAgo(30);
     const d2 = daysAgo(20); // only 10 days after D1
     const results = validate('MenACWY', [
@@ -229,7 +232,7 @@ describe('Task 3 — Baseline ≥4wk minimum interval between any two MenACWY do
     ], 192, []); // 16-year-old, no risk factors
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/4 weeks/i);
+    expect(results[1].reasons[0]).toMatch(/8 weeks/i);
   });
 
   it('Two MenACWY doses 3 days apart (obvious duplicate) → second invalid', () => {
@@ -237,12 +240,12 @@ describe('Task 3 — Baseline ≥4wk minimum interval between any two MenACWY do
     const d2 = daysAgo(7); // 3 days after D1
     const results = validate('MenACWY', [{ date: d1 }, { date: d2 }], 168, []);
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/minimum interval/i);
+    expect(results[1].reasons[0]).toMatch(/at least 8 weeks apart/i);
   });
 
-  it('Two MenACWY doses exactly 28 days apart → second valid (meets minimum)', () => {
-    const d1 = daysAgo(35);
-    const d2 = daysAgo(7); // 28 days after D1
+  it('Two MenACWY doses exactly 56 days apart → second valid (meets minimum)', () => {
+    const d1 = daysAgo(63);
+    const d2 = daysAgo(7); // 56 days after D1
     const results = validate('MenACWY', [{ date: d1 }, { date: d2 }], 168, []);
     expect(results[1].status).toBe('valid');
   });
@@ -261,11 +264,18 @@ describe('Task 3 — Baseline ≥4wk minimum interval between any two MenACWY do
     expect(results[1].reasons[0]).toMatch(/8 weeks/i);
   });
 
-  it('Healthy adult: two doses 6 weeks apart → both valid (no high-risk rule applies)', () => {
+  it('Healthy adult: two doses 6 weeks apart → the second does not count (C11: 8 weeks)', () => {
     const d1 = weeksAgo(12);
     const d2 = weeksAgo(6);
     const results = validate('MenACWY', [{ date: d1 }, { date: d2 }], 360, []);
     expect(results[0].status).toBe('valid');
+    expect(results[1].status).toBe('invalid');
+  });
+
+  it('Healthy adult: two doses 8 weeks apart → both counted or capped, never invalid', () => {
+    const d1 = weeksAgo(14);
+    const d2 = weeksAgo(6);
+    const results = validate('MenACWY', [{ date: d1 }, { date: d2 }], 360, []);
     expect(results[1].status).toBe('valid');
   });
 });
