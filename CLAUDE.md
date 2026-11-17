@@ -49,8 +49,9 @@ row held against CDSI's rule files, `cdsi-rule-comparison.test.js`; every differ
 findings in `docs/archive/report-2026-11-15-cdsi-rule-comparison.md`). **The three reads before STOP C
 are done** (2026-11-15: undated records, pentavalents from 26, the old Bexsero course; quoted in
 `src/data/refs.js` and the 2.3 report; 0 answers moved). **STOP C answered 2026-11-15** (18 owner
-answers, C1–C18, in `docs/archive/stop-c-packet-2026-11-15.md`; no code changed). Next: Phase 3,
-apply them (one PR per family).
+answers, C1–C18, in `docs/archive/stop-c-packet-2026-11-15.md`; no code changed). **Phase 3 family 1
+built 2026-11-16** (Ruling D: a repeat is timed from the dose that did not count; C2, C9, C12, E1,
+E2; PR #90, waiting for the owner). Next: Phase 3 families 2–5 (one PR per family).
 The newest handoff (in PneumoVax) says which PRs are open.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
