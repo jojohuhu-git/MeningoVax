@@ -1,7 +1,8 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-11-16 (port Phase 3 families 2–4: an undated dose does
-not count, STOP C C1; MenB dose 3, C5–C7; MenACWY gaps, C10, C11, C13); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
+**Last verified against code:** 2026-11-16 (port Phase 3: STOP B B-2–B-5 and the Complete
+rule; an undated dose does not count, STOP C C1; MenB dose 3, C5–C7; MenACWY gaps, C10, C11,
+C13); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
 2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
@@ -178,13 +179,28 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - `college_dorm`: D1 only; a dose at ≥16y satisfies it **permanently** — no 5-year expiry
   (M17, owner decision 2026-09-15: ACIP Table 10's footnote over immunize.org P2018's
   enrolment-recency rule). This ≥16y rule applies uniquely to this class.
-- `military`: D1 satisfies recruitment. Card also states ACIP's every-5-years-by-assignment
-  booster and names the **Department of Defense** as the owner of that timing (M18); the
-  app computes no date, since it cannot see the assignment.
-- `acwy_outbreak`: D1 covers the outbreak. A **top-up** dose follows if the patient is
-  identified at increased risk again and ≥3y (age <7 today) or ≥5y (age ≥7 today) have
-  passed (M12, ACIP Table 8). Re-exposure driven, not a standing countdown. Note this
-  threshold keys off age **today**, unlike Tables 4–6/9 which key off completion age.
+- **Under 16, `college_dorm` and `military` add nothing** (owner STOP B B-4, 2026-11-15):
+  the card is the routine card plus one sentence, "The college-residence (military) dose is
+  given at 16 or older." The validator already treated them as routine, so card and chip
+  now agree (whole-app check 1: 0 faults).
+- `military`: D1 satisfies recruitment. **The card shows the 5-year booster date with the
+  assignment caveat, never "Complete"** (owner STOP B B-3, 2026-11-15, reversing M18's
+  "no date"): "Booster (dose N) if required by assignment"; ACIP Table 10 (read live
+  2026-11-16): *"Military recruits: Every 5 yrs on basis of assignment"*; footnote ††: the
+  U.S. **Department of Defense** sets it from high-risk travel, which the app cannot see.
+  The validator does not check a military booster gap (C10 did not name it; asked).
+- `outbreak_acwy`: **while the box is ticked, the card keeps asking for the booster** —
+  3 years after the last dose if the series finished before 7, otherwise 5, then every 5 —
+  and never says "Complete" or "top-up" (owner STOP B B-2, 2026-11-15, replacing M12's
+  one-off-top-up reading). The years key off the age at the **last primary dose**, the same
+  rule the validator checks (C10, `acwyBoosterTooSoon`). An outbreak contact's routine
+  16-year booster comes first and is exempt from the outbreak floor (`acwyIsRoutineBooster`).
+  Infant outbreak series: the same 3-then-5-year countdown (`hasBoosterPhase: true`).
+- **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
+  STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
+  booster date doubling as `earliestNextDate` (pill "Future booster needed").
+- **The pentavalent option waits for the dose questions** (owner STOP B B-5): no combined
+  shot, and no "both are due today" banner, while any recorded dose is "Needs input".
 - **Do not conflate these three.**
 
 ### Travel and Microbiologist (`single+boost` class)

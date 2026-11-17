@@ -58,6 +58,9 @@ function statusPillLabel(rec, pending) {
   if (status === 'shared-decision') return dueToday ? 'Optional today - shared decision' : 'Up to date';
 
   // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
+  // The routine "Booster due at 16y" card (status 'due' since STOP B: never
+  // "complete" while a booster is coming) keeps the pill it had.
+  if (!dueToday && boosterDueDate) return 'Future booster needed';
   if (!dueToday) return 'Up to date';
   const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
   if (isBooster) return 'Booster due today';
@@ -472,7 +475,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {!dueToday && earliestNextDate && !pending && (
+        {/* The booster line above already names this date when it is set. */}
+        {!dueToday && earliestNextDate && !boosterDueDate && !pending && (
           <div className="next-date">
             Next dose not yet due - eligible {fmtDate(earliestNextDate)}
           </div>

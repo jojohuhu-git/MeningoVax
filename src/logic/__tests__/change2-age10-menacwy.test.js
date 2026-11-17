@@ -45,7 +45,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     const rec = acwy(r);
     expect(rec.status).not.toBe('not-indicated');
     expect(rec.doseLabel).not.toBe('Not yet due');
-    expect(rec.status).toBe('complete');
+    expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     expect(rec.doseLabel).toBe('Booster due at 16y');
     expect(rec.boosterDueDate).toBeTruthy();
   });
@@ -70,7 +70,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
       menbDoses: [],
     });
     const rec = acwy(r);
-    expect(rec.status).toBe('complete');
+    expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     expect(rec.doseLabel).toBe('Booster due at 16y');
     expect(rec.noteCites[0].key).toBe('acwyAge10CountsAsDose1');
   });
@@ -83,7 +83,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
       menbDoses: [],
     });
     const rec = acwy(r);
-    expect(rec.status).toBe('complete');
+    expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     // U2 (2026-09-17): this card's note no longer restates the age-16 booster
     // (the dated banner and the booster line both already gave it), so the
     // routine citation now hangs off the booster line instead.

@@ -137,7 +137,7 @@ describe('what must NOT change', () => {
     expect(acwy(9).boosterSummary).toMatch(/first in 3 years, then every 5 years/i);
   });
 
-  it('an outbreak infant still gets no standing booster countdown', () => {
-    expect(acwy(9, ['outbreak_acwy']).boosterSummary).toBeNull();
+  it('an outbreak infant gets the same booster countdown (B-2, owner 2026-11-15)', () => {
+    expect(acwy(9, ['outbreak_acwy']).boosterSummary).toMatch(/first in 3 years, then every 5 years/i);
   });
 });

@@ -19,7 +19,7 @@ describe('B6: routine MenACWY dose-1-complete, booster-due-at-16y carries an app
       menacwyDoses: [{ date: '2025-06-01' }], // dose 1 recorded recently
     });
     const rec = acwy(r);
-    expect(rec.status).toBe('complete');
+    expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     expect(rec.boosterDueDate).not.toBeNull();
 
     // 16y - 12y1m = ~46.9 months away

@@ -60,9 +60,12 @@ describe('P0-3: a completed infant outbreak series is four counted doses', () =>
     expect(rec.seriesTotal).toBe(4);
   });
 
-  it('the card says the outbreak series is complete', () => {
-    expect(rec.status).toBe('complete');
-    expect(rec.doseLabel).toMatch(/outbreak/i);
+  it('the card asks for the booster, not "complete" (B-2)', () => {
+    // STOP B B-2 (owner, 2026-11-15) replaced M12's one-off-top-up reading: while the
+    // outbreak box is ticked, an outbreak series has the same booster countdown as
+    // the other indications (3 years if finished before 7, then every 5).
+    expect(rec.status).not.toBe('complete');
+    expect(rec.doseLabel).toMatch(/Booster \(dose 5, first booster, 3 years after primary\)/);
   });
 
   it('reading the same record at 18 months gives the same four counted doses', () => {
@@ -93,11 +96,12 @@ describe('P0-3: an UNfinished infant outbreak series is not called complete', ()
 });
 
 describe('P0-3: the outbreak schedule keeps its M12 shape', () => {
-  it('a completed series still has no standing booster countdown', () => {
-    // Owner decision M12: the Table 8 top-up is re-exposure driven, not a
-    // countdown. Fixing the dose count must not smuggle one in.
+  it('a completed series has the booster countdown (B-2), dated or due', () => {
+    // STOP B B-2 (owner, 2026-11-15) replaced M12's one-off-top-up reading: while the
+    // outbreak box is ticked, an outbreak series has the same booster countdown as
+    // the other indications (3 years if finished before 7, then every 5).
     const { rec } = both(36, FULL_INFANT_SERIES);
-    expect(rec.boosterSummary ?? null).toBeNull();
-    expect(rec.earliestNextDate ?? null).toBeNull();
+    expect(rec.boosterSummary).toMatch(/every 5 years while at risk/);
+    expect(rec.dueToday || !!rec.earliestNextDate).toBe(true);
   });
 });

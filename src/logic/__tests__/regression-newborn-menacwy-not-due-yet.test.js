@@ -109,6 +109,10 @@ describe('a newborn is never told a MenACWY dose is due today', () => {
 // indication)', brands: [] }` -- a dose "due today" with nothing to actually
 // give, because MenACWY's real 2-month floor was never checked on this path.
 const OCCUPATIONAL_AT_RISK = [['microbiologist'], ['military'], ['college_dorm']];
+// STOP B B-4 (owner, 2026-11-15): under 16 the military and college boxes add
+// nothing (routine schedule), so only the microbiologist still makes a dose due
+// at 2 months; the other two follow the routine card, which waits for 11.
+const DUE_AT_2_MONTHS = [['microbiologist']];
 
 describe('the same floor applies to the occupational-only risk factors this file missed', () => {
   it.each(OCCUPATIONAL_AT_RISK)('nothing is due below the minimum age for %s', (...riskIds) => {
@@ -138,7 +142,7 @@ describe('the same floor applies to the occupational-only risk factors this file
     expect(`${c.note.lead} ${c.note.detail}`).toMatch(/2 months/);
   });
 
-  it.each(OCCUPATIONAL_AT_RISK)('the dose becomes due the moment the patient reaches 2 months, for %s', (...riskIds) => {
+  it.each(DUE_AT_2_MONTHS)('the dose becomes due the moment the patient reaches 2 months, for %s', (...riskIds) => {
     const c = card(MENACWY_SCHEDULE_MIN_AGE_MONTHS, riskIds);
     expect(c.dueToday).toBe(true);
     expect(c.status).toBe('exposure');
