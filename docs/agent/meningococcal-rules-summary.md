@@ -45,12 +45,15 @@ Two deliberate limits:
 - **It does not move the dates the app suggests.** If the next dose is due on the
   9th, the app still says the 9th — it simply accepts a dose given on the 5th.
   Accepting a dose that was given early is not the same as advising one.
-- **It shortens a series in only two places, both your ruling** (STOP C C7,
-  2026-11-15: use the grace where it means one dose fewer): a healthy MenB dose
-  2 given 1–4 days before 6 months completes the 2-dose series (no rescue dose);
-  a high-risk MenB dose 3 given 1–4 days before 4 months after dose 2 is not
-  "early" (no 4th dose). Every other line that decides how many doses a series
-  has keeps the full interval.
+- **It shortens a series in only four places, all your rulings** (STOP C C7,
+  2026-11-15, and D3/D4, 2026-11-17: use the grace where it means one dose
+  fewer): a healthy MenB dose 2 given 1–4 days before 6 months completes the
+  2-dose series (no rescue dose); a high-risk MenB dose 3 given 1–4 days before
+  4 months after dose 2 is not "early" (no 4th dose); a high-risk dose 3 given
+  1–4 days before 6 months after dose 1 needs no 4th dose (D3); a high-risk
+  dose 2 given 1–4 days before 6 months after dose 1 needs no dose 3 (D4).
+  Every other line that decides how many doses a series has keeps the full
+  interval.
 
 ---
 
@@ -232,7 +235,8 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     to ask every high-risk patient for a third dose regardless, which meant
     advising an injection some patients did not need. It is the same six-month
     test as the healthy rule above, read in the opposite direction, and it is
-    compared on the calendar rather than as a fixed number of days.
+    compared on the calendar rather than as a fixed number of days, **with the
+    4-day grace** (your D4 answer, 2026-11-17).
   - **If dose 3 was given earlier than 4 months after dose 2, that dose still
     counts — do not repeat it — but a 4th dose is then owed at least 4 months
     after dose 3** (corrected 2026-09-17). CDC says this in the second half of
@@ -246,7 +250,9 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
   - **Unless dose 3 was 6 months or more after dose 1** — then no 4th dose,
     even if dose 3 came under 4 months after dose 2 (your C6 answer: follow
     ACIP's 2024 MMWR, *"…unless the third dose was administered ≥6 months after
-    the first dose"*; CDC's schedule notes leave the "unless" out).
+    the first dose"*; CDC's schedule notes leave the "unless" out). **With the
+    4-day grace** (your D3 answer, 2026-11-17): 1–4 days short of 6 months
+    also counts.
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT

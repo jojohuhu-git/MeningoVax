@@ -88,7 +88,8 @@ the gap from D1 (owner STOP C C5, 2026-11-15).
 
 A D3 given earlier than 4 months after D2 still counts, and a 4th dose is owed ≥4 months later —
 UNLESS D3 was ≥6 months after D1 (ACIP mm7349a3's "unless", owner C6). The 4-month line takes the
-4-day grace (owner C7), as does the healthy MenB 6-month rescue line. Both decisions live in ONE
+4-day grace (owner C7), as do the healthy MenB 6-month rescue line (C7) and both high-risk
+6-month lines — the "unless" (D3) and "dose 2 ≥6 months, no dose 3" (D4, 2026-11-17). Both decisions live in ONE
 function each in `seriesTotals.js` (`menbHighRiskDose3Early`, `menbHealthyDose2Early`); never
 re-derive them. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 

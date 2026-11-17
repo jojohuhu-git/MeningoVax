@@ -32,15 +32,16 @@ averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days
    grace there would advertise a date 4 days early and actively advise giving doses before
    the minimum interval, which the CDC sentence does not permit. The app says "eligible on
    the 9th" and *accepts* a dose given on the 5th.
-2. **Series-length tests** (`seriesTotals.js`) — with TWO exceptions the owner ruled
-   (STOP C C7, 2026-11-15: the grace applies where it means one dose fewer):
-   - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?"), and
-   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?").
-   Both live in one function each in `seriesTotals.js` (`menbHealthyDose2Early`,
-   `menbHighRiskDose3Early`), called by the series total, the card and the dose verdict.
-   Every other series-length line keeps no grace (the high-risk "dose 2 ≥6 months after
-   dose 1, so no dose 3" line, and C6's "dose 3 ≥6 months after dose 1" line — the latter
-   asked as a follow-up, not assumed).
+2. **Series-length tests** (`seriesTotals.js`) — with FOUR exceptions the owner ruled
+   (STOP C C7, 2026-11-15, and D3/D4, 2026-11-17: the grace applies where it means one
+   dose fewer):
+   - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?") — C7;
+   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?") — C7;
+   - C6's high-risk "dose 3 ≥6 months after dose 1, so no 4th dose" line — D3;
+   - the high-risk "dose 2 ≥6 months after dose 1, so no dose 3" line — D4.
+   They live in `seriesTotals.js` (`menbHealthyDose2Early`, `menbHighRiskDose3Early`,
+   `menbSeriesInfo`), read by the series total, the card and the dose verdict. Every other
+   series-length line keeps no grace (the MenACWY age lines are B-1, not yet built).
 
 Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
 (e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
@@ -261,7 +262,8 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   was administered at least 6 months after dose 1, dose 3 not needed; …)"*. The total
   comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4).
   `recommend.js` reads that total rather than a literal 3, so a patient whose
-  D2 came six months on reaches the booster phase after two doses. No 4-day grace here.
+  D2 came six months on reaches the booster phase after two doses. **With the 4-day
+  grace** (owner D4, 2026-11-17): a D2 1–4 days short of 6 months also completes it.
 - **An early D3 is CREDITED, not repeated** (MenB dose-3 rescue, 2026-09-17).
   CDC MenB special situations: *"...if dose 3 is administered earlier than 4 months after
   dose 2, a 4th dose should be administered at least 4 months after dose 3"*.
@@ -273,7 +275,8 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
     D1. ACIP mm7349a3 (read live 2026-11-16): *"If the third dose is administered <4 months
     after the second dose, the dose should be repeated ≥4 months after the last dose, unless
     the third dose was administered ≥6 months after the first dose."* CDC's schedule notes
-    leave out the "unless"; the owner chose the MMWR. No grace on this 6-month line.
+    leave out the "unless"; the owner chose the MMWR. **With the 4-day grace** (owner D3,
+    2026-11-17): a D3 1–4 days short of 6 months after D1 also needs no 4th dose.
   - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace — a D3 given 1–4 days
     before 4 months after D2 is not early.
   Grace also applies to whether the 4th dose itself counts.

@@ -176,11 +176,18 @@ describe('P1-1: the grace does NOT shorten a series — except at the two lines 
     }).total).toBe(3);
   });
 
-  it('a high-risk MenB dose 2 four days short of 6 months still owes dose 3 (not one of C7\'s lines)', () => {
-    // P1-2's exception must not be triggered by the grace rule.
+  it('a high-risk MenB dose 2 four days short of 6 months needs no dose 3 (owner D4, 2026-11-17)', () => {
+    // Was "still owes dose 3" until the owner gave this line the grace (D4).
     expect(menbSeriesInfo({
       highRisk: true,
       doses: [{ date: '2026-01-15' }, { date: '2026-07-11' }],
+    }).total).toBe(2);
+  });
+
+  it('control: a high-risk MenB dose 2 five days short of 6 months still owes dose 3', () => {
+    expect(menbSeriesInfo({
+      highRisk: true,
+      doses: [{ date: '2026-01-15' }, { date: '2026-07-10' }],
     }).total).toBe(3);
   });
 });
