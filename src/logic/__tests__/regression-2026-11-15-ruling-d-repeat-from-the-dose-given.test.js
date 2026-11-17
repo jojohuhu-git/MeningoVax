@@ -115,7 +115,7 @@ describe('C12: a healthy MenB dose 2 under 4 weeks does not count', () => {
   });
 });
 
-describe('E1: a too-young first dose starts a 4-week clock (owner, 2026-11-15)', () => {
+describe('E1: a too-young first dose starts a clock (owner, 2026-11-15; MenACWY 8 weeks since D5, 2026-11-17)', () => {
   it('MenB: Bexsero at 9 y 11 m — dose 1 is due 4 weeks after it, not today', () => {
     const base = { dob: '2016-09-01', today: '2026-09-05', riskIds: ['asplenia'] };
     const r = run({ ...base, menbDoses: [{ date: '2026-08-10', brand: 'Bexsero' }] });
@@ -135,11 +135,13 @@ describe('E1: a too-young first dose starts a 4-week clock (owner, 2026-11-15)',
     expect(verdicts(r, 'MenB')).toEqual(['invalid', 'invalid']);
   });
 
-  it('MenACWY: Menveo before 2 months — dose 1 again no sooner than 4 weeks after it', () => {
+  // D5 (owner, 2026-11-17) revised E1 for MenACWY: 8 weeks, MenACWY's own
+  // minimum (the 4 weeks was MenB's). MenB above keeps 4 weeks.
+  it('MenACWY: Menveo before 2 months — dose 1 again no sooner than 8 weeks after it (D5)', () => {
     const base = { dob: '2026-06-01', today: '2026-08-05', riskIds: ['asplenia'] };
     const r = run({ ...base, menacwyDoses: [{ date: '2026-07-15', brand: 'Menveo' }] });
     expect(verdicts(r, 'MenACWY')).toEqual(['invalid']);
-    expect(when(r.menacwy)).toBe('2026-08-12');
+    expect(when(r.menacwy)).toBe('2026-09-09');
     expect(when(run(base).menacwy)).toBe('today');
   });
 });

@@ -153,6 +153,14 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         effectiveDoseNum: null,
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
+      // D2 (owner, 2026-11-17): a set-aside MenACWY dose was still given, so
+      // it starts the 8-week clock (ACIP 2020: "as long as a minimum interval
+      // of 8 weeks between doses is maintained"). The next dose's gap rows
+      // and the card's repeat floor read it. MenB set-aside doses: not asked.
+      if (vaccine === 'MenACWY' && dose.date) {
+        anchor = dose;
+        lastUncounted = dose;
+      }
     } else {
       // Valid or unknown → tentatively keep, then apply the F2/F3 series-total
       // cap: a dose past the schedule's primary total, on a schedule with no

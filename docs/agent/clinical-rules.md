@@ -32,15 +32,16 @@ averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days
    grace there would advertise a date 4 days early and actively advise giving doses before
    the minimum interval, which the CDC sentence does not permit. The app says "eligible on
    the 9th" and *accepts* a dose given on the 5th.
-2. **Series-length tests** (`seriesTotals.js`) — with TWO exceptions the owner ruled
-   (STOP C C7, 2026-11-15: the grace applies where it means one dose fewer):
-   - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?"), and
-   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?").
-   Both live in one function each in `seriesTotals.js` (`menbHealthyDose2Early`,
-   `menbHighRiskDose3Early`), called by the series total, the card and the dose verdict.
-   Every other series-length line keeps no grace (the high-risk "dose 2 ≥6 months after
-   dose 1, so no dose 3" line, and C6's "dose 3 ≥6 months after dose 1" line — the latter
-   asked as a follow-up, not assumed).
+2. **Series-length tests** (`seriesTotals.js`) — with FOUR exceptions the owner ruled
+   (STOP C C7, 2026-11-15, and D3/D4, 2026-11-17: the grace applies where it means one
+   dose fewer):
+   - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?") — C7;
+   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?") — C7;
+   - C6's high-risk "dose 3 ≥6 months after dose 1, so no 4th dose" line — D3;
+   - the high-risk "dose 2 ≥6 months after dose 1, so no dose 3" line — D4.
+   They live in `seriesTotals.js` (`menbHealthyDose2Early`, `menbHighRiskDose3Early`,
+   `menbSeriesInfo`), read by the series total, the card and the dose verdict. Every other
+   series-length line keeps no grace (the MenACWY age lines are B-1, not yet built).
 
 Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
 (e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
@@ -72,19 +73,36 @@ rule applies stay on the doses that COUNTED.
 - **Card** (`recommend.js`): `menacwyRec`/`menbRec` take `clockDate` (`history.anchorDate`,
   read, never recomputed). The healthy MenB 6-month line (2 doses or 3?) stays on the counted
   dose 1 — it decides how many doses, not when.
+- **A set-aside MenACWY dose IS a clock** (owner D2, 2026-11-17): valid but not advancing
+  the series (MenACWY before 10; a routine dose 2 before 16), it was still given, so the next
+  MenACWY dose waits 8 weeks after it (ACIP 2020: *"as long as a minimum interval of 8 weeks
+  between doses is maintained"*). `validate.js` sets `anchor`/`uncountedDate` from it; the
+  "Booster due at 16y" card names the wait. Closes CDC test patient 2013-0489. MenB set-aside
+  doses were not asked about and start no clock.
 - **Never a clock:** a record problem (date in the future, before birth, entered twice — no
-  dose was given), an undated dose (which since C1 does not count either), a set-aside dose (valid but not advancing the series, e.g.
-  MenACWY before 10), a pending or extra dose.
-- **E1 — a too-young FIRST dose:** the repeat waits 4 weeks after it. A deliberate difference
+  dose was given), an undated dose (which since C1 does not count either), a MenB set-aside
+  dose, a pending or extra dose.
+- **E1 — a too-young FIRST dose:** the repeat waits the family's minimum interval after it —
+  **MenB 4 weeks** (ACIP's MenB repeat sentence), **MenACWY 8 weeks** (owner D5, 2026-11-17:
+  E1 had said 4 weeks for both, but 4 weeks is MenB's number; CDC: *"The repeat dose should be
+  spaced after the invalid dose by the recommended minimum interval"*). A deliberate difference
   from CDC's *"repeated on or after the date when the child reaches at least the minimum age"*
-  (`gbpTooYoungFirstDoseRepeat`); matches PneumoVax. Validator: `ACWY-ANY-TWO-DOSES-GAP` and
-  `MENB-REPEAT-GAP` read `prevGiven`.
+  (`gbpTooYoungFirstDoseRepeat`). PneumoVax uses PCV's 4 weeks. Validator:
+  `ACWY-ANY-TWO-DOSES-GAP` and `MENB-REPEAT-GAP` read `prevGiven`.
 - **E2 — a wrong-family MenB dose:** it does not count and is NOT the schedule clock; the next
   dose of the established family is due when it would be due from that family's doses, AND at
   least 4 weeks after the wrong-family dose. ACIP 2020: *"a minimum interval of 4 weeks should
   be used between any 2 doses"* (`acip2020MenbRepeat4Weeks`). Validator: `MENB-REPEAT-GAP`
   (reads `lastUncounted`); card: `applyRepeatFloor` in `recommend.js`
-  (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_REPEAT_DOSE_FLOOR`).
+  (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_ANY_TWO_DOSES_MIN_GAP`, 8 weeks, since D5).
+  **D8 (owner, 2026-11-17) — the other product, as one line:** with exactly one dose of each
+  MenB product on record, the card still finishes with the first product and its always-shown
+  lead adds *"Or finish with Trumenba instead: dose 2 from … (the Bexsero dose then does not
+  count)"*. ACIP 2020: *"one product should be selected for administration of an additional
+  dose …; the dose from the product not selected for series completion should be considered
+  invalid"* (`acip2020MenbMixedProductsSelectOne`). The date is `menbRec()`'s own answer for a
+  record holding only the other product's dose (`withMenbSwitchLine` in `recommend.js`). The
+  dose chip still says to give the established family; the card carries the alternative.
 
 Test: `regression-2026-11-15-ruling-d-repeat-from-the-dose-given.test.js`.
 
@@ -176,9 +194,15 @@ series begun at ≥2y. Derived from `seriesTotals.js` → `menacwyPrimaryTotal()
 ### Single-Dose Indications (`single` class)
 One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: true` in
 `seriesTotals.js` so a later dose is never discarded (P0-2).
-- `college_dorm`: D1 only; a dose at ≥16y satisfies it **permanently** — no 5-year expiry
-  (M17, owner decision 2026-09-15: ACIP Table 10's footnote over immunize.org P2018's
-  enrolment-recency rule). This ≥16y rule applies uniquely to this class.
+- `college_dorm`: a dose at ≥16y satisfies it **for 5 years**; more than 5 years after the
+  most recent ≥16y dose, one dose is due (owner D1, 2026-11-17, reversing M17's
+  "permanently"). ACIP 2020 Table 10 footnote (read live 2026-11-17): *"Adolescents who
+  received a first dose after their 16th birthday do not need another dose before college
+  entry unless it has been more than 5 years since the dose."* Its Boosters row (*"Not
+  routinely recommended"*) rules out a recurring booster, not this entry dose. immunize.org
+  P2018 agrees. M17 had quoted ACIP's routine-section sentence as the college footnote.
+  Measured to today (the app cannot know the entry date); exactly 5 years still covers
+  (`MENACWY_COLLEGE_COVER_YEARS`). This ≥16y rule applies uniquely to this class.
 - **Under 16, `college_dorm` and `military` add nothing** (owner STOP B B-4, 2026-11-15):
   the card is the routine card plus one sentence, "The college-residence (military) dose is
   given at 16 or older." The validator already treated them as routine, so card and chip
@@ -188,7 +212,10 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   "no date"): "Booster (dose N) if required by assignment"; ACIP Table 10 (read live
   2026-11-16): *"Military recruits: Every 5 yrs on basis of assignment"*; footnote ††: the
   U.S. **Department of Defense** sets it from high-risk travel, which the app cannot see.
-  The validator does not check a military booster gap (C10 did not name it; asked).
+  **A military booster given at 16 or older under 5 years (less the 4-day grace) after the
+  dose before it does not count** (owner D6, 2026-11-17: checked like travel, C10); the next
+  booster is timed from it (C9). The routine 16-year booster keeps its own 8 weeks. Row
+  `ACWY-TRAVEL-BOOSTER-GAP` (`militaryBoosterNow` in `doseRules.js`).
 - `outbreak_acwy`: **while the box is ticked, the card keeps asking for the booster** —
   3 years after the last dose if the series finished before 7, otherwise 5, then every 5 —
   and never says "Complete" or "top-up" (owner STOP B B-2, 2026-11-15, replacing M12's
@@ -196,6 +223,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   rule the validator checks (C10, `acwyBoosterTooSoon`). An outbreak contact's routine
   16-year booster comes first and is exempt from the outbreak floor (`acwyIsRoutineBooster`).
   Infant outbreak series: the same 3-then-5-year countdown (`hasBoosterPhase: true`).
+- **Every outbreak card says the booster depends on the risk continuing** (owner D7,
+  2026-11-17), MenACWY (`outbreak_acwy`) and MenB (`outbreak_b`), at every age: a booster
+  label gains "if outbreak risk continues" (or "for this outbreak" when due today), and the
+  booster line reads "while outbreak risk continues". One step, `outbreakWording()` at the
+  end of `recommend()`, only when the outbreak is the only reason for boosters (another
+  ticked risk keeps its own wording). Dates unchanged. immunize.org P2018 (10/19/2026):
+  boosters *"as long as risk remains"*.
 - **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
   STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
   booster date doubling as `earliestNextDate` (pill "Future booster needed").
@@ -216,13 +250,14 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   B-2, because today's outbreak card has no booster date and checking the record first
   would reject the dose the card advises (the whole-app walk found 629 dead ends).
 
-### Any Two MenACWY Doses (owner C11, E1)
+### Any Two MenACWY Doses (owner C11, D5)
 - **8 weeks** between any two MenACWY doses, less the 4-day grace
   (`MENACWY_ANY_TWO_DOSES_MIN_GAP`, row `ACWY-ANY-TWO-DOSES-GAP`; ACIP 2020: *"provided that
   an 8-week minimum interval between doses is maintained"*; CDSI's smallest MenACWY gap is
   the same). Was 4 weeks — ACIP's MenB repeat rule (finding R-4a).
-- **E1 exception:** with no dose counted yet (the dose before was given too young), the repeat
-  waits **4 weeks** (`MENACWY_REPEAT_DOSE_FLOOR`) — the more specific owner answer, kept.
+- **After a too-young first dose too** (owner D5, 2026-11-17): with no dose counted yet, the
+  repeat waits the same **8 weeks** after it. E1's earlier 4 weeks (and its constant,
+  `MENACWY_REPEAT_DOSE_FLOOR`) is gone — 4 weeks is MenB's repeat interval, not MenACWY's.
 - The card holds the same floors after a dose that did not count (`applyRepeatFloor`).
 
 ### Unknown Brand (owner C13)
@@ -261,7 +296,8 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   was administered at least 6 months after dose 1, dose 3 not needed; …)"*. The total
   comes from `seriesTotals.js` → `menbSeriesInfo()`, compared on the calendar (P0-4).
   `recommend.js` reads that total rather than a literal 3, so a patient whose
-  D2 came six months on reaches the booster phase after two doses. No 4-day grace here.
+  D2 came six months on reaches the booster phase after two doses. **With the 4-day
+  grace** (owner D4, 2026-11-17): a D2 1–4 days short of 6 months also completes it.
 - **An early D3 is CREDITED, not repeated** (MenB dose-3 rescue, 2026-09-17).
   CDC MenB special situations: *"...if dose 3 is administered earlier than 4 months after
   dose 2, a 4th dose should be administered at least 4 months after dose 3"*.
@@ -273,7 +309,8 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
     D1. ACIP mm7349a3 (read live 2026-11-16): *"If the third dose is administered <4 months
     after the second dose, the dose should be repeated ≥4 months after the last dose, unless
     the third dose was administered ≥6 months after the first dose."* CDC's schedule notes
-    leave out the "unless"; the owner chose the MMWR. No grace on this 6-month line.
+    leave out the "unless"; the owner chose the MMWR. **With the 4-day grace** (owner D3,
+    2026-11-17): a D3 1–4 days short of 6 months after D1 also needs no 4th dose.
   - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace — a D3 given 1–4 days
     before 4 months after D2 is not early.
   Grace also applies to whether the 4th dose itself counts.
@@ -291,7 +328,8 @@ Products within a family:
 
 Once D1 brand is known, subsequent doses must stay in the same family. Family anchor = first KNOWN-brand dose.
 A wrong-family dose does not count; the next dose of the established family waits at least 4
-weeks after it (E2, Ruling D section above).
+weeks after it (E2, Ruling D section above). With one dose of each product, the card also
+offers finishing with the other product instead (D8).
 
 ## Pentavalent (Penbraya/Penmenvy)
 

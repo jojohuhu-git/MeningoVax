@@ -45,12 +45,15 @@ Two deliberate limits:
 - **It does not move the dates the app suggests.** If the next dose is due on the
   9th, the app still says the 9th — it simply accepts a dose given on the 5th.
   Accepting a dose that was given early is not the same as advising one.
-- **It shortens a series in only two places, both your ruling** (STOP C C7,
-  2026-11-15: use the grace where it means one dose fewer): a healthy MenB dose
-  2 given 1–4 days before 6 months completes the 2-dose series (no rescue dose);
-  a high-risk MenB dose 3 given 1–4 days before 4 months after dose 2 is not
-  "early" (no 4th dose). Every other line that decides how many doses a series
-  has keeps the full interval.
+- **It shortens a series in only four places, all your rulings** (STOP C C7,
+  2026-11-15, and D3/D4, 2026-11-17: use the grace where it means one dose
+  fewer): a healthy MenB dose 2 given 1–4 days before 6 months completes the
+  2-dose series (no rescue dose); a high-risk MenB dose 3 given 1–4 days before
+  4 months after dose 2 is not "early" (no 4th dose); a high-risk dose 3 given
+  1–4 days before 6 months after dose 1 needs no 4th dose (D3); a high-risk
+  dose 2 given 1–4 days before 6 months after dose 1 needs no dose 3 (D4).
+  Every other line that decides how many doses a series has keeps the full
+  interval.
 
 ---
 
@@ -153,12 +156,21 @@ receive another.
   card then shows **the booster date 5 years on, "if required by assignment"** — never
   "Complete" (your B-3 answer). ACIP: *"Military recruits: Every 5 yrs on basis of
   assignment"*; the Department of Defense sets it from high-risk travel, which the app
-  cannot see, so the card says to check the service's current requirement.
+  cannot see, so the card says to check the service's current requirement. **A
+  military booster given under 5 years after the dose before it does not count**
+  (your D6 answer, 2026-11-17: checked like travel); the next booster is timed from
+  it, so the date usually stays and only the dose label changes. The routine
+  16-year booster is not affected.
 - **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
   ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
   and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
   outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
   routine 16-year booster still comes first. Untick the box when the risk is over.
+- **Every outbreak card — MenACWY and MenB, any age — says "if outbreak risk
+  continues"** on a booster not yet due ("for this outbreak" when due today), and
+  its booster line reads "while outbreak risk continues" (your D7 answer,
+  2026-11-17). Before, only the teenage MenACWY outbreak card said it. If another
+  risk is also ticked (asplenia, for example), that risk's wording stays.
 - **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
   10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
   complete.
@@ -166,10 +178,12 @@ receive another.
   a recorded dose shows "Needs input", the app offers no pentavalent and does not say
   both vaccines are due.
 - **First-year college students in dorms**: one dose satisfies the requirement *only if
-  given at ≥16 years old* — and then permanently. There is no 5-year expiry (owner
-  decision, 2026-09-15: ACIP's footnote governs, not immunize.org's enrolment-recency
-  job aid). An earlier dose does not count for this requirement; a fresh dose is needed
-  at ≥16.
+  given at ≥16 years old*, and it covers them **for 5 years**; after that, one dose is
+  due (your D1 answer, 2026-11-17, replacing the 2026-09-15 "permanently"). ACIP's own
+  college footnote: *"do not need another dose before college entry unless it has been
+  more than 5 years since the dose"*; immunize.org agrees. The app counts the 5 years to
+  today's visit. An earlier dose (before 16) does not count for this requirement; a
+  fresh dose is needed at ≥16.
 
 ### Single dose + ongoing booster
 - **Travellers** to hyperendemic/epidemic regions (including Hajj pilgrims, the
@@ -232,7 +246,8 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     to ask every high-risk patient for a third dose regardless, which meant
     advising an injection some patients did not need. It is the same six-month
     test as the healthy rule above, read in the opposite direction, and it is
-    compared on the calendar rather than as a fixed number of days.
+    compared on the calendar rather than as a fixed number of days, **with the
+    4-day grace** (your D4 answer, 2026-11-17).
   - **If dose 3 was given earlier than 4 months after dose 2, that dose still
     counts — do not repeat it — but a 4th dose is then owed at least 4 months
     after dose 3** (corrected 2026-09-17). CDC says this in the second half of
@@ -246,7 +261,9 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
   - **Unless dose 3 was 6 months or more after dose 1** — then no 4th dose,
     even if dose 3 came under 4 months after dose 2 (your C6 answer: follow
     ACIP's 2024 MMWR, *"…unless the third dose was administered ≥6 months after
-    the first dose"*; CDC's schedule notes leave the "unless" out).
+    the first dose"*; CDC's schedule notes leave the "unless" out). **With the
+    4-day grace** (your D3 answer, 2026-11-17): 1–4 days short of 6 months
+    also counts.
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
@@ -342,16 +359,16 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   time — and with no date it never starts a clock for the next dose.
 - **Given below the minimum age for the brand:** invalid — does not count.
   Repeat that dose only; do not restart the whole series. If it was the
-  **first** dose, the repeat waits at least 4 weeks after it (owner, 2026-11-15;
-  CDC would allow it as soon as the child reaches the minimum age — the app
-  follows PneumoVax here on purpose).
+  **first** dose, the repeat waits the vaccine's own minimum interval after
+  it: **8 weeks for MenACWY** (your D5 answer, 2026-11-17), **4 weeks for
+  MenB** (your E1 answer, 2026-11-15). CDC would allow it as soon as the child
+  reaches the minimum age; the app waits on purpose.
 - **Given too soon after the previous dose** (violates a minimum interval):
   invalid — does not count. Repeat that dose only.
 - **Any two MenACWY doses must be at least 8 weeks apart** (your C11 answer,
   2026-11-15; ACIP: *"an 8-week minimum interval between doses"*; less the
-  4-day grace). It was 4 weeks, which ACIP says only of MenB. One exception,
-  your E1 answer: the repeat of a too-young **first** dose waits 4 weeks after
-  it.
+  4-day grace). It was 4 weeks, which ACIP says only of MenB. The same 8 weeks
+  applies after a too-young **first** dose (your D5 answer, 2026-11-17).
 - **The repeat is timed from the dose that did not count** (owner, STOP C,
   2026-11-15 — "Ruling D", the same rule as PneumoVax). CDC: *"The repeat dose
   should be spaced after the invalid dose by the recommended minimum
@@ -365,10 +382,19 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   counted.
 - **A MenB dose of the wrong antigen family** does not count, and the next
   dose of the right family waits at least 4 weeks after it (owner,
-  2026-11-15), as well as being due by the schedule.
+  2026-11-15), as well as being due by the schedule. With one dose of each
+  product on record, the card also says how to finish with the other product
+  instead, e.g. *"Or finish with Trumenba instead: dose 2 from Apr 1, 2027 (the
+  Bexsero dose then does not count)"* (your D8 answer, 2026-11-17; ACIP: "one
+  product should be selected").
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above) —
   different from "invalid," no repeat needed, it's just not counted.
+- **A MenACWY dose set aside like that still starts the 8-week clock** (your
+  D2 answer, 2026-11-17): the next MenACWY dose waits 8 weeks after it. A dose
+  given 5 days before the 16th birthday puts the booster 8 weeks after that
+  dose, not on the birthday; a dose at 9 years 11 months means a dose at 10
+  under 8 weeks later does not count.
 - **Dated in the future:** not counted. The record lists doses the patient has
   already received, so a date after today is a typo (usually a mistyped year)
   or an appointment that has not happened yet. The app says the date is the

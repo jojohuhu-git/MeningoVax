@@ -121,8 +121,12 @@ describe('P1-2: six months is a calendar comparison, not 183 days', () => {
     expect(info(['2025-12-15', '2026-06-15']).total).toBe(2);
   });
 
-  it('one day short of six calendar months does not', () => {
-    expect(info(['2025-12-15', '2026-06-14']).total).toBe(3);
+  it('one day short of six calendar months also counts, by the 4-day grace (owner D4, 2026-11-17)', () => {
+    expect(info(['2025-12-15', '2026-06-14']).total).toBe(2);
+  });
+
+  it('five days short of six calendar months does not', () => {
+    expect(info(['2025-12-15', '2026-06-10']).total).toBe(3);
   });
 });
 

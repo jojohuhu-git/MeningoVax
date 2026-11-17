@@ -54,7 +54,10 @@ built 2026-11-16** (Ruling D; PR #90, merged). **Phase 3 families 2–5 and STOP
 2026-11-16/17** (#91–#95, approved; landed on main by #96, because stacked PRs had merged into
 each other's branches): undated doses do not count (C1); MenB dose 3 (C5–C7); MenACWY gaps
 (C10, C11, C13); relabels (C3, C4, C8, C9, C14, C15, C18); outbreak/military booster dates,
-routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Not built: B-1**
+routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Owner answers D1–D8
+(2026-11-17) built** (`docs/archive/decisions-2026-11-17-open-questions.md`): college 5-year cover
+(reverses M17), set-aside dose starts the clock, MenB 6-month grace lines, MenACWY too-young repeat
+8 weeks, military booster check, outbreak wording, MenB switch line. **Not built: B-1**
 (4-day grace at age lines "only when it helps") — next, then Phase 4. Open owner questions are
 in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
@@ -88,7 +91,8 @@ the gap from D1 (owner STOP C C5, 2026-11-15).
 
 A D3 given earlier than 4 months after D2 still counts, and a 4th dose is owed ≥4 months later —
 UNLESS D3 was ≥6 months after D1 (ACIP mm7349a3's "unless", owner C6). The 4-month line takes the
-4-day grace (owner C7), as does the healthy MenB 6-month rescue line. Both decisions live in ONE
+4-day grace (owner C7), as do the healthy MenB 6-month rescue line (C7) and both high-risk
+6-month lines — the "unless" (D3) and "dose 2 ≥6 months, no dose 3" (D4, 2026-11-17). Both decisions live in ONE
 function each in `seriesTotals.js` (`menbHighRiskDose3Early`, `menbHealthyDose2Early`); never
 re-derive them. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 
@@ -109,7 +113,7 @@ The guard lives in PneumoVax (`regression-s6-4-avg-days-per-month-one-home.test.
 made here fails there — apply the same change to both.
 
 ### college_dorm vs military vs acwy_outbreak
-The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`. Do not apply it to `military` or `acwy_outbreak`.
+The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`, and only for 5 years after that dose (owner D1, 2026-11-17, reversing M17's "permanently"). Do not apply it to `military` or `acwy_outbreak`.
 
 ### End-of-Session Checklist (E4)
 Four questions, at the end of any session and in any PR body. They take two minutes and catch drift a green suite alone won't:

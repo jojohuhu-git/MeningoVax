@@ -67,7 +67,7 @@ const MIGRATED = [
   ['DAYS.years(2)', 'MENB_HIGHRISK_BOOSTER_CADENCE_YEARS'],
   // Group 3 — the MenB month floors, and the 4-week floor for REPEATING an
   // invalid MenACWY dose (which is where P0-1's wrong number came from).
-  ['DAYS.weeks(4)', 'MENB_HIGHRISK_D2_GAP / MENACWY_REPEAT_DOSE_FLOOR'],
+  ['DAYS.weeks(4)', 'MENB_HIGHRISK_D2_GAP / MENB_REPEAT_MIN_INTERVAL'],
   ['DAYS.months(4)', 'MENB_HIGHRISK_D3_MONTHS_FROM_D2'],
   ['DAYS.months(6)', 'MENB_HIGHRISK_D3_MONTHS_FROM_D1'],
   // The infant final-dose gap, which intervals.js has owned since P0-1 but two

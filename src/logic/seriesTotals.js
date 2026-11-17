@@ -214,7 +214,8 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
   // All three "single" indications legitimately accept a later dose:
   //   college   ACIP 2020 MMWR 69(RR-9) Table 10 footnote -- a dose after the
   //             16th birthday needs no booster, i.e. it is the dose that
-  //             SATISFIES the requirement (owner decision M17).
+  //             SATISFIES the requirement for 5 years (owner D1, 2026-11-17;
+  //             a later dose is the repeat owed after that).
   //   outbreak  Table 8 -- a top-up "if previously vaccinated and identified as
   //             being at increased risk" (owner decision M12).
   //   military  Table 10 -- the DoD booster every 5 years by assignment
@@ -295,9 +296,9 @@ export function menbHealthyDose2Early(d1Date, d2Date) {
  *
  *   C7 (owner, 2026-11-15): the 4-day grace applies to the 4-month line.
  *   C6 (owner, 2026-11-15): the "unless" — no 4th dose when dose 3 is ≥6
- *       months after dose 1. NO grace on that 6-month line: the owner's C7
- *       answer named two lines, and this is not one of them (asked as a
- *       follow-up, not assumed).
+ *       months after dose 1.
+ *   D3 (owner, 2026-11-17): the 4-day grace applies to that 6-month line too
+ *       (asked as a follow-up to C7, not assumed).
  *
  * The one copy of this test: menbSeriesInfo(), the card and the dose verdict
  * (doseRules.js MENB-HIGHRISK-EARLY-DOSE-3) all call it.
@@ -305,7 +306,7 @@ export function menbHealthyDose2Early(d1Date, d2Date) {
 export function menbHighRiskDose3Early(d1Date, d2Date, d3Date) {
   if (!d2Date || !d3Date) return false;
   if (calendarIntervalMeetsMinimum(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3Date)) return false;
-  if (d1Date && calendarIntervalElapsed(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
+  if (d1Date && calendarIntervalMeetsMinimum(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
   return true;
 }
 
@@ -330,7 +331,8 @@ export function menbSeriesInfo({ highRisk, doses }) {
     const hr1 = doses[0];
     const hr2 = doses[1];
     const hr3 = doses[2];
-    if (hr1?.date && hr2?.date && calendarIntervalElapsed(hr1.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, hr2.date)) {
+    // D4 (owner, 2026-11-17): with the 4-day grace — one dose fewer.
+    if (hr1?.date && hr2?.date && calendarIntervalMeetsMinimum(hr1.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, hr2.date)) {
       return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
     }
     // MenB dose-3 rescue (2026-09-17): the SECOND half of the same CDC bullet.

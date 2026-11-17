@@ -50,11 +50,14 @@ describe('C10: a travel booster is checked like a high-risk one', () => {
     }
   });
 
-  it('control: military and college residence are not changed (no booster gap is checked)', () => {
-    for (const risk of ['military', 'college_dorm']) {
-      const r = run({ ...T, riskIds: [risk], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
-      expect(r.history.MenACWY.perDose[1].status, risk).not.toBe('invalid');
-    }
+  it('control: college residence is not changed (no booster gap is checked)', () => {
+    const r = run({ ...T, riskIds: ['college_dorm'], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
+    expect(r.history.MenACWY.perDose[1].status).not.toBe('invalid');
+  });
+
+  it('military IS checked since owner D6 (2026-11-17): 4 years is too soon', () => {
+    const r = run({ ...T, riskIds: ['military'], menacwyDoses: [MV('2018-01-01'), MV('2022-01-01')] });
+    expect(r.history.MenACWY.perDose[1].status).toBe('invalid');
   });
 });
 
@@ -77,15 +80,24 @@ describe('C11: 8 weeks between any two MenACWY doses', () => {
     expect(verdicts(r)).toEqual(['dose 1', 'invalid']);
   });
 
-  it('E1 kept: the repeat of a too-young first dose waits 4 weeks, not 8', () => {
+  // Was "E1 kept: … waits 4 weeks, not 8". Owner D5 (2026-11-17) changed it:
+  // 4 weeks is MenB's number; MenACWY's repeat waits its own 8 weeks.
+  it('D5: the repeat of a too-young first dose waits 8 weeks, not 4', () => {
     // Born 2026-03-01, asplenia. Menveo at 6 weeks 3 days (below Menveo's 2
-    // months: does not count), then Menveo 5 weeks later — counts as dose 1.
+    // months: does not count), then Menveo 5 weeks later — does not count either.
     const r = run({
-      dob: '2026-03-01', today: '2026-06-01', riskIds: ['asplenia'],
+      dob: '2026-03-01', today: '2026-07-01', riskIds: ['asplenia'],
       menacwyDoses: [MV('2026-04-15'), MV('2026-05-20')],
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
-    expect(verdicts(r)).toEqual(['invalid', 'dose 1']);
+    expect(verdicts(r)).toEqual(['invalid', 'invalid']);
+    // Control: 8 weeks after the too-young dose counts as dose 1.
+    const ok = run({
+      dob: '2026-03-01', today: '2026-07-01', riskIds: ['asplenia'],
+      menacwyDoses: [MV('2026-04-15'), MV('2026-06-10')],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
+    });
+    expect(verdicts(ok)).toEqual(['invalid', 'dose 1']);
   });
 });
 
