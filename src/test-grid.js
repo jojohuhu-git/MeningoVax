@@ -406,6 +406,7 @@ export const SAVED_ANSWER_MENACWY_HISTORIES = [
  *                    dose follows); under 4 months
  *   24 / 23          the high-risk 4-week floor − 4 days; one day past
  *   three doses      dose 3 on time; dose 3 early from both dose 1 and dose 2
+ *   four doses       a primary series and one booster (D10)
  *   Bexsero then Trumenba   the antigen-family lock
  */
 export const SAVED_ANSWER_MENB_HISTORIES = [
@@ -419,6 +420,10 @@ export const SAVED_ANSWER_MENB_HISTORIES = [
   [['Bexsero', 400], ['Bexsero', 370], ['Bexsero', 217]],
   [['Bexsero', 400], ['Bexsero', 370], ['Bexsero', 260]],
   [['Bexsero', 400], ['Trumenba', 300]],
+  // Primary series (0 / 2 / 6 months) and one booster 14 months later. Added
+  // 2026-11-17 for D10: a serogroup B outbreak gets one booster, asplenia
+  // every 2–3 years — without a booster on record, neither shows here.
+  [['Bexsero', 900], ['Bexsero', 840], ['Bexsero', 720], ['Bexsero', 300]],
   [['', 365]],
 ];
 

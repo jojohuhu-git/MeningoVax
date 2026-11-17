@@ -230,6 +230,15 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   end of `recommend()`, only when the outbreak is the only reason for boosters (another
   ticked risk keeps its own wording). Dates unchanged. immunize.org P2018 (10/19/2026):
   boosters *"as long as risk remains"*.
+- **Serogroup B outbreak: one MenB booster** (owner D10, 2026-11-17). When `outbreak_b` is
+  the only MenB risk (`outbreakIsTheOnlyBoosterReason('MenB', …)`), the booster card asks for
+  one dose ≥1 year after the primary series; after it, status `complete`, "Complete (outbreak
+  booster given)", no date. ACIP 2020 Table 8, read live 2026-11-17: *"Single dose if ≥1 yr
+  after MenB primary series completion (≥6 mos interval might also be considered by public
+  health professionals)"*; Tables 4, 5, 7: *"…and every 2–3 yrs thereafter"*. mm7349a3:
+  booster recommendations *"are unchanged"*. The 6-month public-health option is not offered.
+  Guarded by `regression-2026-11-17-d10-menb-outbreak-one-booster.test.js` and never-events
+  property 12.
 - **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
   STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
   booster date doubling as `earliestNextDate` (pill "Future booster needed").

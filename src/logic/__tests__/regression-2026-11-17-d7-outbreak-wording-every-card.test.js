@@ -49,7 +49,9 @@ describe('D7: MenB outbreak cards', () => {
     const c = run({ riskIds: ['outbreak_b'], dob: '2006-01-01', b: [B('2025-10-01'), B('2026-01-01'), B('2026-08-01')] }).menb[0];
     expect(c.earliestNextDate).toBe('2027-08-01');
     expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) if outbreak risk continues');
-    expect(c.boosterSummary).toMatch(/while outbreak risk continues/);
+    // D10 (owner, 2026-11-17): one outbreak booster, so the line no longer
+    // promises repeats "while outbreak risk continues".
+    expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak; no repeat boosters');
   });
 
   it('booster due today: "for this outbreak"', () => {
@@ -58,10 +60,10 @@ describe('D7: MenB outbreak cards', () => {
     expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) for this outbreak');
   });
 
-  it('primary series: the booster line says "while outbreak risk continues"', () => {
+  it('primary series: the booster line says "if outbreak risk continues" (D10: one booster)', () => {
     const c = run({ riskIds: ['outbreak_b'], dob: '2006-01-01' }).menb[0];
     expect(c.doseLabel).toMatch(/^Dose 1 of 3/);
-    expect(c.boosterSummary).toMatch(/while outbreak risk continues/);
+    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues');
   });
 
   it('control: asplenia keeps its wording', () => {

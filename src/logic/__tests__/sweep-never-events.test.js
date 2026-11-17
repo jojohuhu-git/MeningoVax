@@ -173,6 +173,36 @@ const p11Rows = { a: 0, b: 0, c: 0 };
     if (d2 < at('2024-01-07', -4) && v.effectiveDoseNum != null) p11.push(`11b military ${d1} → ${d2}: second dose counted`);
   }
 }
+// Property 12 (owner D10 — 2026-11-17). ACIP 2020 Table 8: one MenB booster
+// for a serogroup B outbreak ("Single dose if ≥1 yr after MenB primary series
+// completion"). Outbreak alone: once a booster is on record, no MenB dose is
+// ever asked for again; with the primary series only, the card never reads
+// Complete. Control: asplenia with the same doses always asks for another.
+const p12 = [];
+let p12Rows = 0;
+{
+  const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
+  const today = '2030-06-30';
+  const primary = ['2020-01-06', '2020-03-02', '2020-07-06'];
+  const asks = (c) => c.dueToday || c.earliestNextDate != null;
+  for (let w = 52; w <= 520; w += 3) {
+    const boost = at(primary[2], w * 7);
+    if (boost > today) break;
+    const doses = [...primary, boost].map((date) => ({ date, brand: 'Bexsero (MenB)' }));
+    const run = (riskIds, d) => recommend({ today, dob: '2002-01-01', riskIds, menacwyDoses: [], menbDoses: d }).menb[0];
+    const ob = run(['outbreak_b'], doses);
+    const ap = run(['asplenia'], doses);
+    p12Rows += 1;
+    if (asks(ob) || ob.status !== 'complete') p12.push(`12 outbreak, booster ${boost}: ${ob.status} ${ob.doseLabel} (asks again)`);
+    if (!asks(ap)) p12.push(`12 control asplenia, booster ${boost}: ${ap.doseLabel} (asks nothing)`);
+  }
+  const primaryOnly = run12(['outbreak_b'], primary);
+  function run12(riskIds, dates) {
+    return recommend({ today, dob: '2002-01-01', riskIds, menacwyDoses: [], menbDoses: dates.map((date) => ({ date, brand: 'Bexsero (MenB)' })) }).menb[0];
+  }
+  if (primaryOnly.status === 'complete') p12.push('12 outbreak, primary series only: reads Complete');
+}
+
 {
   const d1 = '2025-01-06';
   const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
@@ -439,6 +469,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     expect(p11Rows.b).toBe(270);
     expect(p11Rows.c).toBeGreaterThan(1000);
     expect(p11).toEqual([]);
+  });
+
+  it('property 12 (owner D10) — serogroup B outbreak: one MenB booster, then nothing more; asplenia keeps boosting', () => {
+    report(`Property 12 (${p12Rows} booster dates)`, p12);
+    expect(p12Rows).toBeGreaterThan(100);
+    expect(p12).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {

@@ -590,6 +590,13 @@ export const CITATIONS = {
     lastVerified: '2026-11-15',
   },
   // E2 (owner, 2026-11-15). Read live 2026-11-15.
+  acip2020Table8MenbOutbreakBooster: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose if ≥1 yr after MenB primary series completion',
+    label: 'ACIP 2020 MMWR Table 8: one MenB booster for a serogroup B outbreak',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-17',
+  },
   acip2020MenbMixedProductsSelectOne: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid',

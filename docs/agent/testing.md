@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 156 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 105 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 157 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 106 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 47 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 46 (the 47th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -161,7 +161,7 @@ the same answer, line for line, as the two files saved in
 
 | File | Patients | What they are |
 |---|---|---|
-| `saved-answers.tsv` | 17,580 | patients a clinician could really enter |
+| `saved-answers.tsv` | 18,780 | patients a clinician could really enter |
 | `saved-answers-record-problems.tsv` | 5,820 | records they could not: a dose before birth, after today, or one shot on two rows |
 
 An answer is what the app **decides**: each card's status, due today or not,
