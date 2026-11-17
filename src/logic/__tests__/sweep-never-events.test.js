@@ -124,11 +124,53 @@ let p10Rows = 0;
 const dayGap = (a, b) => Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000);
 function checkProperty10(where, am, dob, riskIds, doses) {
   if (doses.length < 2) return;
-  const counted = analyzeHistory('MenACWY', doses, am, riskIds, TODAY, undefined, dob).effective.filter((d) => d.date);
+  const h = analyzeHistory('MenACWY', doses, am, riskIds, TODAY, undefined, dob);
+  const counted = h.effective.filter((d) => d.date);
   p10Rows += 1;
   for (let i = 1; i < counted.length; i++) {
     const gap = dayGap(counted[i - 1].date, counted[i].date);
     if (gap < 52) p10.push(`${where}: counted MenACWY doses ${counted[i - 1].date} and ${counted[i].date} are ${gap} days apart`);
+  }
+  // 11c (owner D2 and D5, 2026-11-17): nor within 52 days of ANY earlier dose
+  // actually given — one set aside or not counted included (record problems
+  // and undated rows are not doses given, and start no clock).
+  p11Rows.c += 1;
+  h.perDose.forEach((d, i) => {
+    if (d.effectiveDoseNum == null) return;
+    const dose = h.sortedDoses[i];
+    const prev = h.sortedDoses.slice(0, i).map((x, j) => ({ x, v: h.perDose[j] }))
+      .filter(({ x, v }) => x.date && !v.recordProblem && !v.extraDose && v.status !== 'pending').pop();
+    if (dose?.date && prev && dayGap(prev.x.date, dose.date) < 52) {
+      p11.push(`11c ${where}: counted MenACWY ${dose.date} is ${dayGap(prev.x.date, dose.date)} days after the dose of ${prev.x.date}`);
+    }
+  });
+}
+// Property 11 (owner D1, D2, D5, D6 — 2026-11-17).
+//   11a college: a dose at 16+ reads Complete exactly while it is 5 years old or less.
+//   11b military: a booster at 16+ under 5 years (less 4 days) after the last dose never counts.
+//   11c (in checkProperty10): no counted MenACWY dose within 52 days of any earlier dose given.
+const p11 = [];
+const p11Rows = { a: 0, b: 0, c: 0 };
+{
+  const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
+  const today = '2026-12-31';
+  const fiveYearsBefore = '2021-12-31';
+  for (let back = 1; back <= 3650; back += 13) {
+    const d = at(today, -back);
+    const c = recommend({ today, dob: '2000-01-01', riskIds: ['college_dorm'], menbDoses: [],
+      menacwyDoses: [{ date: d, brand: 'Menveo (MenACWY)' }] }).menacwy[0];
+    p11Rows.a += 1;
+    const covered = d >= fiveYearsBefore;
+    if (covered !== (c.status === 'complete')) p11.push(`11a dose ${d}: status ${c.status}, expected ${covered ? 'complete' : 'a dose due'}`);
+  }
+  for (let w = 1; w <= 270; w += 1) {
+    const d1 = '2019-01-07';
+    const d2 = at(d1, w * 7);
+    const r = recommend({ today, dob: '1998-01-01', riskIds: ['military'], menbDoses: [],
+      menacwyDoses: [d1, d2].map((date) => ({ date, brand: 'Menveo (MenACWY)' })) });
+    p11Rows.b += 1;
+    const v = r.history.MenACWY.perDose[1];
+    if (d2 < at('2024-01-07', -4) && v.effectiveDoseNum != null) p11.push(`11b military ${d1} → ${d2}: second dose counted`);
   }
 }
 {
@@ -389,6 +431,14 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report(`Property 10 (counted MenACWY doses under 52 days apart; ${p10Rows} histories)`, p10);
     expect(p10Rows).toBeGreaterThan(1000);
     expect(p10).toEqual([]);
+  });
+
+  it('property 11 (owner D1, D2, D5, D6) — college 5-year cover; military booster floor; no counted MenACWY dose within 8 weeks of any dose given', () => {
+    report(`Property 11 (college ${p11Rows.a}, military ${p11Rows.b}, any-dose clock ${p11Rows.c} histories)`, p11);
+    expect(p11Rows.a).toBeGreaterThan(250);
+    expect(p11Rows.b).toBe(270);
+    expect(p11Rows.c).toBeGreaterThan(1000);
+    expect(p11).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {
