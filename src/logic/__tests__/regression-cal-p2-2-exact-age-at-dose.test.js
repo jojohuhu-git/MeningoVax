@@ -101,10 +101,16 @@ describe('too few doses · a dose 2 a day short of seven months', () => {
       .toBeLessThan(7);
   });
 
-  it('does not get the 3-dose shortcut, which that dose did not earn', () => {
+  // STOP B B-1 (owner 2026-11-15, extended 2026-11-17) reversed this answer:
+  // a dose 1–4 days before 7 months is read as given at 7 months when that
+  // means fewer doses owed. It was "4 doses, no shortcut"; it is now the 3-dose
+  // shortcut — by the grace, not by the old subtraction (the test above still
+  // proves the dose is truly under 7 months). The 5-days-short control lives in
+  // regression-2026-11-17-b1-grace-only-when-it-helps.test.js.
+  it('earns the 3-dose shortcut through the 4-day grace at 7 months (B-1)', () => {
     const c = card(patient);
-    expect(c.seriesTotal).toBe(4);
-    expect(c.doseLabel).not.toMatch(/shortcut/);
+    expect(c.seriesTotal).toBe(3);
+    expect(c.doseLabel).toMatch(/shortcut/);
   });
 });
 

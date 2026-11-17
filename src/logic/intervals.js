@@ -35,6 +35,8 @@
 import { menacwyInfantHighRiskTotal } from './seriesTotals.js';
 import {
   MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+  MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS,
 } from './ages.js';
 import {
   addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween,
@@ -471,4 +473,50 @@ export function ageMeetsMinimum(ageAtDoseMonths, minAgeMonths, when = {}) {
 export function ageMeetsMinimumDays(ageAtDoseDays, minAgeDays) {
   if (ageAtDoseDays == null) return false;
   return intervalMeetsMinimum(ageAtDoseDays, minAgeDays);
+}
+
+// ── The grace at an age line that picks the MenACWY schedule (B-1) ───────
+//
+// STOP B B-1 (owner 2026-11-15, extended 2026-11-17): CDC's 4-day grace at the
+// three age lines that decide HOW MANY MenACWY doses a child needs — used only
+// when it means fewer doses owed (PneumoVax's §A-GRACE12-HELPS, carried over).
+//
+//   3 months  — "Dose 1 at age 2 months: 4-dose series" vs "Dose 1 at age 3–6
+//               months: 3- or 4- dose series" (owner 2026-11-17: "Yes, grace helps")
+//   7 months  — the 3-or-4-dose series vs "Dose 1 at age 7–23 months: 2-dose series",
+//               and the dose "at age 7 months or older" that earns the 3-dose finish
+//   2 years   — the infant series vs the ≥2-year schedule (travel: 1 dose)
+//
+// CDC child & adolescent schedule notes, read live 2026-11-17. CDC General Best
+// Practices: "vaccine doses administered ≤4 days before the minimum interval or
+// age are considered valid".
+//
+// NOT here, deliberately: age 7. The grace there only moves the first booster
+// from 3 to 5 years and never changes the doses owed; the owner kept 3 years
+// (2026-11-17). Nor age 10/16: those are minimum ages, already graced by
+// ageMeetsMinimum above.
+//
+// This helper only says WHERE a dose would be read; recommend() decides whether
+// to read it there (both readings, keep the one owing fewer MenACWY doses).
+export const MENACWY_GRACE_LINES_M = Object.freeze([
+  MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
+  MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS,
+]);
+
+/**
+ * The age line (months) a MenACWY dose falls 1–4 days short of, or null.
+ * Needs a date of birth and a dose date: an age-only entry cannot place a dose
+ * to the day. A dose with an age typed on it is left alone.
+ *
+ * @param {{date?: ?string, ageMonths?: ?number}} dose
+ * @param {?string} dob
+ * @returns {number|null}
+ */
+export function menacwyGraceLine(dose, dob) {
+  if (!dob || !dose?.date || typeof dose.ageMonths === 'number') return null;
+  const raw = calendarMonthsBetween(dob, dose.date);
+  const line = MENACWY_GRACE_LINES_M.find((m) => raw < m);
+  if (line == null) return null;
+  return dose.date >= addDays(addCalendarMonths(dob, line), -GRACE_DAYS) ? line : null;
 }

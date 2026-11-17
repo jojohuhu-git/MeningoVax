@@ -45,13 +45,22 @@ Two deliberate limits:
 - **It does not move the dates the app suggests.** If the next dose is due on the
   9th, the app still says the 9th — it simply accepts a dose given on the 5th.
   Accepting a dose that was given early is not the same as advising one.
-- **It shortens a series in only four places, all your rulings** (STOP C C7,
+- **It shortens a series only where you ruled it should** (STOP C C7,
   2026-11-15, and D3/D4, 2026-11-17: use the grace where it means one dose
   fewer): a healthy MenB dose 2 given 1–4 days before 6 months completes the
   2-dose series (no rescue dose); a high-risk MenB dose 3 given 1–4 days before
   4 months after dose 2 is not "early" (no 4th dose); a high-risk dose 3 given
   1–4 days before 6 months after dose 1 needs no 4th dose (D3); a high-risk
   dose 2 given 1–4 days before 6 months after dose 1 needs no dose 3 (D4).
+- **MenACWY ages 3 months, 7 months and 2 years** (your B-1 answer, 2026-11-15;
+  3 months added 2026-11-17): a dose given 1–4 days before one of these
+  birthdays is read as given on it **only if that means fewer doses**. A travel
+  baby given Menveo 2 days before 7 months needs 2 doses, not 4; a travel child
+  given Menveo 2 days before age 2 needs 1 dose. If reading it on the birthday
+  would owe the same or more (for example, it would stop a later dose
+  counting), the real age stands.
+- **Not age 7** (your answer, 2026-11-17): a series finished 1–4 days before the
+  7th birthday keeps the 3-year booster.
   Every other line that decides how many doses a series has keeps the full
   interval.
 

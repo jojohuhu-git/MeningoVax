@@ -31,6 +31,17 @@ read live on 2026-11-17:
 | D9 | College card after D1: keep "Complete (dose given at ≥16y)", or "Covered for college until <dose + 5 y>" with "if still in a residence hall then, give 1 dose"? | **Neither change; the proposal was wrong.** Owner: *"I do not see a reference where a repeat dose is needed in 5 years if remaining in residence hall."* Correct: the 5 years is checked once, at college entry (the box is "First-year college student"). No repeat for staying in a dorm. "Complete" stays; no code changed. Wording in `meningococcal-rules-summary.md` clarified | ACIP 2020 Table 10 footnote (D1 above): *"…do not need another dose before college entry unless it has been more than 5 years since the dose"* — about entry, not residence |
 | D10 | Serogroup B outbreak (no other MenB risk): after one booster, the app asked for more every 2–3 years. Patient 21y, Bexsero 1/1/24, 3/1/24, 7/1/24, booster 8/1/25: dose 5 asked for 8/1/27 | **One booster.** Then "Complete (outbreak booster given)". Asplenia/complement/microbiologist keep every 2–3 years; with one of them also ticked, theirs win | ACIP 2020 Table 8 (read live 2026-11-17): *"Single dose if ≥1 yr after MenB primary series completion (≥6 mos interval might also be considered by public health professionals)"*. Tables 4, 5, 7: *"Single dose at 1 yr after completion of primary vaccination and every 2–3 yrs thereafter."* mm7349a3: booster recommendations *"are unchanged"* |
 
-Still open (not asked this session): B-1 (owner-decided 2026-11-15, not yet built); MenB of
+## Asked while building B-1 (D11, D12)
+
+B-1 (STOP B, 2026-11-15): use the 4-day grace at an age line that picks the MenACWY schedule "only when it helps" (fewer doses owed). Two lines the ruling did not settle on its own terms:
+
+| # | Question | Owner answer | Sources |
+|---|---|---|---|
+| D11 | Age 7: the grace never changes the doses owed, only whether the first booster comes at 3 or 5 years. Patient born 3/10/2019, travel, MenQuadfi 3/8/2026 (2 days before 7): booster 3/8/2029; control on the birthday: 3/10/2031 | **3 years** — age 7 is not a grace line; a primary finished 1–4 days before 7 keeps the 3-year booster | ACIP 2020 Table 9 (read live 2026-11-17): *"Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter"* / *"Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination…"*. CDC General Best Practices: *"vaccine doses administered ≤4 days before the minimum interval or age are considered valid"* |
+| D12 | 3 months (not named in B-1): asplenia, born 1/10/2026, Menveo 4/8/2026 (2 days before 3 months) and 8/10/2026: "Dose 3 of 4"; control dose 1 on 4/10: "Dose 3 of 3" | **Yes, grace helps** — the 3-month line joins 7 months and 2 years | CDC child & adolescent notes (read live 2026-11-17): *"Dose 1 at age 2 months: 4-dose series"* / *"Dose 1 at age 3–6 months: 3- or 4- dose series …"* |
+
+B-1, D11 and D12 built 2026-11-17 (`regression-2026-11-17-b1-grace-only-when-it-helps.test.js`).
+
+Still open (not asked this session): MenB of
 unknown product at 16+ (CDC 2024-0069); healthy MenB rescue dose 3 waiting for 6 months from
 dose 1 (CDC 2024-0034/0035); the 1-day calendar difference (2024-0040, shared with PneumoVax).
