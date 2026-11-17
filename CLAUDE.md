@@ -57,7 +57,8 @@ each other's branches): undated doses do not count (C1); MenB dose 3 (C5–C7); 
 routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Owner answers D1–D8
 (2026-11-17) built** (`docs/archive/decisions-2026-11-17-open-questions.md`): college 5-year cover
 (reverses M17), set-aside dose starts the clock, MenB 6-month grace lines, MenACWY too-young repeat
-8 weeks, military booster check, outbreak wording, MenB switch line. **Not built: B-1**
+8 weeks, military booster check, outbreak wording, MenB switch line. **D9 (no college repeat; no code) and D10
+(serogroup B outbreak: one MenB booster) answered 2026-11-17; D10 built.** **Not built: B-1**
 (4-day grace at age lines "only when it helps") — next, then Phase 4. Open owner questions are
 in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).

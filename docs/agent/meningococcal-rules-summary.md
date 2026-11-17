@@ -182,7 +182,9 @@ receive another.
   due (your D1 answer, 2026-11-17, replacing the 2026-09-15 "permanently"). ACIP's own
   college footnote: *"do not need another dose before college entry unless it has been
   more than 5 years since the dose"*; immunize.org agrees. The app counts the 5 years to
-  today's visit. An earlier dose (before 16) does not count for this requirement; a
+  today's visit, read as the college-entry visit (the box says *first-year*
+  student). There is **no repeat dose for staying in a residence hall** — no
+  source gives one (your D9 answer, 2026-11-17). An earlier dose (before 16) does not count for this requirement; a
   fresh dose is needed at ≥16.
 
 ### Single dose + ongoing booster
@@ -266,6 +268,12 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     also counts.
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
+  - **Serogroup B outbreak alone: one booster only** (your D10 answer,
+    2026-11-17), at least 1 year after the primary series; after it the card
+    reads "Complete (outbreak booster given)". ACIP 2020 Table 8: *"Single dose
+    if ≥1 yr after MenB primary series completion"*. The every-2–3-years
+    boosters are Tables 4, 5 and 7 (complement, asplenia, microbiologists). If
+    another of those risks is also ticked, its boosters win.
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
   alone — only the specific list above triggers high-risk MenB.
 

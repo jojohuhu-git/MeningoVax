@@ -1539,8 +1539,17 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
     // follow-up card and the validator agree by construction — the card used
     // to hand a finished patient "Dose 3 of 3".
     const hrSeries = menbSeriesInfo({ highRisk: true, doses });
+    // D10 (owner, 2026-11-17): a serogroup B outbreak with no other MenB risk
+    // gets ONE booster, at least 1 year after the primary series. ACIP 2020
+    // Table 8 (read live 2026-11-17): "Single dose if ≥1 yr after MenB primary
+    // series completion". The "every 2–3 years" boosters are Tables 4, 5 and 7
+    // (complement, asplenia, microbiologists) and stay theirs.
+    const outbreakOnly = outbreakIsTheOnlyBoosterReason('MenB', riskIds);
+    const seriesBoosterLine = (afterWhat) => (outbreakOnly
+      ? `Booster: 1 dose, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series, if outbreak risk continues`
+      : afterWhat);
     if (given === 0) {
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: `Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`, dueToday: true,
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
         family, brands: menbBrands(family),
         note: {
           lead: 'A 3-dose MenB series at 0, 1–2 and 6 months, for this high-risk indication [c].',
@@ -1555,7 +1564,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
     }
     if (given === 1) {
       const elapsed = intervalElapsed(lastDate, MENB_HIGHRISK_D2_GAP, today);
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: `Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`,
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, MENB_HIGHRISK_D2_GAP), minIntervalDays: MENB_HIGHRISK_D2_GAP,
         family, brands: menbBrands(family),
         note: {
@@ -1585,7 +1594,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
         if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
         else earliestNextDate = e1 ?? e2;
       }
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: `Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`,
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
@@ -1617,7 +1626,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
       return [rec({ vaccine: 'MenB', status: 'risk-based',
         doseLabel: `Dose 4 of 4 (extra dose: dose 3 given early${family ? `, ${family}` : ''})`,
         doseNum: 4, seriesTotal: MENB_HIGHRISK_RESCUE_TOTAL,
-        boosterSummary: 'Boosters: first 1 year after the fourth dose, then every 2–3 years while at risk',
+        boosterSummary: seriesBoosterLine('Boosters: first 1 year after the fourth dose, then every 2–3 years while at risk'),
         dueToday: elapsed,
         earliestNextDate: elapsed || !d3Date ? null : addCalendarMonths(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
         minIntervalDays: DAYS.months(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
@@ -1637,12 +1646,24 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
     // literal 3, so a patient whose dose 2 came six months on reaches their
     // first booster after two doses instead of being asked for a third.
     const firstBooster = given === hrSeries.total;
+    // D10: the outbreak's one booster has been given — nothing more is owed.
+    if (outbreakOnly && !firstBooster) {
+      return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (outbreak booster given)',
+        doseNum: given, seriesTotal: hrSeries.total, dueToday: false, earliestNextDate: null,
+        family, brands: [],
+        note: {
+          lead: 'A serogroup B outbreak calls for one MenB booster, at least 1 year after the primary series, and it has been given [c].',
+          detail: 'Repeat boosters every 2–3 years are for asplenia, complement deficiency, complement-inhibitor therapy and microbiologists, not for an outbreak.',
+        },
+        noteCites: [cite('acip2020Table8MenbOutbreakBooster')],
+        refs: refs(['mm7349a3']) })];
+    }
     const boosterYears = menbHighRiskBoosterYears(firstBooster);
     const intervalDays = DAYS.years(boosterYears);
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? `${yearsLabel(boosterYears)} after primary` : `every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL}`})`,
-      doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: `Boosters: every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at high risk (ongoing)`, dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: outbreakOnly ? 'Booster: 1 dose for this outbreak; no repeat boosters' : `Boosters: every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at high risk (ongoing)`, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       // U2: "then every 2-3 years while the high-risk condition persists" is
@@ -1651,7 +1672,9 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
         lead: `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.${menbPregnancyCaveat}`,
       },
-      noteCites: [cite('menbHighRiskBoosterCadenceBox')],
+      // D10: an outbreak's one booster cites Table 8, not the "every 2–3
+      // years" box, which would contradict the line above it.
+      noteCites: [cite(outbreakOnly ? 'acip2020Table8MenbOutbreakBooster' : 'menbHighRiskBoosterCadenceBox')],
       refs: refs(['mm7349a3']) })];
   }
 
