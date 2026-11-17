@@ -39,6 +39,48 @@ Note this also applies in `recommend.js` wherever it asks "does this recorded do
 (e.g. `hasDoseAt16`) — not only in the validator. Those two used to disagree, so the record
 panel counted a dose while the card went on asking for it.
 
+## Ruling D — A Repeat Is Timed From the Dose That Did Not Count (Port 3 family 1, 2026-11-16)
+
+Owner answers at STOP C (2026-11-15): **C2** (measure from the dose given), **C9** (an early
+booster: repeat 5/3 years — MenB 1/2 years — after IT), **C12** (healthy MenB dose 2 under 4
+weeks does not count), plus two follow-up answers the same day, **E1** and **E2** (below).
+Recorded in `docs/archive/stop-c-packet-2026-11-15.md`. Copied from PneumoVax's Ruling D
+(PneumoVax PR #83).
+
+CDC General Best Practices, Timing and Spacing (read live 2026-11-16):
+
+> "Doses of any vaccine administered ≥5 days earlier than the minimum interval or age should
+> not be counted as valid doses and should be repeated as age appropriate. The repeat dose
+> should be spaced after the invalid dose by the recommended minimum interval (Table 3-2)."
+
+The same paragraph's hepatitis B example times the repeat from "the 2nd valid dose"; that is a
+hepatitis-B exception (PneumoVax read the page the same way, 2026-10-23), not the general rule.
+
+**The split:** the CLOCK moves to the last dose GIVEN; dose numbers, series totals and which
+rule applies stay on the doses that COUNTED.
+- **Validator** (`validate.js` `runWalk` keeps `anchor`, the last dated dose given — counted, or
+  not counted for being too soon or too young; `doseRules.js` `prevGiven`/`prevDated` measure
+  every gap row from it). A dose given on time from the last counted dose but too soon after
+  the dose that did not count does **not** count.
+- **Card** (`recommend.js`): `menacwyRec`/`menbRec` take `clockDate` (`history.anchorDate`,
+  read, never recomputed). The healthy MenB 6-month line (2 doses or 3?) stays on the counted
+  dose 1 — it decides how many doses, not when.
+- **Never a clock:** a record problem (date in the future, before birth, entered twice — no
+  dose was given), an undated dose, a set-aside dose (valid but not advancing the series, e.g.
+  MenACWY before 10), a pending or extra dose.
+- **E1 — a too-young FIRST dose:** the repeat waits 4 weeks after it. A deliberate difference
+  from CDC's *"repeated on or after the date when the child reaches at least the minimum age"*
+  (`gbpTooYoungFirstDoseRepeat`); matches PneumoVax. Validator: `ACWY-ANY-TWO-DOSES-GAP` and
+  `MENB-REPEAT-GAP` read `prevGiven`.
+- **E2 — a wrong-family MenB dose:** it does not count and is NOT the schedule clock; the next
+  dose of the established family is due when it would be due from that family's doses, AND at
+  least 4 weeks after the wrong-family dose. ACIP 2020: *"a minimum interval of 4 weeks should
+  be used between any 2 doses"* (`acip2020MenbRepeat4Weeks`). Validator: `MENB-REPEAT-GAP`
+  (reads `lastUncounted`); card: `applyRepeatFloor` in `recommend.js`
+  (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_REPEAT_DOSE_FLOOR`).
+
+Test: `regression-2026-11-15-ruling-d-repeat-from-the-dose-given.test.js`.
+
 ## Source Priority
 
 **ACIP/CDC/AAP/immunize.org over FDA package inserts.** Sources are listed at the top of `recommend.js` and in `refs.js`. Never revert to FDA-labeled ages without explicit instruction.
@@ -54,7 +96,7 @@ panel counted a dose while the card went on asking for it.
   `routineBoosterDueDate` in `recommend.js`; also the college, military and outbreak cards
   that ask for this booster). Validator: a second counted dose at ≥16y less than 8 weeks −
   4 days after a D1 given before 16 does not count (`validate.js`, routine population only).
-  Its repeat is still measured from D1 until Ruling D is decided for MeningoVax. Test:
+  Its repeat is 8 weeks after the booster that did not count (Ruling D, above). Test:
   `regression-2026-11-15-n5-16y-booster-8-weeks.test.js`.
 - 17–21y with no dose on/after 16th birthday: catch-up D1 of 1 (no booster; especially for first-year college residence-hall students)
 - ≥22y healthy: not indicated
@@ -151,9 +193,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 ### Shared Decision (Healthy, 16–23y)
 - 2-dose primary at **0 and 6 months for BOTH brands** — ACIP Oct 2024 (`mm7349a3`)
   changed the MenB-4C interval and superseded the old brand-split table.
-- Dose 2 given <6 months after dose 1 is **valid, not invalid**: it counts, and a third
-  **rescue** dose is then due ≥4 months after dose 2 (`menbSeriesInfo()` flips the total
-  to 3). Compared on the calendar, not 183 days (P0-4).
+- Dose 2 given **under 4 weeks** after dose 1 (less the 4-day grace) does **not** count
+  (owner C12, 2026-11-15; ACIP 2020 `acip2020MenbRepeat4Weeks`; CDSI: 4 weeks less 4 days).
+  Row `MENB-HEALTHY-DOSE-2-GAP`. The repeat is timed from it (Ruling D).
+- Dose 2 given 4 weeks to <6 months after dose 1 is **valid, not invalid**: it counts, and a
+  third **rescue** dose is then due ≥4 months after dose 2 (`menbSeriesInfo()` flips the total
+  to 3). Compared on the calendar, not 183 days (P0-4). A rescue dose that itself came too
+  soon is repeated ≥4 months after IT (Ruling D).
 - A planned 3-dose accelerated series (0, 1–2, 6m) is allowed where rapid protection is
   needed (e.g. college entry <6 months away).
 - Age gate: 192m–276m (16th birthday through 23y11m); not below 192m. ACIP prefers 16–18y
@@ -195,6 +241,8 @@ Products within a family:
 - **MenB-FHbp**: Trumenba, Penbraya
 
 Once D1 brand is known, subsequent doses must stay in the same family. Family anchor = first KNOWN-brand dose.
+A wrong-family dose does not count; the next dose of the established family waits at least 4
+weeks after it (E2, Ruling D section above).
 
 ## Pentavalent (Penbraya/Penmenvy)
 

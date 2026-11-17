@@ -178,9 +178,12 @@ MenB vaccines (Bexsero, Trumenba, and the pentavalents Penmenvy/Penbraya) are
 - **2-dose schedule**, ≥6 months apart (standard). If faster protection is
   needed (e.g. starting college within 6 months), a 3-dose accelerated
   schedule (0, 1–2, 6 months) can be used instead.
-- **Dose 2 given early** (<6 months after dose 1) is **not invalid** — it's
-  accepted, but a third "rescue" dose is then required ≥4 months after dose 2
-  to complete the series.
+- **Dose 2 given under 4 weeks after dose 1** does **not** count (owner,
+  2026-11-15; ACIP: 4 weeks between any two MenB doses). It is repeated at
+  least 6 months after dose 1 (and at least 4 weeks after the uncounted dose).
+- **Dose 2 given early** (4 weeks to <6 months after dose 1) is **not
+  invalid** — it's accepted, but a third "rescue" dose is then required ≥4
+  months after dose 2 to complete the series.
 
 ### Doses given before age 16 (healthy patients) don't count
 Mirrors the MenACWY pre-age-10 rule above: a MenB dose given before 16 to a
@@ -307,9 +310,26 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   doses, and can't be used for age-at-dose rules (like "was this the ≥16y
   booster dose?").
 - **Given below the minimum age for the brand:** invalid — does not count.
-  Repeat that dose only; do not restart the whole series.
+  Repeat that dose only; do not restart the whole series. If it was the
+  **first** dose, the repeat waits at least 4 weeks after it (owner, 2026-11-15;
+  CDC would allow it as soon as the child reaches the minimum age — the app
+  follows PneumoVax here on purpose).
 - **Given too soon after the previous dose** (violates a minimum interval):
   invalid — does not count. Repeat that dose only.
+- **The repeat is timed from the dose that did not count** (owner, STOP C,
+  2026-11-15 — "Ruling D", the same rule as PneumoVax). CDC: *"The repeat dose
+  should be spaced after the invalid dose by the recommended minimum
+  interval."* Example: asplenia, Menveo 1 August, Menveo again 22 August (3
+  weeks — does not count). Dose 2 is now due 17 October (8 weeks after 22
+  August), not 26 September (8 weeks after 1 August). A dose given in between
+  — on time from 1 August but too soon after 22 August — does not count
+  either. The same goes for a booster given early: the repeat booster is due 5
+  years (or 3; MenB 1 or 2 years) after the early one, not today. Only the
+  timing moves: dose numbers ("Dose 2 of 2") still count only doses that
+  counted.
+- **A MenB dose of the wrong antigen family** does not count, and the next
+  dose of the right family waits at least 4 weeks after it (owner,
+  2026-11-15), as well as being due by the schedule.
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above) —
   different from "invalid," no repeat needed, it's just not counted.
@@ -342,9 +362,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   row alongside a dose dated at 16 years 6 months made the app recommend that
   same booster again. When no dose can be placed at 16 or older, the card says
   the date is missing rather than claiming there is no such dose.
-- Doses are re-evaluated in order against the doses already *kept* so far —
-  so if an early dose is dropped, a later dose isn't wrongly flagged as "too
-  soon" relative to the dropped one.
+- Doses are numbered in order against the doses already *kept* so far (an
+  early dose that does not count takes no number), but the gap to the next
+  dose is measured from the last dose actually given (the bullet on repeat
+  timing above). Before 2026-11-16 the gap was measured from the last kept
+  dose instead.
 
 ---
 

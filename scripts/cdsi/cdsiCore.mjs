@@ -100,10 +100,15 @@ const KNOWN = {
     ['2013-0497', '2013-0498', '2013-0500', '2013-0501'],
   'Healthy MenB rescue dose 3: the app gives "at least 4 months after dose 2"; CDSI\'s earliest date also waits for 6 months after dose 1 (but CDSI\'s absolute minimum from dose 1 is 0 days, so it would count a dose given on the app\'s date) — OPEN (packet 1 Q2)':
     ['2024-0034', '2024-0035'],
-  'MenB dose 2 under 4 weeks after dose 1 (beyond the 4-day grace): CDSI says it does not count and repeats it 6 months after dose 1; the app keeps it and asks for a rescue dose 4 months after it — OPEN (packet 1 Q2)':
-    ['2024-0036', '2025-0014'],
-  'A dose that does not count: CDSI spaces the repeat from THAT dose (8 weeks MenACWY, 4 months MenB); the app spaces from the last dose that counted — OPEN (packet 1 Q1, Ruling D)':
-    ['2013-0489', '2024-0081'],
+  // Closed 2026-11-16 by owner answer C12 (STOP C): a healthy MenB dose 2 under
+  // 4 weeks no longer counts, so 2024-0036 and 2025-0014 now agree with CDSI on
+  // the dose and the date (2027-01-13); only the label family above remains.
+  // Ruling D (owner, STOP C C2, 2026-11-15) moved the app's repeat to the dose
+  // that did not count. Two patients still differ, for other reasons:
+  'A MenACWY dose 5 days before 16: CDSI calls it too young and spaces the next dose 8 weeks after it; the app keeps it as a safe dose that does not count toward the routine series (set aside, not invalid), so Ruling D starts no clock from it and the booster is due on the 16th birthday, 5 days later — OPEN (question for the owner: does a set-aside dose start the clock?)':
+    ['2013-0489'],
+  'A wrong-family MenB dose (Bexsero, then Trumenba): both say it does not count and both time the next dose from it; CDSI\'s earliest is 4 months after it, the app\'s 4 weeks after it (and not before 6 months from dose 1) — DELIBERATE (owner E2, 2026-11-15; ACIP 2020: "a minimum interval of 4 weeks should be used between any 2 doses")':
+    ['2024-0081'],
   'MenB of unspecified product at 16+: CDSI says it cannot count (the product must be known) and repeats in 4 weeks; the app counts it as dose 1 — OPEN':
     ['2024-0069'],
   'High-risk MenB dose 3 under 6 months after dose 1 (but 4+ months after dose 2): the app does not count it and repeats it; CDSI counts it (its 6 months from dose 1 has an absolute minimum of 0 days) — OPEN (packet 1 Q2; the CDSI plan already lists it for item 2.3)':

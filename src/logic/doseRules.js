@@ -949,8 +949,8 @@ export const DOSE_RULES = [
     authorityToday: 'None for MenACWY (the 4-week repeat rule appears only in the MenB section of ACIP 2020)',
     sourcesSay: {
       verdict: 'differs',
-      refs: ['acip2020MenbRepeat4Weeks', 'acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1'],
-      note: 'ACIP\'s only "4 weeks between any 2 doses" sentence is in the MenB section, about repeating a dose. For MenACWY, ACIP and CDC state 8 weeks. The app voids any MenACWY dose under 4 weeks, and no source says so (finding R-4a). For STOP C Q2.',
+      refs: ['acip2020MenbRepeat4Weeks', 'acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'gbpTooYoungFirstDoseRepeat'],
+      note: 'ACIP\'s only "4 weeks between any 2 doses" sentence is in the MenB section, about repeating a dose. For MenACWY, ACIP and CDC state 8 weeks. The app voids any MenACWY dose under 4 weeks, and no source says so (finding R-4a; owner answer C11 makes it 8 weeks, Phase 3 family 4). Since Ruling D (E1, owner, 2026-11-15) this row also holds the repeat of a dose 1 given too young to 4 weeks after it; CDC instead repeats such a dose "on or after the date when the child reaches at least the minimum age" — a deliberate difference, matching PneumoVax.',
     },
     label: 'Invalid',
     // Catches two doses days apart (Task 3). The stricter rows above handle
@@ -1311,7 +1311,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 (acip2020MenbRepeat4Weeks, acip2020MenbMixedProductsSelectOne); owner STOP C C2 and E1/E2, 2026-11-15',
     sourcesSay: {
       verdict: 'stated',
-      refs: ['acip2020MenbRepeat4Weeks', 'acip2020MenbMixedProductsSelectOne', 'gbpRepeatSpacedFromInvalidDose'],
+      refs: ['acip2020MenbRepeat4Weeks', 'acip2020MenbMixedProductsSelectOne', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat'],
       note: 'ACIP states 4 weeks between any 2 doses when a MenB dose must be repeated, and that after a mixed-product series the other product\'s dose is invalid. The app voids a dose under 4 weeks after a dose that did not count. One owner-decided difference: CDC repeats a too-young FIRST dose "on or after the date when the child reaches at least the minimum age" (no wait for an inactivated vaccine); the owner chose 4 weeks after it (E1, 2026-11-15), matching PneumoVax.',
     },
     label: 'Invalid',

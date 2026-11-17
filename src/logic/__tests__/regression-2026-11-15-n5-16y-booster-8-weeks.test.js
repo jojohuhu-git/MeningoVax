@@ -17,10 +17,12 @@
 // 8/25/2026 -> "Booster (16y)", due today, 5 weeks after dose 1; and a booster
 // given that day counted, so the card read Complete.
 //
-// Where a not-counted booster's REPEAT is measured from (dose 1, or the dose
-// that did not count) is the separate Ruling D question, not decided for
-// MeningoVax yet. Until it is, the app measures from dose 1, and these tests
-// pin that.
+// Where a not-counted booster's REPEAT is measured from was the separate
+// Ruling D question. The owner decided it at STOP C (C2, 2026-11-15): from the
+// dose that did not count. CDC Timing and Spacing (read live 2026-11-15): "The
+// repeat dose should be spaced after the invalid dose by the recommended
+// minimum interval." So the repeat below is 8 weeks after the 8/25 booster
+// (10/20), no longer 8 weeks after dose 1 (9/14).
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
@@ -68,13 +70,13 @@ describe('N5: the card waits 8 weeks after dose 1', () => {
 describe('N5: a booster given sooner than 8 weeks does not count', () => {
   const booster = (date) => [{ date: '2026-07-20', brand: M }, { date, brand: M }];
 
-  it('a booster 5 weeks after dose 1 is not counted, and the card asks again from dose 1', () => {
+  it('a booster 5 weeks after dose 1 is not counted, and the card asks again 8 weeks after it (Ruling D)', () => {
     const r = run({ doses: booster('2026-08-25'), today: '2026-09-01' });
     const p = r.history.MenACWY.perDose[1];
     expect(p.status).toBe('invalid');
     expect(p.reasons[0]).toMatch(/at least 8 weeks after dose 1/);
     expect(r.menacwy[0].status).not.toBe('complete');
-    expect(r.menacwy[0].earliestNextDate).toBe('2026-09-14');
+    expect(r.menacwy[0].earliestNextDate).toBe('2026-10-20');
   });
 
   it('4-day grace: 52 days after dose 1 counts', () => {
