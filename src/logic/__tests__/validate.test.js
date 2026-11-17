@@ -32,18 +32,21 @@ const undatedDose = () => ({ detailsUnknown: true });
 
 
 // ── MenACWY tests ─────────────────────────────────────────────────────────
+// STOP C C1 (owner, 2026-11-15): a dose with no date does not count. It used
+// to be 'unknown' and counted; it is now a record problem ('undated').
 describe('MenACWY — no date', () => {
-  it('unknown result when dose has no date', () => {
+  it('not counted when dose has no date (C1)', () => {
     const results = validate('MenACWY', [undatedDose()], ADULT_AM);
     expect(results).toHaveLength(1);
-    expect(results[0].status).toBe('unknown');
+    expect(results[0].recordProblem).toBe('undated');
+    expect(results[0].doesNotCount).toBe(true);
     expect(results[0].reasons[0]).toMatch(/No date recorded/);
   });
 
-  it('unknown result includes counting note', () => {
+  it('two undated doses: neither counts (C1)', () => {
     const results = validate('MenACWY', [undatedDose(), undatedDose()], ADULT_AM);
-    expect(results[0].status).toBe('unknown');
-    expect(results[1].status).toBe('unknown');
+    expect(results[0].recordProblem).toBe('undated');
+    expect(results[1].recordProblem).toBe('undated');
   });
 });
 
@@ -292,10 +295,10 @@ describe('MenB — high-risk D3 interval checks', () => {
   });
 });
 
-describe('MenB — no date → unknown', () => {
-  it('dose with no date → unknown result', () => {
+describe('MenB — no date → not counted (C1)', () => {
+  it('dose with no date → not counted', () => {
     const results = validate('MenB', [undatedDose()], ADULT_AM);
-    expect(results[0].status).toBe('unknown');
+    expect(results[0].recordProblem).toBe('undated');
     expect(results[0].reasons[0]).toMatch(/No date recorded/);
   });
 });

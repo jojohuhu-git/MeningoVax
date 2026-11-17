@@ -353,16 +353,15 @@ describe('L2-4: the rule documents describe the same dose recorded twice', () =>
   });
 });
 
-describe('L2-4: the rule documents describe an undated dose past the series total', () => {
-  // G6 (2026-09-16). Behaviour read out of the code, then required of the prose.
-  it('the undated case is documented as a question, and the dated case as a statement', () => {
-    // G8 (2026-09-16): three undated rows, not two — a healthy 17-year-old's
-    // routine series is 2 doses while the 16-year booster is unproven, and an
-    // undated dose cannot prove it. The third row is the one past the total.
+describe('L2-4: the rule documents say an undated dose does not count', () => {
+  // STOP C C1 (owner, 2026-11-15). Replaces the G6 and G8 checks (the undated
+  // question past the total; the undated dose that could close a series),
+  // both retired with C1. Behaviour read out of the code, then required of the prose.
+  it('an undated dose is not counted, and a dated extra still states it plainly', () => {
     const row = () => ({ date: '', brand: '', detailsUnknown: true }); // K1: the clinician's "a dose was given, details unknown" tick
     const undated = analyzeHistory('MenACWY', [row(), row(), row()], 204, []);
-    expect(undated.perDose[2].extraDoseUnverified).toBe(true);
-    expect(undated.perDose[2].reasons.join(' ')).toMatch(/do you mean this was an extra dose given\?/i);
+    expect(undated.effective).toHaveLength(0);
+    expect(undated.perDose.every((p) => p.recordProblem === 'undated')).toBe(true);
 
     const dated = analyzeHistory('MenACWY', [
       { date: '2017-09-15', brand: 'Menveo' },
@@ -370,39 +369,17 @@ describe('L2-4: the rule documents describe an undated dose past the series tota
       { date: '2025-09-15', brand: 'Menveo' },
     ], 240, []);
     expect(dated.perDose[2].extraDose).toBe(true);
-    expect(dated.perDose[2].extraDoseUnverified).toBeUndefined();
 
-    for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
-      expect(doc, why(path, 'an UNDATED dose past the series total asks "Do you mean this was an extra dose given?" rather than asserting the series was complete — while a DATED extra still states it plainly.'))
-        .toMatch(/undated[^.]{0,400}(ask|question|do you mean)/i);
-    }
-  });
-});
-
-describe('L2-4: the rule documents describe what a missing date cannot do', () => {
-  // G8 (2026-09-16). Behaviour read out of the code, then required of the prose.
-  it('an undated dose neither closes the routine series nor displaces a dated dose', () => {
-    // 1. It cannot close the series: the 16-year booster stays owed.
-    const undatedOnly = menacwySeriesInfo({
-      riskClass: null, am: 204, doses: [{ date: '', brand: '', detailsUnknown: true }], today: TEST_TODAY,
-    });
-    expect(undatedOnly.total).toBe(2);
-    // A DATE proving a dose at >=16y still closes it at one dose.
-    const datedAt16 = menacwySeriesInfo({
-      riskClass: null, am: 204, doses: [{ date: '2026-03-15', brand: '' }], today: TEST_TODAY,
-    });
-    expect(datedAt16.total).toBe(1);
-
-    // 2. It cannot take the place of a dose that has a date.
+    // And a dated dose beside an undated one keeps its place.
     const mixed = analyzeHistory('MenACWY', [
-      { date: '', brand: '' },
+      { date: '', brand: '', detailsUnknown: true },
       { date: '2026-03-15', brand: '' },
     ], 204, [], TEST_TODAY);
-    expect(mixed.effective.some((d) => d.date === '2026-03-15')).toBe(true);
+    expect(mixed.effective.map((d) => d.date)).toEqual(['2026-03-15']);
 
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
-      expect(doc, why(path, 'a dose with no date cannot close a series (the 16-year MenACWY booster stays owed until a date proves it was given) and cannot take the place of a dose that has a date.'))
-        .toMatch(/undated[^.]{0,400}(close|displace|place of a dose|pushes out)/i);
+      expect(doc, why(path, 'a dose with no date is NOT counted (STOP C C1): only written, dated records count.'))
+        .toMatch(/no date[^.]{0,200}(not count|does \*{0,2}not\*{0,2} count)/i);
     }
   });
 });

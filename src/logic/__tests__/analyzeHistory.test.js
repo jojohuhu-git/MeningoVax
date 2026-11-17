@@ -264,42 +264,38 @@ describe('MenB high-risk: D3 given early', () => {
 });
 
 // ── NO-DATE DOSES COUNT BUT ARE NOT TIMING ANCHORS ───────────────────────
-describe('Dose with no date counts but is not a timing anchor', () => {
-  it('MenB high-risk: D1 no date, D2 with date → D2 counts as effective D2; interval not checked (no anchor)', () => {
+// STOP C C1 (owner, 2026-11-15): a dose with no date does NOT count (ACIP:
+// only written, dated records). Before C1 it counted but was never a timing
+// anchor; both tests below held that and were rewritten to C1.
+describe('Dose with no date does not count (C1)', () => {
+  it('MenB high-risk: D1 no date, D2 with date → D1 not counted, D2 is effective D1', () => {
     const d2 = weeksAgo(10);
     const { perDose, effective } = analyze(
       'MenB',
       [
-        { brand: 'Bexsero (MenB)' },         // no date → unknown, counts
-        { date: d2, brand: 'Bexsero (MenB)' }, // date present, evaluated as effective D2
+        { brand: 'Bexsero (MenB)' },           // no date → not counted
+        { date: d2, brand: 'Bexsero (MenB)' }, // the first counted dose
       ],
       360,
       ['asplenia']
     );
-
-    // D1: unknown (no date)
-    expect(perDose[0].status).toBe('unknown');
-    expect(perDose[0].effectiveDoseNum).toBe(1);
-
-    // D2: validated as effective dose 2; interval check looks for last DATED kept dose
-    // D1 has no date → no anchor → interval not checked → should be valid
+    expect(perDose[0].recordProblem).toBe('undated');
+    expect(perDose[0].effectiveDoseNum).toBeNull();
     expect(perDose[1].status).toBe('valid');
-    expect(perDose[1].effectiveDoseNum).toBe(2);
-
-    // Both counted
-    expect(effective).toHaveLength(2);
+    expect(perDose[1].effectiveDoseNum).toBe(1);
+    expect(effective).toHaveLength(1);
   });
 
-  it('MenACWY no date → series still counts, not flagged invalid', () => {
+  it('MenACWY no date → not counted, and not called invalid for timing', () => {
     const { perDose, effective } = analyze(
       'MenACWY',
       [{ brand: 'Menveo (MenACWY)' }], // no date
       360,
       []
     );
-    expect(perDose[0].status).toBe('unknown');
-    expect(perDose[0].effectiveDoseNum).toBe(1);
-    expect(effective).toHaveLength(1);
+    expect(perDose[0].recordProblem).toBe('undated');
+    expect(perDose[0].reasons.join(' ')).not.toMatch(/repeat this dose/i);
+    expect(effective).toHaveLength(0);
   });
 });
 

@@ -80,7 +80,7 @@ Engine brand strings are `'Menveo (MenACWY)'`, `'Bexsero (MenB)'`, `'Penmenvy (M
 
 **Counting policy:**
 - Invalid → dropped, does NOT count.
-- Unknown (no date) → COUNTS, not a timing anchor.
+- No date → NOT counted (STOP C C1, 2026-11-15): a record problem (`recordProblem: 'undated'`), shown, never a timing anchor.
 - Each dose validated against the last KEPT valid dose (not the literal previous one).
 - **Dateless dose with known brand, current age < brandMin** → INVALID (a past dose can't have been given later than today — current age is an upper bound).
 - **Unknown brand MenB, current age < 10y** → INVALID (≥10y is a vaccine-category floor, not a brand penalty).

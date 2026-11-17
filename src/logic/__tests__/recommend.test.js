@@ -126,19 +126,23 @@ describe('MenACWY single-dose indications', () => {
   });
 
   it('college dorm with a prior dose given before 16y → still due (booster at ≥16y)', () => {
-    const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ ageMonths: 132 }] });
+    // STOP C C1 (2026-11-15): a dose must carry a date to count, so the
+    // age-only fixture { ageMonths: 132 } became a dose dated at ~11 years.
+    const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2018-06-03', ageMonths: 132 }] });
     expect(acwy(r).status).toBe('exposure');
     expect(acwy(r).dueToday).toBe(true);
     expect(noteText(acwy(r))).toMatch(/before age 16/i);
   });
 
-  it('college dorm with a prior dose of unknown age → due, note flags unconfirmed', () => {
+  // STOP C C1 (owner, 2026-11-15): a dose with no date does not count, so the
+  // card is the one a student with no MenACWY dose gets. (Before C1 the card
+  // said the dose "cannot be confirmed" and led with immunize.org.)
+  it('college dorm with a prior dose of no date → due, the same card as no dose (C1)', () => {
     const r = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [{ brand: 'Menveo' }] });
+    const none = run({ ageMonths: 228, riskIds: ['college_dorm'], menacwyDoses: [] });
     expect(acwy(r).status).toBe('exposure');
-    expect(noteText(acwy(r))).toMatch(/cannot be confirmed/i);
-    // C5: "does this old dose count" is a messy practical judgment call --
-    // immunize.org's Ask the Experts leads the citation list here.
-    expect(acwy(r).citations[0].url).toMatch(/immunize\.org/);
+    expect(acwy(r).doseLabel).toBe(acwy(none).doseLabel);
+    expect(noteText(acwy(r))).toBe(noteText(acwy(none)));
   });
 
   // W4 (2026-07-24) added a 5-year expiry to the college-dorm rule, sourced
@@ -538,32 +542,26 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     expect(acwy(r).doseLabel).toMatch(/every 5 year/i);
   });
 
-  it('Case C: D2 age unknown — first booster conservative → minIntervalDays 1095', () => {
-    // Both doses have no date → age unknown → conservative 3-year first booster.
+  // Cases C and C2 held the booster cadence when the doses had no date ("D2
+  // age unknown"). STOP C C1 (owner, 2026-11-15): an undated dose does not
+  // count, so those patients now start the primary series — the cadence
+  // question cannot arise from an undated record any more.
+  it('Case C (C1): two doses with no date → the primary series starts at dose 1', () => {
     const r = run({
       ageMonths: 144, riskIds: ['asplenia'],
-      menacwyDoses: [
-        // K1 (2026-09-24): the clinician's "a dose was given, details unknown"
-        // tick — a row with nothing in it at all is no longer a dose.
-        { detailsUnknown: true }, // no date → unknown
-        { detailsUnknown: true }, // no date → unknown
-      ],
+      menacwyDoses: [{ detailsUnknown: true }, { detailsUnknown: true }],
     });
     expect(acwy(r).status).toBe('risk-based');
-    expect(acwy(r).doseNum).toBe(3);
-    expect(acwy(r).minIntervalDays).toBe(DAYS.years(3)); // 1095 conservative
+    expect(acwy(r).doseNum).toBe(1);
   });
 
-  it('Case C2: D2 age unknown — subsequent booster → ALWAYS minIntervalDays 1826', () => {
-    // Three doses (first booster already given, unknown dates).
-    // Subsequent booster must be 5 years regardless.
+  it('Case C2 (C1): three doses with no date → the primary series starts at dose 1', () => {
     const r = run({
       ageMonths: 240, riskIds: ['asplenia'],
-      menacwyDoses: [{ detailsUnknown: true }, { detailsUnknown: true }, { detailsUnknown: true }], // no dates → unknown
+      menacwyDoses: [{ detailsUnknown: true }, { detailsUnknown: true }, { detailsUnknown: true }],
     });
     expect(acwy(r).status).toBe('risk-based');
-    expect(acwy(r).doseNum).toBe(4);
-    expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
+    expect(acwy(r).doseNum).toBe(1);
   });
 });
 

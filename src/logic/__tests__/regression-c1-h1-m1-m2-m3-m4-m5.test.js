@@ -69,16 +69,20 @@ describe('C1: MenB high-risk D3 dual-interval gate', () => {
 describe('H1: Infant high-risk MenACWY series completion', () => {
   const RISKS = ['asplenia'];
 
-  // Test using ageMonths fields only (no dates) so the validator cannot compute
-  // intervals and treats them as 'unknown' (kept) — all 4 doses count.
+  // STOP C C1 (owner, 2026-11-15): a dose with no date no longer counts, so
+  // the age-only fixtures became dated doses at the same ages (born
+  // 2025-06-05; 13 months on 2026-07-05). All 4 doses still count.
   it('4 doses (by age only) at 2/4/6/12mo, now 13mo -> Booster label (not Dose N of primary series)', () => {
     // doseNum will be 5 (dose 5 = first booster), but doseLabel must say "Booster"
     // not "Dose 5 (infant high-risk series)" which was the pre-fix behavior.
-    const r = run({ ageMonths: 13, riskIds: RISKS,
+    const r = run({ ageMonths: 13, dob: '2025-06-05', riskIds: RISKS,
       menacwyDoses: [
-        { ageMonths: 2 }, { ageMonths: 4 },
-        { ageMonths: 6 }, { ageMonths: 12 },
-      ], menbDoses: [] });
+        { date: '2025-08-05' }, { date: '2025-10-05' },
+        { date: '2025-12-05' }, { date: '2026-06-05' },
+      ], menbDoses: [],
+      // A dated dose before 10 asks whether the patient was high-risk then;
+      // an undated one never did. Answered yes for every dose.
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes', 2: 'yes', 3: 'yes' } } });
     const a = acwy(r);
     // Core assertion: label must say "Booster", not "Dose N (infant high-risk series)"
     expect(a.doseLabel).toMatch(/[Bb]ooster/);
@@ -96,10 +100,12 @@ describe('H1: Infant high-risk MenACWY series completion', () => {
     // was already the first booster, so the next dose is a subsequent booster.
     // Either way the assertion below is the same one that matters: the label must
     // say "Booster", not "Dose 4 (infant high-risk series)".
-    const r = run({ ageMonths: 18, riskIds: RISKS,
+    // C1: dated at the same ages (born 2025-01-05; 18 months on 2026-07-05).
+    const r = run({ ageMonths: 18, dob: '2025-01-05', riskIds: RISKS,
       menacwyDoses: [
-        { ageMonths: 9 }, { ageMonths: 13 }, { ageMonths: 15 },
-      ], menbDoses: [] });
+        { date: '2025-10-05' }, { date: '2026-02-05' }, { date: '2026-04-05' },
+      ], menbDoses: [],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes', 2: 'yes' } } });
     const a = acwy(r);
     expect(a.doseLabel).toMatch(/[Bb]ooster/);
     // extinct: the pre-fix label "Dose N (infant high-risk series)"; the phrase lived on only in a validate.js comment until port 2.1 (2026-11-15).

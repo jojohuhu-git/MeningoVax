@@ -327,6 +327,20 @@ function setAsideResult(reasons, reasonCites) {
   return { status: 'valid', reasons, reasonCites, notAdolescentCount: true };
 }
 
+// STOP C C1 (owner, 2026-11-15): a dose with no date does not count. It is
+// kept on the record and shown, but the card schedules as if it were not
+// given (ACIP: "providers should only accept written, dated records as
+// evidence of vaccination"). Graded like a record problem: no dose is known
+// to have been given at a wrong time, so the walk's "repeat this dose only"
+// advice would be wrong, and with no date it can never start a clock.
+function undatedNotCounted() {
+  const r = recordProblemResult('undated', [
+    'No date recorded. Only written, dated records count as evidence of vaccination [c], so this dose is not counted and the recommendation above treats it as not given. If a record shows the date, add it and the dose will be judged on that date.',
+  ]);
+  r.reasonCites = [cite('gbpWrittenDatedRecords')];
+  return r;
+}
+
 const brandLabelOf = (brand, fallback) => (brand
   ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
   : fallback);
@@ -583,29 +597,23 @@ export const DOSE_RULES = [
     },
   },
   {
-    id: 'ACWY-UNDATED-COUNTS',
+    id: 'ACWY-UNDATED-NOT-COUNTED',
     inventory: 'A10',
     what: 'MenACWY with no date, nothing else wrong',
     vaccine: 'MenACWY',
     dated: false,
     schedule: 'any',
-    measuredFrom: 'today',
-    enforcement: 'counts',
+    measuredFrom: 'the record',
+    enforcement: 'record-problem',
     grace: null,
-    authorityToday: 'ACIP (any brand may be used when the brand is unknown)',
+    authorityToday: 'ACIP General Best Practice (only written, dated records count); owner, STOP C C1',
     sourcesSay: {
-      verdict: 'differs',
+      verdict: 'stated',
       refs: ['gbpWrittenDatedRecords', 'gbpRecordsNotFoundSusceptible'],
-      note: 'ACIP\'s general guidance (read live 2026-11-15) accepts only written, dated records, except influenza and PPSV23; a dose that cannot be documented is treated as not given. The app counts an undated MenACWY dose (never as a timing anchor). STOP C Q2.',
+      note: 'ACIP\'s general guidance (read live 2026-11-16) accepts only written, dated records, except influenza and PPSV23. Owner, STOP C C1 (2026-11-15): an undated dose does not count, and the card schedules as if it were not given.',
     },
-    label: 'Unknown',
-    // Counts, but is never a timing anchor for a later dose.
-    check: ({ brand }) => {
-      const floorForMsg = brandMinAge(brand) ?? MIN_AGE_MENACWY_PERMISSIVE;
-      return unknownResult([
-        `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(floorForMsg)} to be valid).`
-      ]);
-    },
+    label: 'No date recorded — not counted',
+    check: () => undatedNotCounted(),
   },
 
   // ── MenACWY, a dated dose ──────────────────────────────────────────────
@@ -1055,28 +1063,23 @@ export const DOSE_RULES = [
     },
   },
   {
-    id: 'MENB-UNDATED-COUNTS',
+    id: 'MENB-UNDATED-NOT-COUNTED',
     inventory: 'B1–B2 (else)',
     what: 'MenB with no date, nothing else wrong',
     vaccine: 'MenB',
     dated: false,
     schedule: 'any',
-    measuredFrom: 'today',
-    enforcement: 'counts',
+    measuredFrom: 'the record',
+    enforcement: 'record-problem',
     grace: null,
-    authorityToday: 'This app (an undated dose counts but is never a timing anchor)',
+    authorityToday: 'ACIP General Best Practice (only written, dated records count); owner, STOP C C1',
     sourcesSay: {
-      verdict: 'differs',
+      verdict: 'stated',
       refs: ['gbpWrittenDatedRecords', 'gbpRecordsNotFoundSusceptible'],
-      note: 'ACIP\'s general guidance (read live 2026-11-15) accepts only written, dated records, except influenza and PPSV23; a dose that cannot be documented is treated as not given. The app counts an undated MenB dose (never as a timing anchor). STOP C Q2.',
+      note: 'ACIP\'s general guidance (read live 2026-11-16) accepts only written, dated records, except influenza and PPSV23. Owner, STOP C C1 (2026-11-15): an undated dose does not count, and the card schedules as if it were not given.',
     },
-    label: 'Unknown',
-    check: ({ brand }) => {
-      const minAgeM = brandMinAgeM(brand) ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
-      return unknownResult([
-        `No date recorded: cannot verify age at administration or interval from prior dose. Dose is counted in the series (must have been given at ≥${fmtMinAge(minAgeM)} to be valid).`
-      ]);
-    },
+    label: 'No date recorded — not counted',
+    check: () => undatedNotCounted(),
   },
 
   // ── MenB, a dated dose ─────────────────────────────────────────────────
@@ -1245,30 +1248,6 @@ export const DOSE_RULES = [
         ],
         `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${ctx.brand} (family: ${thisFamily}). Does not count: give the correct dose in the ${d1Family} family.`
       ));
-    },
-  },
-  {
-    id: 'MENB-HIGHRISK-DOSE-2-UNVERIFIABLE',
-    inventory: 'B8',
-    what: 'High-risk MenB dose 2 when dose 1 has no date',
-    vaccine: 'MenB',
-    dated: true,
-    schedule: 'high-risk',
-    measuredFrom: 'dose 1',
-    enforcement: 'counts-with-note',
-    grace: null,
-    authorityToday: 'This app',
-    sourcesSay: {
-      verdict: 'no-source',
-      refs: [],
-      note: 'No source says how to judge dose 2 when dose 1 has no date. The app counts it with a note that the gap cannot be checked. For STOP C Q4.',
-    },
-    label: 'Dose N of M',
-    // Decides the dose outright: a carried "high risk confirmed" note is not
-    // shown here (as before this table).
-    check: (ctx) => {
-      if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || prevDated(ctx)) return null;
-      return validResult(['Interval from D1 cannot be verified (D1 has no date).']);
     },
   },
   {

@@ -4,7 +4,8 @@
 code. Written for the owner (a clinician), not for an engineer. This is the
 **source of truth**.
 
-**Last verified against code:** 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
+**Last verified against code:** 2026-11-16 (an undated dose does not count, STOP C C1);
+before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
 the 2026-09-15 dose-counter and primary/booster-boundary fixes (M5, M9, M10, M12,
 M16-M18, P0-1 to P0-5, P1-1 to P1-3).
@@ -305,10 +306,13 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
 
 ## 4. Dose-counting mechanics (applies to both vaccines)
 
-- **No date recorded:** the dose still counts toward the series (assuming it
-  was given at a valid age), but it can't anchor interval math for later
-  doses, and can't be used for age-at-dose rules (like "was this the ≥16y
-  booster dose?").
+- **No date recorded: not counted** (owner, STOP C C1, 2026-11-15). CDC:
+  *"providers should only accept written, dated records as evidence of
+  vaccination"* (influenza and PPSV23 are the only exceptions). The dose stays
+  on the record and its row reads "No date recorded — not counted"; the card
+  schedules as if it had not been given. Adding the date lets the app judge it.
+  The app does not say to repeat it — nothing shows it was given at a wrong
+  time — and with no date it never starts a clock for the next dose.
 - **Given below the minimum age for the brand:** invalid — does not count.
   Repeat that dose only; do not restart the whole series. If it was the
   **first** dose, the repeat waits at least 4 weeks after it (owner, 2026-11-15;
@@ -345,23 +349,10 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   a dose the patient has had. Two doses of the same vaccine are never given on
   the same day. If the row it would duplicate was itself dropped, this rule does
   not apply — nothing counted on that date.
-- **An UNDATED dose past the series total: the app asks, it does not assert.**
-  With no date the dose cannot be placed in time, so the app cannot tell a
-  genuine extra dose from an ordinary series dose whose date is missing — and
-  old paper records often carry several undated doses. The row reads "Extra
-  dose? — no date recorded" and asks "Do you mean this was an extra dose
-  given?" A *dated* dose that genuinely exceeds the total keeps the plain
-  statement ("Extra dose — beyond the indicated series total"), because there
-  the app does know. Either way the dose is not counted, and the recommendation
-  is the same with or without that row.
-- **An undated dose never closes a series, and never pushes out a dated dose.**
-  A blank date proves nothing, so it cannot be the ≥16-year dose that finishes
-  the routine MenACWY series — the booster stays owed until a date shows it was
-  given. And if counting the undated row would push a dose that *has* a date out
-  of the series, the dated dose keeps its place instead. Before this, one blank
-  row alongside a dose dated at 16 years 6 months made the app recommend that
-  same booster again. When no dose can be placed at 16 or older, the card says
-  the date is missing rather than claiming there is no such dose.
+- **An undated dose never closes a series, never pushes out a dated dose, and
+  is never called an extra dose** — because it is never counted. (Before C1 the
+  app counted it and needed two special rules, G6 and G8, to stop it closing the
+  routine series or taking a dated dose's place; both were retired with C1.)
 - Doses are numbered in order against the doses already *kept* so far (an
   early dose that does not count takes no number), but the gap to the next
   dose is measured from the last dose actually given (the bullet on repeat

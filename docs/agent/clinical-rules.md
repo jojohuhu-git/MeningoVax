@@ -1,7 +1,8 @@
 # MeningoVax — Clinical Rules Reference
 
-**Last verified against code:** 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
-before that 2026-09-17 (P0-1, MenACWY infant primary intervals).
+**Last verified against code:** 2026-11-16 (port Phase 3 family 2: an undated dose does not
+count, STOP C C1); before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5) and
+2026-09-17 (P0-1, MenACWY infant primary intervals).
 
 The load-bearing numbers here are asserted against the code by
 `src/logic/__tests__/rule-docs-match-code.test.js`. Change a rule without changing this
@@ -66,7 +67,7 @@ rule applies stay on the doses that COUNTED.
   read, never recomputed). The healthy MenB 6-month line (2 doses or 3?) stays on the counted
   dose 1 — it decides how many doses, not when.
 - **Never a clock:** a record problem (date in the future, before birth, entered twice — no
-  dose was given), an undated dose, a set-aside dose (valid but not advancing the series, e.g.
+  dose was given), an undated dose (which since C1 does not count either), a set-aside dose (valid but not advancing the series, e.g.
   MenACWY before 10), a pending or extra dose.
 - **E1 — a too-young FIRST dose:** the repeat waits 4 weeks after it. A deliberate difference
   from CDC's *"repeated on or after the date when the child reaches at least the minimum age"*
@@ -314,7 +315,8 @@ answer on screen changed the moment "+ Add dose" was clicked.
 The clinician now says which one they mean. An otherwise-empty row shows a tick,
 "A dose was given, but the date and brand are unknown", which sets
 `detailsUnknown: true` on the row. With the tick the row is a dose of unknown
-date and every rule below applies to it unchanged. Without it the row is one
+date — since STOP C C1 shown but not counted (see "A Dose With No Date Does Not
+Count"). Without it the row is one
 nobody filled in, and:
 
 - `isBlankDoseRow()` (`doseIdentity.js`) calls it blank — meaning it carries no
@@ -329,51 +331,32 @@ nobody filled in, and:
   while the clinician is still in the list: every new row starts blank and
   would vanish as it appeared.
 
-## History Entry — An Undated Dose Past the Series Total
+## A Dose With No Date Does Not Count (STOP C C1, 2026-11-15)
 
-G6 (2026-09-16, owner decision "ask, don't assert"). In the series-total cap in
-`validate.js`, a row flagged `isExtra` that has **no date** carries
-`extraDoseUnverified: true` and replacement wording that asks the question
-("Do you mean this was an extra dose given?") instead of asserting the series
-was already complete; `RecCard` maps that flag to the chip "Extra dose? — no
-date recorded". A DATED extra keeps `extraDose` alone and the assertive chip.
-The reasons are replaced rather than appended for the undated case, because the
-base undated sentence ends "Dose is counted in the series" and would contradict
-the line below it. No answer is stored: an extra dose is excluded from `kept`,
-so the engine never sees the row and the recommendation is identical either way.
+Owner answer C1: an undated dose does **not** count. CDC General Best Practices, Timing and
+Spacing (read live 2026-11-16): *"With the exception of influenza vaccine and PPSV23,
+providers should only accept written, dated records as evidence of vaccination"*, and *"If
+records cannot be located within a reasonable time, these persons should be considered
+susceptible and started on the age-appropriate vaccination schedule."*
 
-## History Entry — An Undated Dose Cannot Close the Routine Series
-
-G8 (2026-09-16). Two rules, both saying that a blank date is the weakest thing
-in the record:
-
-1. **It cannot close the series.** In `seriesTotals.js`, the routine MenACWY
-   total asks whether the 16-year booster is still owed, and an undated dose
-   cannot prove it was given: `boosterStillOwed` is true when a dose's age is
-   `null` (no date) *or* below 16 years. It used to ask only "is any dose
-   before 16?", so an undated dose closed the series at 1 dose while
-   `recommend.js` — asking the opposite question, "is any dose provably at
-   ≥16y?" — went on offering the booster on the same card.
-2. **It cannot take the place of a dose that has a date.** Undated rows sort
-   first, so under a series cap they filled the slots and a DATED dose was the
-   one dropped as "extra" — the app then re-offered a booster the record
-   showed the patient had. `analyzeHistory()` re-walks with the dated doses
-   first if the first pass dropped a dated dose while an undated row was kept.
-   Each walk stays internally consistent; the finished pass is never edited.
-
-When no dose on record can be placed at ≥16y and at least one has no date, the
-card says so ("…recorded doses have no date, so a dose given at age 16 years or
-older cannot be confirmed from this record. Adding the date may remove this
-recommendation.") and the 19–21y catch-up label reads "≥16y dose not confirmed"
-rather than "no dose at ≥16y", which the record cannot support.
-
-## History Entry — Doses Without Dates
-
-Dose counting works by array length without dates. Dates are only used for:
-1. Interval timing (`dueToday` / `earliestNextDate`)
-2. `ageAtDose` rules (e.g. "MenACWY dose at ≥16y completes the college/adolescent schedule")
-
-When a date is missing, `ageAtDose` returns null and age-at-dose rules conservatively do not fire (engine recommends rather than assuming coverage). The college-dorm branch explicitly explains this in its note.
+- **Validator** (`doseRules.js` rows `ACWY-UNDATED-NOT-COUNTED`, `MENB-UNDATED-NOT-COUNTED`,
+  replacing the old `…-UNDATED-COUNTS`): the dose is kept on the record and shown, graded as a
+  record problem (`recordProblem: 'undated'`), so it is not counted, gets no "repeat this dose
+  only" advice (no dose is known to have been given at a wrong time) and never starts a clock.
+  The rows above them still decide first where they say more (a brand licensed above the
+  patient's age today; a healthy MenB dose that must have been given before 16).
+- **Chip** (`doseChipLabel.js`): "No date recorded — not counted". **Dose editor**: a row with
+  a brand or the "details unknown" tick but no date says the same under the row.
+- **Card** (`recommend.js`): schedules as if the dose had not been given — it only ever sees
+  counted doses. The card's old "recorded doses have no date … cannot be confirmed" caveat and
+  the "≥16y dose not confirmed" catch-up label were removed, as was the high-risk MenB row
+  `MENB-HIGHRISK-DOSE-2-UNVERIFIABLE` (C17: dose 1 with no date is no longer dose 1).
+- **Retired with it:** the G6 question for an undated dose past the series total ("Extra
+  dose? — no date recorded") and the G8 re-walk (an undated row taking a dated dose's place).
+  An undated row is never counted, so it can neither close a series nor push out a dated dose,
+  and it is never asserted to be an extra dose.
+- **PneumoVax** still counts an undated PCV dose; the owner asked for the same question there
+  (C1 follow-up). Not changed by this repo.
 
 ## Complement — Single Merged Risk Factor
 

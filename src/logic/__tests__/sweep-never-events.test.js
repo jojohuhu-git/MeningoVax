@@ -98,6 +98,17 @@ const p4 = []; // status outside the known set
 const p5 = []; // recommend() threw
 const p6 = []; // HEURISTIC ONLY — see the block below
 const p7 = []; // (existing, F4) a dose chip implies N > M
+const p8 = []; // STOP C C1: a dose with no date moved the recommendation
+let p8Rows = 0;
+
+// Property 8 (STOP C C1, owner 2026-11-15): a dose with no date does not
+// count, so adding one — to either vaccine, at the start of the record where
+// undated rows sort — must leave every card exactly as it was. Compared on
+// what a clinician acts on: status, the dose asked for, today or the date.
+const cardFacts = (r) => [...r.menacwy, ...r.menb].map((c) => [
+  c.vaccine, c.status, c.doseLabel, c.doseNum ?? null, !!c.dueToday, c.earliestNextDate ?? null,
+].join('|')).join(' / ');
+const UNDATED_ROW = { date: '', brand: '', detailsUnknown: true };
 
 // Properties 1-5 check whether the RECOMMENDATION stays sane — nothing here
 // depends on the recorded history being valid, so this same check runs once
@@ -222,6 +233,23 @@ for (const [dobs, profiles] of GRID_BATCHES) {
           }
         }
 
+        // ── Property 8 (STOP C C1): an undated dose changes no card ──────────
+        // Single-risk batch only (the pairs add runtime, not new shapes: the
+        // rule is the same row for every risk profile).
+        if (profiles === SINGLE_RISK_PROFILES) {
+          const base = recommend({ today: TODAY, ageMonths: am, dob, riskIds, menacwyDoses, menbDoses });
+          for (const [which, withRow] of [
+            ['MenACWY', { menacwyDoses: [UNDATED_ROW, ...menacwyDoses], menbDoses }],
+            ['MenB', { menacwyDoses, menbDoses: [UNDATED_ROW, ...menbDoses] }],
+          ]) {
+            const moved = recommend({ today: TODAY, ageMonths: am, dob, riskIds, ...withRow });
+            p8Rows += 1;
+            if (cardFacts(moved) !== cardFacts(base)) {
+              p8.push(`${where} +undated ${which}: ${cardFacts(base)}  →  ${cardFacts(moved)}`);
+            }
+          }
+        }
+
         // ── Property 7 (existing, F4): no chip implies N > M ────────────────
         // Already a real, enforced assertion in sweep-dose-counter.test.js on
         // this same (generous) grid; reported here too so all seven properties
@@ -298,6 +326,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
   it('property 6 (HEURISTIC) — a completed series should not still read as due today', () => {
     report('Property 6 (heuristic: repeat of an already-counted dose)', p6);
     expect(rows.total).toBeGreaterThan(0);
+  });
+
+  it('property 8 (STOP C C1) — adding a dose with no date changes no card', () => {
+    report('Property 8 (undated dose moved a card)', p8);
+    expect(p8Rows).toBeGreaterThan(1000);
+    expect(p8).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {
