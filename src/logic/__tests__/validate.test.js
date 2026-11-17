@@ -108,15 +108,18 @@ describe('MenACWY — high-risk adult D2 interval check', () => {
     expect(results[1].status).toBe('valid');
   });
 
-  it('No interval check for non-high-risk D2', () => {
+  // STOP C C11 (owner, 2026-11-15): this held "no interval check for a
+  // non-high-risk dose 2" (4 weeks was valid). Now 8 weeks separate any two
+  // MenACWY doses, for everyone.
+  it('Non-high-risk D2 4 weeks after D1 → invalid (C11: 8 weeks between any two doses)', () => {
     const d1 = weeksAgo(20);
-    const d2 = weeksAgo(16); // 4 weeks — short, but no risk factor
+    const d2 = weeksAgo(16); // 4 weeks
     const results = validate('MenACWY', [
       { date: d1 },
       { date: d2 },
     ], ADULT_AM, []);
-    // Should be valid — only high-risk patients have the D2 interval check
-    expect(results[1].status).toBe('valid');
+    expect(results[1].status).toBe('invalid');
+    expect(results[1].reasons[0]).toMatch(/8 weeks/);
   });
 });
 
@@ -252,14 +255,17 @@ describe('MenB — high-risk D3 interval checks', () => {
   // dose-1 floor at all. Dates are written out rather than computed from
   // monthsAgo()'s 30.4375-day months so the D2→D3 gap is a real four calendar
   // months and only the D1 floor is under test. (This file's TODAY is 2026-06-03.)
-  it('D3 < 6 months after D1, but ≥4 months after D2 (high-risk) → invalid', () => {
+  // STOP C C5 (owner, 2026-11-15): this used to assert 'invalid'. A dose 3
+  // already given ≥4 months after dose 2 now COUNTS, whatever the gap from
+  // dose 1 (no source voids it). The forecast keeps both lines.
+  it('D3 < 6 months after D1, but ≥4 months after D2 (high-risk) → valid (C5)', () => {
     const results = validate('MenB', [
       { date: '2025-11-15', brand: 'Bexsero (MenB)' },
       { date: '2025-12-13', brand: 'Bexsero (MenB)' },  // 4 weeks on: a valid D2
       { date: '2026-04-13', brand: 'Bexsero (MenB)' },  // 4 months after D2, under 6 after D1
     ], HR_AM, ['asplenia']);
-    expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons.some(r => /6 months.*D1/i.test(r))).toBe(true);
+    expect(results[2].status).toBe('valid');
+    expect(results[2].effectiveDoseNum).toBe(3);
   });
 
   // MenB dose-3 rescue (2026-09-17): this case USED to assert 'invalid'. CDC
@@ -268,10 +274,14 @@ describe('MenB — high-risk D3 interval checks', () => {
   // (CDC child & adolescent schedule notes, MenB special situations, fetched
   // live 2026-09-17). The dose counts; the series grows. Full coverage lives in
   // regression-menb-hr-early-dose3-counts.test.js.
-  it('D3 < 4 months after D2 (high-risk) → valid, and a 4th dose is owed', () => {
-    const d1 = monthsAgo(9);
+  // STOP C C6 (owner, 2026-11-15): the fixture's dose 3 was ≥6 months after
+  // dose 1, which the MMWR's "unless" now exempts from the 4th dose. Dose 1
+  // moved to 7 months ago so dose 3 is under 6 months from it; what is under
+  // test (an early dose 3 counts and owes a 4th) is unchanged.
+  it('D3 < 4 months after D2 and < 6 months after D1 (high-risk) → valid, and a 4th dose is owed', () => {
+    const d1 = monthsAgo(7);
     const d2 = monthsAgo(5);
-    const d3 = monthsAgo(3); // 2 months after d2; but ≥6 months after d1
+    const d3 = monthsAgo(3); // 2 months after d2, 4 months after d1
     const results = validate('MenB', [
       { date: d1, brand: 'Trumenba (MenB)' },
       { date: d2, brand: 'Trumenba (MenB)' },

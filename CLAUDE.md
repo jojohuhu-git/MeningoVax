@@ -77,10 +77,16 @@ Engine brand strings carry an antigen suffix (`'Menveo (MenACWY)'`, `'Bexsero (M
 ### Booster Cadence — Keep recommend.js and doseRules.js in Sync
 MenACWY high-risk booster timing is keyed off the age at the LAST primary dose (Dose 2 in a 2-dose series) in BOTH files (`intervals.js` primary-completion age; `ACWY-HIGHRISK-BOOSTER-GAP` row). Changing one without the other will produce inconsistent results (the engine predicts one interval; the validator flags a different one as too soon).
 
-### MenB D3 — Both Floors Required, but an early D3 is never discarded
-D3 is due after BOTH ≥6 months from D1 AND ≥4 months from D2. `earliestNextDate` = the later of the two. Enforced in both `recommend.js` and `doseRules.js`.
+### MenB D3 — Both Floors for the Forecast; a Given D3 Is Judged From Dose 2
+The forecast advises D3 after BOTH ≥6 months from D1 AND ≥4 months from D2 (`earliestNextDate` =
+the later of the two), in `recommend.js`. A D3 ALREADY GIVEN ≥4 months after D2 counts, whatever
+the gap from D1 (owner STOP C C5, 2026-11-15).
 
-A D3 that was ALREADY GIVEN earlier than 4 months after D2 still counts: CDC adds a 4th dose ≥4 months later instead of repeating it. Series length comes from `menbSeriesInfo()` — never hand-type 3.
+A D3 given earlier than 4 months after D2 still counts, and a 4th dose is owed ≥4 months later —
+UNLESS D3 was ≥6 months after D1 (ACIP mm7349a3's "unless", owner C6). The 4-month line takes the
+4-day grace (owner C7), as does the healthy MenB 6-month rescue line. Both decisions live in ONE
+function each in `seriesTotals.js` (`menbHighRiskDose3Early`, `menbHealthyDose2Early`); never
+re-derive them. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 
 ### Pentavalent — Dedicated Card Only
 Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standalone MenB brand list. Eligible only when both MenACWY AND MenB are due today AND age ≥10y.

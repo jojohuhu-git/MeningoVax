@@ -68,7 +68,7 @@ const EMPTY_HISTORY = Object.freeze({
 });
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut,
-  MENB_HIGHRISK_RESCUE_TOTAL,
+  menbHealthyDose2Early, MENB_HIGHRISK_RESCUE_TOTAL,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
@@ -89,7 +89,7 @@ import {
   MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
-  MENACWY_REPEAT_DOSE_FLOOR, MENB_REPEAT_MIN_INTERVAL,
+  MENACWY_REPEAT_DOSE_FLOOR, MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
 } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
 
@@ -1678,8 +1678,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
       // 2-dose series was told it needed a third injection, decided by nothing
       // but which month the patient started in. Must stay in step with
       // seriesTotals.js's menbSeriesInfo(), which makes the same test.
-      const needsRescue = dose1date != null && dose2date != null
-        && !calendarIntervalElapsed(dose1date, MENB_HEALTHY_D2_MONTHS, dose2date);
+      // STOP C C7: the one shared test (seriesTotals.js), 4-day grace included.
+      const needsRescue = menbHealthyDose2Early(dose1date, dose2date);
       if (needsRescue) {
         // Ruling D: from the last dose given — dose 2, or a rescue dose that
         // itself came too soon (validate.js MENB-HEALTHY-RESCUE-DOSE-3-GAP).
@@ -1879,7 +1879,8 @@ function routineBoosterDueDate(dob, am, today, lastDate) {
 //     doses").
 // Every other repeat is already timed from the failed dose by the card's own
 // clock (`clockDate`), so for those this floor is never the later date. The
-// validator's twins: ACWY-ANY-TWO-DOSES-GAP and MENB-REPEAT-GAP.
+// validator's twins: ACWY-ANY-TWO-DOSES-GAP and MENB-REPEAT-GAP. MenACWY's
+// floor is 8 weeks since owner answer C11 (4 weeks only for E1).
 function applyRepeatFloor(recs, uncountedDate, minDays, today) {
   if (!uncountedDate) return recs;
   const floor = addDays(uncountedDate, minDays);
@@ -1958,9 +1959,14 @@ export function recommend(input) {
 
   // Ruling D: each card is timed from the validator's anchor, then held to
   // the 4-week floor after any dose that did not count (owner E1/E2).
+  // MenACWY: 8 weeks between any two doses (owner C11), except E1's 4 weeks
+  // after a too-young first dose (no dose counted yet) — the same split as
+  // doseRules.js ACWY-ANY-TWO-DOSES-GAP.
   const menacwy = applyRepeatFloor(
     menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
-    menacwyHistory.uncountedDate, MENACWY_REPEAT_DOSE_FLOOR, today,
+    menacwyHistory.uncountedDate,
+    effectiveMenacwyDoses.length === 0 ? MENACWY_REPEAT_DOSE_FLOOR : MENACWY_ANY_TWO_DOSES_MIN_GAP,
+    today,
   );
   const menb = applyRepeatFloor(
     menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate),

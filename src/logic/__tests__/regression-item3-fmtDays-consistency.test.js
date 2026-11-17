@@ -42,7 +42,8 @@ describe('Item 3 — raw day counts routed through fmtDays()', () => {
     expect(results[1].detail).toMatch(/~8 weeks/);
   });
 
-  it('MenACWY baseline ≥4wk (healthy teen, 10 days apart): no "(28 days)" duplicate, detail uses fmtDays for the 28-day minimum', () => {
+  // STOP C C11 (2026-11-15): the baseline is 8 weeks (56 days) now, not 28 days.
+  it('MenACWY baseline ≥8wk (healthy teen, 10 days apart): no "(56 days)" duplicate, detail uses fmtDays for the 56-day minimum', () => {
     const d1 = daysAgo(30);
     const d2 = daysAgo(20); // 10 days after D1
     const results = validate('MenACWY', [
@@ -53,7 +54,7 @@ describe('Item 3 — raw day counts routed through fmtDays()', () => {
     expect(results[1].status).toBe('invalid');
     expect(results[1].reasons.join(' ')).not.toMatch(RAW_DAYS_DUPLICATE);
     expect(results[1].detail).not.toMatch(RAW_DAYS_LITERAL_28_OR_MORE);
-    expect(results[1].detail).toMatch(/~4 weeks/);
+    expect(results[1].detail).toMatch(/~8 weeks/);
   });
 
   it('MenB high-risk D2 too soon (10 days after D1): no "(28 days)" duplicate, detail uses fmtDays', () => {

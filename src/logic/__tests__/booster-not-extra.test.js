@@ -59,9 +59,12 @@ describe('boosters are never mislabeled "extra"', () => {
     const am = 50 * 12;
     const riskIds = ['travel'];
     const doses = [
-      { date: yearsAgo(15), brand: 'Menveo (MenACWY)' },
-      { date: yearsAgo(10), brand: 'Menveo (MenACWY)' },
-      { date: yearsAgo(5), brand: 'Menveo (MenACWY)' },
+      // C10 (2026-11-15): travel boosters are now checked (≥5 years). The
+      // last one was 4.5 years after the one before it, so the fixture moved
+      // half a year back to keep every gap a real five years.
+      { date: yearsAgo(15.5), brand: 'Menveo (MenACWY)' },
+      { date: yearsAgo(10.5), brand: 'Menveo (MenACWY)' },
+      { date: yearsAgo(5.5), brand: 'Menveo (MenACWY)' },
       { date: yearsAgo(0.5), brand: 'Menveo (MenACWY)' },
     ];
     const analysis = analyzeHistory('MenACWY', doses, am, riskIds, TODAY);
