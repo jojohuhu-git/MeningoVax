@@ -294,6 +294,15 @@ export const MENB_HEALTHY_RESCUE_MONTHS = 4;
  */
 export const MENACWY_ANY_TWO_DOSES_MIN_GAP = WEEKS(8);
 
+/**
+ * D1 (owner, 2026-11-17): a MenACWY dose at 16 or older covers college
+ * residence for this many years. ACIP 2020 Table 10 footnote (read live
+ * 2026-11-17): "Adolescents who received a first dose after their 16th birthday
+ * do not need another dose before college entry unless it has been more than 5
+ * years since the dose." immunize.org P2018 (10/19/2026) says the same.
+ */
+export const MENACWY_COLLEGE_COVER_YEARS = 5;
+
 /** "4 months" / "6 months" — for interpolating a floor into card text. */
 export function monthsLabel(months) {
   return `${months} month${months === 1 ? '' : 's'}`;

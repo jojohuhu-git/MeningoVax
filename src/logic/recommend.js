@@ -91,6 +91,7 @@ import {
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
 } from './intervals.js';
+import { MENACWY_COLLEGE_COVER_YEARS } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
 
 // ── brand option builders ─────────────────────────────────────────────────
@@ -631,31 +632,21 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
 
     // College-dorm rule keys off whether a dose was given at age ≥16y.
     //
-    // M17 (owner decision 2026-09-15): a ≥16y dose satisfies the requirement
-    // PERMANENTLY. One dose, no additional boosters. This overturned a
-    // correctly-sourced earlier reading, so both sides are recorded here.
-    //
-    // The rule used to expire after 5 years, from immunize.org Item #P2018
-    // (job aid, 10/14/2025), which lists among the histories needing a dose:
-    // "First year college students living in residence halls | None, or 1
-    // prior dose when younger than 16 years, or 1 prior dose since 16th
-    // birthday, but more than 5 years previously | Give 1 dose of MenACWY".
-    //
-    // ACIP 2020 MMWR 69(RR-9) Table 10 speaks to this patient directly and
-    // says the opposite. Its Boosters row: "College freshmen living in
-    // residence halls: Not routinely recommended unless person becomes at
-    // increased risk due to another indication". Its footnote, last sentence:
-    // "Adolescents who received a first dose after their 16th birthday do not
-    // need a booster dose unless they become at increased risk for
-    // meningococcal disease."
-    //
-    // Owner broke the tie for ACIP: P2018's "within 5 years before college
-    // entry" is an enrolment-paperwork recency rule, while ACIP's footnote is
-    // a clinical statement about this exact history. Note the tie could NOT be
-    // broken by deferring to vaxapp, as the queue originally proposed: vaxapp
-    // stops at 19 years and this case needs a patient aged 21+, so it has
-    // never encountered it. Do not "restore" the 5-year expiry from P2018
-    // without asking — it was removed knowingly, not overlooked.
+    // D1 (owner, 2026-11-17) — a ≥16y dose covers college entry for 5 years.
+    // ACIP 2020 MMWR 69(RR-9) Table 10, read live 2026-11-17:
+    //   Boosters row: "College freshmen living in residence halls: Not
+    //     routinely recommended unless person becomes at increased risk due to
+    //     another indication" — no RECURRING booster.
+    //   Footnote *: "College freshmen living in residence halls should receive
+    //     at least 1 dose of MenACWY within 5 years before college entry. ...
+    //     Adolescents who received a first dose after their 16th birthday do
+    //     not need another dose before college entry unless it has been more
+    //     than 5 years since the dose."
+    // immunize.org P2018 (10/19/2026) says the same. M17 (2026-09-15) had made
+    // the ≥16y dose permanent, quoting as the footnote a sentence that is in
+    // ACIP's ROUTINE section ("do not need a booster dose unless they become at
+    // increased risk"); D1 reverses it. The app measures the 5 years to today
+    // (the visit), as it cannot know the entry date.
     if (isCollege) {
       // P1-1 (2026-09-17): allows CDC's 4-day grace, like every other
       // "does this dose count" test. A college entrant whose dose came three
@@ -664,12 +655,33 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
         .map((d) => ({ a: ageAtDose(d, am, today, dob), date: d.date || null }))
         .filter(({ a, date }) => a != null
           && ageMeetsMinimum(a, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, { doseDate: date, ageMonths: am, today, dob }));
+      // D1 (owner, 2026-11-17): that dose covers college entry for 5 years.
+      // ACIP 2020 Table 10 footnote (read live 2026-11-17): "do not need another
+      // dose before college entry unless it has been more than 5 years since
+      // the dose." Measured from the most recent dose at 16+; a dose with no
+      // date cannot be measured and is taken as it was before D1.
+      const latest16 = dosesAt16Plus.map((d) => d.date).filter(Boolean).sort().pop() ?? null;
+      const past5Years = latest16 != null
+        && today > addCalendarYears(latest16, MENACWY_COLLEGE_COVER_YEARS);
+      if (dosesAt16Plus.length > 0 && past5Years) {
+        return [rec({
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (last dose at ≥16y more than 5 years ago)',
+          doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
+          noteCites: [cite('acip2020College5Years')],
+          note: {
+            lead: `The dose given at 16 or older was more than ${yearsLabel(MENACWY_COLLEGE_COVER_YEARS)} ago, so one dose is due before college entry [c].`,
+            detail: 'A dose at 16 or older covers college residence for 5 years. ACIP asks for at least one dose within 5 years before college entry.',
+          },
+          refs: refsExposure(),
+        })];
+      }
       if (dosesAt16Plus.length > 0) {
         return [rec({
           vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete (dose given at ≥16y)', seriesTotal: 1,
+          noteCites: [cite('acip2020College5Years')],
           note: {
             lead: 'A MenACWY dose at age 16 or older meets the college-residence requirement; no further dose is needed.',
-            detail: 'ACIP states that adolescents who received a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease for another reason.',
+            detail: `This holds for ${yearsLabel(MENACWY_COLLEGE_COVER_YEARS)} after that dose: ACIP asks for another dose before college entry only if more than ${yearsLabel(MENACWY_COLLEGE_COVER_YEARS)} have passed [c].`,
           },
           // C2: college_dorm's own ref (Table 10) already carries this rule
           // -- refsFor([]) here would ALSO add the whole-document acip2020
@@ -678,8 +690,6 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
           refs: refsExposure(),
         })];
       }
-      // M17: the ">=16y dose but more than 5 years ago" branch that used to sit
-      // here is gone — see the block comment above for both sources and why.
       // A prior dose exists but cannot be confirmed as ≥16y (earlier dose, or date unknown).
       if (given >= 1) {
         const datesKnown = doses.every((d) => d?.date || typeof d?.ageMonths === 'number');

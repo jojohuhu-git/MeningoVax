@@ -32,7 +32,7 @@
 //
 //   college   ACIP 2020 MMWR 69(RR-9) Table 10 footnote - a dose after the
 //             16th birthday needs no booster, i.e. it counts (owner decision
-//             M17: a >=16y dose satisfies the requirement permanently).
+//             M17 made a >=16y dose permanent; owner D1, 2026-11-17: for 5 years).
 //   outbreak  Table 8 - a top-up "if previously vaccinated and identified as
 //             being at increased risk" (owner decision M12: re-exposure
 //             driven, not a standing countdown).

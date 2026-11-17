@@ -110,7 +110,7 @@ The guard lives in PneumoVax (`regression-s6-4-avg-days-per-month-one-home.test.
 made here fails there — apply the same change to both.
 
 ### college_dorm vs military vs acwy_outbreak
-The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`. Do not apply it to `military` or `acwy_outbreak`.
+The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`, and only for 5 years after that dose (owner D1, 2026-11-17, reversing M17's "permanently"). Do not apply it to `military` or `acwy_outbreak`.
 
 ### End-of-Session Checklist (E4)
 Four questions, at the end of any session and in any PR body. They take two minutes and catch drift a green suite alone won't:

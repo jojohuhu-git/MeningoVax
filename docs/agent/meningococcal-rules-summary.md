@@ -178,10 +178,12 @@ receive another.
   a recorded dose shows "Needs input", the app offers no pentavalent and does not say
   both vaccines are due.
 - **First-year college students in dorms**: one dose satisfies the requirement *only if
-  given at ≥16 years old* — and then permanently. There is no 5-year expiry (owner
-  decision, 2026-09-15: ACIP's footnote governs, not immunize.org's enrolment-recency
-  job aid). An earlier dose does not count for this requirement; a fresh dose is needed
-  at ≥16.
+  given at ≥16 years old*, and it covers them **for 5 years**; after that, one dose is
+  due (your D1 answer, 2026-11-17, replacing the 2026-09-15 "permanently"). ACIP's own
+  college footnote: *"do not need another dose before college entry unless it has been
+  more than 5 years since the dose"*; immunize.org agrees. The app counts the 5 years to
+  today's visit. An earlier dose (before 16) does not count for this requirement; a
+  fresh dose is needed at ≥16.
 
 ### Single dose + ongoing booster
 - **Travellers** to hyperendemic/epidemic regions (including Hajj pilgrims, the

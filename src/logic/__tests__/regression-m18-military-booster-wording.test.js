@@ -58,9 +58,11 @@ describe('M18 — the military card stops denying the DoD booster', () => {
     expect(r.doseLabel).toMatch(/if required by assignment/);
   });
 
-  it('control: a college resident keeps the no-booster wording (M17)', () => {
-    // Same ACIP row, opposite halves. College must not inherit the 5-year line.
+  it('control: a college resident does not inherit the military booster line', () => {
+    // Same ACIP row, opposite halves. Since owner D1 (2026-11-17) the college
+    // card names its own 5-year cover, but never the military's booster.
     const r = acwy(['college_dorm'], [{ date: '2023-09-15' }]);
-    expect(noteText(r) || '').not.toMatch(/5 years/);
+    expect(noteText(r) || '').not.toMatch(/assignment|every 5 years/i);
+    expect(r.status).toBe('complete');
   });
 });

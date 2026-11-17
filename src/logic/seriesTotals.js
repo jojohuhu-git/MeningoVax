@@ -214,7 +214,8 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
   // All three "single" indications legitimately accept a later dose:
   //   college   ACIP 2020 MMWR 69(RR-9) Table 10 footnote -- a dose after the
   //             16th birthday needs no booster, i.e. it is the dose that
-  //             SATISFIES the requirement (owner decision M17).
+  //             SATISFIES the requirement for 5 years (owner D1, 2026-11-17;
+  //             a later dose is the repeat owed after that).
   //   outbreak  Table 8 -- a top-up "if previously vaccinated and identified as
   //             being at increased risk" (owner decision M12).
   //   military  Table 10 -- the DoD booster every 5 years by assignment

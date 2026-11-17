@@ -156,18 +156,19 @@ describe('MenACWY single-dose indications', () => {
   // birthday do not need a booster dose unless they become at increased risk".
   // Owner: college students get one dose, no additional boosters.
   //
-  // Both tests below are kept, inverted, rather than deleted, so the history of
-  // this decision stays visible. See regression-m17-college-no-booster.test.js
-  // for the full reasoning and both verbatim quotes.
-  it('college dorm with a dose at 16y that is now >5 years ago → complete (M17)', () => {
+  // Owner D1 (2026-11-17) restored the 5-year limit: read live, Table 10's own
+  // footnote says "do not need another dose before college entry unless it has
+  // been more than 5 years since the dose"; the "booster" sentence M17 quoted
+  // is ACIP's routine one. See regression-2026-11-17-d1-college-5-year-limit.test.js.
+  it('college dorm with a dose at 16y that is now >5 years ago → 1 dose due (owner D1, 2026-11-17; was M17 "complete")', () => {
     // dose at 192mo (16y), now 264mo (22y) → 72 months = 6 years elapsed
     const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
-    expect(acwy(r).status).toBe('complete');
-    expect(acwy(r).dueToday).not.toBe(true);
-    expect(noteText(acwy(r)) || '').not.toMatch(/more than 5 years/i);
+    expect(acwy(r).status).not.toBe('complete');
+    expect(acwy(r).dueToday).toBe(true);
+    expect(noteText(acwy(r)) || '').toMatch(/more than 5 years/i);
   });
 
-  it('college dorm with a dose at 16y exactly 5 years ago → complete (unchanged by M17)', () => {
+  it('college dorm with a dose at 16y exactly 5 years ago → complete', () => {
     // dose at 192mo (16y), now 252mo (21y) → 60 months = exactly 5 years
     const r = run({ ageMonths: 252, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2021-06-03', ageMonths: 192 }] });
     expect(acwy(r).status).toBe('complete');

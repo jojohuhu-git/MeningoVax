@@ -180,9 +180,15 @@ series begun at ≥2y. Derived from `seriesTotals.js` → `menacwyPrimaryTotal()
 ### Single-Dose Indications (`single` class)
 One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: true` in
 `seriesTotals.js` so a later dose is never discarded (P0-2).
-- `college_dorm`: D1 only; a dose at ≥16y satisfies it **permanently** — no 5-year expiry
-  (M17, owner decision 2026-09-15: ACIP Table 10's footnote over immunize.org P2018's
-  enrolment-recency rule). This ≥16y rule applies uniquely to this class.
+- `college_dorm`: a dose at ≥16y satisfies it **for 5 years**; more than 5 years after the
+  most recent ≥16y dose, one dose is due (owner D1, 2026-11-17, reversing M17's
+  "permanently"). ACIP 2020 Table 10 footnote (read live 2026-11-17): *"Adolescents who
+  received a first dose after their 16th birthday do not need another dose before college
+  entry unless it has been more than 5 years since the dose."* Its Boosters row (*"Not
+  routinely recommended"*) rules out a recurring booster, not this entry dose. immunize.org
+  P2018 agrees. M17 had quoted ACIP's routine-section sentence as the college footnote.
+  Measured to today (the app cannot know the entry date); exactly 5 years still covers
+  (`MENACWY_COLLEGE_COVER_YEARS`). This ≥16y rule applies uniquely to this class.
 - **Under 16, `college_dorm` and `military` add nothing** (owner STOP B B-4, 2026-11-15):
   the card is the routine card plus one sentence, "The college-residence (military) dose is
   given at 16 or older." The validator already treated them as routine, so card and chip
