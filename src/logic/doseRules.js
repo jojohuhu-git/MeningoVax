@@ -1055,7 +1055,7 @@ export const DOSE_RULES = [
     check: (ctx) => {
       if (!acwy(ctx).routineOnly || ctx.effectiveIdx !== 1 || !before(ctx, AGE_16Y_MONTHS)) return null;
       return setAsideResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16. [c]`],
+        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16, and at least 8 weeks after this dose. [c]`],
         [cite('acwyRoutine1112and16')],
       );
     },

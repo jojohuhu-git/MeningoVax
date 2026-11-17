@@ -386,6 +386,11 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above) —
   different from "invalid," no repeat needed, it's just not counted.
+- **A MenACWY dose set aside like that still starts the 8-week clock** (your
+  D2 answer, 2026-11-17): the next MenACWY dose waits 8 weeks after it. A dose
+  given 5 days before the 16th birthday puts the booster 8 weeks after that
+  dose, not on the birthday; a dose at 9 years 11 months means a dose at 10
+  under 8 weeks later does not count.
 - **Dated in the future:** not counted. The record lists doses the patient has
   already received, so a date after today is a typo (usually a mistyped year)
   or an appointment that has not happened yet. The app says the date is the

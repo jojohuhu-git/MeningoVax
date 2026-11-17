@@ -106,8 +106,9 @@ const KNOWN = {
   // the dose and the date (2027-01-13); only the label family above remains.
   // Ruling D (owner, STOP C C2, 2026-11-15) moved the app's repeat to the dose
   // that did not count. Two patients still differ, for other reasons:
-  'A MenACWY dose 5 days before 16: CDSI calls it too young and spaces the next dose 8 weeks after it; the app keeps it as a safe dose that does not count toward the routine series (set aside, not invalid), so Ruling D starts no clock from it and the booster is due on the 16th birthday, 5 days later — OPEN (question for the owner: does a set-aside dose start the clock?)':
-    ['2013-0489'],
+  // Closed 2026-11-17 by owner answer D2: a set-aside MenACWY dose (5 days
+  // before 16) starts the 8-week clock, so 2013-0489's booster is 8 weeks
+  // after it, as in CDSI.
   'A wrong-family MenB dose (Bexsero, then Trumenba): both say it does not count and both time the next dose from it; CDSI\'s earliest is 4 months after it, the app\'s 4 weeks after it (and not before 6 months from dose 1) — DELIBERATE (owner E2, 2026-11-15; ACIP 2020: "a minimum interval of 4 weeks should be used between any 2 doses")':
     ['2024-0081'],
   'MenB of unspecified product at 16+: CDSI says it cannot count (the product must be known) and repeats in 4 weeks; the app counts it as dose 1 — OPEN':

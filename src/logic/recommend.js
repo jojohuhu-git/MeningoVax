@@ -1325,22 +1325,31 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
     // an approximate due date (the patient's 16th birthday) so it's not just
     // "complete" with no further information.
+    const boosterTiming = routineBoosterDueDate(dob, am, today, lastDate);
+    // D2 / N5: when 8 weeks after the last dose given (a set-aside dose
+    // included, owner D2, 2026-11-17) is later than the 16th birthday, say so.
+    const waitsAfterLastDose = lastDate != null
+      && boosterTiming.earliestNextDate === addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP);
+    const waitSentence = waitsAfterLastDose
+      ? ` The booster waits ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} after the last dose given (${fmtDate(lastDate)}) [c].`
+      : '';
+    const waitCites = waitsAfterLastDose ? [cite('acwyBooster8WeeksAfterDose1')] : [];
     return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
-      ...routineBoosterDueDate(dob, am, today, lastDate),
+      ...boosterTiming,
       // U2: same three-way repeat as the under-11 card above.
       note: doseAtAge10
         ? {
-          lead: 'Routine dose 1 is recorded, given at age 10 — it counts as the first dose of the series [c].',
+          lead: `Routine dose 1 is recorded, given at age 10 — it counts as the first dose of the series [c].${waitSentence}`,
           detail: 'ACIP counts a dose given at age 10 as dose 1 of the routine adolescent series, so it is not given again at 11–12 years.',
         }
         : {
-          lead: 'Routine dose 1 is recorded.',
+          lead: `Routine dose 1 is recorded.${waitSentence}`,
           detail: 'Dose 1 of the routine adolescent series is on record, so only the booster remains outstanding.',
         },
-      noteCites: doseAtAge10 ? [cite('acwyAge10CountsAsDose1')] : [], refs })];
+      noteCites: [...(doseAtAge10 ? [cite('acwyAge10CountsAsDose1')] : []), ...waitCites], refs })];
   }
   // 16–18y
   if (am < MENACWY_CATCHUP_MIN_AGE_MONTHS) {

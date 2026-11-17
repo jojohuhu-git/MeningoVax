@@ -73,9 +73,15 @@ rule applies stay on the doses that COUNTED.
 - **Card** (`recommend.js`): `menacwyRec`/`menbRec` take `clockDate` (`history.anchorDate`,
   read, never recomputed). The healthy MenB 6-month line (2 doses or 3?) stays on the counted
   dose 1 — it decides how many doses, not when.
+- **A set-aside MenACWY dose IS a clock** (owner D2, 2026-11-17): valid but not advancing
+  the series (MenACWY before 10; a routine dose 2 before 16), it was still given, so the next
+  MenACWY dose waits 8 weeks after it (ACIP 2020: *"as long as a minimum interval of 8 weeks
+  between doses is maintained"*). `validate.js` sets `anchor`/`uncountedDate` from it; the
+  "Booster due at 16y" card names the wait. Closes CDC test patient 2013-0489. MenB set-aside
+  doses were not asked about and start no clock.
 - **Never a clock:** a record problem (date in the future, before birth, entered twice — no
-  dose was given), an undated dose (which since C1 does not count either), a set-aside dose (valid but not advancing the series, e.g.
-  MenACWY before 10), a pending or extra dose.
+  dose was given), an undated dose (which since C1 does not count either), a MenB set-aside
+  dose, a pending or extra dose.
 - **E1 — a too-young FIRST dose:** the repeat waits the family's minimum interval after it —
   **MenB 4 weeks** (ACIP's MenB repeat sentence), **MenACWY 8 weeks** (owner D5, 2026-11-17:
   E1 had said 4 weeks for both, but 4 weeks is MenB's number; CDC: *"The repeat dose should be
