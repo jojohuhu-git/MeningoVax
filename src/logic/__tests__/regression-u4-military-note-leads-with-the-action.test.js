@@ -19,8 +19,12 @@ const note = () => noteText(recommend({
 }).menacwy[0]);
 
 describe('U4 · the military-recruit card leads with the action', () => {
-  it('opens by telling the clinician to check the service requirement', () => {
-    expect(note()).toMatch(/^Check the service's current requirement/);
+  // STOP B B-3 (owner, 2026-11-15): the card now leads with the booster date
+  // and the assignment condition; "check the service's requirement" moves to
+  // the end of the detail.
+  it('opens with the booster date and the assignment condition (B-3)', () => {
+    expect(note()).toMatch(/^Booster [A-Z][a-z]{2} \d{1,2}, \d{4} if the service's assignment requires it/);
+    expect(note()).toMatch(/Check the service's current requirement/);
   });
 
   it('still carries every clinical fact it had', () => {
@@ -28,8 +32,9 @@ describe('U4 · the military-recruit card leads with the action', () => {
     expect(n).toMatch(/every 5 years/i);            // ACIP Table 10 cadence
     expect(n).toMatch(/basis of assignment/i);      // what the cadence turns on
     expect(n).toMatch(/Department of Defense/i);    // who owns the timing
-    expect(n).toMatch(/single-dose recruitment requirement/i);
-    expect(n).toMatch(/ongoing-risk indication/i);
+    // B-3: the "single-dose recruitment requirement" and "ongoing-risk
+    // indication" sentences went with "Complete"; the date replaces them.
+    expect(n).toMatch(/Booster [A-Z][a-z]{2} \d{1,2}, \d{4}/);
   });
 
   it('is shorter than the version that buried the action', () => {

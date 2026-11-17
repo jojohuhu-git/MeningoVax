@@ -31,7 +31,7 @@ describe('MenACWY routine adolescent', () => {
 
   it('13-year-old with dose 1 → booster due at 16y, not today', () => {
     const r = run({ ageMonths: 156, riskIds: [], menacwyDoses: [{ date: '2024-06-03', ageMonths: 132 }] });
-    expect(acwy(r).status).toBe('complete');
+    expect(acwy(r).status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     expect(acwy(r).doseLabel).toMatch(/16y/);
   });
 
@@ -173,9 +173,11 @@ describe('MenACWY single-dose indications', () => {
     expect(acwy(r).status).toBe('complete');
   });
 
-  it('military recruit with a prior documented dose → complete (single-dose indication met)', () => {
+  // STOP B B-3 (owner, 2026-11-15): the 5-year booster date, never "Complete".
+  it('military recruit with a prior documented dose → booster dated 5 years on (B-3)', () => {
     const r = run({ ageMonths: 240, riskIds: ['military'], menacwyDoses: [{ date: '2025-06-03' }] });
-    expect(acwy(r).status).toBe('complete');
+    expect(acwy(r).status).toBe('exposure');
+    expect(acwy(r).earliestNextDate).toBe('2030-06-03');
   });
 });
 

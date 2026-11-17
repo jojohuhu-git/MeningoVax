@@ -219,13 +219,14 @@ describe('P2-3 · the booster-interval age split', () => {
     expect(noteText(c)).toContain(`${MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7} years`);
   });
 
-  it('a patient at or over it needs the long one before a top-up', () => {
-    // Four years on is enough below the split age and not enough above it —
-    // the same record, judged by the one age this module owns.
+  // STOP B B-2 (owner, 2026-11-15) keys the 3-or-5 years to the age at the
+  // LAST DOSE ("3 if last dose <7 y"), not the age today: the older patient
+  // moved so the dose 4 years ago was given at 7½.
+  it('a dose given at or over the split age needs the long interval before a booster', () => {
     const younger = outbreakCard(MENACWY_BOOSTER_AGE_SPLIT_MONTHS - 6, 4);
-    const older = outbreakCard(MENACWY_BOOSTER_AGE_SPLIT_MONTHS + 6, 4);
-    expect(younger.status).toBe('exposure');
-    expect(older.status).not.toBe('exposure');
+    const older = outbreakCard(MENACWY_BOOSTER_AGE_SPLIT_MONTHS + 54, 4);
+    expect(younger.dueToday).toBe(true);
+    expect(older.dueToday).toBe(false);
     expect(noteText(older)).toContain(`age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}`);
     expect(noteText(older)).toContain(`${MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7} years`);
   });

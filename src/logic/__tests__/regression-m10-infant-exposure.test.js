@@ -129,9 +129,12 @@ describe('M10 — the validator must not eat the infant series it now prescribes
     // top-up threshold is 5 years, so nothing is due yet and the recorded dose
     // stands: 'complete', no dose number. Before M12 they were told to start
     // again at dose 1.
+    // STOP B B-2 (owner, 2026-11-15): not 'complete' while the box is ticked —
+    // the booster is dated 5 years after the dose. The dose still stands.
     const r = acwy(run(144, ['outbreak_acwy'], ['2023-03-15']));
-    expect(r.status).toBe('complete');
-    expect(r.doseNum).toBeNull();
+    expect(r.status).not.toBe('complete');
+    expect(r.dueToday).toBe(false);
+    expect(r.doseNum).toBe(2);
   });
 
   it('control: a healthy adolescent still loses a pre-age-10 dose', () => {

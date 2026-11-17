@@ -48,12 +48,14 @@ describe('M18 — the military card stops denying the DoD booster', () => {
     expect(noteText(MILITARY_WITH_DOSE())).toMatch(/Department of Defense|DoD/);
   });
 
-  it('adds no booster scheduling — the card is not made due today', () => {
-    // M18 is wording only. The app cannot know the recruit's assignment, so it
-    // must not invent a due date.
+  // STOP B B-3 (owner, 2026-11-15) reversed M18's "no booster scheduling":
+  // show the 5-year booster date with the assignment caveat. Still never due
+  // today for a recent dose, and the caveat stays.
+  it('shows the 5-year booster date with the assignment caveat (B-3), not due today', () => {
     const r = MILITARY_WITH_DOSE();
     expect(r.dueToday).not.toBe(true);
-    expect(r.earliestNextDate == null || r.earliestNextDate === undefined).toBe(true);
+    expect(r.earliestNextDate).toBeTruthy();
+    expect(r.doseLabel).toMatch(/if required by assignment/);
   });
 
   it('control: a college resident keeps the no-booster wording (M17)', () => {
