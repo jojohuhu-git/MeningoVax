@@ -2042,16 +2042,17 @@ function withMenbSwitchLine(cards, history, am, riskIds, today) {
 }
 
 // STOP B B-1 (owner 2026-11-15, extended 2026-11-17): the 4-day grace at an
-// age line that picks the MenACWY schedule (3 months, 7 months, 2 years — see
-// menacwyGraceLine in intervals.js) is used ONLY when it means fewer doses owed.
+// age line that picks the MenACWY schedule (3 months, 7 months, 2 years and
+// 16 years — see menacwyGraceLine in intervals.js) is used ONLY when it means fewer doses owed.
 // PneumoVax's §A-GRACE12-HELPS ruling, carried over: read the whole history
 // twice — every such dose at its real age, and every such dose as given ON its
-// line — and keep the reading whose MenACWY card owes FEWER doses. A tie, or a
-// card that does not say how many it owes, keeps the real age (what the app did
-// before B-1).
+// line — and keep the reading whose MenACWY card owes FEWER doses. A tie keeps the
+// real age (what the app did before B-1).
 //
-// Whole readings, never a mix: the card, the dose chips and the record panel
-// all come from the one reading kept, so they cannot disagree. Plan patient: a
+// Whole readings, never a mix: the MenACWY card, its dose chips and the record
+// panel all come from the one reading kept, so they cannot disagree. A dose
+// read on its birthday also means the patient has reached that birthday at any
+// visit on or after the dose (menacwyAgeFloorMonths, MenACWY only). Plan patient: a
 // travel baby given Menveo 2 days before 7 months owed four doses, and two on
 // the 7-month day; now two. A dose 5+ days early, or with no date of birth on
 // file, is never read at the line.
@@ -2059,18 +2060,26 @@ export function recommend(input) {
   const asGiven = recommendOneReading(input);
   if (!input?.dob || asGiven.excluded) return asGiven;
   const originals = new Map();
+  const today = asGiven.meta.today;
+  // A dose read as given ON a birthday means the patient has reached that
+  // birthday by any later visit — including the visit the dose was given at,
+  // when the patient is still 1–4 days short of it. Without this the dose-day
+  // card kept the younger schedule and changed a few days later with no new
+  // dose (CDC 2013-0488: "Booster due at 16y" on the day, "Complete" after).
+  let ageFloor = 0;
   const atLines = (input.menacwyDoses ?? []).map((d) => {
     const line = menacwyGraceLine(d, input.dob);
     if (line == null) return d;
     const copy = { ...d, ageMonths: line };
     originals.set(copy, d);
+    if (d.date <= today) ageFloor = Math.max(ageFloor, line);
     return copy;
   });
   if (originals.size === 0) return asGiven;
-  const atLine = recommendOneReading({ ...input, menacwyDoses: atLines });
+  const atLine = recommendOneReading({ ...input, menacwyDoses: atLines, menacwyAgeFloorMonths: ageFloor });
   const owedAtLine = menacwyDosesOwed(atLine);
   const owedAsGiven = menacwyDosesOwed(asGiven);
-  if (owedAtLine == null || owedAsGiven == null || owedAtLine >= owedAsGiven) return asGiven;
+  if (owedAtLine >= owedAsGiven) return asGiven;
   // The copies read at the line carry `ageMonths`, which the record panel would
   // print as the dose's age. Hand the panel the doses as the clinician typed them.
   const restore = (d) => originals.get(d) ?? d;
@@ -2086,13 +2095,13 @@ export function recommend(input) {
 
 // How many MenACWY doses the cards still ask for, counting the dose due next:
 // "Dose 2 of 4" owes 3, a first booster after a 1-dose series ("dose 2 of 1")
-// owes 0 more primary doses, "complete" owes 0. null when a card does not say.
+// owes 0 more primary doses, "complete" owes 0. An open card with no dose
+// number ("Booster due at 16y") still asks for a dose: it owes 1.
 function menacwyDosesOwed(result) {
   let owed = 0;
   for (const c of result.menacwy ?? []) {
     if (c.status === 'complete' || c.status === 'not-indicated') continue;
-    if (c.doseNum == null || c.seriesTotal == null) return null;
-    owed += Math.max(0, c.seriesTotal - c.doseNum + 1);
+    owed += (c.doseNum == null || c.seriesTotal == null) ? 1 : Math.max(0, c.seriesTotal - c.doseNum + 1);
   }
   return owed;
 }
@@ -2149,7 +2158,10 @@ function recommendOneReading(input) {
   // The whole analysis (not just `.effective`) is returned to the caller as
   // `history` below: the record panel used to re-run these two calls for itself,
   // which meant two places deciding what the record says. One call, one answer.
-  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, am, riskIds, today, acwyRiskAnswers, input.dob);
+  // B-1: only the reading that puts a dose on its birthday sets this (see
+  // recommend()); MenACWY alone reads it — MenB and the pentavalent keep `am`.
+  const acwyAm = Math.max(am, input.menacwyAgeFloorMonths ?? 0);
+  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, acwyAm, riskIds, today, acwyRiskAnswers, input.dob);
   const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers, input.dob);
   const effectiveMenacwyDoses = menacwyHistory.effective;
   const effectiveMenbDoses    = menbHistory.effective;
@@ -2159,7 +2171,7 @@ function recommendOneReading(input) {
   // MenACWY: 8 weeks after any dose, including a too-young first dose (owner
   // C11, 2026-11-15; D5, 2026-11-17) — as doseRules.js ACWY-ANY-TWO-DOSES-GAP.
   const menacwy = outbreakWording(applyRepeatFloor(
-    menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
+    menacwyRec(acwyAm, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
     menacwyHistory.uncountedDate,
     MENACWY_ANY_TWO_DOSES_MIN_GAP,
     today,

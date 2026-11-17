@@ -59,8 +59,8 @@ routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Own
 (reverses M17), set-aside dose starts the clock, MenB 6-month grace lines, MenACWY too-young repeat
 8 weeks, military booster check, outbreak wording, MenB switch line. **D9 (no college repeat; no code) and D10
 (serogroup B outbreak: one MenB booster) answered 2026-11-17; D10 built.** **B-1 built 2026-11-17** (the 4-day grace at the MenACWY
-3-month, 7-month and 2-year lines, only when it means fewer doses owed; age 7 is not a grace line —
-owner D11/D12). Next: Phase 4. Open owner questions are
+3-month, 7-month, 2-year and 16-year lines, only when it means fewer doses owed, from the dose day
+on; age 7 is not a grace line — owner D11–D13). Next: Phase 4. Open owner questions are
 in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 

@@ -41,8 +41,9 @@ averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days
    - the high-risk "dose 2 ≥6 months after dose 1, so no dose 3" line — D4.
    They live in `seriesTotals.js` (`menbHealthyDose2Early`, `menbHighRiskDose3Early`,
    `menbSeriesInfo`), read by the series total, the card and the dose verdict.
-   - **The MenACWY age lines that pick the schedule — 3 months, 7 months, 2 years** (STOP B
-     B-1, owner 2026-11-15, extended to 3 months 2026-11-17): see the next section.
+   - **The MenACWY age lines that pick the schedule — 3 months, 7 months, 2 years, 16 years**
+     (STOP B B-1, owner 2026-11-15; 3 months D12 and 16 years D13, 2026-11-17): see the next
+     section.
    Every other series-length line keeps no grace.
 
 Note this also applies in `recommend.js` wherever it asks "does this recorded dose count"
@@ -55,19 +56,25 @@ PneumoVax's §A-GRACE12-HELPS ruling, carried over. Three age lines decide how m
 doses a child needs (CDC child & adolescent schedule notes, Menveo, read live 2026-11-17):
 *"Dose 1 at age 2 months: 4-dose series"*; *"Dose 1 at age 3–6 months: 3- or 4- dose series
 (… until a dose is received at age 7 months or older, followed by an additional dose …)"*;
-*"Dose 1 at age 7–23 months: 2-dose series"*; and from 2 years the ≥2-year schedule (ACIP 2020
-Table 9, travel ≥2 yrs: *"1 dose"*).
+*"Dose 1 at age 7–23 months: 2-dose series"*; from 2 years the ≥2-year schedule (ACIP 2020
+Table 9, travel ≥2 yrs: *"1 dose"*); and at 16 the routine booster (ACIP 2020 Table 2).
 
 **The rule:** with a date of birth on file, a MenACWY dose given 1–4 days before **3 months,
-7 months or 2 years** makes `recommend()` read the whole history twice — every such dose at
+7 months, 2 years or 16 years** makes `recommend()` read the whole history twice — every such dose at
 its real age, and every such dose as given on its line — and keep the reading whose MenACWY
-card owes **fewer** doses. A tie, or a card that does not say how many it owes, keeps the real
-age. Whole readings, never a mix: card, chips and record panel come from the one reading kept.
+card owes **fewer** doses (an open card with no dose number, such as "Booster due at 16y",
+owes 1). A tie keeps the real age. Whole readings, never a mix: the MenACWY card, chips and record
+panel come from the one reading kept. **On the dose day too:** a dose read on its birthday means
+the patient has reached it at any visit on or after the dose, so the card does not change a few
+days later with no new dose (`menacwyAgeFloorMonths`, MenACWY only — MenB and the pentavalent keep
+the real age).
 Helper: `menacwyGraceLine()` in `intervals.js`; the comparison is in `recommend()`.
 
 - Travel baby, Menveo 2 days before 7 months → 2-dose series (was 4). Travel child, Menveo
   2 days before 2 years → 1 dose, booster 3 years after it (was infant dose 2 owed).
   Asplenia, Menveo 2 days before 3 months then at 7 months → Dose 3 of 3 (was 3 of 4).
+  Healthy, Menveo at 11 and 4 days before 16 → Complete on the dose day (was "Booster due at
+  16y, 8 weeks later" until the birthday; CDC test patients 2013-0488, 2013-0511 now agree).
 - **Tie kept:** asplenia, Menveo 2 days before 7 months, dose 2 nine weeks later — read at
   7 months, dose 2 would not count; one dose owed either way, so the real age stays.
 - **Not a grace line: age 7** (owner 2026-11-17, "3 years"). The grace there never changes

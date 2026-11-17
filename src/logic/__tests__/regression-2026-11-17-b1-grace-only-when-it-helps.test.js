@@ -15,7 +15,7 @@
 // ACIP 2020 MMWR 69(RR-9) Table 9 (travel, read live 2026-11-17), ≥2 yrs:
 //   "Primary vaccination: MenACWY-D** or MenACWY-CRM or MenACWY-TT: 1 dose"
 //
-// The lines: 3 months, 7 months and 2 years. A MenACWY dose given 1–4 days
+// The lines: 3 months, 7 months, 2 years and 16 years (owner D13, 2026-11-17). A MenACWY dose given 1–4 days
 // before one of them is read both ways — at its real age, and as given ON the
 // line — and the app keeps the reading whose MenACWY card owes FEWER doses. A
 // tie keeps the real age (what the app did before).
@@ -91,6 +91,55 @@ describe('B-1: 2 years — travel', () => {
   it('control: 5 days before the 2nd birthday — still the infant series, dose 2 owed', () => {
     const c = card(run({ ...base, doses: [{ date: '2026-11-15', brand: MV }] }));
     expect([c.doseNum, c.seriesTotal]).toEqual([2, 2]);
+  });
+});
+
+describe('B-1: on the visit the dose was given (the patient still 1–4 days short of the birthday)', () => {
+  it('2 years, travel: the dose-day card already says one dose — it does not change two days later', () => {
+    const doses = [{ date: '2026-11-18', brand: MV }];
+    for (const today of ['2026-11-18', '2026-11-20', '2026-12-18']) {
+      const c = card(run({ dob: '2024-11-20', riskIds: ['travel'], today, doses }));
+      expect([today, c.seriesTotal, c.earliestNextDate]).toEqual([today, 1, '2029-11-18']);
+    }
+  });
+
+  it('control: the same child seen 1 day BEFORE the dose is not affected (no dose yet to read)', () => {
+    const c = card(run({ dob: '2024-11-20', riskIds: ['travel'], today: '2026-11-17', doses: [] }));
+    expect(c.seriesTotal).not.toBe(1);
+  });
+});
+
+describe('B-1: 16 years (owner D13, 2026-11-17) — CDC test patients 2013-0488, 2013-0511', () => {
+  // Born 2010-08-09; 16th birthday 2026-08-09; dose 2026-08-05 (16 years − 4 days).
+  const base = { dob: '2010-08-09', riskIds: [] };
+
+  it('2013-0488: Menveo at 11, then 4 days before 16 — Complete on the dose day', () => {
+    const doses = [{ date: '2021-08-09', brand: MV }, { date: '2026-08-05', brand: MV }];
+    for (const today of ['2026-08-05', '2026-08-08', '2026-09-30']) {
+      const c = card(run({ ...base, today, doses }));
+      expect([today, c.status, c.seriesTotal]).toEqual([today, 'complete', 2]);
+    }
+  });
+
+  it('2013-0511: a first dose 4 days before 16 — Complete, one dose', () => {
+    const doses = [{ date: '2026-08-05', brand: MV }];
+    for (const today of ['2026-08-05', '2026-09-30']) {
+      const c = card(run({ ...base, today, doses }));
+      expect([today, c.status, c.seriesTotal]).toEqual([today, 'complete', 1]);
+    }
+  });
+
+  it('control: 5 days before 16 — the booster is still owed', () => {
+    const c = card(run({ ...base, today: '2026-08-04',
+      doses: [{ date: '2021-08-09', brand: MV }, { date: '2026-08-04', brand: MV }] }));
+    expect(c.status).not.toBe('complete');
+  });
+
+  it('the MenB card is untouched: a healthy 15-year-old seen on the dose day is not moved into the 16+ MenB band', () => {
+    const doses = [{ date: '2021-08-09', brand: MV }, { date: '2026-08-05', brand: MV }];
+    const graced = run({ ...base, today: '2026-08-05', doses });
+    const noAcwy = run({ ...base, today: '2026-08-05', doses: [] });
+    expect(graced.menb).toEqual(noAcwy.menb);
   });
 });
 

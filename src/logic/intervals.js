@@ -36,7 +36,7 @@ import { menacwyInfantHighRiskTotal } from './seriesTotals.js';
 import {
   MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
   MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
-  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS,
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
 } from './ages.js';
 import {
   addDays, addCalendarMonths, calendarIntervalElapsed, calendarMonthsBetween,
@@ -486,6 +486,10 @@ export function ageMeetsMinimumDays(ageAtDoseDays, minAgeDays) {
 //   7 months  — the 3-or-4-dose series vs "Dose 1 at age 7–23 months: 2-dose series",
 //               and the dose "at age 7 months or older" that earns the 3-dose finish
 //   2 years   — the infant series vs the ≥2-year schedule (travel: 1 dose)
+//   16 years  — the routine booster: a dose 1–4 days before 16 is the 16-year
+//               dose from the day it is given (owner D13, 2026-11-17; CDC test
+//               patients 2013-0488, 2013-0511). The dose itself was already
+//               counted (ageMeetsMinimum); the card ignored it until the birthday.
 //
 // CDC child & adolescent schedule notes, read live 2026-11-17. CDC General Best
 // Practices: "vaccine doses administered ≤4 days before the minimum interval or
@@ -493,8 +497,8 @@ export function ageMeetsMinimumDays(ageAtDoseDays, minAgeDays) {
 //
 // NOT here, deliberately: age 7. The grace there only moves the first booster
 // from 3 to 5 years and never changes the doses owed; the owner kept 3 years
-// (2026-11-17). Nor age 10/16: those are minimum ages, already graced by
-// ageMeetsMinimum above.
+// (2026-11-17, D11). Nor age 10: a minimum age, already graced by
+// ageMeetsMinimum above, and nothing else hangs on it.
 //
 // This helper only says WHERE a dose would be read; recommend() decides whether
 // to read it there (both readings, keep the one owing fewer MenACWY doses).
@@ -502,6 +506,7 @@ export const MENACWY_GRACE_LINES_M = Object.freeze([
   MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
   MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS,
+  MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
 ]);
 
 /**

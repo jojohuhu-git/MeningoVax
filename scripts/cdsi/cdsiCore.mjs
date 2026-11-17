@@ -125,8 +125,9 @@ const KNOWN = {
   // Closed 2026-11-16 by STOP B: B-2 (2016-UC-0116, the infant outbreak series
   // now books its 3-year booster) and B-3 (2025-UC-0019, the military 5-year
   // booster date) now agree with CDSI.
-  'A dose 1–4 days before the 16th birthday: CDSI gives the 16-year line the 4-day grace and calls the series complete; the app asks for the booster 8 weeks later. Uncovered when the healthy 10–15 card stopped being "complete" (STOP B) — OPEN until B-1 (owner, STOP B 2026-11-15: the grace at an age line "only when it helps"; not yet built)':
-    ['2013-0488', '2013-0511'],
+  // Closed 2026-11-17 by B-1 / owner D13: a dose 1–4 days before the 16th
+  // birthday is the 16-year dose from the day it is given, so 2013-0488 and
+  // 2013-0511 are "Complete" on the dose day, as in CDSI.
   // ── Not comparable ──
   'Contraindication (severe allergic reaction to a previous dose): the app has no such input — NOT COMPARABLE':
     ['2016-UC-0011', '2016-UC-0203'],
