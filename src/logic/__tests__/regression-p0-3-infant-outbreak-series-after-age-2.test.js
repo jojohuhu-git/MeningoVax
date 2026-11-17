@@ -101,7 +101,7 @@ describe('P0-3: the outbreak schedule keeps its M12 shape', () => {
     // outbreak box is ticked, an outbreak series has the same booster countdown as
     // the other indications (3 years if finished before 7, then every 5).
     const { rec } = both(36, FULL_INFANT_SERIES);
-    expect(rec.boosterSummary).toMatch(/every 5 years while at risk/);
+    expect(rec.boosterSummary).toMatch(/every 5 years while outbreak risk continues/ /* D7, 2026-11-17 */);
     expect(rec.dueToday || !!rec.earliestNextDate).toBe(true);
   });
 });

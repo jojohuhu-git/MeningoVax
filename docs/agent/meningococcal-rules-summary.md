@@ -166,6 +166,11 @@ receive another.
   and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
   outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
   routine 16-year booster still comes first. Untick the box when the risk is over.
+- **Every outbreak card — MenACWY and MenB, any age — says "if outbreak risk
+  continues"** on a booster not yet due ("for this outbreak" when due today), and
+  its booster line reads "while outbreak risk continues" (your D7 answer,
+  2026-11-17). Before, only the teenage MenACWY outbreak card said it. If another
+  risk is also ticked (asplenia, for example), that risk's wording stays.
 - **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
   10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
   complete.

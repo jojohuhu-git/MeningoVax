@@ -1920,6 +1920,47 @@ function applyRepeatFloor(recs, uncountedDate, minDays, today) {
   });
 }
 
+// D7 (owner, 2026-11-17): every outbreak card says the booster depends on the
+// outbreak risk continuing — MenACWY and MenB, at every age — as the teen
+// MenACWY outbreak card already did (B-2). Applied here, once, after each card
+// is built, so no path is missed. Only when the outbreak is the ONLY reason
+// for boosters: another ticked risk (asplenia, complement, HIV, travel, a
+// microbiologist) keeps its own wording. Dates are never changed here.
+// immunize.org P2018 (10/19/2026, read live 2026-11-17): boosters "as long as
+// risk remains".
+const OUTBREAK_ID = { MenACWY: 'outbreak_acwy', MenB: 'outbreak_b' };
+function outbreakIsTheOnlyBoosterReason(vaccine, riskIds) {
+  if (!riskIds.includes(OUTBREAK_ID[vaccine])) return false;
+  return !riskIds.some((id) => {
+    if (id === OUTBREAK_ID[vaccine]) return false;
+    const r = RISK_BY_ID[id];
+    if (!r) return false;
+    // MenACWY: medical (primary2) and travel/microbiologist (single+boost) have
+    // their own boosters; military and college ('single') do not change it.
+    return vaccine === 'MenACWY'
+      ? (r.menacwyClass === 'primary2' || r.menacwyClass === 'single+boost')
+      : r.menbClass === 'highrisk';
+  });
+}
+const OUTBREAK_CONTINUES = 'while outbreak risk continues';
+function outbreakWording(cards, applies) {
+  if (!applies) return cards;
+  return cards.map((c) => {
+    const out = { ...c };
+    if (typeof c.boosterSummary === 'string') {
+      out.boosterSummary = c.boosterSummary
+        .replace(/while at (?:high )?risk(?: \(ongoing\))?/, OUTBREAK_CONTINUES);
+    }
+    // Keep the label's own detail ("first booster, 3 years after primary")
+    // and add the caveat; a label that already names the outbreak is left.
+    const label = c.doseLabel ?? '';
+    if (label.startsWith('Booster') && !/outbreak/.test(label)) {
+      out.doseLabel = `${label} ${c.dueToday ? 'for this outbreak' : 'if outbreak risk continues'}`;
+    }
+    return out;
+  });
+}
+
 export function recommend(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -1981,16 +2022,16 @@ export function recommend(input) {
   // a floor after any dose that did not count (owner E1/E2).
   // MenACWY: 8 weeks after any dose, including a too-young first dose (owner
   // C11, 2026-11-15; D5, 2026-11-17) — as doseRules.js ACWY-ANY-TWO-DOSES-GAP.
-  const menacwy = applyRepeatFloor(
+  const menacwy = outbreakWording(applyRepeatFloor(
     menacwyRec(am, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
     menacwyHistory.uncountedDate,
     MENACWY_ANY_TWO_DOSES_MIN_GAP,
     today,
-  );
-  const menb = applyRepeatFloor(
+  ), outbreakIsTheOnlyBoosterReason('MenACWY', riskIds));
+  const menb = outbreakWording(applyRepeatFloor(
     menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate),
     menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL, today,
-  );
+  ), outbreakIsTheOnlyBoosterReason('MenB', riskIds));
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y). MenB can

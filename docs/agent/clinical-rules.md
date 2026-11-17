@@ -203,6 +203,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   rule the validator checks (C10, `acwyBoosterTooSoon`). An outbreak contact's routine
   16-year booster comes first and is exempt from the outbreak floor (`acwyIsRoutineBooster`).
   Infant outbreak series: the same 3-then-5-year countdown (`hasBoosterPhase: true`).
+- **Every outbreak card says the booster depends on the risk continuing** (owner D7,
+  2026-11-17), MenACWY (`outbreak_acwy`) and MenB (`outbreak_b`), at every age: a booster
+  label gains "if outbreak risk continues" (or "for this outbreak" when due today), and the
+  booster line reads "while outbreak risk continues". One step, `outbreakWording()` at the
+  end of `recommend()`, only when the outbreak is the only reason for boosters (another
+  ticked risk keeps its own wording). Dates unchanged. immunize.org P2018 (10/19/2026):
+  boosters *"as long as risk remains"*.
 - **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
   STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
   booster date doubling as `earliestNextDate` (pill "Future booster needed").
