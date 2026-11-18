@@ -219,3 +219,18 @@ regroups the same patients under the new label (same totals). Check 7's −6 is 
 continues" → "for this outbreak", an existing check-7 finding still flagged on 96 grid patients)
 now cross the 13th birthday in that year, and the checker does not judge a card change across a
 birthday.
+
+## A "Not counted — repeat" line gives its date (F-4a, F-4b), answered 2026-11-18
+
+Found while measuring Phase 5 (`report-2026-11-18-phase5-measured.md`, F-4). Measured before
+asking, over the 18,780 saved patients: 12,148 "not counted" dose lines in 7,218 patients: 4,936
+with a later dose of that vaccine on the record, 3,135 whose card asks today, 854 whose card gives
+a future date, 1,984 whose card asks later with no date ("Not yet due"), 281 deferred in
+pregnancy, 958 already "do not repeat" (Q10). Quote read live 2026-11-18, CDC Timing and Spacing
+(dated July 24, 2024): *"The repeat dose should be spaced after the invalid dose by the recommended
+minimum interval (Table 3-2)."*
+
+| # | Patient | Owner answer |
+|---|---|---|
+| F-4a | Leo, 13, asplenia, MenQuadfi Oct 1 and Oct 22, 2026 (3 weeks apart). Line had no date; card said Dec 17, 2026 | **Yes**: the line ends "Repeat from <date>." with the card's own date (read from the card, never computed twice). Lines whose card gives no date are unchanged |
+| F-4b | Same, MenQuadfi Jun 1, Jun 22 (too soon), Aug 20, 2026 (counts). Jun 22 line still said "repeat this dose only" | **Yes, as PneumoVax** (its ruling 2026-10-31): the forward-looking sentence becomes "Repeated on <date>. See that dose." whenever a later dose of that vaccine is on the record, counted or not. The first sentence and the chip "Not counted — repeat" stay |
