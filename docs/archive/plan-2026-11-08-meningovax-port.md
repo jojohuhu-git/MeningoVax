@@ -519,6 +519,9 @@ beside it (B2)? Where: MenB dose 3, the MenACWY 16-year dose, boosters.
 MenB high-risk dose 2 and infant MenACWY doses 2–3 (the three places named above already advise
 the routine date). Owner: **yes at both** (Q9a, Q9b), matching PneumoVax C10-2; the floor for a
 dose already given does not move — `decisions-2026-11-17-open-questions.md` ("STOP F1").
+Built and merged (#101). **Its two consequences answered 2026-11-18** (F2a: the combined shot is
+offered while MenB dose 2 can be given but is not yet due; F2b: the switch line says "due") —
+same file, "Q9a consequences". Built on `feature/2026-11-18-phase5-q9a-consequences`.
 **STOP F2 — owner merges.**
 
 ### Phase 6 — Wording (2 sessions, ≈ 8%)

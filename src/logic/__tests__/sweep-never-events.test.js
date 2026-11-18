@@ -57,7 +57,7 @@ import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
 import { doseChipLabel, RECORD_PROBLEM_LABELS, NEEDS_INPUT_LABEL } from '../../components/doseChipLabel.js';
-import { ALL_BRANDS, brandMinAge } from '../../data/brands.js';
+import { ALL_BRANDS, MENB_BRANDS, brandMinAge } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
@@ -216,6 +216,43 @@ let p12Rows = 0;
     return recommend({ today, dob: '2002-01-01', riskIds, menacwyDoses: [], menbDoses: dates.map((date) => ({ date, brand: 'Bexsero (MenB)' })) }).menb[0];
   }
   if (primaryOnly.status === 'complete') p12.push('12 outbreak, primary series only: reads Complete');
+}
+// Property 14 (owner F2a, 2026-11-18). The combined shot is offered exactly
+// when MenACWY is due today and MenB is due today or can be given today
+// (MenB high-risk dose 2 past its 4-week minimum, before its 1-month date);
+// a card that "can be given today" is never also due today, and its lead says
+// so. Walked day by day from 3 to 6 weeks after dose 1, both MenB products,
+// every MenB high-risk reason, with and without MenACWY due.
+const p14 = [];
+let p14Rows = 0;
+let p14GapRows = 0;
+{
+  const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
+  const d1 = '2026-01-30'; // a month-end start, so 4 weeks and 1 month sit 2 days apart
+  const lead = (c) => (typeof c?.note === 'string' ? c.note : c?.note?.lead ?? '');
+  for (const riskIds of [['asplenia'], ['complement'], ['microbiologist'], ['outbreak_b']]) {
+    for (const brand of MENB_BRANDS.map((b) => b.label)) { // Bexsero, Trumenba
+      for (const menacwyDoses of [[], [{ date: d1, brand: 'Menveo (MenACWY)' }]]) {
+        for (let day = 21; day <= 42; day++) {
+          const today = at(d1, day);
+          const r = recommend({ today, dob: '2004-06-15', riskIds, menacwyDoses, menbDoses: [{ date: d1, brand }] });
+          const b = r.menb[0];
+          const where = `14 ${riskIds[0]} ${brand} acwy=${menacwyDoses.length} day ${day}`;
+          p14Rows += 1;
+          if (b.canGiveToday) {
+            p14GapRows += 1;
+            if (b.dueToday) p14.push(`${where}: canGiveToday and dueToday together`);
+            if (!lead(b).includes('can be given today')) p14.push(`${where}: canGiveToday but the lead does not say so`);
+          }
+          const acwyDue = r.menacwy.some((c) => c.dueToday);
+          const bAvailable = r.menb.some((c) => c.dueToday || c.canGiveToday);
+          if (r.pentavalent.eligible !== (acwyDue && bAvailable)) {
+            p14.push(`${where}: pentavalent ${r.pentavalent.eligible} but acwyDue=${acwyDue} bAvailable=${bAvailable}`);
+          }
+        }
+      }
+    }
+  }
 }
 
 {
@@ -492,6 +529,13 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report(`Property 12 (${p12Rows} booster dates)`, p12);
     expect(p12Rows).toBeGreaterThan(100);
     expect(p12).toEqual([]);
+  });
+
+  it('property 14 (owner F2a) — the combined shot is offered exactly when MenACWY is due and MenB is due or can be given today', () => {
+    report(`Property 14 (${p14Rows} visits, ${p14GapRows} in the gap)`, p14);
+    expect(p14Rows).toBeGreaterThan(300);
+    expect(p14GapRows).toBeGreaterThan(10);
+    expect(p14).toEqual([]);
   });
 
   it('property 13 (owner STOP E1, Q5–Q9) — every dose chip is one label from the closed list', () => {
