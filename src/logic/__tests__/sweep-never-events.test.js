@@ -106,7 +106,7 @@ let p13Chips = 0;
 const CLOSED_LIST = [
   /^Dose \d+( of \d+)?$/,
   /^Booster$/,
-  /^Not counted — repeat$/,
+  /^Not counted — (do not )?repeat$/,
   /^Not counted — given before age (10|16)$/,
   /^Not counted — Extra\. Do not repeat\.$/,
 ];

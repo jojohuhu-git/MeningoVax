@@ -81,7 +81,45 @@ export { ageAtDoseFromDate } from './doseRules.js';
 // The effective count advances ONLY on kept doses, so a dose that follows a
 // dropped one is re-evaluated at the correct effective position.
 //
-function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers, dob) {
+// ── STOP E1 Q8 (owner, 2026-11-17): a dose no card asked for is Extra ──────
+//
+// PneumoVax's rule (§C-P1-3, owner rulings 2026-11-06), which the owner chose
+// for MeningoVax: a dose is Extra — given correctly, not needed, not counted,
+// nothing repeated — when every card for that vaccine on the day of the dose
+// asked for nothing ("complete" or "not indicated"). Her limits:
+//   • A FIRST dose is Extra too (Q11, 2026-11-17: she dropped PneumoVax's
+//     Priya limit here). A healthy 30-year-old's Bexsero doses are both Extra.
+//     No card is lost: the cards on the day are run with TODAY's risks, so a
+//     risk ticked later makes those cards ask, and the doses count.
+//   • College is left alone (Q8 follow-up, 2026-11-17): a dose given while the
+//     5-year college cover runs still counts, because ACIP measures the 5
+//     years "since the dose" — not counting it would ask for a dose too soon.
+//
+// THE CARD'S OWN ANSWER, NOT A SECOND READING OF IT: `cardsOnTheDayOf` is
+// recommend() run on the dose day with only the doses before it (recommend.js).
+// Rebuilding "complete" here would be a second copy of every schedule rule.
+// A "not indicated" card that still asks for a dose LATER ("Not yet due",
+// "Not yet age-eligible": `asksLater`, set in recommend.js) is not "asked for
+// nothing": a dose given then can still count. ACIP: a healthy child's
+// MenACWY at 10 "counts as dose 1 of the routine adolescent series", on a day
+// the card said "Not yet due". Calling it Extra asked for the dose again at 12.
+const CARD_ASKS_NOTHING = new Set(['complete', 'not-indicated']);
+const asksNothing = (c) => CARD_ASKS_NOTHING.has(c.status) && !c.asksLater;
+const NOT_ASKED_FOR_SENTENCE = {
+  complete: 'The series was already complete on that day.',
+  'not-indicated': 'No dose was recommended for this patient on that day.',
+};
+
+function notAskedFor(dose, { riskIds, cardsOnTheDayOf }) {
+  if (!cardsOnTheDayOf || !dose.date) return null;
+  if (riskIds.includes('college_dorm')) return null;
+  const cards = cardsOnTheDayOf(dose);
+  if (!cards || cards.length === 0) return null;
+  if (!cards.every(asksNothing)) return null;
+  return cards.every((c) => c.status === 'complete') ? 'complete' : 'not-indicated';
+}
+
+function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers, dob, cardsOnTheDayOf) {
   const kept = [];           // doses kept so far (the "effective" list being built)
   const perDose = [];        // one entry per raw dose (display results)
   let effectiveCount = 0;    // number of kept doses so far (including unknown)
@@ -178,7 +216,23 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         && seriesInfo.total != null
         && candidateKept.length > seriesInfo.total;
 
-      if (isExtra) {
+      const unasked = isExtra ? null : notAskedFor(dose, { riskIds, cardsOnTheDayOf });
+      if (unasked) {
+        // Q8 (above). Like a dose past the series total: not kept, not
+        // numbered, and it starts no clock (no card was waiting on it).
+        decidedBy[decidedBy.length - 1] = 'NOT-ASKED-FOR-EXTRA-DOSE';
+        // The line gives only the reason (PneumoVax §M-L3): any note the
+        // dose earned while it would have counted ("a third rescue dose is now
+        // required") is about a dose that no longer counts, and would
+        // contradict "Do not repeat".
+        perDose.push({
+          ...result,
+          effectiveDoseNum: null,
+          extraDose: true,
+          reasons: [NOT_ASKED_FOR_SENTENCE[unasked]],
+          reasonCites: undefined,
+        });
+      } else if (isExtra) {
         // A dose past the series total on a schedule with no booster phase.
         // Only a DATED dose can land here: since STOP C C1 (2026-11-15) an
         // undated dose never counts, so the G6 "Extra dose? — no date" wording
@@ -189,10 +243,11 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           ...result,
           effectiveDoseNum: null,
           extraDose: true,
+          // Only the reason, as for a dose no card asked for (above).
           reasons: [
-            ...result.reasons,
             `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
           ],
+          reasonCites: undefined,
         });
         // Do NOT add to kept; do NOT increment effectiveCount.
       } else {
@@ -249,6 +304,10 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
  *   provider answers to the risk-at-dose prompt, keyed by each dose's own
  *   `id` (G2). Doses built without an id fall back to their index in the
  *   chronologically-sorted list — the index used by `sortedDoses`/`perDose`.
+ * @param {string} [dob]
+ * @param {{cardsOnTheDayOf?: (dose) => Array<{status: string}>|null}} [options]
+ *   — recommend() passes this: the cards for THIS vaccine on a dose's day,
+ *   for the STOP E1 Q8 Extra rule. Without it (direct test calls) Q8 is off.
  *
  * @returns {{
  *   perDose: Array<{status, effectiveDoseNum, reasons, detail?, doesNotCount?, needsInput?, promptDate?}>,
@@ -256,7 +315,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
  *   sortedDoses: Array<{date?, brand?}>
  * }}
  */
-export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers, dob) {
+export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, riskAtDoseAnswers, dob, { cardsOnTheDayOf } = {}) {
   // todayISO(), not new Date().toISOString() — the latter is UTC and can be a
   // day ahead of the caller's local date (e.g. any evening in a UTC-behind
   // timezone), which breaks the exact cancellation ageAtDoseFromDate relies on
@@ -276,7 +335,7 @@ export function analyzeHistory(vaccine, doses, ageMonths, riskIds = [], today, r
   // no "leaving" moment to sweep at.
   const filtered = sortDosesChronologically(dropBlankDoseRows(doses));
   if (filtered.length === 0) return { perDose: [], effective: [], sortedDoses: [], decidedBy: [], anchorDate: null, uncountedDate: null };
-  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob), sortedDoses: filtered };
+  return { ...runWalk(vaccine, filtered, ageMonths, riskIds, ref, riskAtDoseAnswers, dob, cardsOnTheDayOf), sortedDoses: filtered };
 }
 
 // Chronological, stable sort. ISO date strings compare lexicographically. Undated doses

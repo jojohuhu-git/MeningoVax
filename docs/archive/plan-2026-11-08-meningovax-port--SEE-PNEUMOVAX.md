@@ -5,7 +5,7 @@ instead of working from a copy that has drifted.
 
 **The plan:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-meningovax-port.md`
 **Its latest handoff:** the newest `~/Downloads/PneumoVax/docs/archive/handoff-*meningovax*.md`
-without a SUPERSEDED banner (2026-11-15: `handoff-2026-11-15-meningovax-phase2-3-cdsi-rules.md`).
+without a SUPERSEDED banner (read it from PneumoVax's `origin/main`: the local checkout can lag).
 **The CDC CDSI half:** `~/Downloads/PneumoVax/docs/archive/plan-2026-11-08-cdsi-checks-both-apps.md`
 (this repo's CDC files are already in `scripts/cdsi/cdc-files/`).
 
@@ -24,6 +24,8 @@ folder. **STOP B answered 2026-11-15** (five answers, in the plan); 1.5 is a req
 `sourcesSay` beside each row (what the sources say, quoted and read live). **Phase 2.3 built** — the
 rule table held against CDSI's rule files (`report-2026-11-15-cdsi-rule-comparison.md`). **The three
 reads before STOP C done** (undated records, pentavalents from 26, the old Bexsero course). **STOP C
-answered 2026-11-15** — `stop-c-packet-2026-11-15.md` in this folder (18 answers). Next: Phase 3.
+answered 2026-11-15** — `stop-c-packet-2026-11-15.md` in this folder (18 answers). **Phase 3 built
+2026-11-16/17** (#90–#99; owner answers D1–D13 in `decisions-2026-11-17-open-questions.md`).
+**Phase 4 built 2026-11-17** (STOP E1, Q5–Q11, same file). Next: Phase 5.
 
 When a phase finishes, its new rule goes into this repo's `CLAUDE.md` (plan review item R-9).

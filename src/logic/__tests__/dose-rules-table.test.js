@@ -37,6 +37,7 @@ const VACCINES = ['any', 'MenACWY', 'MenB'];
 const MEASURED_FROM = [
   'birth', 'last counted dose', 'last dose given', 'dose 1', 'dose 2', 'dose 3',
   'first counted branded dose', 'today', 'the record', 'the series total',
+  'the cards on the day of the dose', // STOP E1 Q8 (2026-11-17)
 ];
 const ENFORCEMENT = [
   'floor', 'set-aside', 'counts-with-note', 'counts', 'needs-input', 'record-problem', 'extra', 'none',
@@ -195,8 +196,10 @@ describe('3 · what a row says happens is what happens, to every dose it decided
 
   // What each enforcement means, as a fact about the verdict the walk shows.
   const MEANS = {
+    // STOP E1 Q10: when no card asks for that vaccine the dose is not
+    // repeated (`notRepeated`), and its line drops the repeat sentence.
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
-      && v.reasons[v.reasons.length - 1] === REPEAT_SENTENCE,
+      && (v.notRepeated ? !v.reasons.includes(REPEAT_SENTENCE) : v.reasons[v.reasons.length - 1] === REPEAT_SENTENCE),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null
       && !v.reasons.includes(REPEAT_SENTENCE),
     'counts-with-note': (v) => v.status === 'valid' && v.effectiveDoseNum >= 1 && v.reasons.length >= 1,
@@ -224,7 +227,11 @@ describe('3 · what a row says happens is what happens, to every dose it decided
         ? verdict.status === 'valid' && verdict.effectiveDoseNum >= 1
         : rule.enforcement === 'record-problem'
           ? chip === RECORD_PROBLEM_LABELS[verdict.recordProblem] && chip === rule.label
-          : chip === rule.label;
+          // STOP E1 Q10: a dose that did not count reads "do not repeat" when
+          // no card asks for that vaccine (the engine's `notRepeated`).
+          : verdict.notRepeated
+            ? chip === 'Not counted — do not repeat' && rule.label === 'Not counted — repeat'
+            : chip === rule.label;
       if (!ok) wrong.push(`${ruleId} label "${rule.label}" but chip "${chip}" at ${where}`);
     }
     expect(wrong.slice(0, 10), `${wrong.length} chips differ from their row`).toEqual([]);

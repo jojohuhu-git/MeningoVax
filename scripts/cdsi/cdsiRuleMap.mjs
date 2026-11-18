@@ -320,6 +320,9 @@ export const ROW_MAP = {
   'SERIES-CAP-EXTRA-DOSE': {
     none: 'CDSI calls a dose past the end of a series "Extraneous" in its evaluation logic; there is no row for it in these files. CDC\'s test patients compare it (cdsi-test-patients-gate.test.js).',
   },
+  'NOT-ASKED-FOR-EXTRA-DOSE': {
+    none: 'CDSI has no row for a dose no card asked for: its "Extraneous" is a dose past the end of a series. The owner\'s rule (STOP E1 Q8, 2026-11-17) is PneumoVax\'s. CDC\'s test patients compare the outcome (cdsi-test-patients-gate.test.js).',
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────

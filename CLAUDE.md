@@ -60,7 +60,9 @@ routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Own
 8 weeks, military booster check, outbreak wording, MenB switch line. **D9 (no college repeat; no code) and D10
 (serogroup B outbreak: one MenB booster) answered 2026-11-17; D10 built.** **B-1 built 2026-11-17** (the 4-day grace at the MenACWY
 3-month, 7-month, 2-year and 16-year lines, only when it means fewer doses owed, from the dose day
-on; age 7 is not a grace line — owner D11–D13). Next: Phase 4. Open owner questions are
+on; age 7 is not a grace line — owner D11–D13). **Phase 4 (one label per dose) built 2026-11-17**: STOP E1
+answers Q5–Q11 in `docs/archive/decisions-2026-11-17-open-questions.md`; the closed label list is in
+`docs/agent/clinical-rules.md` ("One Label Per Dose"). Next: Phase 5. Open owner questions are
 in the newest handoff (in PneumoVax).
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 

@@ -26,7 +26,8 @@
 //   measuredFrom  What the gap or age is counted from: 'birth', 'last counted
 //                 dose', 'dose 1', 'dose 2', 'dose 3', 'first counted branded
 //                 dose', 'today' (an undated dose: today is the latest it can
-//                 have been given), or 'the record' (a typing problem).
+//                 have been given), or 'the record' (a typing problem),
+//                 'the series total', or 'the cards on the day of the dose'.
 //                 Every gap here is measured from a dose that COUNTED, never
 //                 from one that did not (Phase 0 finding R-2; STOP C Q1).
 //   enforcement   What happens to a dose the rule catches:
@@ -40,7 +41,8 @@
 //                                    which counts but is never a timing anchor).
 //                   'needs-input'    waits for the risk-at-dose question.
 //                   'record-problem' the entry is wrong, not the vaccination.
-//                   'extra'          not counted: past the series total;
+//                   'extra'          not counted: past the series total, or
+//                                    asked for by no card on its day (Q8);
 //                                    chip "Not counted — Extra. Do not repeat."
 //                   'none'           never checked — with the reason.
 //   grace         true: CDC's 4-day grace applies. false: deliberately not
@@ -1619,6 +1621,27 @@ export const DOSE_RULES = [
     // runWalk applies this after a dose has been judged to count, because it
     // needs the series total WITH this dose in it (seriesTotals.js). Written
     // here so the table lists every way a dose can be set aside.
+    check: null,
+  },
+  {
+    id: 'NOT-ASKED-FOR-EXTRA-DOSE',
+    inventory: 'W3b',
+    what: 'A dose given on a day when every card for that vaccine asked for nothing (complete, or not indicated), after an earlier counted dose',
+    vaccine: 'any',
+    schedule: 'any, except college residence (owner Q8 follow-up)',
+    measuredFrom: 'the cards on the day of the dose',
+    enforcement: 'extra',
+    grace: null,
+    authorityToday: 'Owner, STOP E1 Q8 (2026-11-17): PneumoVax §C-P1-3',
+    sourcesSay: {
+      verdict: 'owner-decided',
+      refs: [],
+      note: 'No source says when a dose nobody asked for counts. The owner chose PneumoVax\'s rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; college is left alone, because ACIP times the 5-year cover "since the dose".',
+    },
+    label: 'Not counted — Extra. Do not repeat.',
+    // runWalk applies this (validate.js `notAskedFor`), because it needs the
+    // cards recommend() gave on the dose day. Written here so the table lists
+    // every way a dose can be set aside.
     check: null,
   },
 ];

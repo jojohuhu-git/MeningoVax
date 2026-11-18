@@ -93,7 +93,11 @@ export function doseChipLabel(result, seriesTotal) {
   // for a too-soon dose: "For Menveo saying do not repeat and then giving the
   // next due date is confusing." CDC: such doses "should be repeated as age
   // appropriate".
-  return status === 'invalid' ? 'Not counted — repeat' : 'Unknown';
+  // OWNER, STOP E1 Q10 (2026-11-17): when no card asks for that vaccine, the
+  // engine marks the dose `notRepeated`: nothing is owed, so "do not repeat"
+  // (PneumoVax's word for a dose the patient never needed).
+  if (status === 'invalid') return result.notRepeated ? 'Not counted — do not repeat' : 'Not counted — repeat';
+  return 'Unknown';
 }
 
 /** The chip's CSS class, which follows the same verdict. */

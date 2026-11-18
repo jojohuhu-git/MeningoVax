@@ -144,6 +144,38 @@ rule applies stay on the doses that COUNTED.
 
 Test: `regression-2026-11-15-ruling-d-repeat-from-the-dose-given.test.js`.
 
+## One Label Per Dose (port Phase 4, owner STOP E1 Q5–Q11, 2026-11-17)
+
+The chip beside a recorded dose is one label from a closed list
+(`doseChipLabel.js`; enforced by `sweep-never-events.test.js` property 13).
+Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
+
+- **Q5** `status: 'invalid'` → "Not counted — repeat" (too soon or too young
+  alike; PneumoVax's "do not repeat" for a too-soon dose was NOT adopted: "For
+  Menveo saying do not repeat and then giving the next due date is confusing").
+- **Q10** …unless no card asks for that vaccine today: `recommend.js`
+  `notRepeatedWhenNothingAsked` marks `notRepeated` when every card for it is
+  `complete`/`not-indicated` without `asksLater`; the chip reads "Not counted —
+  do not repeat" and the line drops "repeat this dose only". `deferred`
+  (pregnancy) asks.
+- **Q6** a set-aside dose names its line: "Not counted — given before age
+  10/16" (`setAsideBeforeAgeY`, stamped by `setAsideResult` in `doseRules.js`).
+- **Q7** "Booster" kept. **Q9** a counted dose with no series running: "Dose N".
+- **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not
+  kept, not numbered, starts no clock, line = the reason only) when every card
+  for that vaccine on the dose day asked for nothing. "The cards on the dose
+  day" = `recommend()` run with `today` = the dose date, the doses before it,
+  and today's risks (`cardsOnTheDay` in `recommendOneReading`, cached per date
+  in `cardsSeen`). Limits: no first-dose exception (Q11, unlike PneumoVax's
+  Priya); `college_dorm` exempt (Q8 follow-up); a card with `asksLater`
+  ("Not yet due", "Not yet age-eligible", "Dose 1 given; next dose not yet due",
+  MenB "Not routinely indicated" under 16) asks, so it does not make a dose
+  Extra. Why `asksLater`: without it a healthy child's MenACWY at 10 (ACIP:
+  counts as dose 1) and a MenB dose inside the 4-day grace before 16 became
+  Extra, and the card asked for them again. The series-cap Extra (past the
+  total, no booster phase) is unchanged except its line now gives only the
+  reason.
+
 ## Source Priority
 
 **ACIP/CDC/AAP/immunize.org over FDA package inserts.** Sources are listed at the top of `recommend.js` and in `refs.js`. Never revert to FDA-labeled ages without explicit instruction.
