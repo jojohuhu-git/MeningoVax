@@ -120,6 +120,10 @@ function rec(o) {
   return {
     vaccine: o.vaccine,
     status: o.status,          // due | catchup | risk-based | exposure | shared-decision | complete | not-indicated | deferred
+    // STOP E1 Q8: a "not indicated" card that asks for a dose later ("Not yet
+    // due", "Not yet age-eligible"). Only those cards carry it. validate.js
+    // reads it so a dose given on such a day is not called Extra.
+    ...(o.asksLater ? { asksLater: true } : {}),
     doseLabel: o.doseLabel,
     doseNum: o.doseNum ?? null,
     seriesTotal: o.seriesTotal ?? null,
@@ -468,7 +472,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
   // not a re-derived number.
   if ((riskClass === 'single+boost' || riskClass === 'single') && am < MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     return [rec({
-      vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible', dueToday: false,
+      vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible', dueToday: false,
       note: {
         lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
         detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
@@ -969,7 +973,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // had never happened, right after a clause claiming only Menveo was
     // licensed that young (false: MenQuadfi's own floor is younger still).
     if (given === 0) {
-      return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
+      return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
         dueToday: false,
         note: {
           lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
@@ -984,7 +988,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // product may be given when. The package insert is the right source for
     // that; the WA DOH chip carries the "why" (AAP alignment) a clinician
     // reading this unusual card would otherwise have to take on faith.
-    return rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Dose 1 given; next dose not yet due',
+    return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Dose 1 given; next dose not yet due',
       dueToday: false,
       note: {
         lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young [c]; it counts toward the ${why} series.`,
@@ -1299,7 +1303,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       noteCites: [cite('acwyAge10CountsAsDose1')], refs })];
   }
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS) {
-    return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not yet due',
+    return [rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet due',
       note: {
         lead: 'No routine MenACWY dose is due at this age without a risk factor.',
         detail: 'The routine schedule starts at 11–12 years, with a booster at 16 years [c]. A risk indication — asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak — would bring vaccination forward.',
@@ -1489,7 +1493,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
   // MenB is only licensed ≥10y.
   if (am < MENB_MIN_AGE_MONTHS) {
     if (highRisk) {
-      return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not yet age-eligible',
+      return [rec({ vaccine: 'MenB', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
         note: {
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
           detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)}.`,
@@ -1783,6 +1787,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
   // shared-decision recs above), not the mislabeled Penmenvy page; the
   // "preferably 16-18" claim isn't in mm7349a3 so was dropped.
   return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not routinely indicated',
+    // Under 16 the schedule offers MenB from 16, so this card asks LATER (STOP
+    // E1 Q8): a dose 1–4 days before 16 counts under CDC's grace, though this
+    // card is what the patient had that day.
+    asksLater: am < MENB_HEALTHY_MIN_AGE_MONTHS,
     note: am < MENB_HEALTHY_MIN_AGE_MONTHS
       // M16: the pre-16 card names the preferred age too, so a clinician
       // planning ahead knows the conversation is best had at 16-18 rather than
@@ -2106,6 +2114,30 @@ function menacwyDosesOwed(result) {
   return owed;
 }
 
+// STOP E1 Q10 (owner, 2026-11-17): a dose that did not count (too soon, too
+// young, wrong family) is repeated only if a card still asks for that vaccine.
+// When every card for it today asks for nothing ("complete" or "not
+// indicated"), nothing is owed, so the dose reads "Not counted — do not
+// repeat" (PneumoVax's word for a dose the patient never needed) and its line
+// drops "repeat this dose only". A deferred card (pregnancy) still asks: the
+// dose is owed after it. A record problem is not a dose given at a wrong time,
+// and keeps its own label.
+const REPEAT_THIS_DOSE = 'This dose does not count toward the series: repeat this dose only (do not restart the series).';
+const CARDS_ASK_NOTHING = new Set(['complete', 'not-indicated']);
+function notRepeatedWhenNothingAsked(history, cards) {
+  // A card that asks for a dose later ("Not yet age-eligible: start the
+  // high-risk series at 10") still asks: CDC repeats a too-young dose "on or
+  // after the date when the child reaches at least the minimum age".
+  if (!cards?.length || !cards.every((c) => CARDS_ASK_NOTHING.has(c.status) && !c.asksLater)) return history;
+  if (!history.perDose.some((d) => d.status === 'invalid' && !d.recordProblem)) return history;
+  return {
+    ...history,
+    perDose: history.perDose.map((d) => (d.status === 'invalid' && !d.recordProblem
+      ? { ...d, notRepeated: true, reasons: (d.reasons ?? []).filter((r) => r !== REPEAT_THIS_DOSE) }
+      : d)),
+  };
+}
+
 function recommendOneReading(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -2161,8 +2193,29 @@ function recommendOneReading(input) {
   // B-1: only the reading that puts a dose on its birthday sets this (see
   // recommend()); MenACWY alone reads it — MenB and the pentavalent keep `am`.
   const acwyAm = Math.max(am, input.menacwyAgeFloorMonths ?? 0);
-  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, acwyAm, riskIds, today, acwyRiskAnswers, input.dob);
-  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers, input.dob);
+  // STOP E1 Q8 (owner, 2026-11-17): what the cards said on the day of a dose,
+  // for the Extra rule in validate.js. It is recommend() itself, run on the
+  // dose day with only the doses recorded before it (undated ones included:
+  // they never count, so they change no card), the same risks and answers.
+  // Filtering by date keeps a sorted prefix, so index-keyed answers still line
+  // up. `cardsSeen` shares each day's answer across the nested runs, so a
+  // record of N doses costs N extra runs, not 2^N. No date of birth, no
+  // dose-day age: the rule is off.
+  const cardsSeen = input.cardsSeen ?? new Map();
+  const cardsOnTheDay = (key) => input.dob ? (dose) => {
+    if (!cardsSeen.has(dose.date)) {
+      const before = (list) => (list ?? []).filter((d) => d && (!d.date || d.date < dose.date));
+      const { menacwyAgeFloorMonths: _floor, ...rest } = input;
+      const then = recommend({
+        ...rest, cardsSeen, today: dose.date,
+        menacwyDoses: before(input.menacwyDoses), menbDoses: before(input.menbDoses),
+      });
+      cardsSeen.set(dose.date, then.excluded ? null : then);
+    }
+    return cardsSeen.get(dose.date)?.[key] ?? null;
+  } : undefined;
+  const menacwyHistory = analyzeHistory('MenACWY', rawMenacwyDoses, acwyAm, riskIds, today, acwyRiskAnswers, input.dob, { cardsOnTheDayOf: cardsOnTheDay('menacwy') });
+  const menbHistory    = analyzeHistory('MenB',    rawMenbDoses,    am, riskIds, today, bRiskAnswers, input.dob, { cardsOnTheDayOf: cardsOnTheDay('menb') });
   const effectiveMenacwyDoses = menacwyHistory.effective;
   const effectiveMenbDoses    = menbHistory.effective;
 
@@ -2278,7 +2331,10 @@ function recommendOneReading(input) {
     // one indication with no card of its own (pregnancy, which only defers
     // MenB) would otherwise have nowhere to be said.
     riskAgeNote, riskAgeNoteCites,
-    history: { MenACWY: menacwyHistory, MenB: menbHistory },
+    history: {
+      MenACWY: notRepeatedWhenNothingAsked(menacwyHistory, menacwy),
+      MenB: notRepeatedWhenNothingAsked(menbHistory, menb),
+    },
     meta: { ageMonths: am, today, riskIds },
   };
 }

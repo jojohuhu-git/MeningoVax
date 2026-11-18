@@ -49,38 +49,55 @@ export const NEEDS_INPUT_LABEL = 'Needs input';
 export function doseChipLabel(result, seriesTotal) {
   if (!result) return null;
   const {
-    status, effectiveDoseNum, notAdolescentCount,
+    status, effectiveDoseNum, notAdolescentCount, setAsideBeforeAgeY,
     extraDose, recordProblem,
   } = result;
 
   if (status === 'pending') return NEEDS_INPUT_LABEL;
 
   // G3/G7 (2026-09-16): FIRST, and ahead of every clinical state. A row with a
-  // future or duplicated date is a typo. Labelling it "Invalid" or
-  // "Off-window - repeat" sends the reader hunting for a clinical mistake.
+  // future or duplicated date is a typo. Labelling it "Not counted — repeat"
+  // sends the reader hunting for a clinical mistake.
   if (recordProblem) return RECORD_PROBLEM_LABELS[recordProblem];
 
-  // Owner-agreed wording, 2026-07-23 handoff. Not to be reworded by a copy pass.
-  if (notAdolescentCount) return 'Off-window - repeat';
+  // OWNER, STOP E1 Q6 (2026-11-17), replacing "Off-window - repeat" (2026-07-23):
+  // the label names the age line the dose fell short of. It does not say
+  // "repeat" or "do not repeat": the card says what is owed. (PneumoVax's
+  // "Not counted — PCV7" is the same idea.) The engine stamps the line.
+  if (notAdolescentCount) return `Not counted — given before age ${setAsideBeforeAgeY}`;
 
-  // U4 (2026-09-17): says what is true of the patient. The earlier wording,
-  // "beyond the indicated series total", read out `seriesTotal` -- the code's
-  // own variable name -- in the interface.
-  if (extraDose) return 'Extra dose — more than this series needs';
+  // OWNER, STOP E1 Q8 (2026-11-17): PneumoVax's wording, replacing
+  // "Extra dose — more than this series needs".
+  if (extraDose) return 'Not counted — Extra. Do not repeat.';
 
   if (status === 'valid') {
-    // U4 (2026-09-17): was "Recorded -- not part of an indicated series", which
-    // described the RECORD rather than the patient.
-    if (seriesTotal == null) return 'Given — not part of a series this patient needs';
+    // OWNER, STOP E1 Q9 (2026-11-17): no series is running, so the dose number
+    // alone, as PneumoVax shows it. Was "Given — not part of a series this
+    // patient needs", which read as if the dose had been a mistake.
+    // A counted dose always carries its number (sweep-dose-counter checks);
+    // without one, say so visibly rather than print "Dose undefined".
+    if (effectiveDoseNum == null) return 'Unknown';
+    if (seriesTotal == null) return `Dose ${effectiveDoseNum}`;
     if (effectiveDoseNum <= seriesTotal) return `Dose ${effectiveDoseNum} of ${seriesTotal}`;
     // F2/F5 (2026-09-14): a valid dose past the total on a schedule that HAS a
     // booster phase. analyzeHistory deliberately does not cap effectiveDoseNum
     // here, so the number is larger than the total -- printing it is precisely
     // the "chip shows N > M" bug. The chip says "Booster" and no number.
+    // OWNER, STOP E1 Q7 (2026-11-17): keep "Booster", MeningoVax's own label
+    // (PneumoVax has no boosters).
     return 'Booster';
   }
 
-  return status === 'invalid' ? 'Invalid' : 'Unknown';
+  // OWNER, STOP E1 Q5 (2026-11-17): a dose that did not count, too soon or too
+  // young, is repeated: "Not counted — repeat". Not PneumoVax's "do not repeat"
+  // for a too-soon dose: "For Menveo saying do not repeat and then giving the
+  // next due date is confusing." CDC: such doses "should be repeated as age
+  // appropriate".
+  // OWNER, STOP E1 Q10 (2026-11-17): when no card asks for that vaccine, the
+  // engine marks the dose `notRepeated`: nothing is owed, so "do not repeat"
+  // (PneumoVax's word for a dose the patient never needed).
+  if (status === 'invalid') return result.notRepeated ? 'Not counted — do not repeat' : 'Not counted — repeat';
+  return 'Unknown';
 }
 
 /** The chip's CSS class, which follows the same verdict. */

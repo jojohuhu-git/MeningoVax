@@ -34,10 +34,10 @@ The save-time guardrail (flags stray top-level notes — see Root Directory Hygi
 
 PneumoVax's way of working (one rule table, a moved answer must be explained, one label per dose,
 dates stated plainly, a rulebook held to the code, citations per card) is being brought here in
-nine phases. **The plan lives in PneumoVax, not here** (owner decision 2026-10-16: both-apps plans
-are one file plus a pointer): read
-[docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md](docs/archive/plan-2026-11-08-meningovax-port--SEE-PNEUMOVAX.md)
-first. **Status 2026-11-15: Phase 0 done; Phase 1 (items 1.1–1.5) built** (saved answers, prose
+nine phases. **The plan and its handoffs live here** (moved from PneumoVax 2026-11-17, owner
+decision; PneumoVax keeps a pointer): read
+[docs/archive/plan-2026-11-08-meningovax-port.md](docs/archive/plan-2026-11-08-meningovax-port.md)
+and the newest `docs/archive/handoff-*` without a SUPERSEDED banner first. **Status 2026-11-15: Phase 0 done; Phase 1 (items 1.1–1.5) built** (saved answers, prose
 diff, typical patients, whole-app checks, CDC's CDSI test patients) — findings in
 `docs/archive/report-2026-11-15-whole-app-checks.md` and
 `docs/archive/report-2026-11-15-cdsi-test-patients.md`, listed not fixed. **STOP B answered
@@ -60,8 +60,10 @@ routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Own
 8 weeks, military booster check, outbreak wording, MenB switch line. **D9 (no college repeat; no code) and D10
 (serogroup B outbreak: one MenB booster) answered 2026-11-17; D10 built.** **B-1 built 2026-11-17** (the 4-day grace at the MenACWY
 3-month, 7-month, 2-year and 16-year lines, only when it means fewer doses owed, from the dose day
-on; age 7 is not a grace line — owner D11–D13). Next: Phase 4. Open owner questions are
-in the newest handoff (in PneumoVax).
+on; age 7 is not a grace line — owner D11–D13). **Phase 4 (one label per dose) built 2026-11-17**: STOP E1
+answers Q5–Q11 in `docs/archive/decisions-2026-11-17-open-questions.md`; the closed label list is in
+`docs/agent/clinical-rules.md` ("One Label Per Dose"). Next: Phase 5. Open owner questions are
+in the newest handoff.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
 ## Non-Negotiable Rules

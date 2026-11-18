@@ -33,7 +33,7 @@ folder — they go where the table at the bottom says.**
 | `MAP.md` | This file — the building directory. |
 | `README.md` | The public description of the app for anyone visiting the code online. |
 | `docs/agent/` | The technical manuals (architecture, clinical rules, testing rules). |
-| `docs/archive/` | Session notes, handoffs, past reviews, kept for history. **Two kinds of file here are current:** a handoff with no "SUPERSEDED" or "done" banner at its top, and a `--SEE-PNEUMOVAX.md` pointer to a plan shared with PneumoVax (today: the MeningoVax port plan). Everything else is history. |
+| `docs/archive/` | Session notes, handoffs, past reviews, kept for history. **Two kinds of file here are current:** a handoff with no "SUPERSEDED" or "done" banner at its top, and a plan without a "done" banner (today: `plan-2026-11-08-meningovax-port.md`, moved here from PneumoVax on 2026-11-17). Everything else is history. |
 
 ## Machine-managed — never edit by hand
 

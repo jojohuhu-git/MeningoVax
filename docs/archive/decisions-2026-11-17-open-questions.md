@@ -47,3 +47,44 @@ B-1, D11, D12 and D13 built 2026-11-17 (`regression-2026-11-17-b1-grace-only-whe
 Still open (not asked this session): MenB of
 unknown product at 16+ (CDC 2024-0069); healthy MenB rescue dose 3 waiting for 6 months from
 dose 1 (CDC 2024-0034/0035); the 1-day calendar difference (2024-0040, shared with PneumoVax).
+
+## STOP E1 — Phase 4, one label per dose (Q5–Q9), answered 2026-11-17
+
+Asked one patient at a time; every patient was run through the real engine on 2026-11-17 (`main`
+at `3cb256c`). Quotes read live 2026-11-17: CDC Timing and Spacing of Immunobiologics; ACIP 2020
+MMWR rr6909a1. The PneumoVax wording each was set against is its `src/components/doseChipLabel.js`
+(origin/main, 2026-11-17).
+
+| # | Question | Owner answer | Sources |
+|---|---|---|---|
+| Q5 | A dose given too soon. Asplenia, 20 y, Menveo 1/10/26 and 2/1/26 (3 weeks; 8 is the minimum). Today: "Invalid … repeat this dose only". PneumoVax (W1) says "Not counted — do not repeat" | **"Repeat", not "do not repeat".** Owner: *"pneumovax's context for do not repeat is different… For Menveo saying do not repeat and then giving the next due date is confusing."* Label: **"Not counted — repeat"** for a dose too soon and a dose too young alike. PneumoVax not changed | CDC Timing and Spacing: *"Doses of any vaccine administered ≥5 days earlier than the minimum interval or age should not be counted as valid doses and should be repeated as age appropriate."* |
+| Q6 | A dose set aside for age. Healthy 12 y, Menveo at 9. Today: "Off-window - repeat", while the rulebook says "no repeat needed" | **"Not counted — given before age 10"** (MenACWY); **"Not counted — given before age 16"** (healthy MenB; a routine 2nd MenACWY before 16). Owner's limit: *"if menB for a high risk or exposure patient is given a dose earlier than 16 years this is correct since the minimum age for this group is 10 years not 16 years"*: a high-risk patient's MenB from 10 counts (as it already does) | ACIP 2020: *"Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease … should still receive MenACWY according to the recommended adolescent schedule"*. PneumoVax analogue: "Not counted — PCV7" (owner 2026-10-31: "do not repeat" would read as "no more") |
+| Q7 | "Booster" (asplenia, 22 y, a counted booster 4/10/26). PneumoVax's list has no booster label | **Keep "Booster"** | ACIP 2020: *"ACIP recommends MenACWY booster doses for previously vaccinated persons who become or remain at increased risk."* |
+| Q8 | What "Extra" means. **First asked with a wrong example** (healthy 30 y, first Menveo at 25: PneumoVax's first-dose limit keeps that one counted); corrected and re-asked: healthy 25 y, Menveo at 12 and 23 — the card at 23 said "Not routinely indicated" | **PneumoVax's rule:** a dose is Extra when every card for that vaccine on the day of the dose asked for nothing (complete / not indicated) and the patient already had a dose of it. A healthy patient's first dose stays counted (PneumoVax's Priya ruling). Label **"Not counted — Extra. Do not repeat."** The 23 y dose → Extra; today's card → "Not routinely indicated". No dose owed either way | PneumoVax §C-P1-3 (owner rulings 2026-11-06) |
+| Q9 | A counted dose for a patient with no series now. Healthy 25 y, Menveo at 12: today "Given — not part of a series this patient needs" | **"Dose 1"** — the dose number, no total, as PneumoVax | PneumoVax `doseChipLabel.js` (`Dose ${n}` when no series is running) |
+
+### Asked while building Q8 (same day)
+
+| # | Question | Owner answer | Sources |
+|---|---|---|---|
+| Q8 follow-up | College: Menveo at 16 and 18, seen at 22 as a first-year student. Under the Extra rule the 18 y dose (card that day: Complete) would not count, and the card would ask for a dose (6 years since the 16 y dose) | **Leave college alone**: a dose given while the college cover runs still counts ("Booster"; card Complete) | ACIP 2020 Table 10 footnote: *"…do not need another dose before college entry unless it has been more than 5 years since the dose"* |
+| Q10 | A dose that did not count where no card asks for that vaccine. Healthy 1 y, Bexsero at 9 months; card "MenB: Not routinely indicated"; label "Not counted — repeat" | **"Not counted — do not repeat"** when every card for that vaccine is Complete or Not indicated; "repeat" when a card asks (pregnancy's deferral asks) | PneumoVax `doseDisposition.js`: a dose the patient never needed is `no-repeat` |
+| Q11 | The first-dose limit that came with Q8 (PneumoVax's Priya ruling). Asked after the owner asked *"why was dose one counted"* for a healthy 30 y with Bexsero 3/1/26 and 3/15/26. Healthy 30 y, Bexsero 3/1/26 and 9/15/26: with the limit "Dose 1" then "Extra"; without it, both Extra | **Drop the limit** in MeningoVax: a first dose no card asked for is Extra too | — (an app rule; differs from PneumoVax on purpose) |
+
+**Two corrections, said plainly.**
+1. Q8 was first asked with a wrong example (healthy 30 y, first Menveo at 25). PneumoVax's
+   first-dose limit would have kept that dose counted. The owner was told and Q8 was re-asked with a
+   correct one. After Q11 dropped the limit, the first example's answer (Extra) became true after all.
+2. Q11 was asked saying "no card changes either way". **That was not true for two cases**, found
+   while measuring. (a) A healthy child's MenACWY at 10: the card that day says "Not yet due", so the
+   dose became Extra, and the card at 12 asked for it again, though ACIP *"counts a dose given at
+   age 10 as dose 1 of the routine adolescent series"*. (b) A MenB dose 1–4 days before 16, which
+   CDC's 4-day grace counts, on a day the card said "Not routinely indicated". Fixed, keeping the
+   app's earlier (sourced) answer: a card that asks for a dose *later* ("Not yet due", "Not yet
+   age-eligible", "Dose 1 given; next dose not yet due", MenB "Not routinely indicated" under 16)
+   is not "asked for nothing". The same test is used for Q10, so a high-risk 8-year-old's too-young
+   Bexsero reads "repeat" (its card says to start the series at 10). After the fix no saved patient's
+   card asks for more doses than before (checked on 18,780 + 5,820 patients).
+
+Not asked, and not changed by these answers: the record-problem labels ("No date recorded — not
+counted", etc.), colours (plan item A2), and the wording of the line under each label (Phase 6).

@@ -72,16 +72,16 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
   // fallback for a dose recorded while the vaccine isn't currently
   // indicated at all (no seriesTotal to compare against) — replaced with
   // an explicit, owner-approved label instead of inventing a number.
-  it('labels a plain valid dose with no current series "Given — not part of a series this patient needs" (green)', () => {
+  it('labels a plain valid dose with no current series "Dose N" (green; owner STOP E1 Q9)', () => {
     render(
       <RecCard
         rec={baseRec}
         doses={[{ date: '2024-01-01', brand: '' }]}
-        doseValidations={[{ status: 'valid', reasons: [] }]}
+        doseValidations={[{ status: 'valid', effectiveDoseNum: 1, reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Given — not part of a series this patient needs');
-    expect(chip.className).toMatch(/dose-val-valid/);
+    const chip = screen.getAllByText('Dose 1').find((el) => /dose-val-chip/.test(el.className));
+    expect(chip?.className).toMatch(/dose-val-valid/);
   });
 
   // C2 (2026-07-23 handoff): when the rec carries a seriesTotal (M) and the
@@ -106,7 +106,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
   // total, on a schedule with no ongoing booster phase, is an extra dose —
   // the reported bug's exact scenario ("Dose 3 of 1"). It must render its
   // own explicit label, never a bare "Dose N of M" with N > M.
-  it('labels a dose analyzeHistory flagged extraDose as "Extra dose" (amber), never N > M', () => {
+  it('labels a dose analyzeHistory flagged extraDose "Not counted — Extra. Do not repeat." (owner STOP E1 Q8), never N > M', () => {
     render(
       <RecCard
         rec={{ ...baseRec, seriesTotal: 2 }}
@@ -114,7 +114,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'valid', effectiveDoseNum: null, extraDose: true, reasons: [] }]}
       />
     );
-    const chip = screen.getByText('Extra dose — more than this series needs');
+    const chip = screen.getByText('Not counted — Extra. Do not repeat.');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     expect(screen.queryByText(/of 2/)).toBeNull();
   });
@@ -138,7 +138,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
     expect(screen.queryByText(/Booster \(dose/)).toBeNull();
   });
 
-  it('labels a pre-age-10 dose "Off-window - repeat" (amber), never "Invalid"', () => {
+  it('labels a pre-age-10 dose "Not counted — given before age 10" (owner STOP E1 Q6), never "Not counted — repeat"', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -146,17 +146,18 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{
           status: 'valid',
           notAdolescentCount: true,
+          setAsideBeforeAgeY: 10,
           effectiveDoseNum: null,
           reasons: ['Given before age 10 (~9 years): does not count toward the adolescent MenACWY series.'],
         }]}
       />
     );
-    const chip = screen.getByText('Off-window - repeat');
+    const chip = screen.getByText('Not counted — given before age 10');
     expect(chip.className).toMatch(/dose-val-offwindow/);
-    expect(screen.queryByText('Invalid')).toBeNull();
+    expect(screen.queryByText('Not counted — repeat')).toBeNull();
   });
 
-  it('labels an invalid dose "Invalid" (red)', () => {
+  it('labels an invalid dose "Not counted — repeat" (red; owner STOP E1 Q5)', () => {
     render(
       <RecCard
         rec={baseRec}
@@ -164,7 +165,7 @@ describe('RecCard dose-validation chip (E5 vaxapp-style compliance colors)', () 
         doseValidations={[{ status: 'invalid', reasons: ['Given too soon after the prior dose: does not count.'] }]}
       />
     );
-    const chip = screen.getByText('Invalid');
+    const chip = screen.getByText('Not counted — repeat');
     expect(chip.className).toMatch(/dose-val-invalid/);
   });
 
