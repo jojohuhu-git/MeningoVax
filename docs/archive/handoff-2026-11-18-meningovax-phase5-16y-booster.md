@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase5-f2-f4-f6.md`. PR #104 merged; F-2, F-4 and F-6 asked and built (PR #105). Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 5.1 was measured and the 16-year booster built (2026-11-18, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit

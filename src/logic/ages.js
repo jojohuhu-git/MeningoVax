@@ -158,6 +158,14 @@ export const MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS = years(10);
 /** Routine dose 1 is offered from the 11th birthday ("age 11-12 years"). */
 export const MENACWY_ROUTINE_DOSE1_AGE_MONTHS = years(11);
 
+/**
+ * From the 13th birthday a first MenACWY is a catch-up dose, not the routine
+ * 11–12 dose (owner F-2, 2026-11-18). CDC child/adolescent notes, catch-up:
+ * "Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum
+ * interval: 8 weeks)". Wording only: the dose and its booster are the same.
+ */
+export const MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS = years(13);
+
 /** The routine booster is due at, and counts from, the 16th birthday. */
 export const MENACWY_ROUTINE_BOOSTER_AGE_MONTHS = years(16);
 

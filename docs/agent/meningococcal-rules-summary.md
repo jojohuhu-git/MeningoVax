@@ -73,6 +73,9 @@ Two deliberate limits:
 ### Routine schedule (no risk factor)
 - **Not due before age 11.**
 - **11–12 years:** Dose 1.
+- **13–15 years, no dose yet:** the same dose 1, called catch-up (owner decision 2026-11-18).
+  CDC: *"Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8
+  weeks)"*. Only the words change; the 16-year booster and its date are the same.
 - **16 years:** booster (this is the "real" booster — a dose 1 given at 11–12
   does not itself count as the 16y booster).
 - **The booster waits at least 8 weeks after dose 1** (owner decision
@@ -451,7 +454,7 @@ Every recorded dose gets exactly one label from this list:
 |---|---|
 | Dose N of M / Dose N | Counted. "Dose N" alone when no series is running now (Q9; it read "Given — not part of a series this patient needs"). |
 | Booster | A counted dose after the primary series (Q7: kept). |
-| Not counted — repeat | Too soon, too young, or the wrong MenB family, and a card still asks for that vaccine (Q5; it read "Invalid"). |
+| Not counted — repeat | Too soon, too young, or the wrong MenB family, and a card still asks for that vaccine (Q5; it read "Invalid"). The line ends with the date the card gives: "Repeat from Dec 17, 2026." If a later dose of that vaccine is already on the record, the line says "Repeated on <date>. See that dose." instead (owner F-4a, F-4b, 2026-11-18). |
 | Not counted — do not repeat | The same, but no card asks for that vaccine: every card is "Complete" or "Not indicated" (Q10). A card that asks for a dose *later* ("Not yet age-eligible: start the series at 10") still asks, so that dose reads "repeat". So does a pregnancy deferral. |
 | Not counted — given before age 10 / 16 | Set aside for age (Q6). |
 | Not counted — Extra. Do not repeat. | Given correctly, but no card asked for it on the day it was given: the series was already complete, or no dose was recommended (Q8, Q11). This includes a patient's first dose: a healthy 30-year-old's Bexsero is Extra. A card that said "Not yet due" (it asks for a dose later) does not make a dose Extra: a healthy child's MenACWY at 10 still counts, because ACIP counts it as dose 1. **College is left alone** (Q8 follow-up): a dose given while the 5-year college cover runs still counts, because ACIP times the 5 years "since the dose". |

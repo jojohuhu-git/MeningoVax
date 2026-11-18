@@ -564,7 +564,7 @@ export const CITATIONS = {
     quote: 'Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)',
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY catch-up, booster at least 8 weeks after dose 1',
     short: 'CDC Child/Adolescent Notes',
-    lastVerified: '2026-11-15',
+    lastVerified: '2026-11-18',
   },
   cdcChildMenbMinAge: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',

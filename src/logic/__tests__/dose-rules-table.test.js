@@ -198,8 +198,17 @@ describe('3 · what a row says happens is what happens, to every dose it decided
   const MEANS = {
     // STOP E1 Q10: when no card asks for that vaccine the dose is not
     // repeated (`notRepeated`), and its line drops the repeat sentence.
+    // Phase 5 F-4 (owner, 2026-11-18): a dose already repeated says "Repeated
+    // on <date>. See that dose." in place of the repeat sentence (F-4b); one
+    // not yet repeated keeps it, followed by "Repeat from <date>." when the
+    // card gives a date (F-4a).
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
-      && (v.notRepeated ? !v.reasons.includes(REPEAT_SENTENCE) : v.reasons[v.reasons.length - 1] === REPEAT_SENTENCE),
+      && (v.notRepeated
+        ? !v.reasons.includes(REPEAT_SENTENCE)
+        : v.repeatedOn
+          ? !v.reasons.includes(REPEAT_SENTENCE) && /^Repeated on [A-Z][a-z]{2} \d{1,2}, \d{4}\. See that dose\.$/.test(v.reasons.at(-1))
+          : (v.reasons.at(-1) === REPEAT_SENTENCE
+            || (v.reasons.at(-2) === REPEAT_SENTENCE && /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-1))))),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null
       && !v.reasons.includes(REPEAT_SENTENCE),
     'counts-with-note': (v) => v.status === 'valid' && v.effectiveDoseNum >= 1 && v.reasons.length >= 1,

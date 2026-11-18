@@ -166,6 +166,17 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 - **Q6** a set-aside dose names its line: "Not counted — given before age
   10/16" (`setAsideBeforeAgeY`, stamped by `setAsideResult` in `doseRules.js`).
 - **Q7** "Booster" kept. **Q9** a counted dose with no series running: "Dose N".
+- **F-4a / F-4b (owner, 2026-11-18)** the repeat line says when, or that it was:
+  `recommend.js` `datedRepeatLines`, after Q10. A later shot of that vaccine on the
+  record (no record problem, a later day, counted or not) swaps "repeat this dose
+  only …" for "Repeated on <date>. See that dose." (`repeatedOn`; PneumoVax
+  §C-P2-LATER). Otherwise the line ends "Repeat from <date>." with the date the
+  card prints (today if it asks today, else `earliestNextDate`, else
+  `boosterDueDate`), read from the card, never recomputed. No card date (not yet
+  due, deferred) → nothing added. Chip unchanged. CDC Timing and Spacing: *"The
+  repeat dose should be spaced after the invalid dose by the recommended minimum
+  interval (Table 3-2)."* Test `regression-2026-11-18-phase5-f4-repeat-line-date.test.js`;
+  `dose-rules-table.test.js` holds every floor dose on the grid to it.
 - **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not
   kept, not numbered, starts no clock, line = the reason only) when every card
   for that vaccine on the dose day asked for nothing. "The cards on the dose
@@ -189,6 +200,11 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 
 ### Routine Adolescent
 - 11–12y: D1
+- 13–15y with no counted dose: the same D1, labelled catch-up ("Dose 1 (catch-up, 13–15y)",
+  owner F-2, 2026-11-18). CDC child/adolescent notes, catch-up: *"Age 13–15 years: 1 dose now and
+  booster at age 16–18 years (minimum interval: 8 weeks)"*. Wording only: same status, badge,
+  booster line and dates. `MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS` (`ages.js`). Test
+  `regression-2026-11-18-phase5-f2-catchup-13-15.test.js`.
 - 16y: booster (D2), **no sooner than 8 weeks after D1** (N5, owner ruling 2026-11-15). ACIP
   2020: *"the booster dose can be administered at any time, as long as a minimum interval of 8
   weeks between doses is maintained."* `MENACWY_ROUTINE_BOOSTER_MIN_GAP` in `intervals.js`.
@@ -350,8 +366,12 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   16th birthday). Now: under 16, once a dose given at 10 or older is on record, the card reads
   "Booster due at 16y" when that date (the 16th birthday, or 8 weeks after the last dose if
   later) is no later than the travel/lab/outbreak booster; from 16, "1 dose (routine booster at
-  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel and lab (a
-  healthy 22-year-old is owed nothing), at every age for outbreak (its older rule, unchanged).
+  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel, lab and
+  outbreak (a healthy 22-year-old is owed nothing; outbreak joined with owner F-6, 2026-11-18:
+  from 22 the outbreak card offers its own booster, "Booster (dose N) for this outbreak", ACIP
+  Table 8 *"Aged ≥7 yrs: single dose if ≥5 yrs since vaccination"*; a dose before 16 is always
+  6+ years old by then, so it is due either way and the validator needs no change. Test
+  `regression-2026-11-18-phase5-f6-outbreak-22-plus.test.js`).
   The dose counts: `ACWY-TRAVEL-BOOSTER-GAP` exempts it (`acwyIsRoutineBooster`), and the 8-week
   minimum judges it. The travel/lab/outbreak boosters then run every 5 years from it (given at
   7 or older). **Asplenia, complement and HIV are unchanged** (owner): their own schedule

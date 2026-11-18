@@ -93,7 +93,7 @@ import {
   MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine,
 } from './intervals.js';
 import { MENACWY_COLLEGE_COVER_YEARS, menacwyGraceLine } from './intervals.js';
-import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
+import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS } from './ages.js';
 
 // ── brand option builders ─────────────────────────────────────────────────
 // D7: Menveo 2-vial (≥2 months) vs Menveo 1-vial (≥10 years) — distinct
@@ -257,9 +257,10 @@ function routineBoosterTiming(lastDate, today) {
 // twin is doseRules.js acwyIsRoutineBooster (the dose is exempt from the
 // 5-year floor and judged by 8 weeks).
 function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup = false } = {}) {
-  // Travel and lab: only while a healthy peer would still be owed it (catch-up
-  // runs through 21; from 22 the routine schedule asks nothing). The outbreak
-  // card keeps its older rule (every age from 16) — not part of this ruling.
+  // Travel, lab and outbreak: only while a healthy peer would still be owed it
+  // (catch-up runs through 21; from 22 the routine schedule asks nothing). The
+  // outbreak card joined the limit with owner F-6 (2026-11-18): from 22 it
+  // offers its own booster ("single dose if ≥5 yrs since vaccination").
   if (throughCatchup && am >= MENACWY_CATCHUP_MAX_AGE_MONTHS) return null;
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return routineBoosterCurrentlyUnmet(am, doses, today, dob)
@@ -855,10 +856,12 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       // The routine 16-year booster comes first, and is its own ACIP rule
       // (relation 1a, 2026-09-19); the validator exempts it from the outbreak
       // booster floor for the same reason (doseRules.js acwyIsRoutineBooster).
-      // From 16 it always comes first (as before); under 16 since Port Phase 5
-      // (owner, 2026-11-18), when it is owed no later than the outbreak booster.
-      // N5: no sooner than 8 weeks after the last dose.
-      const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate);
+      // From 16 through 21 it always comes first (as before; through 21 since
+      // owner F-6, 2026-11-18: a healthy 22-year-old is owed no routine dose);
+      // under 16 since Port Phase 5 (owner, 2026-11-18), when it is owed no
+      // later than the outbreak booster. N5: no sooner than 8 weeks after the
+      // last dose.
+      const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup: true });
       if (owed16 && (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS || (!boosterNow && owed16.earliestNextDate <= boosterOn))) {
         return [routineSixteenBoosterCard({ owed: owed16, am, given, lastDate, indication: 'outbreak', refs: refsExposure() })];
       }
@@ -1423,15 +1426,21 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // 11–15y
   if (am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     if (given === 0) {
-      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
+      // F-2 (owner, 2026-11-18): from 13, CDC lists the first dose under
+      // catch-up ("Age 13–15 years: 1 dose now and booster at age 16–18
+      // years"). Wording only: same dose, status, badge and booster line.
+      const catchup = am >= MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS;
+      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: catchup ? 'Dose 1 (catch-up, 13–15y)' : 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
         brands: menacwyBrands(am),
         note: {
-          lead: 'The routine adolescent dose, given at 11–12 years.',
+          lead: catchup
+            ? 'A catch-up dose now; the booster follows at 16–18 years [c].'
+            : 'The routine adolescent dose, given at 11–12 years.',
           detail: 'If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given on the same day.',
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
         boosterCites: [cite('acwyRoutine1112and16')],
-        noteCites: [],
+        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : [],
         refs })];
     }
     // already has dose 1 → booster due at 16y (future)
@@ -2266,6 +2275,43 @@ function notRepeatedWhenNothingAsked(history, cards) {
   };
 }
 
+// Port Phase 5 F-4a / F-4b (owner, 2026-11-18): a "Not counted — repeat" line
+// says WHEN, or that it already was. CDC Timing and Spacing (July 24, 2024):
+// "The repeat dose should be spaced after the invalid dose by the recommended
+// minimum interval (Table 3-2)."
+// - F-4b first: a later shot of the same vaccine on the record (no record
+//   problem, a later day; counted or not) means the dose WAS repeated, so the
+//   "repeat this dose only" sentence becomes "Repeated on <date>. See that
+//   dose." (PneumoVax §C-P2-LATER, its owner ruling 2026-10-31).
+// - F-4a otherwise: the line ends "Repeat from <date>." with the date the
+//   CARD prints (today when it asks today; else its "Next dose due" date, or
+//   its booster date). READ from the card, never recomputed, so the line and
+//   card cannot disagree. A card with no date (not yet due, deferred) adds
+//   nothing. Only lines that still carry REPEAT_THIS_DOSE are touched: a
+//   "do not repeat" line (Q10 above) has no repeat to date.
+function datedRepeatLines(history, cards, today) {
+  const per = history?.perDose ?? [];
+  const doses = history?.sortedDoses ?? [];
+  if (!per.some((d) => d.status === 'invalid' && (d.reasons ?? []).includes(REPEAT_THIS_DOSE))) return history;
+  const asking = (cards ?? []).find((c) => !CARDS_ASK_NOTHING.has(c.status) && c.status !== 'deferred');
+  const cardDate = !asking ? null
+    : asking.dueToday ? today
+      : (asking.earliestNextDate ?? asking.boosterDueDate ?? null);
+  return {
+    ...history,
+    perDose: per.map((d, i) => {
+      if (d.status !== 'invalid' || !(d.reasons ?? []).includes(REPEAT_THIS_DOSE)) return d;
+      const at = doses[i]?.date;
+      const k = at ? doses.findIndex((x, j) => x?.date && x.date > at && !per[j]?.recordProblem) : -1;
+      if (k >= 0) {
+        const said = `Repeated on ${fmtDate(doses[k].date)}. See that dose.`;
+        return { ...d, repeatedOn: doses[k].date, reasons: d.reasons.map((x) => (x === REPEAT_THIS_DOSE ? said : x)) };
+      }
+      return cardDate ? { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] } : d;
+    }),
+  };
+}
+
 function recommendOneReading(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -2474,8 +2520,8 @@ function recommendOneReading(input) {
     // MenB) would otherwise have nowhere to be said.
     riskAgeNote, riskAgeNoteCites,
     history: {
-      MenACWY: notRepeatedWhenNothingAsked(menacwyHistory, menacwy),
-      MenB: notRepeatedWhenNothingAsked(menbHistory, menb),
+      MenACWY: datedRepeatLines(notRepeatedWhenNothingAsked(menacwyHistory, menacwy), menacwy, today),
+      MenB: datedRepeatLines(notRepeatedWhenNothingAsked(menbHistory, menb), menb, today),
     },
     meta: { ageMonths: am, today, riskIds },
   };
