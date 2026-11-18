@@ -218,6 +218,16 @@ receive another.
   the 4-day grace. Before, a dose 6 weeks after a travel dose was counted as
   "the booster". (C10 also names the A/C/W/Y outbreak booster; that half comes
   with the outbreak card's booster date, your STOP B answer B-2.)
+- **A teenager still gets the 16-year dose** (your answer, 2026-11-18) — travel,
+  lab worker, and A/C/W/Y outbreak alike. Maya, 15, had one dose at 14 for
+  travel: the app used to put her next dose in 2030 (5 years on), while the same
+  girl with no box ticked got it at 16. ACIP's routine rule — *"1 dose at age 16
+  yrs if first dose administered before 16th birthday"* — names no exception.
+  Now her card says "Booster due at 16y"; the dose counts when given; boosters
+  then follow every 5 years from it while she is at risk (5 years because it is
+  given at 7 or older). Asplenia, complement and HIV are unchanged: their own
+  schedule replaces the routine one, as ACIP's own example shows (an HIV child
+  dosed at 9 gets the next dose at 14).
 
 ---
 

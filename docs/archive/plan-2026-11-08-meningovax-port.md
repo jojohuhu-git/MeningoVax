@@ -523,7 +523,12 @@ Built and merged (#101). **Its two consequences answered 2026-11-18** (F2a: the 
 offered while MenB dose 2 can be given but is not yet due; F2b: the switch line says "due") —
 same file, "Q9a consequences". Built and merged (#102). **Gap badge answered 2026-11-18**: on
 those days the MenB card's badge says "Can be given today", not "Up to date" (same file, "Gap
-badge"). Built on `feature/2026-11-18-phase5-gap-badge`.
+badge"). Built and merged (#103). **Phase 5.1 measured 2026-11-18**
+(`report-2026-11-18-phase5-measured.md`): B6, A6, A13 and B3's "Complete" clean; F-1 (travel,
+lab and outbreak teens pushed past the 16-year booster) **answered and built** the same day
+(decision log, "The 16-year booster…"; branch `feature/2026-11-18-phase5-16y-booster-exposure`).
+Still to ask: F-2 (13–15 y "routine, 11–12y" → catch-up, B4/B5), F-4 (a too-soon dose line
+names no date, A5/A17), F-3 and F-5 with Phase 6.
 **STOP F2 — owner merges.**
 
 ### Phase 6 — Wording (2 sessions, ≈ 8%)

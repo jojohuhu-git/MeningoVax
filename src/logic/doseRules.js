@@ -936,10 +936,12 @@ export const DOSE_RULES = [
     check: (ctx) => {
       const a = acwy(ctx);
       if (!a.otherBoosterScheduleNow) return null;
-      // An outbreak contact's routine 16-year booster is its own ACIP rule and
-      // comes first (the card asks for it before any outbreak booster; relation
-      // 1a, 2026-09-19): judged by the routine 8 weeks, not by this floor.
-      if (!a.travelOrLabNow && acwyIsRoutineBooster(ctx)) return null;
+      // The routine 16-year booster is its own ACIP rule and comes first (the
+      // card asks for it before any travel, lab or outbreak booster; relation
+      // 1a, 2026-09-19; travel and lab since Port Phase 5, owner 2026-11-18):
+      // judged by the 8-week minimum, not by this floor. Twin of recommend.js
+      // routineSixteenBoosterOwed.
+      if (acwyIsRoutineBooster(ctx)) return null;
       // D6: a military booster is a dose given at 16 or older; an earlier dose
       // was a routine one (owner B-4) and the routine rows judge it.
       if (a.militaryBoosterNow && (ctx.ageAtDose === null

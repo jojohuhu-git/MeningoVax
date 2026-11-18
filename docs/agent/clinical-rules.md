@@ -341,6 +341,25 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   2026-11-16). C10 also names A/C/W/Y outbreak boosters; those join the check with STOP B
   B-2, because today's outbreak card has no booster date and checking the record first
   would reject the dose the card advises (the whole-app walk found 629 dead ends).
+- **The routine 16-year booster comes first (owner, Port Phase 5, 2026-11-18)** — for
+  `travel`, `microbiologist` and `outbreak_acwy`. ACIP 2020 Table 2 (read live 2026-11-18):
+  *"Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday"*, no
+  exception for these risks; CDC child notes (July 1, 2025) send *"a healthy child who received
+  a single dose for travel"* to the adolescent schedule. Before this, ticking the box pushed
+  that dose back about 5 years (830 saved patients; Maya, 15, dose at 14: 2030 instead of her
+  16th birthday). Now: under 16, once a dose given at 10 or older is on record, the card reads
+  "Booster due at 16y" when that date (the 16th birthday, or 8 weeks after the last dose if
+  later) is no later than the travel/lab/outbreak booster; from 16, "1 dose (routine booster at
+  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel and lab (a
+  healthy 22-year-old is owed nothing), at every age for outbreak (its older rule, unchanged).
+  The dose counts: `ACWY-TRAVEL-BOOSTER-GAP` exempts it (`acwyIsRoutineBooster`), and the 8-week
+  minimum judges it. The travel/lab/outbreak boosters then run every 5 years from it (given at
+  7 or older). **Asplenia, complement and HIV are unchanged** (owner): their own schedule
+  replaces the routine one (ACIP: *"a child with HIV infection who received MenACWY at age 9
+  years should receive the next dose at age 14 years"*). One helper in `recommend.js`,
+  `routineSixteenBoosterOwed`. Test `regression-2026-11-18-phase5-16y-booster-exposure.test.js`;
+  swept by `sweep-never-events.test.js` property 15 (never a later next MenACWY date than with
+  no box, 10–21 y).
 
 ### Any Two MenACWY Doses (owner C11, D5)
 - **8 weeks** between any two MenACWY doses, less the 4-day grace

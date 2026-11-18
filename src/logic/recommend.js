@@ -45,7 +45,7 @@ import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS, MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
-  MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS,
+  MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
   MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
 } from './ages.js';
 // impossible P1-2: the note prints the patient's age in the same words the
@@ -237,6 +237,70 @@ function routineBoosterTiming(lastDate, today) {
     dueToday: elapsed,
     earliestNextDate: elapsed ? null : addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP),
   };
+}
+
+// Port Phase 5 (owner, 2026-11-18): travel, lab worker and A/C/W/Y outbreak
+// patients get the routine 16-year booster too, then their own boosters every
+// 5 years from it. ACIP 2020 Table 2 (read live 2026-11-18): "Booster: 1 dose at
+// age 16 yrs if first dose administered before 16th birthday", no exception for
+// these risks; CDC child notes (July 1, 2025) send a "healthy child who received
+// a single dose for travel" to the adolescent schedule. Before this, ticking the
+// box pushed that dose back about 5 years (830 saved patients). Asplenia,
+// complement and HIV are not routed here (owner: unchanged; ACIP's HIV child
+// dosed at 9 gets the next dose at 14).
+//
+// When is it owed? From 16, whenever no dose at 16 or older counted
+// (routineBoosterCurrentlyUnmet, unchanged). Under 16, once a dose given at 10
+// or older is on record — the age from which ACIP counts a dose toward the
+// adolescent series — dated as the routine card dates it (the 16th birthday,
+// or 8 weeks after the last dose if later). null when not owed. The validator's
+// twin is doseRules.js acwyIsRoutineBooster (the dose is exempt from the
+// 5-year floor and judged by 8 weeks).
+function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup = false } = {}) {
+  // Travel and lab: only while a healthy peer would still be owed it (catch-up
+  // runs through 21; from 22 the routine schedule asks nothing). The outbreak
+  // card keeps its older rule (every age from 16) — not part of this ruling.
+  if (throughCatchup && am >= MENACWY_CATCHUP_MAX_AGE_MONTHS) return null;
+  if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
+    return routineBoosterCurrentlyUnmet(am, doses, today, dob)
+      ? { ...routineBoosterTiming(lastDate, today), boosterDueDate: null } : null;
+  }
+  const adolescentDose = doses.some((d) => {
+    const a = ageAtDose(d, am, today, dob);
+    return a != null && a >= MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS;
+  });
+  if (!adolescentDose) return null;
+  return { dueToday: false, ...routineBoosterDueDate(dob, am, today, lastDate) };
+}
+
+// The card for that booster, on the travel / lab / outbreak schedules. From 16
+// it is the "still owed" card the outbreak and military schedules already used;
+// under 16 it reads as the routine card does ("Booster due at 16y").
+function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, refs }) {
+  if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
+    return rec({
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at \u226516y still owed)',
+      doseNum: given + 1, seriesTotal: 1, dueToday: owed.dueToday, earliestNextDate: owed.earliestNextDate,
+      boosterSummary, brands: menacwyBrands(am),
+      note: routineBoosterStillOwedNote(indication, !owed.dueToday),
+      noteCites: owed.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
+      refs,
+    });
+  }
+  const waits = lastDate != null && owed.earliestNextDate === addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP);
+  return rec({
+    vaccine: 'MenACWY', status: 'exposure', doseLabel: 'Booster due at 16y',
+    doseNum: given + 1, seriesTotal: 1, dueToday: false,
+    earliestNextDate: owed.earliestNextDate, boosterDueDate: owed.boosterDueDate, boosterDueDateExact: owed.boosterDueDateExact,
+    boosterSummary, brands: menacwyBrands(am),
+    note: {
+      lead: `The routine MenACWY booster at 16 comes first [c].${waits
+        ? ` It waits ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} after the last dose given (${fmtDate(lastDate)}) [c].` : ''}`,
+      detail: `The recorded dose was given before 16. ACIP's routine age-16 booster applies whatever the other indications, and the ${indication} boosters then run from that dose.`,
+    },
+    noteCites: [cite('acwyRoutine1112and16'), ...(waits ? [cite('acwyBooster8WeeksAfterDose1')] : [])],
+    refs,
+  });
 }
 
 // The sentence and source a card adds while it is waiting out those 8 weeks.
@@ -560,6 +624,18 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       ? `first booster, ${yearsLabel(exposureBoostYears)} after the primary dose`
       : `every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}`;
     const elapsed = calendarIntervalElapsed(lastDate, exposureBoostYears * 12, today);
+    // Port Phase 5 (owner, 2026-11-18): the routine 16-year booster comes first
+    // when it is owed no later than this booster (routineSixteenBoosterOwed).
+    // Once it is due it always shows, as on the outbreak card, so the label does
+    // not change the day this booster also falls due (whole-app check 7).
+    const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup: true });
+    if (owed16 && (owed16.dueToday
+      || (!elapsed && owed16.earliestNextDate <= addCalendarYears(lastDate, exposureBoostYears)))) {
+      return [routineSixteenBoosterCard({
+        owed: owed16, am, given, lastDate, boosterSummary: boosterLine, refs: refsExposure(),
+        indication: hasTravel && hasMicro ? 'travel and laboratory-exposure' : hasMicro ? 'laboratory-exposure' : 'travel',
+      })];
+    }
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: elapsed,
@@ -761,20 +837,6 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     // deliberately unchanged: Table 10 really is a single dose for them.
     const isOutbreakACWY = riskIds.includes('outbreak_acwy');
     if (isOutbreakACWY && given >= 1) {
-      // The routine 16-year booster comes first, and is its own ACIP rule
-      // (relation 1a, 2026-09-19); the validator exempts it from the outbreak
-      // booster floor for the same reason (doseRules.js acwyIsRoutineBooster).
-      if (routineBoosterCurrentlyUnmet(am, doses, today, dob)) {
-        // N5: no sooner than 8 weeks after the last dose.
-        const timing = routineBoosterTiming(lastDate, today);
-        return [rec({
-          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at ≥16y still owed)',
-          doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
-          note: routineBoosterStillOwedNote('outbreak', !timing.dueToday),
-          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
-          refs: refsExposure(),
-        })];
-      }
       // STOP B B-2 (owner, 2026-11-15): while the outbreak box is ticked, keep
       // asking for the booster 5 years on (3 if the series finished before 7),
       // and never say "Complete"; "booster", never "top-up". ACIP 2020 Table 8
@@ -790,6 +852,16 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         : MENACWY_BOOSTER_CADENCE_YEARS;
       const boosterOn = addCalendarYears(lastDate, boosterYears);
       const boosterNow = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
+      // The routine 16-year booster comes first, and is its own ACIP rule
+      // (relation 1a, 2026-09-19); the validator exempts it from the outbreak
+      // booster floor for the same reason (doseRules.js acwyIsRoutineBooster).
+      // From 16 it always comes first (as before); under 16 since Port Phase 5
+      // (owner, 2026-11-18), when it is owed no later than the outbreak booster.
+      // N5: no sooner than 8 weeks after the last dose.
+      const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate);
+      if (owed16 && (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS || (!boosterNow && owed16.earliestNextDate <= boosterOn))) {
+        return [routineSixteenBoosterCard({ owed: owed16, am, given, lastDate, indication: 'outbreak', refs: refsExposure() })];
+      }
       return [rec({
         vaccine: 'MenACWY', status: 'exposure',
         doseLabel: boosterNow
@@ -2054,9 +2126,11 @@ function outbreakWording(cards, applies) {
         .replace(/while at (?:high )?risk(?: \(ongoing\))?/, OUTBREAK_CONTINUES);
     }
     // Keep the label's own detail ("first booster, 3 years after primary")
-    // and add the caveat; a label that already names the outbreak is left.
+    // and add the caveat; a label that already names the outbreak is left, and
+    // so is the routine 16-year booster (its own ACIP rule, not an outbreak
+    // booster; Port Phase 5, owner 2026-11-18).
     const label = c.doseLabel ?? '';
-    if (label.startsWith('Booster') && !/outbreak/.test(label)) {
+    if (label.startsWith('Booster') && !/outbreak/.test(label) && label !== 'Booster due at 16y') {
       out.doseLabel = `${label} ${c.dueToday ? 'for this outbreak' : 'if outbreak risk continues'}`;
     }
     return out;

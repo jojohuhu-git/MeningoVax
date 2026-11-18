@@ -64,7 +64,7 @@ import { TEST_TODAY } from '../../test-today.js';
 import {
   SWEEP_DOBS, SWEEP_DOBS_COARSE, SINGLE_RISK_PROFILES, PAIR_RISK_PROFILES,
   MENACWY_SWEEP_BRAND, MENACWY_SWEEP_BRAND_MIN_AGE,
-  MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses, makeTightDoses,
+  MENB_SWEEP_BRAND, MENB_SWEEP_BRAND_MIN_AGE, makeGenerousDoses, makeTightDoses, SWEEPABLE_RISK_FACTORS,
 } from '../../test-grid.js';
 
 const TODAY = TEST_TODAY;
@@ -227,6 +227,36 @@ let p12Rows = 0;
 // Gap badge (owner, 2026-11-18): a card's badge reads "Can be given today"
 // exactly when it can be given today — never on a due card, never "Up to date"
 // or "due" on a gap day.
+// Property 15 (owner, Port Phase 5, 2026-11-18). Ticking travel, lab worker or
+// A/C/W/Y outbreak never makes the next MenACWY dose LATER than for the same
+// child with no box ticked, from 10 through 21 (a dose at 10–15, seen at 10–21):
+// the routine 16-year booster comes first. Asplenia, complement and HIV are left
+// out on purpose (owner: their own schedule replaces the routine one).
+const p15 = [];
+let p15Rows = 0;
+// Travel and microbiologist (MenACWY class 'single+boost') and the A/C/W/Y outbreak.
+const P15_RISKS = SWEEPABLE_RISK_FACTORS
+  .filter((r) => r.menacwyClass === 'single+boost' || r.id === 'outbreak_acwy').map((r) => r.id);
+{
+  const at = (iso, days) => { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + days); return t.toISOString().slice(0, 10); };
+  const dob = '2006-03-15';
+  const next = (fam) => (fam.some((c) => c.dueToday) ? '0000-00-00'
+    : fam.map((c) => c.earliestNextDate || c.boosterDueDate).filter(Boolean).sort()[0] ?? '9999-99-99');
+  for (let doseAgeM = 120; doseAgeM < 192; doseAgeM += 5) {
+    const doseDate = at(dob, Math.round(doseAgeM * 30.4375));
+    for (let seenAgeM = doseAgeM + 1; seenAgeM < 264; seenAgeM += 7) {
+      const today = at(dob, Math.round(seenAgeM * 30.4375));
+      const input = { today, dob, menacwyDoses: [{ date: doseDate, brand: 'MenQuadfi (MenACWY)' }], menbDoses: [] };
+      const healthy = next(recommend({ ...input, riskIds: [] }).menacwy);
+      for (const risk of P15_RISKS) {
+        p15Rows += 1;
+        const withRisk = next(recommend({ ...input, riskIds: [risk] }).menacwy);
+        if (withRisk > healthy) p15.push(`15 ${risk} dose at ${doseAgeM}m seen ${today}: next ${withRisk} vs no box ${healthy}`);
+      }
+    }
+  }
+}
+
 const p14 = [];
 let p14Rows = 0;
 let p14GapRows = 0;
@@ -546,6 +576,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     expect(p14Rows).toBeGreaterThan(300);
     expect(p14GapRows).toBeGreaterThan(10);
     expect(p14).toEqual([]);
+  });
+
+  it('property 15 (owner, Port Phase 5) — travel, lab or outbreak never pushes the next MenACWY dose later than no box (10–21 y)', () => {
+    report(`Property 15 (${p15Rows} visits)`, p15);
+    expect(p15Rows).toBeGreaterThan(600);
+    expect(p15).toEqual([]);
   });
 
   it('property 13 (owner STOP E1, Q5–Q9) — every dose chip is one label from the closed list', () => {
