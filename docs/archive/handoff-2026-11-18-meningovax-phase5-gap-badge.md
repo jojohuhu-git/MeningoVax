@@ -1,4 +1,6 @@
-# MeningoVax port — Handoff after the gap badge was built (2026-11-18, latest)
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase5-16y-booster.md`. PR #103 merged; Phase 5.1 measured; the 16-year booster for travel, lab and outbreak teens asked and built. Do not resume from this file.
+
+# MeningoVax port — Handoff after the gap badge was built (2026-11-18)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The
