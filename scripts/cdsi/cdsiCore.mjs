@@ -111,6 +111,11 @@ const KNOWN = {
   // after it, as in CDSI.
   'A wrong-family MenB dose (Bexsero, then Trumenba): both say it does not count and both time the next dose from it; CDSI\'s earliest is 4 months after it, the app\'s 4 weeks after it (and not before 6 months from dose 1) — DELIBERATE (owner E2, 2026-11-15; ACIP 2020: "a minimum interval of 4 weeks should be used between any 2 doses")':
     ['2024-0081'],
+  // Phase 5 STOP F1 (owner Q9b, 2026-11-17) also moved the infant MenACWY
+  // patients 2016-UC-0108/-0109 from CDSI's earliest date to its RECOMMENDED
+  // date (4 and 6 months of age); they agree with CDSI before and after.
+  'High-risk MenB dose 2: the app advises 1 month after dose 1 and states the 4-week minimum beside it; CDSI recommends 4 weeks. 2–3 days later than CDSI\'s recommended date; both accept a dose at 4 weeks — DELIBERATE (owner STOP F1 Q9a, 2026-11-17, matching PneumoVax C10-2; ACIP mm7349a3: "a 3-dose series at 0, 1–2, and 6 months"; CDC Timing and Spacing: recommended intervals provide "optimal protection")':
+    ['2016-UC-0101', '2016-UC-0104', '2017-UC-0012', '2023-UC-0028', '2025-UC-0017'],
   'MenB of unspecified product at 16+: CDSI says it cannot count (the product must be known) and repeats in 4 weeks; the app counts it as dose 1 — OPEN':
     ['2024-0069'],
   // Closed 2026-11-16 by owner answer C5 (STOP C): a high-risk MenB dose 3

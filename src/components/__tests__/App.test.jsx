@@ -235,9 +235,11 @@ describe('App wizard', () => {
     expect(banner.textContent).toMatch(/not yet due/i);
   });
 
-  // Item 2: a purely-future eligible date should also read "not yet due,"
-  // not a bare "Eligible {date}" that's easy to miss / could read as urgent.
-  it('shows "Not yet due — eligible {date}" for a future earliestNextDate', () => {
+  // Item 2: a purely-future date is stated as a date, not a bare "Eligible
+  // {date}" that could read as urgent. Phase 5 B1 (PneumoVax's Remy ruling;
+  // STOP F1, 2026-11-17): the date is the ADVISED one, so it reads "Next dose
+  // due {date}", never "eligible".
+  it('shows "Next dose due {date}" for a future earliestNextDate', () => {
     render(<App />);
     enterAgeYears(20);
     fireEvent.click(getNextBtn());
@@ -251,7 +253,7 @@ describe('App wizard', () => {
 
     const nextDate = document.querySelector('.next-date');
     expect(nextDate).not.toBeNull();
-    expect(nextDate.textContent).toMatch(/not yet due.*eligible/i);
+    expect(nextDate.textContent).toMatch(/^Next dose due [A-Z][a-z]{2} \d{1,2}, \d{4}$/);
   });
 
   it('renders MenB not-indicated for young child without risk', () => {

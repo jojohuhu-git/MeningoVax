@@ -170,8 +170,13 @@ describe('E2: a wrong-family MenB dose (owner, 2026-11-15)', () => {
     // Bexsero dose 2 is 4 weeks after dose 1 (high-risk). A Trumenba 5 days after
     // dose 1 must not push Bexsero dose 2 to 8 weeks or similar: 4 weeks after the
     // Trumenba (2026-06-30) is later than 4 weeks after dose 1 (2026-06-29).
+    // STOP F1 Q9a (owner, 2026-11-17): the card now ADVISES the routine date,
+    // 1 month after dose 1 (2026-07-01), still timed from dose 1, not the
+    // Trumenba. The earliest date it states is held to the Trumenba's 4-week
+    // floor (2026-06-30), not dose 1's (2026-06-29).
     const r = run({ ...base, today: '2026-06-10', menbDoses: [bex, { date: '2026-06-02', brand: 'Trumenba' }] });
-    expect(when(r.menb)).toBe('2026-06-30');
+    expect(when(r.menb)).toBe('2026-07-01');
+    expect(r.menb[0].note.lead).toContain('It can be given from Jun 30, 2026 if needed (minimum 4 weeks).');
   });
 });
 
