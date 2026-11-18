@@ -138,3 +138,29 @@ Quotes read live 2026-11-18:
 |---|---|---|---|
 | F2a | Combined shot in the gap. Asplenia, 20 y, Bexsero 11/3/26, no MenACWY. Dec 1–2: MenACWY dose 1 due; MenB dose 2 "can be given today if needed". Before Q9a Penmenvy was offered on those days; after Q9a it was not | **Offer it.** The panel says *"MenACWY is due today; MenB dose 2 can be given today (its 4-week minimum has passed). One pentavalent (MenABCWY) dose may replace both."* The summary line never says MenB is due on those days. Dec 3 on, and before Dec 1: unchanged | Only MenB high-risk dose 2 has a gap (STOP F1's measurement); 0 of 5,820 saved answers, 0 of 24,600 prose screens moved (the grid has no patient on a gap day) |
 | F2b | The switch line. Asplenia, 20 y, Bexsero 9/1/26 then Trumenba 11/3/26, seen Dec 1. The line read *"Or finish with Trumenba instead: dose 2 from Dec 3, 2026"*: the routine date, worded as the earliest | **"due"**: *"…dose 2 due Dec 3, 2026 (the Bexsero dose then does not count)"*, matching "Next dose due <date>". "today" once due, unchanged. A healthy patient's line reads "due May 3, 2027" (there the routine date and the minimum are the same) | 0 saved answers, 0 prose screens moved; tests only |
+
+## Gap badge, answered 2026-11-18
+
+Found while building F2a (listed in the F2 handoff, not changed alone). Asplenia, 20 y, Bexsero
+10/20/26, no MenACWY, seen 11/18. MenB dose 2 is due 11/20 and can be given from 11/17. The MenB
+card sat under "Option 1: Two separate injections (MenACWY + MenB)" with the badge **"Up to
+date"**, because the badge knew only "due" or "not due"; its note said *"It can be given today if
+needed, as the minimum interval of 4 weeks has passed."*
+
+The owner asked what PneumoVax does, and why an existing badge would not do. PneumoVax: its badge
+names the card's type (Routine / Catch-up / Risk-Based) and adds a "Today" tag only when the dose
+is **due** today; on a gap day (Remy, HIV, PCV20 11/6 + 12/4, seen 1/5) it shows "Catch-up" with
+no tag (checked in its engine and `RecCard.jsx`, `origin/main` `985f834`). It has no
+combined-shot panel, so the clash does not arise there. MeningoVax's existing badges each say
+something else: "Dose due today" contradicts "Next dose due Nov 20"; "Up to date" contradicts the
+Option 1 heading; "Optional today - shared decision" is the healthy 16–23 MenB category.
+"Today" (due, give it) vs "can be given today" (not due yet; allowed, and it counts) was
+explained.
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| Gap badge | The MenB badge on 11/17–19 | **"Can be given today"**, only on those days (with or without MenACWY due). 11/16 "Up to date" and 11/20 "Dose due today, future boosters needed" unchanged. Card colour unchanged (grey) | Only high-risk MenB dose 2 has a gap. 0 of 18,780 saved patients' cards carry it; prose 0 of 24,600 screens moved. Tests: `regression-2026-11-18-phase5-gap-badge.test.jsx`; `sweep-never-events.test.js` property 14 (16 gap visits; 16 violations with the fix removed) |
+
+Not asked here: about 6,300 saved-grid cards read "Up to date" while a dated dose or booster is
+still to come (PneumoVax never says "Up to date" mid-series). That is the PneumoVax badge style,
+for Phase 6 (wording), measured then.

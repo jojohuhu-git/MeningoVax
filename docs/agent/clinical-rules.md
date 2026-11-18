@@ -440,10 +440,14 @@ visit"*; CDC adult notes: *"when both vaccines would be given on the same clinic
 then reads *"MenACWY is due today; MenB dose 2 can be given today (its 4-week minimum has passed).
 One pentavalent (MenABCWY) dose may replace both."* and the summary line never calls MenB due.
 Infant MenACWY's gap (Q9b) does not carry the flag: under 10 y, the pentavalent never applies.
+On those days the card's badge reads **"Can be given today"** (owner, 2026-11-18), not "Up to
+date" and not "due": the date line beside it still says "Next dose due <date>". With or without
+MenACWY due. The card's colour is unchanged (grey, not due). `statusPillLabel` in `RecCard.jsx`;
+test `regression-2026-11-18-phase5-gap-badge.test.jsx`.
 Test: `regression-2026-11-18-phase5-q9a-consequences.test.js` and
 `regression-2026-11-18-phase5-pentavalent-in-gap-ui.test.jsx`; swept by
 `sweep-never-events.test.js` property 14 (offered exactly when MenACWY is due and MenB is due
-or can be given today).
+or can be given today; the badge reads "Can be given today" exactly on those cards).
 
 **Penbraya may not be repeated inside 6 months** (P1-4, 2026-09-17). CDC, MenB special
 situations: *"Penbraya may be used for additional MenACWY and MenB doses (including booster
