@@ -166,6 +166,17 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 - **Q6** a set-aside dose names its line: "Not counted — given before age
   10/16" (`setAsideBeforeAgeY`, stamped by `setAsideResult` in `doseRules.js`).
 - **Q7** "Booster" kept. **Q9** a counted dose with no series running: "Dose N".
+- **F-4a / F-4b (owner, 2026-11-18)** the repeat line says when, or that it was:
+  `recommend.js` `datedRepeatLines`, after Q10. A later shot of that vaccine on the
+  record (no record problem, a later day, counted or not) swaps "repeat this dose
+  only …" for "Repeated on <date>. See that dose." (`repeatedOn`; PneumoVax
+  §C-P2-LATER). Otherwise the line ends "Repeat from <date>." with the date the
+  card prints (today if it asks today, else `earliestNextDate`, else
+  `boosterDueDate`), read from the card, never recomputed. No card date (not yet
+  due, deferred) → nothing added. Chip unchanged. CDC Timing and Spacing: *"The
+  repeat dose should be spaced after the invalid dose by the recommended minimum
+  interval (Table 3-2)."* Test `regression-2026-11-18-phase5-f4-repeat-line-date.test.js`;
+  `dose-rules-table.test.js` holds every floor dose on the grid to it.
 - **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not
   kept, not numbered, starts no clock, line = the reason only) when every card
   for that vaccine on the dose day asked for nothing. "The cards on the dose

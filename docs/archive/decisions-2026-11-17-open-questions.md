@@ -234,3 +234,10 @@ minimum interval (Table 3-2)."*
 |---|---|---|
 | F-4a | Leo, 13, asplenia, MenQuadfi Oct 1 and Oct 22, 2026 (3 weeks apart). Line had no date; card said Dec 17, 2026 | **Yes**: the line ends "Repeat from <date>." with the card's own date (read from the card, never computed twice). Lines whose card gives no date are unchanged |
 | F-4b | Same, MenQuadfi Jun 1, Jun 22 (too soon), Aug 20, 2026 (counts). Jun 22 line still said "repeat this dose only" | **Yes, as PneumoVax** (its ruling 2026-10-31): the forward-looking sentence becomes "Repeated on <date>. See that dose." whenever a later dose of that vaccine is on the record, counted or not. The first sentence and the chip "Not counted — repeat" stay |
+
+Built 2026-11-18, measured: "Repeat from <date>" on 3,989 saved lines (854 future + 3,135 today, as
+asked), every date equal to the one the card prints (0 differ). **Correction to the question:**
+"Repeated on" applies to **4,726** lines, not the 4,936 quoted. The other 210 have a later dose but
+already read "Not counted — do not repeat" (Q10: nothing is owed), so they carry no repeat sentence
+to swap; they are unchanged, as in PneumoVax ("a later one replaced nothing"). Unchanged as stated:
+1,984 "Not yet due", 281 deferred.

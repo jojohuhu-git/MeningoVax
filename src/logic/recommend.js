@@ -2272,6 +2272,43 @@ function notRepeatedWhenNothingAsked(history, cards) {
   };
 }
 
+// Port Phase 5 F-4a / F-4b (owner, 2026-11-18): a "Not counted — repeat" line
+// says WHEN, or that it already was. CDC Timing and Spacing (July 24, 2024):
+// "The repeat dose should be spaced after the invalid dose by the recommended
+// minimum interval (Table 3-2)."
+// - F-4b first: a later shot of the same vaccine on the record (no record
+//   problem, a later day; counted or not) means the dose WAS repeated, so the
+//   "repeat this dose only" sentence becomes "Repeated on <date>. See that
+//   dose." (PneumoVax §C-P2-LATER, its owner ruling 2026-10-31).
+// - F-4a otherwise: the line ends "Repeat from <date>." with the date the
+//   CARD prints (today when it asks today; else its "Next dose due" date, or
+//   its booster date). READ from the card, never recomputed, so the line and
+//   card cannot disagree. A card with no date (not yet due, deferred) adds
+//   nothing. Only lines that still carry REPEAT_THIS_DOSE are touched: a
+//   "do not repeat" line (Q10 above) has no repeat to date.
+function datedRepeatLines(history, cards, today) {
+  const per = history?.perDose ?? [];
+  const doses = history?.sortedDoses ?? [];
+  if (!per.some((d) => d.status === 'invalid' && (d.reasons ?? []).includes(REPEAT_THIS_DOSE))) return history;
+  const asking = (cards ?? []).find((c) => !CARDS_ASK_NOTHING.has(c.status) && c.status !== 'deferred');
+  const cardDate = !asking ? null
+    : asking.dueToday ? today
+      : (asking.earliestNextDate ?? asking.boosterDueDate ?? null);
+  return {
+    ...history,
+    perDose: per.map((d, i) => {
+      if (d.status !== 'invalid' || !(d.reasons ?? []).includes(REPEAT_THIS_DOSE)) return d;
+      const at = doses[i]?.date;
+      const k = at ? doses.findIndex((x, j) => x?.date && x.date > at && !per[j]?.recordProblem) : -1;
+      if (k >= 0) {
+        const said = `Repeated on ${fmtDate(doses[k].date)}. See that dose.`;
+        return { ...d, repeatedOn: doses[k].date, reasons: d.reasons.map((x) => (x === REPEAT_THIS_DOSE ? said : x)) };
+      }
+      return cardDate ? { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] } : d;
+    }),
+  };
+}
+
 function recommendOneReading(input) {
   const am = patientAgeMonths(input, input.today) ?? 0;
   const riskIds = input.riskIds ?? [];
@@ -2480,8 +2517,8 @@ function recommendOneReading(input) {
     // MenB) would otherwise have nowhere to be said.
     riskAgeNote, riskAgeNoteCites,
     history: {
-      MenACWY: notRepeatedWhenNothingAsked(menacwyHistory, menacwy),
-      MenB: notRepeatedWhenNothingAsked(menbHistory, menb),
+      MenACWY: datedRepeatLines(notRepeatedWhenNothingAsked(menacwyHistory, menacwy), menacwy, today),
+      MenB: datedRepeatLines(notRepeatedWhenNothingAsked(menbHistory, menb), menb, today),
     },
     meta: { ageMonths: am, today, riskIds },
   };
