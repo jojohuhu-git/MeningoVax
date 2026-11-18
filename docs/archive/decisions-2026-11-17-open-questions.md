@@ -47,3 +47,21 @@ B-1, D11, D12 and D13 built 2026-11-17 (`regression-2026-11-17-b1-grace-only-whe
 Still open (not asked this session): MenB of
 unknown product at 16+ (CDC 2024-0069); healthy MenB rescue dose 3 waiting for 6 months from
 dose 1 (CDC 2024-0034/0035); the 1-day calendar difference (2024-0040, shared with PneumoVax).
+
+## STOP E1 — Phase 4, one label per dose (Q5–Q9), answered 2026-11-17
+
+Asked one patient at a time; every patient was run through the real engine on 2026-11-17 (`main`
+at `3cb256c`). Quotes read live 2026-11-17: CDC Timing and Spacing of Immunobiologics; ACIP 2020
+MMWR rr6909a1. The PneumoVax wording each was set against is its `src/components/doseChipLabel.js`
+(origin/main, 2026-11-17).
+
+| # | Question | Owner answer | Sources |
+|---|---|---|---|
+| Q5 | A dose given too soon. Asplenia, 20 y, Menveo 1/10/26 and 2/1/26 (3 weeks; 8 is the minimum). Today: "Invalid … repeat this dose only". PneumoVax (W1) says "Not counted — do not repeat" | **"Repeat", not "do not repeat".** Owner: *"pneumovax's context for do not repeat is different… For Menveo saying do not repeat and then giving the next due date is confusing."* Label: **"Not counted — repeat"** for a dose too soon and a dose too young alike. PneumoVax not changed | CDC Timing and Spacing: *"Doses of any vaccine administered ≥5 days earlier than the minimum interval or age should not be counted as valid doses and should be repeated as age appropriate."* |
+| Q6 | A dose set aside for age. Healthy 12 y, Menveo at 9. Today: "Off-window - repeat", while the rulebook says "no repeat needed" | **"Not counted — given before age 10"** (MenACWY); **"Not counted — given before age 16"** (healthy MenB; a routine 2nd MenACWY before 16). Owner's limit: *"if menB for a high risk or exposure patient is given a dose earlier than 16 years this is correct since the minimum age for this group is 10 years not 16 years"*: a high-risk patient's MenB from 10 counts (as it already does) | ACIP 2020: *"Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease … should still receive MenACWY according to the recommended adolescent schedule"*. PneumoVax analogue: "Not counted — PCV7" (owner 2026-10-31: "do not repeat" would read as "no more") |
+| Q7 | "Booster" (asplenia, 22 y, a counted booster 4/10/26). PneumoVax's list has no booster label | **Keep "Booster"** | ACIP 2020: *"ACIP recommends MenACWY booster doses for previously vaccinated persons who become or remain at increased risk."* |
+| Q8 | What "Extra" means. **First asked with a wrong example** (healthy 30 y, first Menveo at 25: PneumoVax's first-dose limit keeps that one counted); corrected and re-asked: healthy 25 y, Menveo at 12 and 23 — the card at 23 said "Not routinely indicated" | **PneumoVax's rule:** a dose is Extra when every card for that vaccine on the day of the dose asked for nothing (complete / not indicated) and the patient already had a dose of it. A healthy patient's first dose stays counted (PneumoVax's Priya ruling). Label **"Not counted — Extra. Do not repeat."** The 23 y dose → Extra; today's card → "Not routinely indicated". No dose owed either way | PneumoVax §C-P1-3 (owner rulings 2026-11-06) |
+| Q9 | A counted dose for a patient with no series now. Healthy 25 y, Menveo at 12: today "Given — not part of a series this patient needs" | **"Dose 1"** — the dose number, no total, as PneumoVax | PneumoVax `doseChipLabel.js` (`Dose ${n}` when no series is running) |
+
+Not asked, and not changed by these answers: the record-problem labels ("No date recorded — not
+counted", etc.), colours (plan item A2), and the wording of the line under each label (Phase 6).
