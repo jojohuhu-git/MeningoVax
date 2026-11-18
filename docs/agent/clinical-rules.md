@@ -140,8 +140,8 @@ rule applies stay on the doses that COUNTED.
   (`MENB_REPEAT_MIN_INTERVAL`; MenACWY uses `MENACWY_ANY_TWO_DOSES_MIN_GAP`, 8 weeks, since D5).
   **D8 (owner, 2026-11-17) — the other product, as one line:** with exactly one dose of each
   MenB product on record, the card still finishes with the first product and its always-shown
-  lead adds *"Or finish with Trumenba instead: dose 2 from … (the Bexsero dose then does not
-  count)"*. ACIP 2020: *"one product should be selected for administration of an additional
+  lead adds *"Or finish with Trumenba instead: dose 2 due … (the Bexsero dose then does not
+  count)"* — "due", not "from", since the date is the advised one (owner F2b, 2026-11-18). ACIP 2020: *"one product should be selected for administration of an additional
   dose …; the dose from the product not selected for series completion should be considered
   invalid"* (`acip2020MenbMixedProductsSelectOne`). The date is `menbRec()`'s own answer for a
   record holding only the other product's dose (`withMenbSwitchLine` in `recommend.js`). The
@@ -431,7 +431,19 @@ offers finishing with the other product instead (D8).
 
 ## Pentavalent (Penbraya/Penmenvy)
 
-Eligible only when BOTH MenACWY and MenB are due the same visit AND age ≥10y. Never appear in the standalone MenB brand list.
+Eligible only when MenACWY is due today, MenB is due today **or can be given today**, AND age ≥10y. Never appear in the standalone MenB brand list.
+
+**"Can be given today" (owner F2a, 2026-11-18):** MenB high-risk dose 2 between its 4-week minimum
+and its 1-month routine date (STOP F1 Q9a) carries `canGiveToday` on its card, and that opens the
+combined shot. ACIP mm7501a2: *"may be used when both MenACWY and MenB are indicated at the same
+visit"*; CDC adult notes: *"when both vaccines would be given on the same clinic day"*. The panel
+then reads *"MenACWY is due today; MenB dose 2 can be given today (its 4-week minimum has passed).
+One pentavalent (MenABCWY) dose may replace both."* and the summary line never calls MenB due.
+Infant MenACWY's gap (Q9b) does not carry the flag: under 10 y, the pentavalent never applies.
+Test: `regression-2026-11-18-phase5-q9a-consequences.test.js` and
+`regression-2026-11-18-phase5-pentavalent-in-gap-ui.test.jsx`; swept by
+`sweep-never-events.test.js` property 14 (offered exactly when MenACWY is due and MenB is due
+or can be given today).
 
 **Penbraya may not be repeated inside 6 months** (P1-4, 2026-09-17). CDC, MenB special
 situations: *"Penbraya may be used for additional MenACWY and MenB doses (including booster

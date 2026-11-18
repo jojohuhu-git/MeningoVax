@@ -323,6 +323,14 @@ today, AND a MenB dose is due today (MenB "due" includes the 16–23y
 shared-decision window — it doesn't have to be a hard requirement, just
 on-the-table today).
 
+- **Also when MenB dose 2 can be given today but isn't due yet** (your F2a
+  answer, 2026-11-18). High-risk MenB dose 2 is due 1 month after dose 1 but
+  can be given from 4 weeks. On the days in between, if MenACWY is due, the
+  combined shot is offered: *"MenACWY is due today; MenB dose 2 can be given
+  today (its 4-week minimum has passed). One pentavalent (MenABCWY) dose may
+  replace both."* ACIP: "may be used when both MenACWY and MenB are indicated
+  at the same visit".
+
 - **Penmenvy** = MenB-4C family → only offered/continued if the established
   family is 4C (or no family established yet).
 - **Penbraya** = MenB-FHbp family → only offered/continued if FHbp (or none
@@ -413,9 +421,10 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   dose of the right family waits at least 4 weeks after it (owner,
   2026-11-15), as well as being due by the schedule. With one dose of each
   product on record, the card also says how to finish with the other product
-  instead, e.g. *"Or finish with Trumenba instead: dose 2 from Apr 1, 2027 (the
+  instead, e.g. *"Or finish with Trumenba instead: dose 2 due Apr 1, 2027 (the
   Bexsero dose then does not count)"* (your D8 answer, 2026-11-17; ACIP: "one
-  product should be selected").
+  product should be selected"; "due", not "from", is your F2b answer,
+  2026-11-18).
 - **Given before age 10 (MenACWY) / before age 16 (MenB), no current risk
   factor:** valid, but doesn't advance the series (see sections above). The
   dose reads **"Not counted — given before age 10"** (or "… before age 16"),

@@ -155,6 +155,11 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
     summaryLine = pentavalent.eligible
       ? 'Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.'
       : 'Due today: MenACWY and MenB.';
+  } else if (requiredDue.length === 1 && pentavalent.eligible && !bDueToday) {
+    // F2a (owner, 2026-11-18): MenB dose 2 is not due yet but its minimum has
+    // passed (the card's "It can be given today if needed"), and the combined
+    // shot is offered. Never "Due today: … MenB" on those days.
+    summaryLine = `Due today: ${requiredDue[0]}. MenB dose ${menb.find(r => r.canGiveToday).doseNum} can also be given today (its minimum interval has passed), as two separate shots or one combined pentavalent shot.`;
   } else if (requiredDue.length === 1) {
     summaryLine = `Due today: ${requiredDue[0]}.`;
     if (optionalDue.length === 1) {
@@ -367,13 +372,13 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
       {/* Option 1: two separate injections — grouped visually when both are due.
           D9: header bar sits INSIDE the box (matches Option 2's own header-bar
           treatment below) instead of as a label floating above it. */}
-      <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
+      <div className={pentavalent.eligible ? 'separate-vaccines-group' : undefined}>
         {pentavalent.eligible && (
           <div className="dose-option-label" data-testid="option-separate-label">
             Option 1: Two separate injections (MenACWY + MenB)
           </div>
         )}
-        <div className={acwyDueToday && bDueToday && pentavalent.eligible ? 'separate-vaccines-group-body' : undefined}>
+        <div className={pentavalent.eligible ? 'separate-vaccines-group-body' : undefined}>
         {/* B-5 (owner, 2026-11-15): no "Both are due today" while a recorded
             dose still waits on its answer — the same rule as the summary line. */}
         {acwyDueToday && bDueToday && !pentavalent.eligible && pendingAnswers === 0 && (

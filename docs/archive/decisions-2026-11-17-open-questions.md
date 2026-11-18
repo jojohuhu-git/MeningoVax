@@ -120,3 +120,21 @@ Quotes read live 2026-11-17:
 
 Not asked here: the MenB booster after the first is "every 2–3 years" and the card gives 2 years
 (a range, not a routine date and a minimum). Listed for the owner.
+
+## Q9a consequences (F2a, F2b), answered 2026-11-18
+
+Q9a moved MenB high-risk dose 2 from "eligible at 4 weeks" to "due at 1 month, can be given from
+4 weeks". Two things followed from it; asked, not assumed (memory: consequences of a decision are
+questions). Both measured on `main` (`9034332`) and on the commit before Phase 5 (`36b24e0`).
+
+Quotes read live 2026-11-18:
+- ACIP Penmenvy MMWR (mm7501a2, Jan 8 2026): *"may be used when both MenACWY and MenB are
+  indicated at the same visit"*.
+- CDC adult schedule notes (updated July 2, 2025): *"Adults may receive a single dose of Penbraya
+  (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when
+  both vaccines would be given on the same clinic day."*
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| F2a | Combined shot in the gap. Asplenia, 20 y, Bexsero 11/3/26, no MenACWY. Dec 1–2: MenACWY dose 1 due; MenB dose 2 "can be given today if needed". Before Q9a Penmenvy was offered on those days; after Q9a it was not | **Offer it.** The panel says *"MenACWY is due today; MenB dose 2 can be given today (its 4-week minimum has passed). One pentavalent (MenABCWY) dose may replace both."* The summary line never says MenB is due on those days. Dec 3 on, and before Dec 1: unchanged | Only MenB high-risk dose 2 has a gap (STOP F1's measurement); 0 of 5,820 saved answers, 0 of 24,600 prose screens moved (the grid has no patient on a gap day) |
+| F2b | The switch line. Asplenia, 20 y, Bexsero 9/1/26 then Trumenba 11/3/26, seen Dec 1. The line read *"Or finish with Trumenba instead: dose 2 from Dec 3, 2026"*: the routine date, worded as the earliest | **"due"**: *"…dose 2 due Dec 3, 2026 (the Bexsero dose then does not count)"*, matching "Next dose due <date>". "today" once due, unchanged. A healthy patient's line reads "due May 3, 2027" (there the routine date and the minimum are the same) | 0 saved answers, 0 prose screens moved; tests only |

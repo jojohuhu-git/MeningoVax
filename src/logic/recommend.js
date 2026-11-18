@@ -125,6 +125,11 @@ function rec(o) {
     // due", "Not yet age-eligible"). Only those cards carry it. validate.js
     // reads it so a dose given on such a day is not called Extra.
     ...(o.asksLater ? { asksLater: true } : {}),
+    // Owner F2a (2026-11-18): not due yet, but the minimum interval has passed,
+    // so the card says "It can be given today if needed". Only MenB high-risk
+    // dose 2 carries it (the one MenB place the routine date and the minimum
+    // differ, STOP F1). The pentavalent offer reads it.
+    ...(o.canGiveToday ? { canGiveToday: true } : {}),
     doseLabel: o.doseLabel,
     doseNum: o.doseNum ?? null,
     seriesTotal: o.seriesTotal ?? null,
@@ -1614,6 +1619,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate });
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: due, earliestNextDate: due ? null : advisedDate, minIntervalDays: MENB_HIGHRISK_D2_GAP,
+        canGiveToday: !due && statedMin <= today,
         family, brands: menbBrands(family),
         note: {
           lead: minClause
@@ -2079,7 +2085,9 @@ function withMenbSwitchLine(cards, history, am, riskIds, today) {
   if (!card || !(card.dueToday || card.earliestNextDate) || !card.note || typeof card.note !== 'object') return cards;
   const alt = menbRec(am, riskIds, [other], today, other.date)[0];
   if (!alt || !(alt.dueToday || alt.earliestNextDate) || !alt.doseNum) return cards;
-  const when = alt.dueToday ? 'today' : `from ${fmtDate(alt.earliestNextDate)}`;
+  // F2b (owner, 2026-11-18): the date is the advised one (Q9a), so it says
+  // "due", as the card's "Next dose due <date>" does — never "from".
+  const when = alt.dueToday ? 'today' : `due ${fmtDate(alt.earliestNextDate)}`;
   const line = ` Or finish with ${MENB_PRODUCT_BY_FAMILY[otherFam]} instead: dose ${alt.doseNum} ${when} `
     + `(the ${MENB_PRODUCT_BY_FAMILY[firstFam]} dose then does not count) [c].`;
   // In the lead (always shown, not behind "Why this"): a clinic that stocks
@@ -2291,6 +2299,13 @@ function recommendOneReading(input) {
   const bDueRec = menb.find((r) => r.dueToday);
   const bDueToday = !!bDueRec;
   const bRequiredToday = bDueToday && bDueRec.status !== 'shared-decision';
+  // F2a (owner, 2026-11-18): MenB dose 2 that is not due yet but whose minimum
+  // has passed ("It can be given today if needed") also opens the combined
+  // shot. ACIP mm7501a2 (read live 2026-11-18): "may be used when both MenACWY
+  // and MenB are indicated at the same visit"; CDC adult notes: "when both
+  // vaccines would be given on the same clinic day".
+  const bGivableRec = bDueToday ? null : menb.find((r) => r.canGiveToday);
+  const bAvailableToday = bDueToday || !!bGivableRec;
   // P1-4 (2026-09-17): Penbraya may be used for ADDITIONAL doses only once at
   // least 6 months have passed since the most recent Penbraya dose. Without
   // this the app offered a second Penbraya two months after the first.
@@ -2341,7 +2356,7 @@ function recommendOneReading(input) {
   // on the strength of a "due today" that may not survive the answer.
   const answersPending = [...menacwyHistory.perDose, ...menbHistory.perDose].some((d) => d?.status === 'pending');
   const pentavalentEligible = !answersPending
-    && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && pentavalentBrands.length > 0;
+    && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
@@ -2349,7 +2364,12 @@ function recommendOneReading(input) {
         // rendered by the same component -- the panel had the longest single
         // paragraph in the app, and both halves of it were the family lock
         // repeated for each of the two openings.
-        note: bRequiredToday
+        note: bGivableRec
+          ? {
+            lead: `MenACWY is due today; MenB dose ${bGivableRec.doseNum} can be given today (its ${weeksLabel(bGivableRec.minIntervalDays).replace(/ weeks?$/, '-week')} minimum has passed). One pentavalent (MenABCWY) dose may replace both.`,
+            detail: PENTAVALENT_FAMILY_LOCK,
+          }
+          : bRequiredToday
           ? {
             lead: 'Both MenACWY and MenB are due today, so one pentavalent (MenABCWY) dose may replace the two injections.',
             detail: PENTAVALENT_FAMILY_LOCK,
@@ -2365,7 +2385,7 @@ function recommendOneReading(input) {
         eligible: false,
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
-        unavailableReason: (!answersPending && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bDueToday && (penbrayaTooRecent || penmenvyTooRecent))
+        unavailableReason: (!answersPending && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday && (penbrayaTooRecent || penmenvyTooRecent))
           ? `A combined pentavalent shot is not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} may only be repeated once 6 months have passed since the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`
           : null,
       };

@@ -62,7 +62,7 @@ routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Own
 3-month, 7-month, 2-year and 16-year lines, only when it means fewer doses owed, from the dose day
 on; age 7 is not a grace line — owner D11–D13). **Phase 4 (one label per dose) built 2026-11-17**: STOP E1
 answers Q5–Q11 in `docs/archive/decisions-2026-11-17-open-questions.md`; the closed label list is in
-`docs/agent/clinical-rules.md` ("One Label Per Dose"). **Phase 5 STOP F1 answered 2026-11-17** (routine date with the minimum beside it, at MenB high-risk dose 2 and infant MenACWY doses 2–3; not yet built). Next: build Phase 5. Open owner questions are
+`docs/agent/clinical-rules.md` ("One Label Per Dose"). **Phase 5 STOP F1 answered 2026-11-17** (routine date with the minimum beside it, at MenB high-risk dose 2 and infant MenACWY doses 2–3; built, #101). **Its two consequences F2a/F2b answered and built 2026-11-18** (combined shot offered while MenB dose 2 can be given; switch line says "due"). Next: the rest of Phase 5.1. Open owner questions are
 in the newest handoff.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
@@ -101,7 +101,7 @@ function each in `seriesTotals.js` (`menbHighRiskDose3Early`, `menbHealthyDose2E
 re-derive them. Series length comes from `menbSeriesInfo()` — never hand-type 3.
 
 ### Pentavalent — Dedicated Card Only
-Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standalone MenB brand list. Eligible only when both MenACWY AND MenB are due today AND age ≥10y.
+Penbraya/Penmenvy surface ONLY through the pentavalent card, never in the standalone MenB brand list. Eligible only when MenACWY is due today, MenB is due today or can be given today (MenB high-risk dose 2 past its 4-week minimum, owner F2a 2026-11-18), AND age ≥10y.
 
 ### Transplant Is A Hard Stop, Mirrored With PneumoVax
 Ticking `hct_cart_bcell_exclude` (transplant, CAR-T, B-cell malignancy or B-cell-depleting therapy)
