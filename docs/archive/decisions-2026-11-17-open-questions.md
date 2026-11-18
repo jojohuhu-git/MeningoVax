@@ -241,3 +241,20 @@ asked), every date equal to the one the card prints (0 differ). **Correction to 
 already read "Not counted — do not repeat" (Q10: nothing is owed), so they carry no repeat sentence
 to swap; they are unchanged, as in PneumoVax ("a later one replaced nothing"). Unchanged as stated:
 1,984 "Not yet due", 281 deferred.
+
+## An outbreak contact aged 22+ is offered the outbreak booster (F-6), answered 2026-11-18
+
+Listed while building the 16-year booster (#104). Asked as one patient: Sam, 22, at risk in an
+A/C/W/Y outbreak, one MenQuadfi at 12 (Sep 2016), read "1 dose (routine booster at ≥16y still
+owed)". Quotes read live 2026-11-18, ACIP 2020 (RR-9): *"Persons aged 19–21 years who have not
+received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up
+vaccination"*; Table 8: *"Aged ≥7 yrs: single dose if ≥5 yrs since vaccination"*.
+
+The owner first asked: *"booster is only given every 5 years as long as risk remains. Is this being
+accounted for?"* Yes; shown from the engine: the day after the booster, "Booster (dose 3) if
+outbreak risk continues", Nov 18, 2031; in 2031 due if the box is still ticked, "Not routinely
+indicated" if it is not.
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| F-6 | From 22, outbreak booster instead of "routine booster at ≥16y still owed"? | **Yes**, through 21 as travel and lab | Saved answers 48 of 18,780 real moved (ages 22 and 24: label, note, and the card's 5-year spacing field; still due today, no date moved), 0 of 5,820 impossible. Prose 48 screens |

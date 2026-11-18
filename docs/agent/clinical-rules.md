@@ -366,8 +366,12 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   16th birthday). Now: under 16, once a dose given at 10 or older is on record, the card reads
   "Booster due at 16y" when that date (the 16th birthday, or 8 weeks after the last dose if
   later) is no later than the travel/lab/outbreak booster; from 16, "1 dose (routine booster at
-  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel and lab (a
-  healthy 22-year-old is owed nothing), at every age for outbreak (its older rule, unchanged).
+  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel, lab and
+  outbreak (a healthy 22-year-old is owed nothing; outbreak joined with owner F-6, 2026-11-18:
+  from 22 the outbreak card offers its own booster, "Booster (dose N) for this outbreak", ACIP
+  Table 8 *"Aged ≥7 yrs: single dose if ≥5 yrs since vaccination"*; a dose before 16 is always
+  6+ years old by then, so it is due either way and the validator needs no change. Test
+  `regression-2026-11-18-phase5-f6-outbreak-22-plus.test.js`).
   The dose counts: `ACWY-TRAVEL-BOOSTER-GAP` exempts it (`acwyIsRoutineBooster`), and the 8-week
   minimum judges it. The travel/lab/outbreak boosters then run every 5 years from it (given at
   7 or older). **Asplenia, complement and HIV are unchanged** (owner): their own schedule

@@ -257,9 +257,10 @@ function routineBoosterTiming(lastDate, today) {
 // twin is doseRules.js acwyIsRoutineBooster (the dose is exempt from the
 // 5-year floor and judged by 8 weeks).
 function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup = false } = {}) {
-  // Travel and lab: only while a healthy peer would still be owed it (catch-up
-  // runs through 21; from 22 the routine schedule asks nothing). The outbreak
-  // card keeps its older rule (every age from 16) — not part of this ruling.
+  // Travel, lab and outbreak: only while a healthy peer would still be owed it
+  // (catch-up runs through 21; from 22 the routine schedule asks nothing). The
+  // outbreak card joined the limit with owner F-6 (2026-11-18): from 22 it
+  // offers its own booster ("single dose if ≥5 yrs since vaccination").
   if (throughCatchup && am >= MENACWY_CATCHUP_MAX_AGE_MONTHS) return null;
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return routineBoosterCurrentlyUnmet(am, doses, today, dob)
@@ -855,10 +856,12 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       // The routine 16-year booster comes first, and is its own ACIP rule
       // (relation 1a, 2026-09-19); the validator exempts it from the outbreak
       // booster floor for the same reason (doseRules.js acwyIsRoutineBooster).
-      // From 16 it always comes first (as before); under 16 since Port Phase 5
-      // (owner, 2026-11-18), when it is owed no later than the outbreak booster.
-      // N5: no sooner than 8 weeks after the last dose.
-      const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate);
+      // From 16 through 21 it always comes first (as before; through 21 since
+      // owner F-6, 2026-11-18: a healthy 22-year-old is owed no routine dose);
+      // under 16 since Port Phase 5 (owner, 2026-11-18), when it is owed no
+      // later than the outbreak booster. N5: no sooner than 8 weeks after the
+      // last dose.
+      const owed16 = routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCatchup: true });
       if (owed16 && (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS || (!boosterNow && owed16.earliestNextDate <= boosterOn))) {
         return [routineSixteenBoosterCard({ owed: owed16, am, given, lastDate, indication: 'outbreak', refs: refsExposure() })];
       }
