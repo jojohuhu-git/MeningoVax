@@ -164,3 +164,36 @@ explained.
 Not asked here: about 6,300 saved-grid cards read "Up to date" while a dated dose or booster is
 still to come (PneumoVax never says "Up to date" mid-series). That is the PneumoVax badge style,
 for Phase 6 (wording), measured then.
+
+## The 16-year booster for travel, lab and outbreak, answered 2026-11-18
+
+Found while measuring Phase 5 (`report-2026-11-18-phase5-measured.md`, F-1): 830 saved patients
+were told a LATER next MenACWY date because a risk box was ticked. Asked as one patient: Maya, 15,
+one MenQuadfi at 14 for travel. No box: next dose at 16 (Jan 2027). Travel ticked: 2030, because
+the card used the travel rule ("every 5 years") instead of the routine 16-year dose. The owner
+asked for a re-explanation of the first, longer version of the question.
+
+Quotes read live 2026-11-18:
+- ACIP 2020 (RR-9) Table 2: *"Booster: 1 dose at age 16 yrs if first dose administered before
+  16th birthday"*; footnote *"If only 1 dose of vaccine was administered before the 16th
+  birthday, a booster dose should be administered"*.
+- ACIP 2020 Tables 7–9 (microbiologist, outbreak, travel), aged ≥7: *"Single dose at 5 yrs after
+  primary vaccination and every 5 yrs thereafter"* (outbreak: *"Single dose if ≥5 yrs since
+  vaccination"*). Silent on the 16-year dose.
+- CDC child/adolescent notes (updated July 1, 2025): children with an ongoing increased risk
+  (complement, HIV, asplenia) follow the increased-risk booster schedule; *"a healthy child who
+  received a single dose for travel"* follows the adolescent schedule (11–12 and 16).
+- ACIP 2020 text: *"a child with HIV infection who received MenACWY at age 9 years should receive
+  the next dose at age 14 years"*.
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| 16y booster | Travel / lab / outbreak teen with a dose before 16 | **Yes**: the 16-year dose (and it counts), then boosters while at risk. Owner's note: every 5 years only if the primary vaccination was completed at 7 or older; before the 7th birthday, one booster 3 years after the primary series, then every 5 years. Asplenia / complement / HIV unchanged | Saved answers: 846 of 18,780 real moved (702 earlier, 144 already due and relabelled "routine booster at ≥16y still owed"; none later); 63 of 5,820 impossible. Prose 909 of 24,600 screens. CDSI: NEW 0, 0 moved. Whole-app: check 6 +3 typical (a 4-day near-tie, explained in the PR), every other check identical to `main` |
+
+Built rules beyond the question, chosen to keep the app consistent and listed for the owner:
+- Under 16 it applies only after a dose given at 10 or older (the age from which ACIP counts a
+  dose toward the adolescent series); a travel dose before 10 keeps the travel schedule.
+- For travel and lab, only through 21: a healthy 22-year-old is owed no routine dose, so the
+  label would be false. The outbreak card already said "routine booster at ≥16y still owed" at
+  every age from 16 on `main`; that is unchanged and listed as a finding (a 24-year-old outbreak
+  contact with only a dose at 11 sees it).

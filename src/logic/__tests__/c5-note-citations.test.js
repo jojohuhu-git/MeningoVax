@@ -138,9 +138,13 @@ describe('C5 note-citation anchors', () => {
 // note's [c] markers and its noteCites list out of step in both directions.
 describe('L2-3: the exposure first-booster note and its citation stay in step', () => {
   const oneDoseSixYearsAgo = [{ date: '2020-09-15' }];
+  // Port Phase 5 (owner, 2026-11-18): these patients were 17 (ageMonths 204),
+  // so the dose six years ago was given at 11 and the routine 16-year booster
+  // now comes first (its own card). At 23 the dose was given at 17: the travel
+  // or lab booster is the next dose, which is what this test is about.
 
   it('a traveller\'s first booster shows the age-split citation it claims', () => {
-    const r = run({ ageMonths: 204, riskIds: ['travel'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
+    const r = run({ ageMonths: 276, riskIds: ['travel'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
     const rec = acwy(r);
     expect(noteText(rec)).toContain('[c]');
     expect(noteText(rec).split('[c]').length - 1).toBe(rec.noteCites.length);
@@ -148,7 +152,7 @@ describe('L2-3: the exposure first-booster note and its citation stay in step', 
   });
 
   it('a microbiologist\'s first booster claims no age split, and renders no empty superscript', () => {
-    const r = run({ ageMonths: 204, riskIds: ['microbiologist'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
+    const r = run({ ageMonths: 276, riskIds: ['microbiologist'], menacwyDoses: oneDoseSixYearsAgo, menbDoses: [] });
     const rec = acwy(r);
     // ACIP Table 7 covers ">=10 yrs" with a flat 5-year interval and no under-7
     // row, so his card must not imply the age split travellers get.
