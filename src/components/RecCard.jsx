@@ -19,6 +19,7 @@ import { citeTitle } from '../data/refs.js';
 //   series done, booster due today  -> "Booster due today"
 //   series done, booster in future  -> "Future booster needed"
 //   optional (MenB 16-23y)          -> "Optional today - shared decision"
+//   not due, minimum passed         -> "Can be given today" (owner, 2026-11-18)
 //   nothing left                    -> "Up to date"
 //   not indicated for this patient  -> "Not needed"
 //   MenB in pregnancy               -> "Deferred in pregnancy"
@@ -43,7 +44,7 @@ export function hasPendingDoses(doseValidations) {
   return (doseValidations || []).some((v) => v?.status === 'pending');
 }
 
-function statusPillLabel(rec, pending) {
+export function statusPillLabel(rec, pending) {
   // "Answers needed", not "Needs input": the per-dose chip already says "Needs
   // input", and two identical labels at two levels leaves the clinician asking
   // which input is meant. This one names the card's state; the chips name the
@@ -61,6 +62,10 @@ function statusPillLabel(rec, pending) {
   // The routine "Booster due at 16y" card (status 'due' since STOP B: never
   // "complete" while a booster is coming) keeps the pill it had.
   if (!dueToday && boosterDueDate) return 'Future booster needed';
+  // Gap badge (owner, 2026-11-18): not due yet, but its minimum has passed and a
+  // dose given today counts (high-risk MenB dose 2, STOP F1 Q9a). Never "due" —
+  // the date line beside it still says "Next dose due <date>".
+  if (!dueToday && rec.canGiveToday) return 'Can be given today';
   if (!dueToday) return 'Up to date';
   const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
   if (isBooster) return 'Booster due today';

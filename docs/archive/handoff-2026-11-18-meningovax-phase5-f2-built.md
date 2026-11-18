@@ -1,4 +1,6 @@
-# MeningoVax port — Handoff after the two Q9a consequences (F2a, F2b) were built (2026-11-18, latest)
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase5-gap-badge.md`. PR #102 merged; the "Up to date" gap badge asked and built. Do not resume from this file.
+
+# MeningoVax port — Handoff after the two Q9a consequences (F2a, F2b) were built (2026-11-18)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The

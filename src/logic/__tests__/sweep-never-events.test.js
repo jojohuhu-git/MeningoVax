@@ -57,6 +57,7 @@ import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
 import { doseChipLabel, RECORD_PROBLEM_LABELS, NEEDS_INPUT_LABEL } from '../../components/doseChipLabel.js';
+import { statusPillLabel } from '../../components/RecCard.jsx';
 import { ALL_BRANDS, MENB_BRANDS, brandMinAge } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
@@ -223,6 +224,9 @@ let p12Rows = 0;
 // a card that "can be given today" is never also due today, and its lead says
 // so. Walked day by day from 3 to 6 weeks after dose 1, both MenB products,
 // every MenB high-risk reason, with and without MenACWY due.
+// Gap badge (owner, 2026-11-18): a card's badge reads "Can be given today"
+// exactly when it can be given today — never on a due card, never "Up to date"
+// or "due" on a gap day.
 const p14 = [];
 let p14Rows = 0;
 let p14GapRows = 0;
@@ -243,6 +247,12 @@ let p14GapRows = 0;
             p14GapRows += 1;
             if (b.dueToday) p14.push(`${where}: canGiveToday and dueToday together`);
             if (!lead(b).includes('can be given today')) p14.push(`${where}: canGiveToday but the lead does not say so`);
+          }
+          for (const c of [...r.menacwy, ...r.menb]) {
+            const badge = statusPillLabel(c, false);
+            if ((badge === 'Can be given today') !== Boolean(c.canGiveToday)) {
+              p14.push(`${where}: ${c.vaccine} badge "${badge}" but canGiveToday=${Boolean(c.canGiveToday)}`);
+            }
           }
           const acwyDue = r.menacwy.some((c) => c.dueToday);
           const bAvailable = r.menb.some((c) => c.dueToday || c.canGiveToday);

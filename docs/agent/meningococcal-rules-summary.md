@@ -329,7 +329,9 @@ on-the-table today).
   combined shot is offered: *"MenACWY is due today; MenB dose 2 can be given
   today (its 4-week minimum has passed). One pentavalent (MenABCWY) dose may
   replace both."* ACIP: "may be used when both MenACWY and MenB are indicated
-  at the same visit".
+  at the same visit". On those days the MenB card's badge says **"Can be
+  given today"** (your answer, 2026-11-18), not "Up to date"; its date line
+  still says "Next dose due <date>".
 
 - **Penmenvy** = MenB-4C family → only offered/continued if the established
   family is 4C (or no family established yet).
