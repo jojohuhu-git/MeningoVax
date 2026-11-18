@@ -79,6 +79,27 @@ export const MENACWY_INFANT_EARLY_GAP = WEEKS(8);
 export const MENACWY_INFANT_FINAL_GAP = WEEKS(12);
 
 /**
+ * The ROUTINE ages a series started in the 2-month band advises for doses 2 and 3
+ * (ACIP 2020, "4 doses at 2, 4, 6, and 12 mos"; CDC Notes, "additional 3 doses at
+ * age 4, 6, and 12 months"). The 8-week minimum above is stated beside them and
+ * still decides whether a dose given counts (owner STOP F1 Q9b, 2026-11-17,
+ * matching PneumoVax C10-2). A 3–6-month start is spaced by the 8 weeks itself.
+ */
+export const MENACWY_INFANT_ROUTINE_AGE_MONTHS = { 2: 4, 3: 6 };
+
+/**
+ * The sentence that states the minimum beside a routine date (PneumoVax C10-2).
+ * Empty when there is no earlier date to offer: no date, already due, or the
+ * minimum is not earlier than the routine date.
+ */
+export function minimumBesideRoutine({ minDate, advisedDate, today, minWords, fmt }) {
+  if (!minDate || !advisedDate || advisedDate <= today || advisedDate <= minDate) return '';
+  return minDate <= today
+    ? ` It can be given today if needed, as the minimum interval of ${minWords} has passed.`
+    : ` It can be given from ${fmt(minDate)} if needed (minimum ${minWords}).`;
+}
+
+/**
  * The gate the NEXT MenACWY dose in an infant primary series must clear.
  *
  * One function for all four start bands, because the difference between them is
@@ -261,6 +282,13 @@ export function yearsLabel(years) {
 export const MENB_REPEAT_MIN_INTERVAL = WEEKS(4);
 /** MenB high-risk dose 2: at least 4 weeks after dose 1 (the 0/1-2/6 schedule). */
 export const MENB_HIGHRISK_D2_GAP = WEEKS(4);
+/**
+ * MenB high-risk dose 2, the ROUTINE date the card advises: 1 month after dose 1,
+ * the start of ACIP's "0, 1–2, and 6 months" (mm7349a3). The 4-week minimum above
+ * is stated beside it and still decides whether a dose given counts (owner STOP F1
+ * Q9a, 2026-11-17, matching PneumoVax C10-2).
+ */
+export const MENB_HIGHRISK_D2_ROUTINE_MONTHS = 1;
 /** MenB high-risk dose 3: at least 6 months after dose 1... */
 export const MENB_HIGHRISK_D3_MONTHS_FROM_D1 = 6;
 /** ...AND at least 4 months after dose 2. Both must be met. */

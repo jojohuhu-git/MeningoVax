@@ -515,6 +515,10 @@ first-dose exception) — `decisions-2026-11-17-open-questions.md`. Built in Men
 5.1 B1, B3–B6, B17; A5, A6, A13, A17.
 **Decision (STOP F1, before building):** **Q9** advise the routine date and state the minimum
 beside it (B2)? Where: MenB dose 3, the MenACWY 16-year dose, boosters.
+**STOP F1 ANSWERED 2026-11-17**: measured first, the routine date and the minimum differ only at
+MenB high-risk dose 2 and infant MenACWY doses 2–3 (the three places named above already advise
+the routine date). Owner: **yes at both** (Q9a, Q9b), matching PneumoVax C10-2; the floor for a
+dose already given does not move — `decisions-2026-11-17-open-questions.md` ("STOP F1").
 **STOP F2 — owner merges.**
 
 ### Phase 6 — Wording (2 sessions, ≈ 8%)

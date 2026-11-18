@@ -145,6 +145,13 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
       that the 2-month series also uses 8 weeks between its early doses, and that the
       "12 months old and 12 weeks since the last dose" test applies to the final dose of
       *both* the 2-month and the 3–6-month series.
+    - **When the card advises them (your Q9b answer, 2026-11-17, as PneumoVax).** A
+      baby who started at 2 months is advised dose 2 at **4 months** and dose 3 at **6
+      months** of age, with the 8 weeks said beside it: "Next dose due May 1, 2026" over
+      "It can be given from Apr 26, 2026 if needed (minimum 8 weeks)". If 8 weeks after
+      the last dose is already past that age (a late dose 1), the 8 weeks is the date.
+      A dose given at 8 weeks still counts. A baby who started at 3–6 months is spaced
+      8 weeks apart as before.
     - A deliberate edge case: a baby starting at exactly 3 months with every gap at the
       bare minimum reaches dose 3 at about 6.7 months. Read absolutely literally CDC's
       sentence would ask for a fifth dose; CDC caps the series at four, so the app stops
@@ -246,7 +253,10 @@ with an old dose "you're done" when they weren't.)
 complement-inhibitor therapy, microbiologist, serogroup B outbreak)
 - Eligible starting at age 10 (no upper age limit).
 - **3-dose primary**: 0, 1–2 months, 6 months.
-  - Dose 2: ≥4 weeks after dose 1.
+  - Dose 2: ≥4 weeks after dose 1. **The card advises 1 month after dose 1** and
+    says the 4 weeks beside it: "Next dose due Dec 3, 2026" over "It can be given
+    from Dec 1, 2026 if needed (minimum 4 weeks)" (your Q9a answer, 2026-11-17, as
+    PneumoVax). A dose given at 4 weeks still counts.
   - Dose 3: the app **advises** it ≥6 months after dose 1 **and** ≥4 months
     after dose 2 (both must be satisfied — whichever is later wins). A dose 3
     **already given** ≥4 months after dose 2 counts, even if it came before 6

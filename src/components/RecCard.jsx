@@ -475,11 +475,13 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {/* The booster line above already names this date when it is set. */}
+        {/* The booster line above already names this date when it is set.
+            Phase 5 B1 (PneumoVax's Remy ruling, 2026-11-07): the date is the
+            ADVISED one, so the line says "due", not "eligible". An earlier
+            date allowed by the minimum is in the note ("It can be given from
+            … if needed"), STOP F1 Q9a/Q9b, 2026-11-17. */}
         {!dueToday && earliestNextDate && !boosterDueDate && !pending && (
-          <div className="next-date">
-            Next dose not yet due - eligible {fmtDate(earliestNextDate)}
-          </div>
+          <div className="next-date">Next dose due {fmtDate(earliestNextDate)}</div>
         )}
 
         {/* C4 (2026-07-23 handoff): count/cadence of FUTURE boosters beyond

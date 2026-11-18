@@ -28,10 +28,15 @@ in February and 4/31 in March, and P0-4/P0-5 are both bugs caused by that kind o
 averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days later.
 
 **Two places it deliberately does NOT apply:**
-1. **The scheduler.** `dueToday` and `earliestNextDate` keep the real minimum — granting
-   grace there would advertise a date 4 days early and actively advise giving doses before
-   the minimum interval, which the CDC sentence does not permit. The app says "eligible on
-   the 9th" and *accepts* a dose given on the 5th.
+1. **The scheduler.** `dueToday` and `earliestNextDate` never take the grace — granting
+   it there would advertise a date 4 days early and actively advise giving doses before
+   the minimum interval, which the CDC sentence does not permit. The app says "Next dose
+   due the 9th" and *accepts* a dose given on the 5th. Where the routine date is later than
+   the minimum (MenB high-risk dose 2; infant MenACWY doses 2–3 in the 2-month band), the
+   card advises the routine date and states the minimum beside it ("It can be given from
+   <date> if needed (minimum 4 weeks)"), owner STOP F1 Q9a/Q9b, 2026-11-17 — see those
+   sections. The minimum stated is never inside the grace, and is held to the floor after
+   a dose that did not count (`minimumBesideRoutine()`, `intervals.js`).
 2. **Series-length tests** (`seriesTotals.js`) — with FOUR exceptions the owner ruled
    (STOP C C7, 2026-11-15, and D3/D4, 2026-11-17: the grace applies where it means one
    dose fewer):
@@ -240,6 +245,14 @@ them in card text — interpolate.
   the **2-month band** gets the same 8-week early gap, because CDC prints its schedule but
   states no minimum interval for it and the printed schedule is itself 8 weeks apart; and
   the final-dose rule above is **one rule for both** the 2-month and 3–6-month bands.
+- **Advised at the routine ages, 2-month band only (owner STOP F1 Q9b, 2026-11-17,
+  matching PneumoVax C10-2).** A series started before 3 months is advised dose 2 at **4
+  months** and dose 3 at **6 months** of age (ACIP 2020: *"4 doses at 2, 4, 6, and 12 mos"*),
+  with the 8-week minimum stated beside them ("It can be given from <date> if needed
+  (minimum 8 weeks)"). When 8 weeks after the last dose is already later than the routine
+  age (a late dose 1), the 8 weeks is the date and no minimum sentence is shown. A dose
+  given at the minimum still counts. A 3–6-month start is spaced by the 8 weeks itself
+  (ACIP: *"doses at intervals of 8 weeks"*), so it is unchanged. `MENACWY_INFANT_ROUTINE_AGE_MONTHS`.
 - **Edge case, deliberate:** D1 at exactly 3 months with every gap at the minimum puts D3
   at ~6.7 months. Read hyper-literally CDC would want a fifth dose; CDC caps the series at
   "3- or 4-dose", so it stops at four and the final dose (≥12 months) satisfies the ≥7-month
@@ -365,7 +378,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 ### High-Risk (asplenia, SCD, complement, microbiologist, outbreak_b)
 - Note: **HIV, immunocomp, and HSCT are NOT MenB high-risk indications**
 - Both 4C (Bexsero/Penmenvy) and FHbp (Trumenba/Penbraya) families: 3-dose primary
-- D2: ≥4 weeks after D1 (high-risk) vs ≥6 months (healthy)
+- D2: ≥4 weeks after D1 (high-risk) vs ≥6 months (healthy). **The high-risk card advises
+  1 month after D1** (the start of ACIP mm7349a3's *"0, 1–2, and 6 months"*) **and states the
+  4-week minimum beside it**: "Next dose due <D1 + 1 month>" over "It can be given from
+  <D1 + 4 weeks> if needed (minimum 4 weeks)" — owner STOP F1 Q9a, 2026-11-17, matching
+  PneumoVax C10-2. A dose given at 4 weeks still counts (the rule row is unchanged). Not
+  after a dose that did not count: a repeat is spaced by the minimum (Ruling D).
+  `MENB_HIGHRISK_D2_ROUTINE_MONTHS`. CDSI recommends 4 weeks: a named DELIBERATE family.
 - D3 **forecast**: ≥6 months from D1 AND ≥4 months from D2 (later of the two floors).
 - D3 **already given**: counts if ≥4 months after D2, whatever the gap from D1 (owner C5,
   2026-11-15: no source voids it; CDSI's floor from D1 is 0 days). Row

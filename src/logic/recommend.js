@@ -42,7 +42,7 @@ import {
 // unchanged (2 months) — CDC's earliest schedule row is still 2 months
 // regardless of which product a family chooses.
 import {
-  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
+  MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS, MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS,
@@ -90,6 +90,7 @@ import {
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
+  MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine,
 } from './intervals.js';
 import { MENACWY_COLLEGE_COVER_YEARS, menacwyGraceLine } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
@@ -257,7 +258,7 @@ function routineBoosterStillOwedNote(indicationLabel, waiting = false) {
 }
 
 // ── MenACWY ────────────────────────────────────────────────────────────────
-function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
+function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloorDate = null) {
   const given = doses.length;
   const last = doses[given - 1] || null;
   // RULING D (owner, STOP C C2/C9, 2026-11-15): the next dose is timed from
@@ -361,7 +362,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
   const menacwyD1AgeM = doses[0] ? ageAtDose(doses[0], am, today, dob) : null;
   const startedAsInfant = menacwyD1AgeM != null && menacwyD1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && menacwyInfantSeriesIndicated(riskIds)) {
-    return [menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate)];
+    return [menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate, repeatFloorDate)];
   }
 
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
@@ -884,7 +885,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null) {
   return menacwyRoutine(am, given, doses, last, today, dob, clockDate);
 }
 
-function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate = null) {
+function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate = null, repeatFloorDate = null) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   const refs = collectRefs(riskIds, [], ['acip2020']);
@@ -1196,6 +1197,37 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   const nextIntervalDays = nextGate.minIntervalDays;
   const elapsed = intervalElapsed(lastDate, nextIntervalDays, today);
   const ageFloorMetActual = nextGate.minAgeMonths == null || am >= nextGate.minAgeMonths;
+  // STOP F1 Q9b (owner, 2026-11-17): a series started in the 2-month band is
+  // advised at the ROUTINE ages, 4 and 6 months, with the 8-week minimum stated
+  // beside them (PneumoVax C10-2). The floor for a dose given is unchanged. Not
+  // after a dose that did not count: a repeat is spaced by the minimum (Ruling D).
+  const routineAgeM = (!nextGate.isFinalPrimary && d1AgeM != null && d1AgeM < MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS
+    && lastDate === last?.date) ? MENACWY_INFANT_ROUTINE_AGE_MONTHS[given + 1] ?? null : null;
+  // Held to the floor after a dose that did not count, as the MenB card (A13).
+  const infantMinByInterval = addDays(lastDate, nextIntervalDays);
+  const infantMinDate = repeatFloorDate && repeatFloorDate > infantMinByInterval ? repeatFloorDate : infantMinByInterval;
+  const infantRoutineDate = routineAgeM == null ? null
+    : dob ? addCalendarMonths(dob, routineAgeM)
+      : earliestGatedDate(lastDate, { minIntervalDays: 0, minAgeMonths: routineAgeM }, today, am);
+  const infantAdvised = infantRoutineDate && infantRoutineDate > infantMinByInterval ? infantRoutineDate : null;
+  const infantMinClause = infantAdvised
+    ? minimumBesideRoutine({ minDate: infantMinDate, advisedDate: infantAdvised, today, minWords: weeksLabel(nextIntervalDays), fmt: fmtDate })
+    : '';
+  if (infantAdvised) {
+    const due = infantAdvised <= today;
+    return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
+      dueToday: due,
+      earliestNextDate: due ? null : infantAdvised,
+      minIntervalDays: nextIntervalDays,
+      brands: MENACWY_INFANT_SERIES_BRANDS,
+      note: {
+        lead: `Continue the ${why} series — doses at 2, 4, 6 and 12 months [c].${infantMinClause}`,
+        detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
+      },
+      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      boosterCites: infantBoosterCites,
+      refs });
+  }
   // F1 (2026-09-14): total keyed off d1WasInfant7to11 alone (via
   // menacwyInfantHighRiskTotal), not on3DosePath — the D6 shortcut's own
   // "Dose 3 of 3" rec above already returns before reaching here; once a
@@ -1468,7 +1500,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
 }
 
 // ── MenB ─────────────────────────────────────────────────────────────────
-function menbRec(am, riskIds, doses, today, clockDate = null) {
+function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = null) {
   const given = doses.length;
   const last = doses[given - 1] || null;
   // RULING D (owner, STOP C C2/C9, 2026-11-15): the next dose is timed from
@@ -1567,12 +1599,26 @@ function menbRec(am, riskIds, doses, today, clockDate = null) {
         refs: refs(['cdcComplementInhibitor', 'mm7349a3']) })];
     }
     if (given === 1) {
-      const elapsed = intervalElapsed(lastDate, MENB_HIGHRISK_D2_GAP, today);
+      // STOP F1 Q9a (owner, 2026-11-17): advise the ROUTINE date (1 month after
+      // dose 1) and state the 4-week minimum beside it, as PneumoVax C10-2. The
+      // floor for a dose given is the rule table's, unchanged. Not after a dose
+      // that did not count: a repeat is spaced by the minimum (Ruling D).
+      const minDate = addDays(lastDate, MENB_HIGHRISK_D2_GAP);
+      const routineDate = lastDate === lastCountedDate ? addCalendarMonths(lastDate, MENB_HIGHRISK_D2_ROUTINE_MONTHS) : null;
+      const advisedDate = routineDate && routineDate > minDate ? routineDate : minDate;
+      const due = advisedDate <= today;
+      // The earliest date stated is also held to the 4-week floor after a dose
+      // that did not count (a wrong-family dose, E2): the grace decides what is
+      // accepted, never what is advised (A13).
+      const statedMin = repeatFloorDate && repeatFloorDate > minDate ? repeatFloorDate : minDate;
+      const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate });
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: first in ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)}, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
-        dueToday: elapsed, earliestNextDate: elapsed ? null : addDays(lastDate, MENB_HIGHRISK_D2_GAP), minIntervalDays: MENB_HIGHRISK_D2_GAP,
+        dueToday: due, earliestNextDate: due ? null : advisedDate, minIntervalDays: MENB_HIGHRISK_D2_GAP,
         family, brands: menbBrands(family),
         note: {
-          lead: `Dose 2 is given 1–2 months after dose 1, and no sooner than ${weeksLabel(MENB_HIGHRISK_D2_GAP)}.`,
+          lead: minClause
+            ? `Dose 2 is given 1–2 months after dose 1.${minClause}`
+            : `Dose 2 is given 1–2 months after dose 1, and no sooner than ${weeksLabel(MENB_HIGHRISK_D2_GAP)}.`,
           detail: `Continue in the same antigen family as dose 1 — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable. The series then completes with a third dose about 6 months after dose 1.${menbPregnancyCaveat}`,
         },
         refs: refs(['mm7349a3']) })];
@@ -2224,13 +2270,15 @@ function recommendOneReading(input) {
   // MenACWY: 8 weeks after any dose, including a too-young first dose (owner
   // C11, 2026-11-15; D5, 2026-11-17) — as doseRules.js ACWY-ANY-TWO-DOSES-GAP.
   const menacwy = outbreakWording(applyRepeatFloor(
-    menacwyRec(acwyAm, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate),
+    menacwyRec(acwyAm, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate,
+      menacwyHistory.uncountedDate ? addDays(menacwyHistory.uncountedDate, MENACWY_ANY_TWO_DOSES_MIN_GAP) : null),
     menacwyHistory.uncountedDate,
     MENACWY_ANY_TWO_DOSES_MIN_GAP,
     today,
   ), outbreakIsTheOnlyBoosterReason('MenACWY', riskIds));
   const menb = withMenbSwitchLine(outbreakWording(applyRepeatFloor(
-    menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate),
+    menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate,
+      menbHistory.uncountedDate ? addDays(menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL) : null),
     menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL, today,
   ), outbreakIsTheOnlyBoosterReason('MenB', riskIds)), menbHistory, am, riskIds, today);
 
