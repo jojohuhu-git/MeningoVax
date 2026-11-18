@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase5-f2-built.md`. PR #101 merged; the two Q9a consequences (F2a, F2b) answered and built. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 5 STOP F1 (Q9a, Q9b) and B1 were built (2026-11-17, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
