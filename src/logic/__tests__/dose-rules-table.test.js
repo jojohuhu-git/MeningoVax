@@ -224,9 +224,7 @@ describe('3 · what a row says happens is what happens, to every dose it decided
         ? verdict.status === 'valid' && verdict.effectiveDoseNum >= 1
         : rule.enforcement === 'record-problem'
           ? chip === RECORD_PROBLEM_LABELS[verdict.recordProblem] && chip === rule.label
-          : rule.enforcement === 'extra'
-            ? /^Extra dose/.test(chip) && rule.label.includes(chip)
-            : chip === rule.label;
+          : chip === rule.label;
       if (!ok) wrong.push(`${ruleId} label "${rule.label}" but chip "${chip}" at ${where}`);
     }
     expect(wrong.slice(0, 10), `${wrong.length} chips differ from their row`).toEqual([]);

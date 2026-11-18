@@ -73,7 +73,7 @@ describe('P0-2 (UI): a dose the patient really had is not written off as surplus
     // Routine MenACWY is 11-12y plus the 16y booster and nothing after it, so
     // this cap must keep working.
     const { rendered } = chips(264, [], ['2017-09-15', '2022-09-15', '2025-09-15']);
-    expect(rendered[2]).toMatch(/Extra dose/);
+    expect(rendered[2]).toMatch(/Not counted — Extra/);
   });
 
   it('no chip anywhere reads a dose number higher than its total', () => {

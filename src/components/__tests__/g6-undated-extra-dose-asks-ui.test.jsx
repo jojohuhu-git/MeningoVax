@@ -78,7 +78,7 @@ describe('G6 (UI) under C1: undated rows say they are not counted, never "extra"
       />
     );
     const rows = Array.from(document.querySelectorAll('.rec-progress-dose-row'));
-    expect(rows[2].textContent).toMatch(/Extra dose — more than this series needs/);
+    expect(rows[2].textContent).toMatch(/Not counted — Extra\. Do not repeat\./);
     // extinct: the G6 undated question was retired with STOP C C1, 2026-11-16.
     expect(rows[2].textContent).not.toMatch(/Do you mean/);
   });

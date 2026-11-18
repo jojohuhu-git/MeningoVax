@@ -11,7 +11,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import RecCard from '../RecCard.jsx';
 
-describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Off-window - repeat", not "Counts"', () => {
+describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Not counted — given before age 16", not "Counts"', () => {
   it('MenB shared-decision Dose 1 of 2 with an age-10 dose flagged notAdolescentCount', () => {
     render(
       <RecCard
@@ -25,15 +25,16 @@ describe('P0-1 (UI): a healthy pre-16 MenB dose renders "Off-window - repeat", n
         doseValidations={[{
           status: 'valid',
           notAdolescentCount: true,
+          setAsideBeforeAgeY: 16,
           effectiveDoseNum: null,
           reasons: ['Given before age 16 (~10 years): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years.'],
         }]}
       />
     );
-    const chip = screen.getByText('Off-window - repeat');
+    const chip = screen.getByText('Not counted — given before age 16');
     expect(chip.className).toMatch(/dose-val-offwindow/);
     // Must NOT read as an on-time counted dose, and must NOT read as invalid.
     expect(screen.queryByText('Counts')).toBeNull();
-    expect(screen.queryByText('Invalid')).toBeNull();
+    expect(screen.queryByText('Not counted — repeat')).toBeNull();
   });
 });

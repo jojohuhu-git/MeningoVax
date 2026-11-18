@@ -186,7 +186,7 @@ describe('Risk-at-dose "Needs input" prompt updates live', () => {
     expect(screen.getByText('Dose 1 of 2')).toBeTruthy();
   });
 
-  it('answering "No" resolves the chip to "Off-window - repeat" and the dose still does not count', () => {
+  it('answering "No" resolves the chip to "Not counted — given before age 10" and the dose still does not count', () => {
     render(
       <Harness
         initial={baseState({
@@ -199,7 +199,7 @@ describe('Risk-at-dose "Needs input" prompt updates live', () => {
     fireEvent.click(screen.getByRole('button', { name: 'No' }));
 
     expect(screen.queryByText('Needs input')).toBeNull();
-    expect(screen.getByText('Off-window - repeat')).toBeTruthy();
+    expect(screen.getByText('Not counted — given before age 10')).toBeTruthy();
     expect(screen.queryByText('Dose 1 of 2')).toBeNull();
   });
 });
@@ -228,7 +228,7 @@ describe('Item 2: editing an already-answered risk-at-dose prompt', () => {
     fireEvent.click(screen.getByRole('button', { name: 'No' }));
 
     expect(screen.queryByTestId('risk-at-dose-prompt')).toBeNull();
-    expect(screen.getByText('Off-window - repeat')).toBeTruthy();
+    expect(screen.getByText('Not counted — given before age 10')).toBeTruthy();
     expect(screen.queryByText('Dose 1 of 2')).toBeNull();
   });
 });

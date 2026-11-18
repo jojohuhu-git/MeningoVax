@@ -22,10 +22,9 @@ const read = (rel) => readFileSync(new URL(rel, import.meta.url), 'utf8');
 describe('the chip label lives in one module', () => {
   // The literals no file outside doseChipLabel.js may spell out for itself.
   const OWNED = [
-    'Off-window - repeat',
-    'Extra dose? — no date recorded',
-    'Extra dose — more than this series needs',
-    'Given — not part of a series this patient needs',
+    'Not counted — given before age',
+    'Not counted — Extra. Do not repeat.',
+    'Not counted — repeat',
     'Date is in the future — not counted',
     'Entered twice — this row not counted',
   ];
@@ -89,21 +88,21 @@ describe('the branches the two copies disagreed on', () => {
 
   it('a dated row past a no-booster total asserts', () => {
     expect(doseChipLabel(valid(4, { extraDose: true }), 2))
-      .toBe('Extra dose — more than this series needs');
+      .toBe('Not counted — Extra. Do not repeat.');
   });
 
-  it('a dose recorded against no indicated series', () => {
-    expect(doseChipLabel(valid(1), null))
-      .toBe('Given — not part of a series this patient needs');
+  it('a dose recorded against no indicated series (owner STOP E1 Q9: the dose number)', () => {
+    expect(doseChipLabel(valid(1), null)).toBe('Dose 1');
   });
 
-  it('off-window keeps its owner-agreed wording', () => {
-    expect(doseChipLabel(valid(2, { notAdolescentCount: true }), 2)).toBe('Off-window - repeat');
+  it('a set-aside dose names the age line it fell short of (owner STOP E1 Q6)', () => {
+    expect(doseChipLabel(valid(2, { notAdolescentCount: true, setAsideBeforeAgeY: 10 }), 2)).toBe('Not counted — given before age 10');
+    expect(doseChipLabel(valid(2, { notAdolescentCount: true, setAsideBeforeAgeY: 16 }), 2)).toBe('Not counted — given before age 16');
   });
 
   it('pending, invalid and unknown', () => {
     expect(doseChipLabel({ status: 'pending' }, 2)).toBe(NEEDS_INPUT_LABEL);
-    expect(doseChipLabel({ status: 'invalid' }, 2)).toBe('Invalid');
+    expect(doseChipLabel({ status: 'invalid' }, 2)).toBe('Not counted — repeat');
     expect(doseChipLabel({ status: 'whatever' }, 2)).toBe('Unknown');
     expect(doseChipLabel(null, 2)).toBeNull();
   });

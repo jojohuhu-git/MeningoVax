@@ -56,7 +56,7 @@
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { analyzeHistory } from '../validate.js';
-import { doseChipLabel } from '../../components/doseChipLabel.js';
+import { doseChipLabel, RECORD_PROBLEM_LABELS, NEEDS_INPUT_LABEL } from '../../components/doseChipLabel.js';
 import { ALL_BRANDS, brandMinAge } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
 import { TEST_TODAY } from '../../test-today.js';
@@ -98,6 +98,21 @@ const p4 = []; // status outside the known set
 const p5 = []; // recommend() threw
 const p6 = []; // HEURISTIC ONLY — see the block below
 const p7 = []; // (existing, F4) a dose chip implies N > M
+// Property 13 (owner STOP E1, Q5–Q9, 2026-11-17): every chip on the grid is
+// one label from the closed list. Catches a label outside it ("Unknown", an
+// unset age line) and any return of the wording the owner replaced.
+const p13 = [];
+let p13Chips = 0;
+const CLOSED_LIST = [
+  /^Dose \d+( of \d+)?$/,
+  /^Booster$/,
+  /^Not counted — repeat$/,
+  /^Not counted — given before age (10|16)$/,
+  /^Not counted — Extra\. Do not repeat\.$/,
+];
+const inClosedList = (label) => label === NEEDS_INPUT_LABEL
+  || Object.values(RECORD_PROBLEM_LABELS).includes(label)
+  || CLOSED_LIST.some((re) => re.test(label));
 const p8 = []; // STOP C C1: a dose with no date moved the recommendation
 let p8Rows = 0;
 
@@ -378,6 +393,8 @@ for (const [dobs, profiles] of GRID_BATCHES) {
           const total = allRecs.find((r) => r.vaccine === vaccine)?.seriesTotal ?? null;
           for (const entry of analysis.perDose) {
             const label = doseChipLabel(entry, total);
+            p13Chips += 1;
+            if (!inClosedList(label)) p13.push(`${where} ${vaccine}: "${label}"`);
             if (entry.status === 'valid' && !entry.notAdolescentCount && !entry.extraDose
                 && entry.effectiveDoseNum != null && total != null
                 && entry.effectiveDoseNum > total && label.startsWith('Dose ')) {
@@ -475,6 +492,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report(`Property 12 (${p12Rows} booster dates)`, p12);
     expect(p12Rows).toBeGreaterThan(100);
     expect(p12).toEqual([]);
+  });
+
+  it('property 13 (owner STOP E1, Q5–Q9) — every dose chip is one label from the closed list', () => {
+    report(`Property 13 (${p13Chips} chips)`, p13);
+    expect(p13Chips).toBeGreaterThan(1000);
+    expect(p13).toEqual([]);
   });
 
   it('property 7 (existing, F4) — no dose chip implies N > M', () => {

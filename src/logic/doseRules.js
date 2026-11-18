@@ -30,16 +30,18 @@
 //                 Every gap here is measured from a dose that COUNTED, never
 //                 from one that did not (Phase 0 finding R-2; STOP C Q1).
 //   enforcement   What happens to a dose the rule catches:
-//                   'floor'          not counted; chip "Invalid"; the walk adds
-//                                    "repeat this dose only".
+//                   'floor'          not counted; chip "Not counted — repeat";
+//                                    the walk adds "repeat this dose only".
 //                   'set-aside'      not counted toward THIS series; chip
-//                                    "Off-window - repeat"; no repeat sentence.
+//                                    "Not counted — given before age 10/16";
+//                                    no repeat sentence.
 //                   'counts-with-note' counted, with a sentence saying why.
 //                   'counts'         counted, nothing to say (an undated dose,
 //                                    which counts but is never a timing anchor).
 //                   'needs-input'    waits for the risk-at-dose question.
 //                   'record-problem' the entry is wrong, not the vaccination.
-//                   'extra'          counted dose past the series total.
+//                   'extra'          not counted: past the series total;
+//                                    chip "Not counted — Extra. Do not repeat."
 //                   'none'           never checked — with the reason.
 //   grace         true: CDC's 4-day grace applies. false: deliberately not
 //                 (the rule decides how many doses a series HAS, and grace must
@@ -325,8 +327,10 @@ function wrongFamily(r) {
 }
 
 // A dose that was validly given but does not advance THIS series (A3, P0-1).
-function setAsideResult(reasons, reasonCites) {
-  return { status: 'valid', reasons, reasonCites, notAdolescentCount: true };
+// `beforeAgeY` is the age line it fell short of (10 or 16), so the chip can
+// name it: "Not counted — given before age 10" (owner, STOP E1 Q6, 2026-11-17).
+function setAsideResult(reasons, reasonCites, beforeAgeY) {
+  return { status: 'valid', reasons, reasonCites, notAdolescentCount: true, setAsideBeforeAgeY: beforeAgeY };
 }
 
 // STOP C C1 (owner, 2026-11-15): a dose with no date does not count. It is
@@ -640,7 +644,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment'],
       note: 'CDC states each product\'s minimum age; the app applies it to an undated dose by reasoning that the dose was given no later than today. For MenQuadfi the app uses 6 weeks (owner decision 2026-09-23, following AAP), where CDC\'s notes still say 2 years.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // A past dose can never have been given later than today, so today's age
     // is an upper bound on the age at the dose. Unknown brand → the most
     // permissive product (MenQuadfi, 6 weeks) → not flagged, per ACIP (any
@@ -694,7 +698,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment'],
       note: 'Menveo\'s minimum ages (2 months; the liquid one-vial form from 10 years) are as CDC states. MenQuadfi\'s 6 weeks is the owner\'s decision of 2026-09-23 following AAP, where CDC\'s notes still say 2 years (CLAUDE.md: AAP governs where the two disagree).',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // brandMinAge() is the single source of a product's licence floor, in
     // whichever unit it is stated. Unknown brand → the most permissive product.
     check: (ctx) => {
@@ -723,7 +727,7 @@ export const DOSE_RULES = [
       refs: ['acwyBeforeAge10'],
       note: 'ACIP says a child with no ongoing risk who had MenACWY before 10 still gets the adolescent series. The app sets that dose aside, as stated.',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 10',
     // A3: not a min-age "invalid" — the dose was validly given — it simply
     // doesn't advance the adolescent series. Source:
     // https://www.immunize.org/ask-experts/topic/menacwy/vaccine-recommendations-menacwy/
@@ -732,6 +736,7 @@ export const DOSE_RULES = [
       return setAsideResult(
         [`Given before age 10 (~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}): does not count toward the adolescent MenACWY series. [c]`],
         [cite('acwyBeforeAge10')],
+        10,
       );
     },
   },
@@ -782,13 +787,14 @@ export const DOSE_RULES = [
       refs: ['acwyBeforeAge10'],
       note: 'Answered "not high-risk then" or "unsure": the dose is treated as ACIP treats a dose before 10 with no ongoing risk, and set aside. Treating "unsure" the same way is the owner\'s design (2026-07-23).',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 10',
     check: (ctx) => {
       if (!acwy(ctx).isHighRiskNow || !acwyBefore10(ctx)) return null;
       if (ctx.riskAnswer !== 'no' && ctx.riskAnswer !== 'unsure') return null;
       return setAsideResult(
         [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before age 10. Marked as ${ctx.riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series. [c]`],
         [cite('acwyBeforeAge10')],
+        10,
       );
     },
   },
@@ -833,7 +839,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildAcwyInfantSeries', 'acwyInfantHighRisk7to23mo'],
       note: 'CDC states the infant gaps as minimums in words ("at least 8 weeks", "at least 12 weeks later and after age 12 months"). The app voids a dose below them, which claims no more than the source.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Only inside the primary series; a dose past the total is a booster and
     // ACWY-HIGHRISK-BOOSTER-GAP owns it.
     check: (ctx) => {
@@ -877,7 +883,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildAcwyRisk2DoseFrom24m', 'acip2020Acwy8WeekMinimum'],
       note: 'CDC and ACIP state 8 weeks as a minimum in words ("at least 8 weeks apart"; "an 8-week minimum interval"). The app voids a dose below it, which claims no more than the source.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     check: (ctx) => {
       const prev = prevDated(ctx);
       if (!prev || acwySeries(ctx).onInfantPrimary || !acwy(ctx).isHighRiskNow || ctx.effectiveIdx !== 1) return null;
@@ -904,7 +910,7 @@ export const DOSE_RULES = [
       refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
       note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum; CDC\'s software (CDSI) treats 3 or 5 years less 4 days as a hard minimum. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // The shared check (acwyBoosterTooSoon, above) is also the travel row's.
     check: (ctx) => (acwy(ctx).isHighRiskNow ? acwyBoosterTooSoon(ctx, 'High-risk MenACWY boosters') : null),
   },
@@ -924,7 +930,7 @@ export const DOSE_RULES = [
       refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
       note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9. Owner answer D6 (2026-11-17): military recruits the same, from 16 (Table 10: "Every 5 yrs on basis of assignment"; CDC\'s software also floors it).',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     check: (ctx) => {
       const a = acwy(ctx);
       if (!a.otherBoosterScheduleNow) return null;
@@ -959,7 +965,7 @@ export const DOSE_RULES = [
       refs: ['acwyBooster8WeeksAfterDose1', 'cdcCatchupAcwyBooster8Weeks'],
       note: 'ACIP and CDC state 8 weeks as a minimum in words ("a minimum interval of 8 weeks"; "minimum interval: 8 weeks"). Owner ruling 2026-11-15.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // N5: only for the dose that would BE the booster — the second counted
     // dose, given at 16 or older, after a dose 1 given before 16. ACIP 2020:
     // "the booster dose can be administered at any time, as long as a minimum
@@ -1003,7 +1009,7 @@ export const DOSE_RULES = [
       refs: ['acip2020Acwy8WeekMinimum', 'acwyBooster8WeeksAfterDose1', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat'],
       note: 'ACIP and CDC state 8 weeks between MenACWY doses; owner answer C11 (2026-11-15) made it the minimum between any two (it was 4 weeks, which ACIP says only of MenB — finding R-4a). Owner answer D5 (2026-11-17) applies the same 8 weeks to the repeat of a too-young FIRST dose (E1 had said 4 weeks — MenB\'s number, carried over when E1 was asked for both families; CDC: "The repeat dose should be spaced after the invalid dose by the recommended minimum interval"). CDC also says a too-young first dose is repeated "on or after the date when the child reaches at least the minimum age" — the app waits the 8 weeks as well: a deliberate difference.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Catches two doses days apart (Task 3). The stricter rows above handle
     // the cases they name.
     check: (ctx) => {
@@ -1047,7 +1053,7 @@ export const DOSE_RULES = [
       refs: ['acwyRoutine1112and16'],
       note: 'ACIP gives the booster "at age 16 years"; the app sets aside a second routine dose given before 16. CDC\'s software agrees (16 years less 4 days).',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 16',
     // Change 3 (2026-07-24): the routine booster is an AGE window, not just an
     // interval from dose 1. A dose after the primary dose counted, but before
     // 16, is safe but isn't the booster, and must not render "Dose 2 of 1".
@@ -1057,6 +1063,7 @@ export const DOSE_RULES = [
       return setAsideResult(
         [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16, and at least 8 weeks after this dose. [c]`],
         [cite('acwyRoutine1112and16')],
+        16,
       );
     },
   },
@@ -1078,7 +1085,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildMenbMinAge'],
       note: 'CDC states MenB\'s minimum age as 10 years; the app applies it to an undated dose by reasoning that the dose was given no later than today.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Every MenB product is licensed from 10, so this applies with the brand
     // unknown too.
     check: ({ brand, ageMonths, today, dob }) => {
@@ -1108,7 +1115,7 @@ export const DOSE_RULES = [
       refs: ['menbHealthyPreferredAge1618'],
       note: 'CDC gives 16–23 years (preferred 16–18) as when a healthy person is vaccinated; it does not say a dose at 10–15 does not count. Setting it aside is the owner\'s decision (2026-07-23, Option 1), applied here to an undated dose.',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 16',
     // P0-1: a past undated dose was necessarily given before 16. If the
     // patient is 16 or older today, the app cannot tell, and it counts.
     check: ({ riskIds, ageMonths, today, dob }) => {
@@ -1116,6 +1123,7 @@ export const DOSE_RULES = [
       return setAsideResult(
         [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years) [c]; MenB given before 16 is not counted for a patient without a high-risk indication.`],
         [cite('menbHealthyPreferredAge1618')],
+        16,
       );
     },
   },
@@ -1156,7 +1164,7 @@ export const DOSE_RULES = [
       refs: ['cdcChildMenbMinAge', 'menbLicensedAge1025'],
       note: 'CDC states MenB\'s minimum age as 10 years. The app voids a dose below it.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Penbraya/Penmenvy are in ALL_BRANDS with minAgeM=120 too.
     check: (ctx) => {
       const minAgeM = brandMinAgeM(ctx.brand) ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
@@ -1184,7 +1192,7 @@ export const DOSE_RULES = [
       refs: ['menbHealthyPreferredAge1618'],
       note: 'CDC gives 16–23 years (preferred 16–18) as when a healthy person is vaccinated; it does not say a dose at 10–15 does not count, and CDC\'s software would count it (minimum age 10). Setting it aside is the owner\'s decision (2026-07-23, Option 1).',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 16',
     // The MenB twin of ACWY-ROUTINE-BEFORE-10. High-risk patients legitimately
     // start at 10 and keep counting their doses.
     check: (ctx) => {
@@ -1192,6 +1200,7 @@ export const DOSE_RULES = [
       return setAsideResult(
         [`Given before age 16 (~${fmtAgeMClinical(ctx.ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c] MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
         [cite('menbHealthyPreferredAge1618')],
+        16,
       );
     },
   },
@@ -1240,13 +1249,14 @@ export const DOSE_RULES = [
       refs: ['menbHealthyPreferredAge1618'],
       note: 'Answered "not high-risk then" or "unsure": the dose is treated like a healthy patient\'s dose before 16 and set aside. The owner\'s design (2026-07-23).',
     },
-    label: 'Off-window - repeat',
+    label: 'Not counted — given before age 16',
     check: (ctx) => {
       if (!hasMenbRisk(ctx.riskIds) || !menbBefore16(ctx)) return null;
       if (ctx.riskAnswer !== 'no' && ctx.riskAnswer !== 'unsure') return null;
       return setAsideResult(
         [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, before age 16. Marked as ${ctx.riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the high-risk series. [c]`],
         [cite('menbHealthyPreferredAge1618')],
+        16,
       );
     },
   },
@@ -1288,7 +1298,7 @@ export const DOSE_RULES = [
       refs: ['acip2020MenbNotInterchangeable'],
       note: 'ACIP: the MenB vaccines are not interchangeable and the same product must be used for all doses. The app voids a dose from the other family.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Task 4: the family is set by the first KEPT dose with a KNOWN brand —
     // not the raw dose 1, which may be unbranded or dropped. Skipped when
     // either brand is unknown.
@@ -1323,7 +1333,7 @@ export const DOSE_RULES = [
       refs: ['menbHighRisk3DoseSchedule', 'acip2020MenbRepeat4Weeks'],
       note: 'ACIP gives dose 2 "at 0, 1–2 … months" as a schedule, and its MenB section states "a minimum interval of 4 weeks should be used between any 2 doses" (said of repeats); CDC\'s software has the same 4 weeks less 4 days. Owner, STOP C C8 (2026-11-15): keep the 4-week minimum, relabelled as sourced.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     check: (ctx) => {
       const prev = prevDated(ctx);
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
@@ -1350,7 +1360,7 @@ export const DOSE_RULES = [
       refs: ['acip2020MenbRepeat4Weeks', 'acip2020MenbMixedProductsSelectOne', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat'],
       note: 'ACIP states 4 weeks between any 2 doses when a MenB dose must be repeated, and that after a mixed-product series the other product\'s dose is invalid. The app voids a dose under 4 weeks after a dose that did not count. One owner-decided difference: CDC repeats a too-young FIRST dose "on or after the date when the child reaches at least the minimum age" (no wait for an inactivated vaccine); the owner chose 4 weeks after it (E1, 2026-11-15), matching PneumoVax.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // E2: a wrong-family dose reaches this row through `lastUncounted` (it is
     // kept off `anchor`, so the schedule rows still time the next dose from
     // the established family's doses). Before the dose-3 rows below, which
@@ -1439,7 +1449,7 @@ export const DOSE_RULES = [
       refs: ['menbHighRiskEarlyD3ExtraDose'],
       note: 'CDC states the 4th dose "at least 4 months after dose 3", a minimum in words. The app voids a dose below it.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Where the primary series ends comes from menbSeriesInfo() — the same
     // function the card reads — so a dose the engine asks for cannot be
     // rejected here. Grace DOES apply: this is "does this dose count", not
@@ -1471,7 +1481,7 @@ export const DOSE_RULES = [
       refs: ['acip2020MenbBoosterCadence'],
       note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Only too-soon is flagged; a late booster is ordinary catch-up.
     check: (ctx) => {
       const prev = prevDated(ctx);
@@ -1506,7 +1516,7 @@ export const DOSE_RULES = [
       refs: ['acip2020MenbRepeat4Weeks'],
       note: 'Owner answer C12: a healthy dose 2 under 4 weeks does not count; 4 weeks to 6 months counts with the rescue dose 3. ACIP states 4 weeks between any 2 MenB doses where a dose is repeated; CDC\'s software (CDSI) sets 4 weeks less 4 days for dose 2 in both families.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     // Before MENB-HEALTHY-EARLY-DOSE-2, which counts every dose 2 it sees.
     check: (ctx) => {
       const prev = prevDated(ctx);
@@ -1567,7 +1577,7 @@ export const DOSE_RULES = [
       refs: ['menbRescueDoseRule'],
       note: 'ACIP states the rescue dose 3 "≥4 months after the second dose", a minimum in words. The app voids a dose below it.',
     },
-    label: 'Invalid',
+    label: 'Not counted — repeat',
     check: (ctx) => {
       if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 2) return null;
       const kd = keptDated(ctx);
@@ -1605,7 +1615,7 @@ export const DOSE_RULES = [
       refs: [],
       note: 'The sources give each series\' size; calling a dose past it "Extra" is the app\'s own rule. Owner, STOP C C18 (2026-11-15): keep the rule; its words are Phase 4\'s question Q8, and all wording is eventually to match PneumoVax.',
     },
-    label: 'Extra dose — more than this series needs (undated: Extra dose? — no date recorded)',
+    label: 'Not counted — Extra. Do not repeat.',
     // runWalk applies this after a dose has been judged to count, because it
     // needs the series total WITH this dose in it (seriesTotals.js). Written
     // here so the table lists every way a dose can be set aside.

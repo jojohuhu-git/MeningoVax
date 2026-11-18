@@ -31,14 +31,15 @@ describe('U4 · the recorded-dose chips say what happened to the patient', () =>
   it('a dose recorded when nothing is indicated is described as given, not as a record', () => {
     // seriesTotal null = this vaccine is not currently indicated at all.
     const { container } = showRow({ status: 'valid', effectiveDoseNum: 1 }, null);
-    expect(container.textContent).toMatch(/Given — not part of a series this patient needs/);
+    expect(container.textContent).toMatch(/Dose 1/); // owner STOP E1 Q9 (2026-11-17): the dose number, as PneumoVax
+    expect(container.textContent).not.toMatch(/Given — not part of a series this patient needs/); // extinct: STOP E1 Q9 (2026-11-17)
     expect(container.textContent).not.toMatch(/Recorded — not part of an indicated series/); // extinct: reworded to "Given —…" (U4, 2026-09-17)
   });
 
   it('an extra dose is measured against the series, not against a "series total"', () => {
     const { container } = showRow({ status: 'valid', effectiveDoseNum: 3, extraDose: true }, 2);
-    expect(container.textContent).toMatch(/Extra dose — more than this series needs/);
-    expect(container.textContent).not.toMatch(/indicated series total/i);
+    expect(container.textContent).toMatch(/Not counted — Extra\. Do not repeat\./); // owner STOP E1 Q8 (2026-11-17)
+    expect(container.textContent).not.toMatch(/indicated series total/i); // extinct: U4 (2026-09-17) wording, gone from every label since STOP E1 (2026-11-17)
   });
 
   it('no chip anywhere still uses the code\'s vocabulary for the series total', () => {
@@ -50,6 +51,7 @@ describe('U4 · the recorded-dose chips say what happened to the patient', () =>
       [{ status: 'invalid', effectiveDoseNum: 2 }, 4],
     ]) {
       const { container } = showRow(result, total);
+      // extinct: U4 (2026-09-17) wording, gone from every label since STOP E1 (2026-11-17)
       expect(container.textContent).not.toMatch(/indicated series/i);
     }
   });
