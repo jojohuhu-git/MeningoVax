@@ -88,3 +88,35 @@ MMWR rr6909a1. The PneumoVax wording each was set against is its `src/components
 
 Not asked, and not changed by these answers: the record-problem labels ("No date recorded — not
 counted", etc.), colours (plan item A2), and the wording of the line under each label (Phase 6).
+
+## STOP F1 — Phase 5, dates stated plainly (Q9 of the plan), answered 2026-11-17
+
+The plan's Q9 asked whether a card should advise the routine date and state the minimum beside it
+(PneumoVax C10-2), naming MenB dose 3, the MenACWY 16-year dose and boosters. **Measured first
+(`main` at `36b24e0`)**: in those three places the app's date is already the routine date (MenB
+dose 3 = 6 months from dose 1 and 4 from dose 2; the 16-year dose = the 16th birthday and 8 weeks;
+MenACWY boosters = 3 or 5 years). The routine date and the minimum differ in only two places, so
+Q9 was asked there. Counted by replaying the saved-answer grid and the typical patients over time
+(every screen whose card date is earlier than the routine date); not yet built.
+
+Quotes read live 2026-11-17:
+- CDC, Timing and Spacing of Immunobiologics (page dated July 24, 2024): *"Administration at
+  recommended ages and in accordance with recommended intervals between doses of multidose
+  antigens provides optimal protection."* Shorter intervals *"might be necessary in certain
+  circumstances, such as impending international travel or when a person is behind schedule on
+  vaccinations but needs rapid protection."*
+- CDC child/adolescent schedule Notes (July 2025), Menveo dose 1 at 2 months: *"4-dose series
+  (additional 3 doses at age 4, 6, and 12 months)"*; MenB at increased risk: *"3-dose series at 0,
+  1–2, 6 months"*.
+- CDC catch-up table (July 2025), MenACWY-CRM dose 1 to dose 2: *"8 weeks"*; the table gives
+  *"minimum intervals between doses for children whose vaccinations have been delayed"*.
+- The MenB high-risk dose 2 minimum of 4 weeks is owner STOP C C8 (2026-11-15), on ACIP 2020's
+  *"a minimum interval of 4 weeks should be used between any 2 doses"*.
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| Q9a | MenB high-risk dose 2. Asplenia, 20 y, Bexsero dose 1 on 11/3/26. Card today: "eligible Dec 1, 2026" (4 weeks); its note says "1–2 months after dose 1" | **Routine date + minimum beside it**: "Next dose due Dec 3, 2026. It can be given from Dec 1, 2026 if needed (minimum 4 weeks)." Behind schedule (routine date passed): due today, unchanged. The 4-week floor for judging a dose given stays (PneumoVax Ruling C) | 1,547 grid / 940 typical patients: the card's date moves 1–3 days later |
+| Q9b | Infant MenACWY doses 2 and 3. Asplenia, born 1/1/26, Menveo 3/1/26. Card today: dose 2 eligible Apr 26 (8 weeks) | **Match PneumoVax** (owner first asked *"does pneumovax do the recommended suggestion"*: yes, its patient F, PCV at 2 and 3 months, is due at 6 months with "it can be given from <date> if needed"). "Next dose due May 1, 2026 (age 4 months). It can be given from Apr 26 if needed (minimum 8 weeks)." Dose 3 at 6 months the same way. Started late (routine age under 8 weeks away): the minimum wins, unchanged | 12 grid patients: the card's date moves 5–10 days later |
+
+Not asked here: the MenB booster after the first is "every 2–3 years" and the card gives 2 years
+(a range, not a routine date and a minimum). Listed for the owner.
