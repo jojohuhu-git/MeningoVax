@@ -73,6 +73,9 @@ Two deliberate limits:
 ### Routine schedule (no risk factor)
 - **Not due before age 11.**
 - **11–12 years:** Dose 1.
+- **13–15 years, no dose yet:** the same dose 1, called catch-up (owner decision 2026-11-18).
+  CDC: *"Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8
+  weeks)"*. Only the words change; the 16-year booster and its date are the same.
 - **16 years:** booster (this is the "real" booster — a dose 1 given at 11–12
   does not itself count as the 16y booster).
 - **The booster waits at least 8 weeks after dose 1** (owner decision

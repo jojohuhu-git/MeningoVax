@@ -197,3 +197,25 @@ Built rules beyond the question, chosen to keep the app consistent and listed fo
   label would be false. The outbreak card already said "routine booster at ≥16y still owed" at
   every age from 16 on `main`; that is unchanged and listed as a finding (a 24-year-old outbreak
   contact with only a dose at 11 sees it).
+
+## A 13–15-year-old's first MenACWY is catch-up (F-2), answered 2026-11-18
+
+Found while measuring Phase 5 (`report-2026-11-18-phase5-measured.md`, F-2). Asked as one patient:
+Ava, healthy, 14 y 8 m, no MenACWY, read "Dose 1 (routine, 11–12y)" and *"The routine adolescent
+dose, given at 11–12 years."* Control: Ben, 12 y 6 m, unchanged.
+
+Quote read live 2026-11-18, CDC child/adolescent schedule notes (updated July 1, 2025), MenACWY
+"Catch-up vaccination": *"Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum
+interval: 8 weeks)"*.
+
+| # | Question | Owner answer | Measured |
+|---|---|---|---|
+| F-2 | Should a first MenACWY at 13–15 read catch-up? | **Yes, wording only**: "Dose 1 (catch-up, 13–15y)", lead *"A catch-up dose now; the booster follows at 16–18 years."* The badge stays "Dose due today, future boosters needed" (badge style is Phase 6). Offered and not chosen: the amber "Catch-up dose due today" badge (216 cards would change status, no date) | Saved answers 0 of 18,780 real and 0 of 5,820 impossible moved (no dates, no status). Prose 270 of 24,600 screens (216 real, 54 impossible; all at 15 y 11 m, the grid's only age in 13–15). CDSI: in the suite, green. Whole-app: every fault count identical except check 7 typical 234 → 228 (see below) |
+
+Whole-app, explained: the checker takes its birthdays from `ages.js`, so the new 13-year constant
+became a checkpoint. Check 6 lists the new 13th-birthday wording change (+56 typical, info). Check 1
+regroups the same patients under the new label (same totals). Check 7's −6 is NOT a fix: 6 typical
+12-year-olds with a MenB outbreak card whose label changes a year later ("if outbreak risk
+continues" → "for this outbreak", an existing check-7 finding still flagged on 96 grid patients)
+now cross the 13th birthday in that year, and the checker does not judge a card change across a
+birthday.

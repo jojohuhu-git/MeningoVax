@@ -93,7 +93,7 @@ import {
   MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine,
 } from './intervals.js';
 import { MENACWY_COLLEGE_COVER_YEARS, menacwyGraceLine } from './intervals.js';
-import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS } from './ages.js';
+import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS } from './ages.js';
 
 // ── brand option builders ─────────────────────────────────────────────────
 // D7: Menveo 2-vial (≥2 months) vs Menveo 1-vial (≥10 years) — distinct
@@ -1423,15 +1423,21 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // 11–15y
   if (am < MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     if (given === 0) {
-      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
+      // F-2 (owner, 2026-11-18): from 13, CDC lists the first dose under
+      // catch-up ("Age 13–15 years: 1 dose now and booster at age 16–18
+      // years"). Wording only: same dose, status, badge and booster line.
+      const catchup = am >= MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS;
+      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: catchup ? 'Dose 1 (catch-up, 13–15y)' : 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
         brands: menacwyBrands(am),
         note: {
-          lead: 'The routine adolescent dose, given at 11–12 years.',
+          lead: catchup
+            ? 'A catch-up dose now; the booster follows at 16–18 years [c].'
+            : 'The routine adolescent dose, given at 11–12 years.',
           detail: 'If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given on the same day.',
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
         boosterCites: [cite('acwyRoutine1112and16')],
-        noteCites: [],
+        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : [],
         refs })];
     }
     // already has dose 1 → booster due at 16y (future)
