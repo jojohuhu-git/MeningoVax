@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-17** by `handoff-2026-11-17-meningovax-phase5-q9-built.md`. PR #100 merged; Phase 5 STOP F1 answered and built. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 4 (one label per dose) was built (2026-11-17, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
