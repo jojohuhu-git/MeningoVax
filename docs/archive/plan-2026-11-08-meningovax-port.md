@@ -208,7 +208,7 @@ column says which step below carries it. (Since the 2026-11-08 review, "step N" 
 | B8 | One short clinical line in view, the rest behind "Why this"; disposition in bold | owner, 2026-10-25 | Has the "Why this" lead/detail split (PneumoVax copied it from MeningoVax) | 6 |
 | B9 | "Why this" follows the same style rules as the dose lines | §M-L5 / §WHY-THIS, 2026-11-08 | Not applied | 6 |
 | B10 | The sentences in view and shut "Complete" cards follow the style rules too | §WORD-TIDY, 2026-11-08 | Not applied | 6 |
-| B11 | The result page folds: only what must be seen stays in view (a named list, each with its reason) | §WORD-1, 2026-11-06. **Her answer then: "PneumoVax only"; 2026-11-19: "Full PneumoVax fold"** | Not folded yet | 6 |
+| B11 | The result page folds: only what must be seen stays in view (a named list, each with its reason) | §WORD-1, 2026-11-06. **Her answer then: "PneumoVax only"; 2026-11-19: "Full PneumoVax fold"** | Folded, 2026-11-19 (`noteFold.js`) | 6 |
 | B12 | Option cards: "Choose ONE option" wording; each option names its own wait and its own date. Never an option due today beside one due years away under a single "due" | §D-note-8W, P0-1; FINDING A (PR #62) | to measure (pentavalent card) | 6 |
 | B13 | No "now" in a sentence under a date still in the future | P2-1 (R9), 2026-11-06 | to measure | 6 |
 | B14 | No interval is mentioned when nothing is on the record ("with nothing on the record, a card has nothing to measure from") | P2-10, owner question 2026-11-06 | to measure | 6 |
@@ -568,6 +568,9 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     put to her as judgement calls first (`report-2026-11-19-result-page-fold.md`); **answered the
     same day: the six-line stay list as proposed; Sources inside "Why this"; disclaimer
     paragraph behind "About risk history".**
+    **Built 2026-11-19** (`src/logic/noteFold.js`, guard
+    `regression-2026-11-19-q10-result-page-fold.test.jsx`): words in view 280/424/623 →
+    201/325/523; 0 of 24,600 saved pages lost or gained a word.
 **STOP G2 — owner merges.**
 
 ### Phase 7 — The rulebook (2 sessions, ≈ 9%)

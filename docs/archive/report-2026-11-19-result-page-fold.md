@@ -80,3 +80,20 @@ wordiest pages is the recorded-dose lines, already shortened by G1-a.
 2. (Covered by 1: an interval alone does not keep a line in view.)
 3. and 4. **"Yes, both."** The Sources row goes inside "Why this", and the disclaimer's
    risk-history paragraph goes behind "About risk history", as in PneumoVax.
+
+## Built 2026-11-19, measured on the built code
+
+| Words in view (18,780 real patients) | Typical | Wordiest 1 in 10 | Worst |
+|---|---|---|---|
+| Before | 280 | 424 | 623 |
+| After | 201 | 325 | 523 |
+
+- 22,626 of 35,056 MenACWY/MenB cards show no line under the heading (as predicted above).
+- 140 cards have sources but no explanation: their toggle reads "Sources" (PneumoVax's ruling
+  of 2026-11-07, applied because the situation is the same one).
+- The longest card "Why this" is now 79 words (was 66): the healthy 16-year-old's MenB card,
+  which now opens with "Two MenB doses, at least 6 months apart, under shared clinical
+  decision-making."
+- Prose: 24,600 of 24,600 saved pages read differently (button labels and sentence order);
+  **0 pages lost or gained a word** once "Why this", "Sources" and "About risk history" are set
+  aside. Saved answers unchanged (the suite's sweep is green).

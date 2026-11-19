@@ -31,10 +31,14 @@ src/
                          pentavalent card, dual-due banner. Inline "Adjust age" + 
                          "Recorded doses ▾" editors.
     RecCard.jsx          Single recommendation card (status shading, series progress,
-                         brand options, citations).
-    Disclaimer.jsx       Clinical disclaimer footer.
+                         brand options; source buttons inside "Why this", Q10).
+    Disclaimer.jsx       Clinical disclaimer footer; risk-history half behind
+                         "About risk history" (Q10).
   logic/
     recommend.js         THE engine. recommend(input) → { menacwy[], menb[], pentavalent, meta }.
+                         recommend() = foldResult(recommendBeforeFold(input)).
+    noteFold.js          Q10 (owner, 2026-11-19): which card-note sentences stay in view
+                         (STAY_IN_VIEW); the rest move behind "Why this". Moves only.
     validate.js          analyzeHistory(vaccine, doses, ageMonths, riskIds, today)
                          → { perDose, effective, sortedDoses, decidedBy }. The walk only.
     doseRules.js         DOSE_RULES: every rule that can judge a recorded dose, one row
@@ -60,6 +64,16 @@ src/
 - `meta` — `{ ageMonths, today, riskIds }`
 
 Each rec (from `rec()`): `{ vaccine, status, doseLabel, doseNum, dueToday, earliestNextDate, minIntervalDays, brands, family, note, citations }`.
+
+**The fold (Q10, owner 2026-11-19, as PneumoVax §WORD-1).** `recommend()` is
+`foldResult(recommendBeforeFold(input))`, the last step. `noteFold.js` keeps in a card's
+`note.lead` only the sentences on `STAY_IN_VIEW` (the Trumenba/Bexsero switch, the minimum
+beside a routine date, "once 8 weeks have passed", "Not before … which did not count") and
+moves the rest to the front of `note.detail`, with their `[c]` entries in `noteCites`. A card
+shut by default (neutral status, no booster date) and the pentavalent note are not folded.
+The engine's own look-ahead (`cardsOnTheDay`) calls `recommendBeforeFold`; so does a test that
+pins how a sentence is WRITTEN. Guard: `regression-2026-11-19-q10-result-page-fold.test.jsx`
+(the fold only moves sentences, over every saved patient).
 
 **Status values:** `due | catchup | risk-based | shared-decision | complete | not-indicated | deferred`
 

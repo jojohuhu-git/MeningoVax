@@ -16,7 +16,9 @@
 // so it is held here too: renaming the label must not add "if outbreak risk
 // continues" to it.
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 
 const acwy = (date, brand) => [{ date, brand }];
 const card = ({ dob, today, doses, riskIds = [] }) =>

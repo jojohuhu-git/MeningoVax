@@ -14,7 +14,9 @@
 // today, future boosters needed" (badge style is Phase 6). Nothing else moves:
 // same dose, same status, same booster line (measured: 0 saved dates moved).
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 
 const TODAY = '2026-11-18';
 const card = (dob, menacwyDoses = []) =>

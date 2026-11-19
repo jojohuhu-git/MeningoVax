@@ -15,7 +15,9 @@
 // Measured: 48 saved patients (ages 22 and 24), label and note only; still due
 // today; no date moves.
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 
 const DOB = '2004-09-17'; // 22 on Sep 17, 2026
 const q = (...dates) => dates.map((date) => ({ date, brand: 'MenQuadfi (MenACWY)' }));

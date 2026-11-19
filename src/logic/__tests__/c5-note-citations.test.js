@@ -10,7 +10,9 @@
 // at render time. These logic-layer tests check the note text and the
 // noteCites order/keys/urls, not the rendered [N] text.
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 import { cite } from '../../data/refs.js';
 import { noteText } from '../../test-note-text.js';
 

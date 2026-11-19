@@ -449,7 +449,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
             </div>
             <div className="penta-body">
               <div className="penta-replaces">Replaces both shots above: do not give both.</div>
-              <RecNote note={pentavalent.note} className="penta-note" />
+              <RecNote note={pentavalent.note} citations={pentavalent.citations} className="penta-note" />
               <div className="penta-brands">
                 {(pentavalent.brands || []).map((b, i) => (
                   <div key={i} className="penta-brand">
@@ -458,22 +458,6 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
                   </div>
                 ))}
               </div>
-              {pentavalent.citations && pentavalent.citations.length > 0 && (
-                <div className="rec-citations">
-                  {pentavalent.citations.map((c, i) => (
-                    <a
-                      key={i}
-                      href={c.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="citation-chip"
-                      title={c.label}
-                    >
-                      {c.short || c.label}
-                    </a>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </>

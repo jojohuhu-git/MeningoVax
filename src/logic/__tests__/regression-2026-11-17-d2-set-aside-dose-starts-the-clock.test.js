@@ -6,7 +6,9 @@
 // administered at any time, as long as a minimum interval of 8 weeks between
 // doses is maintained."
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 
 const M = (date) => ({ date, brand: 'Menveo (MenACWY)' });
 const run = (dob, dates, today) => recommend({
