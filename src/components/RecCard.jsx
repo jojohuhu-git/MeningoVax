@@ -67,9 +67,13 @@ export function statusPillLabel(rec, pending) {
   // seriesTotal (dose 2 of 2), so seriesTotal read "Booster (16y)" in its
   // 8-week wait as a series dose (42 grid cards, measured 2026-11-18).
   // primaryTotal matched every dated card's own label on the grid.
-  const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
+  // W1 (owner, 2026-11-19): "Booster due today" is judged the same way — past the
+  // PRIMARY series. With seriesTotal the routine "Booster (16y)" card (dose 2 of
+  // 2) read "Dose due today" on 264 grid patients while 740 others with the
+  // same label read "Booster due today".
   const pastPrimary = (rec.primaryTotal ?? seriesTotal);
-  const comingIsBooster = doseNum != null && pastPrimary != null && doseNum > pastPrimary;
+  const isBooster = doseNum != null && pastPrimary != null && doseNum > pastPrimary;
+  const comingIsBooster = isBooster;
   const datedNext = !dueToday && !!rec.earliestNextDate;
   const comingLabel = comingIsBooster ? 'Future booster needed' : 'Next dose not yet due';
   if (status === 'shared-decision') {

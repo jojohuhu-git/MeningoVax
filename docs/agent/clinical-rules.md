@@ -270,9 +270,12 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 - 11–12y: D1
 - 13–15y with no counted dose: the same D1, labelled catch-up ("Dose 1 (catch-up, 13–15y)",
   owner F-2, 2026-11-18). CDC child/adolescent notes, catch-up: *"Age 13–15 years: 1 dose now and
-  booster at age 16–18 years (minimum interval: 8 weeks)"*. Wording only: same status, badge,
-  booster line and dates. `MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS` (`ages.js`). Test
-  `regression-2026-11-18-phase5-f2-catchup-13-15.test.js`.
+  booster at age 16–18 years (minimum interval: 8 weeks)"*. Wording only: same status, badge
+  and dates. `MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS` (`ages.js`). Test
+  `regression-2026-11-18-phase5-f2-catchup-13-15.test.js`. Its booster line reads
+  "Boosters: 1 more - at age 16–18" and cites that CDC sentence (owner W3, 2026-11-19); the
+  11–12 card keeps "at age 16" and ACIP's *"…followed by a booster dose administered at age 16
+  years"*. Test `regression-2026-11-19-after-fold-w1-w4.test.jsx`.
 - 16y: booster (D2), **no sooner than 8 weeks after D1** (N5, owner ruling 2026-11-15). ACIP
   2020: *"the booster dose can be administered at any time, as long as a minimum interval of 8
   weeks between doses is maintained."* `MENACWY_ROUTINE_BOOSTER_MIN_GAP` in `intervals.js`.
