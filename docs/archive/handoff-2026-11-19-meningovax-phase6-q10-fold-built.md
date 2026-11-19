@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-w1-w4-after-fold.md`. #113 and #114 merged;
+> its open questions were asked and built as W1–W4 (PR #115). Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 6.3 Q10, the result-page fold (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
