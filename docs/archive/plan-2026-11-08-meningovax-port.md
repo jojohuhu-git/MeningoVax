@@ -546,8 +546,9 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     **F-5 built 2026-11-18** (branch `port/phase6-f5-16y-label`; "Booster due at 16y" →
     "Booster (16y)", 1,452 real patients, label the only change; PR #108, merged).
     **R-A–R-C built 2026-11-18** (branch `port/phase6-r-abc-undated-repeat`; 574 + 588 + 822
-    real lines gain a "when"; no answer moved). The dose-line "Why this" and the rules rewrite
-    not built yet. Still to ask: R-C's chip.
+    real lines gain a "when"; no answer moved; PR #109). **R-C's chip answered and built
+    2026-11-18** ("Not counted — do not repeat", 822 real patients). The dose-line "Why this"
+    and the rules rewrite not built yet.
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask

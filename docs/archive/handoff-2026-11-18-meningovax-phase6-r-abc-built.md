@@ -11,7 +11,7 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 - `main` at `f4b055f` (PR #108, F-5 + both follow-ups, merged): 2,130 passed, 170 files (re-run
   this session).
 - Branch `port/phase6-r-abc-undated-repeat`, off `main`, pushed, **PR #109** open against `main`
-  (commit `cf87aa8` + this handoff): **2,138 passed, 0 failing (171 files)**. MeningoVax has no CI
+  (commits `cf87aa8`, the R-C chip, and this handoff): **2,138 passed, 0 failing (171 files)**. MeningoVax has no CI
   checks; the owner merges.
 
 ## What's done
@@ -28,16 +28,27 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
    Ava (healthy 10 y, Bexsero at 9). Guard: `regression-2026-11-18-r-abc-undated-repeat-line.test.js`
    (3 ending tests fail on the old engine; 5 controls pass on both); `dose-rules-table.test.js`
    accepts the three endings. Docs: clinical-rules.md, rules summary, testing.md, plan, CLAUDE.md.
+2. **R-C chip** (owner, 2026-11-18, "Yes, do not repeat"): R-C doses carry `notRepeated`, so the
+   chip reads "Not counted — do not repeat". 822 real patients, chip words the only change
+   (prose diff byte-identical to the measured prototype); saved answers unchanged. R-A and R-B
+   keep "repeat". Live-checked on Ava.
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #109, and answer its one question:
-- **R-C chip (ask, don't default):** Ava's line no longer says "repeat" but her chip still reads
-  "Not counted — repeat". Recommended: "Not counted — do not repeat" (Q10's chip for a dose
-  nobody is owed). Measured by prototype (thrown away): 822 real patients, chip words the only
-  change. Build = in `datedRepeatLines`, add `notRepeated: true` when `later.dropRepeat`; update
-  the R-C test's chip expectation, saved answers unchanged (chip isn't in them; re-check), docs.
-  Control: R-A keeps "repeat".
+**Owner action first:** review and merge PR #109, and answer one consequence question (ask,
+don't default; measured 2026-11-18, nothing built):
+- **R-C with a later shot:** under the same healthy pre-16 MenB card, a too-young MenB dose that
+  has a later MenB shot on the record still takes F-4b: chip "Not counted — repeat", line
+  "Repeated on <date>. See that dose." **1,104 real patients, 1,716 lines.** Worked patient (grid
+  key `a120|r:|A:Penbraya@330|B:Bexsero@365`): healthy 10 y; Bexsero Sep 15, 2025 (age 9) reads
+  "Not counted — repeat … Repeated on Oct 20, 2025"; Penbraya Oct 20, 2025 (age 9 y 1 mo, also
+  too young) reads "Not counted — do not repeat … MenB is next offered at 16–23 years". One
+  patient, both chips. Recommended: under the R-C card every too-young MenB dose reads the same
+  (chip "do not repeat", R-C ending, no "Repeated on"), since nothing is owed and the later shot
+  was no valid repeat. Control: Maya-type R-A child with two too-young shots keeps "Repeated on"
+  and "repeat" (owed at 10). Build = in `datedRepeatLines`, check `later?.dropRepeat` before the
+  F-4b branch. Count script: scratch `rc-edge.mjs` (grid via `buildSavedAnswerCases`, count
+  MenB doses with `repeatedOn` under a card with `repeatLater.dropRepeat`).
 
 **Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
 (`docs/agent/testing.md` counts conflict between stacked branches):
@@ -55,8 +66,7 @@ A10, A11, A16, CDC 2024-0069/0034/0035/0040 in shared `dateUtils.js`). Then 6.3 
 
 ## Why this is a good stopping point
 
-R-A–R-C is complete and isolated in one PR; its only loose end (the chip) is an owner question,
-measured and written into the PR. G1-b touches the same dose-line component and `testing.md`
+R-A–R-C is complete and isolated in one PR; its chip question is answered and built; the one consequence question (R-C with a later shot) is measured and written down. G1-b touches the same dose-line component and `testing.md`
 counts, so it should start from `main` once #109 lands.
 
 ## Resuming

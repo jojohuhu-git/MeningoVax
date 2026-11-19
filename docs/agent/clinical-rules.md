@@ -196,8 +196,9 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   with the routine dose."* R-C, healthy MenB before 16 ("Not routinely indicated"):
   the repeat sentence is dropped (nothing is owed until an optional series at 16) and
   the line ends *"MenB is next offered at 16–23 years, by shared clinical
-  decision-making."* Pregnancy (deferred) unchanged. The chip stays "Not counted —
-  repeat" (R-C's chip is a separate owner question). Sources in
+  decision-making."* Its chip reads "Not counted — do not repeat" (`notRepeated`;
+  owner, 2026-11-18, "Yes, do not repeat": 822 real patients, chip words the only
+  change). R-A and R-B keep "Not counted — repeat". Pregnancy (deferred) unchanged. Sources in
   `docs/archive/stop-g1-packet-2026-11-18.md` §4. Test
   `regression-2026-11-18-r-abc-undated-repeat-line.test.js`.
 - **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not

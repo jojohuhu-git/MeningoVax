@@ -24,8 +24,10 @@
 // - R-B (healthy baby, MenACWY too young): the line ends "Repeat at 11–12
 //   years, with the routine dose."
 // - R-C (healthy child, MenB too young): drop "repeat"; the line ends "MenB is
-//   next offered at 16–23 years, by shared clinical decision-making." The chip
-//   is NOT decided here (asked separately), so it is held as it is today.
+//   next offered at 16–23 years, by shared clinical decision-making."
+// - R-C chip (owner, 2026-11-18, "Yes, do not repeat"): "Not counted — do not
+//   repeat", the chip for a dose nobody is owed (Q10). Measured: 822 real
+//   patients, chip words the only change. R-A and R-B keep "repeat".
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
@@ -93,8 +95,9 @@ describe('R-C: healthy child, MenB given too young', () => {
     expect(d.reasons.at(-1)).toBe(R_C);
     // Why it did not count stays.
     expect(d.reasons[0]).toMatch(/below the minimum age of 10 years/);
-    // Chip: not decided by R-C; held as it is today until the owner answers.
-    expect(doseChipLabel(d)).toBe('Not counted — repeat');
+    // R-C chip (owner, 2026-11-18): nothing is owed, so "do not repeat".
+    expect(d.notRepeated).toBe(true);
+    expect(doseChipLabel(d)).toBe('Not counted — do not repeat');
   });
 
   it('control: healthy 17 y with Bexsero at 9 -> no R-C (the card from 16 is not the pre-16 card)', () => {

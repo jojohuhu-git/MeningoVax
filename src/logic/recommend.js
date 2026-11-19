@@ -2315,8 +2315,10 @@ function notRepeatedWhenNothingAsked(history, cards) {
 // years; 16 years" and healthy MenB at "age 16–23 years" by shared clinical
 // decision-making; ACIP 2020, MenB "licensed ... only for persons aged 10–25
 // years". R-C (healthy MenB before 16) drops the repeat sentence: nothing is
-// owed until an optional series at 16, so "repeat" is wrong there. A deferred
-// card (pregnancy, group D) is left as it was.
+// owed until an optional series at 16, so "repeat" is wrong there; its chip
+// reads "Not counted — do not repeat" (`notRepeated`, Q10's chip for a dose
+// nobody is owed; owner, 2026-11-18). A deferred card (pregnancy, group D) is
+// left as it was.
 const REPEAT_LATER_MENB_HIGH_RISK = {
   line: `Repeat at ${ageYears(MENB_MIN_AGE_MONTHS)} years or older, when the high-risk MenB series starts.`,
   dropRepeat: false,
@@ -2353,8 +2355,10 @@ function datedRepeatLines(history, cards, today) {
       }
       if (cardDate) return { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] };
       if (!later) return d;
-      const kept = later.dropRepeat ? d.reasons.filter((x) => x !== REPEAT_THIS_DOSE) : d.reasons;
-      return { ...d, reasons: [...kept, later.line] };
+      if (later.dropRepeat) {
+        return { ...d, notRepeated: true, reasons: [...d.reasons.filter((x) => x !== REPEAT_THIS_DOSE), later.line] };
+      }
+      return { ...d, reasons: [...d.reasons, later.line] };
     }),
   };
 }
