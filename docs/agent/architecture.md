@@ -52,7 +52,7 @@ src/
                          menbBrandsInFamily(). Menveo split: 2-vial (≥2m) and 1-vial (≥10y).
     riskFactors.js       RISK_FACTORS catalog + menacwyRiskClass/hasMenbRisk/shouldDeferMenB.
     refs.js              REFS citation map + resolveRefs().
-    rulebook.js          Writes the rulebook's rule table (meningococcal-rules-summary.md §5) from DOSE_RULES + CITATIONS; `npm run rulebook`. Not imported by the app.
+    rulebook.js          Writes the rulebook's rule table (meningococcal-rules-summary.md §5) from DOSE_RULES + CITATIONS, and the quote/link/date under every card rule in §§1–3 from its SOURCES tag (OWNER_ANSWERS names where each owner answer is recorded); `npm run rulebook`. Not imported by the app.
   components/__tests__/App.test.jsx   Wizard render/flow tests.
 ```
 

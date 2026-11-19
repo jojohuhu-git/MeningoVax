@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-phase7-card-rule-sources.md`. #116 merged;
+> the owner answered the rest of 7.1 and Q11; card-rule sources built. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 7.1 (dose rules) and 7.3 (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit

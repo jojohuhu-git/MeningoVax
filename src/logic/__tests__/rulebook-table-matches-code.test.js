@@ -10,11 +10,13 @@
 // one rule and one column at a time, so a failure names the rule and the cell.
 // rule-docs-match-code.test.js checks the rulebook's prose; this checks its table.
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { DOSE_RULES } from '../doseRules.js';
 import {
   COLUMNS, TABLE_START, TABLE_END, ruleCells, rulebookSection, appDecisionRules,
+  cardRuleBlocks, withCardRuleSources, OWNER_ANSWERS,
 } from '../../data/rulebook.js';
+import { CITATIONS } from '../../data/refs.js';
 
 const PATH = 'docs/agent/meningococcal-rules-summary.md';
 const doc = readFileSync(new URL(`../../../${PATH}`, import.meta.url), 'utf8');
@@ -103,5 +105,49 @@ describe('Phase 7.1: the numbered app decisions and the quoted sentences match t
       .filter((r) => r.sourcesSay?.verdict === 'stated' && !(r.sourcesSay.refs ?? []).length)
       .map((r) => r.id);
     expect(bare, 'these rules say "a source states it" but quote no sentence').toEqual([]);
+  });
+});
+
+// Port Phase 7.1, the rest (owner 2026-11-19, "Link to source list"): every
+// card rule in §§1–3 names its sources, and the sentences under it are the ones
+// in src/data/refs.js, word for word. A rule with no sentence yet says so.
+describe('Phase 7.1: every card rule in sections 1–3 names its sources', () => {
+  const blocks = cardRuleBlocks(doc);
+
+  it('every rule has a SOURCES tag under it', () => {
+    const missing = blocks.filter((b) => b.tokens === null).map((b) => b.text.slice(0, 90));
+    expect(missing, `${PATH}: these rules in sections 1–3 have no <!-- SOURCES: … --> tag under them. `
+      + 'Name the refs.js entry (or owner:<id>, todo, explains, record-keeping), then run `npm run rulebook`.\n'
+      + missing.join('\n')).toEqual([]);
+  });
+
+  it('every tag names a quoted, dated sentence or a recorded owner answer', () => {
+    const known = (t) => ['todo', 'explains', 'record-keeping'].includes(t)
+      || (t.startsWith('owner:') && OWNER_ANSWERS[t.slice(6)])
+      || (CITATIONS[t]?.quote && CITATIONS[t]?.lastVerified);
+    const bad = blocks.flatMap((b) => (b.tokens ?? []).filter((t) => !known(t)).map((t) => `${t} (under "${b.text.slice(0, 60)}")`));
+    expect(bad, `${PATH}: unknown, unquoted or undated source: ${bad.join('; ')}`).toEqual([]);
+  });
+
+  it('every owner answer points at a file that exists', () => {
+    const gone = Object.entries(OWNER_ANSWERS)
+      .filter(([, o]) => !existsSync(new URL(`../../../docs/agent/${o.where}`, import.meta.url)))
+      .map(([id, o]) => `${id} → ${o.where}`);
+    expect(gone).toEqual([]);
+  });
+
+  it('the lines under every tag are exactly what the code writes (quote, link, read date)', () => {
+    const fresh = withCardRuleSources(doc).split('\n');
+    const mine = doc.split('\n');
+    const first = fresh.findIndex((l, i) => l !== mine[i]);
+    expect(first, why(`line ${first + 1} under a SOURCES tag reads\n  ${mine[first]}\nbut refs.js gives\n  ${fresh[first]}`)).toBe(-1);
+    expect(mine.length).toBe(fresh.length);
+  });
+
+  // The rules still waiting for a sentence. This number may only go down: a new
+  // rule must arrive with its source, not as one more "todo".
+  it('no more than 20 rules are still waiting for a sentence', () => {
+    const todo = blocks.filter((b) => b.tokens?.includes('todo'));
+    expect(todo.length).toBeLessThanOrEqual(20);
   });
 });

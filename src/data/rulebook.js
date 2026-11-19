@@ -150,12 +150,162 @@ export function rulebookSection() {
   return out.join('\n');
 }
 
-/** Replace the generated section inside a document's text. */
+/** Replace the generated sections inside a document's text: the rule table
+ *  (§5) and the sources under every card rule (§§1–3). */
 export function withRulebookSection(doc) {
   const a = doc.indexOf(TABLE_START);
   const b = doc.indexOf(TABLE_END);
   if (a === -1 || b === -1 || b < a) {
     throw new Error('The rulebook has no generated section: add the RULE-TABLE:START and END markers.');
   }
-  return doc.slice(0, a) + rulebookSection() + doc.slice(b + TABLE_END.length);
+  return withCardRuleSources(doc.slice(0, a) + rulebookSection() + doc.slice(b + TABLE_END.length));
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// The card rules' sources (port Phase 7.1, rest; owner 2026-11-19: "Link to
+// source list").
+//
+// Sections 1–3 of the rulebook describe how the cards decide (schedules,
+// booster timing, the combined shot). Those rules live as branching code in
+// recommend.js, so there is no row table to write them from; they stay in
+// plain English. What is generated is the evidence under each one: every rule
+// (each bullet, and each paragraph that states a rule) is followed by a tag
+//
+//   <!-- SOURCES: acwyRoutine1112and16, owner:C5 -->
+//   …written by `npm run rulebook`…
+//   <!-- /SOURCES -->
+//
+// and the lines between are copied from CITATIONS: the quoted sentence, the
+// link and the date it was read. So a quote cannot drift from the one the
+// cards show. A token is one of:
+//   a CITATIONS key — it must carry a quote and a read date;
+//   owner:<id>      — an owner answer, named in OWNER_ANSWERS below;
+//   todo            — no sentence linked yet; printed as such, never hidden;
+//   record-keeping  — about how the app records a dose, not the vaccine;
+//   explains        — the paragraph defines or explains, states no rule.
+// `rulebook-table-matches-code.test.js` fails if a rule in §§1–3 has no tag,
+// a token is unknown, or the lines under a tag differ from what this writes.
+// ─────────────────────────────────────────────────────────────────────────
+export const SOURCES_END = '<!-- /SOURCES -->';
+const SOURCES_START_RE = /^(\s*)<!-- SOURCES: (.*?) -->\s*$/;
+export const CARD_RULES_FROM = '## 1. MenACWY';
+export const CARD_RULES_TO = '## 4. ';
+
+// Where each owner answer cited in §§1–3 is written down. The id is the one
+// the rulebook's own sentence already uses ("your C5 answer").
+// `where` is the file's path from docs/agent/, where the rulebook lives.
+const STOP_C = '../archive/stop-c-packet-2026-11-15.md';
+const PLAN = '../archive/plan-2026-11-08-meningovax-port.md';
+const OPEN_Q = '../archive/decisions-2026-11-17-open-questions.md';
+const G1 = '../archive/stop-g1-packet-2026-11-18.md';
+const FOLD = '../archive/decisions-2026-11-19-after-the-fold.md';
+const RULES = 'clinical-rules.md';
+export const OWNER_ANSWERS = {
+  'P0-1': { date: '2026-09-17', where: RULES },
+  'PneumoVax-Complete': { date: '2026-11-01', where: PLAN },
+  N1: { date: '2026-11-15', where: RULES },
+  N5: { date: '2026-11-15', where: RULES },
+  'B-2': { date: '2026-11-15', where: PLAN },
+  'B-3': { date: '2026-11-15', where: PLAN },
+  'B-4': { date: '2026-11-15', where: PLAN },
+  'B-5': { date: '2026-11-15', where: PLAN },
+  C5: { date: '2026-11-15', where: STOP_C },
+  C6: { date: '2026-11-15', where: STOP_C },
+  C7: { date: '2026-11-15', where: STOP_C },
+  C10: { date: '2026-11-15', where: STOP_C },
+  C12: { date: '2026-11-15', where: STOP_C },
+  C13: { date: '2026-11-15', where: STOP_C },
+  D1: { date: '2026-11-17', where: OPEN_Q },
+  D3: { date: '2026-11-17', where: OPEN_Q },
+  D4: { date: '2026-11-17', where: OPEN_Q },
+  D6: { date: '2026-11-17', where: OPEN_Q },
+  D7: { date: '2026-11-17', where: OPEN_Q },
+  D9: { date: '2026-11-17', where: OPEN_Q },
+  D10: { date: '2026-11-17', where: OPEN_Q },
+  Q9a: { date: '2026-11-17', where: OPEN_Q },
+  Q9b: { date: '2026-11-17', where: OPEN_Q },
+  F2a: { date: '2026-11-18', where: OPEN_Q },
+  'F-2': { date: '2026-11-18', where: OPEN_Q },
+  '16y-booster': { date: '2026-11-18', where: OPEN_Q },
+  'F-3': { date: '2026-11-18', where: G1 },
+  W1: { date: '2026-11-19', where: FOLD },
+  W3: { date: '2026-11-19', where: FOLD },
+};
+
+/** The lines a SOURCES tag's tokens stand for, without indent. */
+export function sourceLines(tokens) {
+  const lines = [];
+  for (const t of tokens) {
+    let line;
+    if (t === 'explains') continue;
+    if (t === 'record-keeping') {
+      line = '> About how the app records a dose, not about the vaccine: no source needed.';
+    } else if (t === 'todo') {
+      line = '> *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*';
+    } else if (t.startsWith('owner:')) {
+      const id = t.slice('owner:'.length);
+      const o = OWNER_ANSWERS[id];
+      if (!o) throw new Error(`SOURCES names owner answer "${id}", which is not in OWNER_ANSWERS.`);
+      line = `> Owner decision ${id}, ${o.date} ([${o.where.split('/').pop()}](${o.where})).`;
+    } else {
+      const c = CITATIONS[t];
+      if (!c) throw new Error(`SOURCES names "${t}", which is not in CITATIONS.`);
+      if (!c.quote) throw new Error(`SOURCES names "${t}", which has no quoted sentence.`);
+      if (!c.lastVerified) throw new Error(`SOURCES names "${t}", which has no read date.`);
+      line = `> "${c.quote}" — [${c.short ?? c.label}](${c.url}), read ${c.lastVerified}.`;
+    }
+    if (lines.length) lines.push('>');
+    lines.push(line);
+  }
+  return lines;
+}
+
+const parseTokens = (s) => s.split(',').map((t) => t.trim()).filter(Boolean);
+
+/** Rewrite the lines under every SOURCES tag in the document. */
+export function withCardRuleSources(doc) {
+  const lines = doc.split('\n');
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(SOURCES_START_RE);
+    out.push(lines[i]);
+    if (!m) continue;
+    let j = i + 1;
+    while (j < lines.length && lines[j].trim() !== SOURCES_END) j++;
+    if (j === lines.length) throw new Error(`A SOURCES tag has no ${SOURCES_END} after it (line ${i + 1}).`);
+    for (const l of sourceLines(parseTokens(m[2]))) out.push(m[1] + l);
+    out.push(lines[j]);
+    i = j;
+  }
+  return out.join('\n');
+}
+
+/**
+ * The rules of §§1–3, each with the tokens of the tag after it (null when it
+ * has none). A rule is a bullet (with its wrapped lines) or a paragraph.
+ */
+export function cardRuleBlocks(doc) {
+  const all = doc.split('\n');
+  const from = all.findIndex((l) => l.startsWith(CARD_RULES_FROM));
+  const to = all.findIndex((l, i) => i > from && l.startsWith(CARD_RULES_TO));
+  if (from === -1 || to === -1) throw new Error('The rulebook has lost its section 1 or 4 heading.');
+  const lines = all.slice(from + 1, to);
+  const blocks = [];
+  let cur = null;
+  const close = (tokens) => { if (cur) { cur.tokens = tokens; blocks.push(cur); cur = null; } };
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    const t = l.trim();
+    const m = l.match(SOURCES_START_RE);
+    if (m) {
+      close(parseTokens(m[2]));
+      while (i < lines.length && lines[i].trim() !== SOURCES_END) i++;
+      continue;
+    }
+    if (t === '' || t.startsWith('#') || t === '---') { close(null); continue; }
+    if (/^\s*- /.test(l) || !cur) { close(null); cur = { text: t }; continue; }
+    cur.text += ` ${t}`;
+  }
+  close(null);
+  return blocks;
 }

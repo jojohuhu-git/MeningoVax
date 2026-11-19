@@ -589,7 +589,15 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     22 numbered app decisions, every quoted sentence with the date read; held cell by cell by
     `rulebook-table-matches-code.test.js`. vaxapp sync line dropped. **Not yet:** quotes and dates
     for the card (forecast) rules in §§1–3, which have no row table to generate from.
-7.2 **Q11** the in-app Rulebook tab (D1, D2)? Built only on a yes.
+    **Owner, 2026-11-19: "Link to source list".** Each rule in §§1–3 stays in plain English and
+    names its `refs.js` entry (or says it is an owner decision); `npm run rulebook` copies the
+    quote, link and read date in under it; a test fails if a rule names neither. Not hand-typed
+    quotes, not a card-rule row table. **Mechanism BUILT 2026-11-19:** all 75 rules in §§1–3
+    tagged; 55 rest on a quoted sentence or an owner answer, **20 marked "todo"** (no sentence in
+    refs.js yet: these need a live read). Guard in `rulebook-table-matches-code.test.js`; the
+    "todo" count may only go down.
+7.2 **Q11** the in-app Rulebook tab (D1, D2)? Built only on a yes. **Owner, 2026-11-19: "Yes, like
+    PneumoVax"** — a Patient | Rulebook switch in the header; built after 7.1 so it shows the quoted rulebook.
 7.3 MeningoVax `CLAUDE.md`: add the non-negotiables this port created (one rule table; a moved
     answer must be explained; one label list; the rulebook is held to the code).
     **BUILT 2026-11-19** (CLAUDE.md, "What the PneumoVax Port Made Permanent").
@@ -655,7 +663,7 @@ days), add about 2.5% per fix.
 | Q8 | "Extra" = not asked for that day? | 4 | — |
 | Q9 | Routine date beside the minimum? | 5 | a high-risk MenB dose 3 |
 | Q10 | Fold the result page? | 6 | — |
-| Q11 | In-app Rulebook tab? | 7 | — |
+| Q11 | In-app Rulebook tab? **Answered 2026-11-19: yes, like PneumoVax** | 7 | — |
 | Q12 | Does the "same dose, decide alone" delegation carry over? | 8 | — |
 
 ## Not in this plan

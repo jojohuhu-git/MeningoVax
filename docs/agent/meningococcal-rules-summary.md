@@ -7,6 +7,12 @@ grows into the rulebook; there is no separate CLINICAL_SPEC.md). Section 5 lists
 that judges a recorded dose, written from the code, with the sentences it rests on and the
 date each was read.
 
+**Under every rule in sections 1–3** (how the cards decide) sits the sentence it rests on, with
+its link and the date it was read, or the owner decision it rests on (owner 2026-11-19: "Link to
+source list"). Those lines are copied from the app's own source list (`src/data/refs.js`) by
+`npm run rulebook`, so they are the same sentences the cards cite. A rule with no sentence yet
+says so in italics: on 2026-11-19 that was 20 of 75 rules, still to be read live.
+
 **Last verified against code:** 2026-11-16 (STOP B B-2–B-5 and the Complete rule; MenACWY
 gaps, STOP C C10, C11, C13; MenB dose 3, C5–C7; an undated dose does not count, C1);
 before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
@@ -77,14 +83,32 @@ Two deliberate limits:
 
 ### Routine schedule (no risk factor)
 - **Not due before age 11.**
+  <!-- SOURCES: acwyRoutine1112and16 -->
+  > "ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  <!-- /SOURCES -->
 - **11–12 years:** Dose 1.
+  <!-- SOURCES: acwyRoutine1112and16 -->
+  > "ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  <!-- /SOURCES -->
 - **13–15 years, no dose yet:** the same dose 1, called catch-up (owner decision 2026-11-18).
   CDC: *"Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8
   weeks)"*. Only the words change; the 16-year booster and its date are the same. The card's
   booster line says "at age 16–18", as CDC does (owner decision 2026-11-19).
+  <!-- SOURCES: cdcCatchupAcwyBooster8Weeks, owner:F-2, owner:W3 -->
+  > "Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-18.
+  >
+  > Owner decision F-2, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  >
+  > Owner decision W3, 2026-11-19 ([decisions-2026-11-19-after-the-fold.md](../archive/decisions-2026-11-19-after-the-fold.md)).
+  <!-- /SOURCES -->
 - **16 years:** booster (this is the "real" booster — a dose given before 16
   does not itself count as the 16y booster). The card says "Booster due today" (owner
   decision 2026-11-19).
+  <!-- SOURCES: acwyRoutine1112and16, owner:W1 -->
+  > "ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > Owner decision W1, 2026-11-19 ([decisions-2026-11-19-after-the-fold.md](../archive/decisions-2026-11-19-after-the-fold.md)).
+  <!-- /SOURCES -->
 - **The booster waits at least 8 weeks after dose 1** (owner decision
   2026-11-15). ACIP: *"the booster dose can be administered at any time, as long
   as a minimum interval of 8 weeks between doses is maintained."* Example: dose 1
@@ -93,13 +117,33 @@ Two deliberate limits:
   4-day grace) does not count and is asked for again, 8 weeks after dose 1. The
   college-residence, military and outbreak cards wait the same 8 weeks when the
   dose they ask for is this booster.
+  <!-- SOURCES: acwyBooster8WeeksAfterDose1, cdcCatchupAcwyBooster8Weeks, owner:N5 -->
+  > "the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > "Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-18.
+  >
+  > Owner decision N5, 2026-11-15 ([clinical-rules.md](clinical-rules.md)).
+  <!-- /SOURCES -->
 - **17–21 years, no dose recorded on/after the 16th birthday:** one catch-up
   dose. Because it's given at ≥16, no further booster is needed. Especially
   called out for first-year college students in dorms.
+  <!-- SOURCES: acwyCatchup1921, acwyFirstDoseAfter16NoBooster, todo -->
+  > "Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+  >
+  > "Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+  >
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **≥22 years, healthy, no risk factor:** not indicated.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Golden rule that cuts across all the bands above:** *any* dose given at
   age ≥16 satisfies the adolescent schedule — no further routine doses,
   regardless of current age.
+  <!-- SOURCES: acwyFirstDoseAfter16NoBooster -->
+  > "Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+  <!-- /SOURCES -->
 
 ### Doses given before age 10 don't count
 A MenACWY dose given before the patient turned 10 is **valid** (it wasn't
@@ -107,18 +151,33 @@ given too early for the vaccine itself) but does **not** advance the routine
 11-12y/16y series — it's treated as if it hadn't happened for counting
 purposes. This only applies to healthy patients; a high-risk infant series
 (below) is allowed to start before 10 and those doses do count.
+<!-- SOURCES: acwyBeforeAge10, cdcChildAcwyBefore10OngoingRisk -->
+> "Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease for which boosters are recommended should still receive MenACWY according to the recommended adolescent schedule, with the first dose at age 11–12 years and a booster dose at age 16 years" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+>
+> "Children for whom boosters are recommended because of an ongoing increased risk of meningococcal disease (e.g., those with complement component deficiency, HIV, or asplenia): Follow the booster schedule for persons at increased risk." — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+<!-- /SOURCES -->
 
-### High-risk (asplenia/sickle cell, persistent complement deficiency,
-complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
+### High-risk (asplenia/sickle cell, persistent complement deficiency, complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
 - **2-dose primary series**, ≥8 weeks apart (≥2 years old), then boosters.
+  <!-- SOURCES: cdcChildAcwyRisk2DoseFrom24m, acip2020Acwy8WeekMinimum -->
+  > "Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+  >
+  > "a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  <!-- /SOURCES -->
 - **Infants.** MenACWY is not routinely given to healthy infants, but three
   indications put a baby on the infant series: medical high risk, **travel**, and an
   **A/C/W/Y outbreak**. A travelling or outbreak-exposed infant gets the *same infant
   series* as a high-risk one — ACIP prints the identical "2–23 months" row in Tables
   4–6, 8 and 9. Microbiologists and military recruits are excluded: ACIP gives them no
   infant row at all.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
   - Dose 1 at 2 months: 4-dose infant MenACWY series (2, 4, 6, 12 months). No shortcut.
     Menveo and MenQuadfi are both offered — see the licensed-age note just below.
+    <!-- SOURCES: acwyInfantHighRisk2to6mo -->
+    > "4 doses at 2, 4, 6, and 12 mos" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+    <!-- /SOURCES -->
   - **MenQuadfi is licensed from 6 weeks, younger than the app's own 2-month
     schedule floor (2026-09-23, AAP-aligned per WA DOH).** The app still never
     *asks* for a dose before 2 months — CDC's earliest schedule row is 2 months
@@ -133,28 +192,59 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
+    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, cdcChildAcwyMinAge, owner:C13 -->
+    > "MenQuadfi is approved for use in individuals 6 weeks of age and older." — [MenQuadfi Package Insert](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7), read 2026-09-23.
+    >
+    > "Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation." — [WA DOH](https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines), read 2026-09-22.
+    >
+    > "minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+    >
+    > Owner decision C13, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    <!-- /SOURCES -->
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
     at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or
     its age is unknown, it stays a 4-dose series.
+    <!-- SOURCES: cdcChildAcwyInfantSeries -->
+    > "dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+    <!-- /SOURCES -->
   - Dose 1 at 7–23 months: 2-dose primary.
+    <!-- SOURCES: acwyInfantHighRisk7to23mo -->
+    > "2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+    <!-- /SOURCES -->
   - The length is fixed by the age at dose 1 and never changes afterwards — a child who
     started at 4 months is still on a 4-dose series at age 6.
+    <!-- SOURCES: todo -->
+    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+    <!-- /SOURCES -->
   - **How far apart (corrected 2026-09-17).** Two numbers cover every infant series:
+    <!-- SOURCES: explains -->
+    <!-- /SOURCES -->
     - The **early doses** are at least **8 weeks** apart. The app used to say 4 weeks,
       in the rules *and* on the card. CDC's Menveo 3–6-month row says "at least 8 weeks
       after previous dose", and ACIP's own footnote to Tables 4–6 says "doses at
       intervals of 8 weeks". The 4 weeks came from a different ACIP rule — the minimum
       gap when a dose has to be **repeated** — which in the ACIP report is stated only
       about MenB.
+      <!-- SOURCES: cdcChildAcwyInfantSeries -->
+      > "dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+      <!-- /SOURCES -->
     - The **final dose of the series** is due when the child is **at least 12 months
       old** and **at least 12 weeks** have passed since the dose before it. This holds
       for the 2-, 3- and 4-dose versions alike. Until this was corrected only the
       3-dose shortcut checked it, so a baby three doses into a 4-dose series could be
       told the last dose was due at six months old.
+      <!-- SOURCES: cdcChildAcwyInfantSeries, acwyInfantHighRisk7to23mo -->
+      > "dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+      >
+      > "2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+      <!-- /SOURCES -->
     - Two of these are **owner decisions** rather than quotes, because CDC does not say:
       that the 2-month series also uses 8 weeks between its early doses, and that the
       "12 months old and 12 weeks since the last dose" test applies to the final dose of
       *both* the 2-month and the 3–6-month series.
+      <!-- SOURCES: owner:P0-1 -->
+      > Owner decision P0-1, 2026-09-17 ([clinical-rules.md](clinical-rules.md)).
+      <!-- /SOURCES -->
     - **When the card advises them (your Q9b answer, 2026-11-17, as PneumoVax).** A
       baby who started at 2 months is advised dose 2 at **4 months** and dose 3 at **6
       months** of age, with the 8 weeks said beside it: "Next dose due May 1, 2026" over
@@ -162,24 +252,54 @@ complement-inhibitor therapy [eculizumab/ravulizumab], HIV)
       the last dose is already past that age (a late dose 1), the 8 weeks is the date.
       A dose given at 8 weeks still counts. A baby who started at 3–6 months is spaced
       8 weeks apart as before.
+      <!-- SOURCES: owner:Q9b -->
+      > Owner decision Q9b, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+      <!-- /SOURCES -->
     - A deliberate edge case: a baby starting at exactly 3 months with every gap at the
       bare minimum reaches dose 3 at about 6.7 months. Read absolutely literally CDC's
       sentence would ask for a fifth dose; CDC caps the series at four, so the app stops
       at four. It never gives fewer doses than CDC intends.
+      <!-- SOURCES: acwyInfantHighRisk2to6mo -->
+      > "4 doses at 2, 4, 6, and 12 mos" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+      <!-- /SOURCES -->
 - **Booster cadence**, keyed off the age at the **last dose of the primary series** —
   the dose that actually starts the clock. For a baby who began at 2 months that is
   dose 4, not dose 2:
+  <!-- SOURCES: boosterBeforeAge7, boosterAtOrAfterAge7 -->
+  > "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  <!-- /SOURCES -->
   - Primary completed before age 7: first booster in **3 years**, then every 5 years.
+    <!-- SOURCES: boosterBeforeAge7 -->
+    > "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+    <!-- /SOURCES -->
   - Primary completed at age 7 or older: first booster in **5 years**, then every 5 years.
+    <!-- SOURCES: boosterAtOrAfterAge7 -->
+    > "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+    <!-- /SOURCES -->
   - Completion age unknown: treated conservatively as "before 7" (3-year first booster).
+    <!-- SOURCES: todo -->
+    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+    <!-- /SOURCES -->
   - Only the *first* booster varies. Every booster after it is 5 years.
+    <!-- SOURCES: boosterBeforeAge7, boosterAtOrAfterAge7 -->
+    > "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+    >
+    > "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+    <!-- /SOURCES -->
 
 ### Single-dose indications (one primary dose)
 "Single" means the *primary series* is one dose — not that the patient may never
 receive another.
+<!-- SOURCES: explains -->
+<!-- /SOURCES -->
 - **Under 16, the college-residence and military boxes add nothing** (your B-4 answer,
   2026-11-15): the card follows the routine schedule and adds "The college-residence
   (military) dose is given at 16 or older."
+  <!-- SOURCES: owner:B-4 -->
+  > Owner decision B-4, 2026-11-15 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
+  <!-- /SOURCES -->
 - **Military recruits**: one documented dose satisfies the recruitment requirement. The
   card then shows **the booster date 5 years on, "if required by assignment"** — never
   "Complete" (your B-3 answer). ACIP: *"Military recruits: Every 5 yrs on basis of
@@ -189,25 +309,47 @@ receive another.
   (your D6 answer, 2026-11-17: checked like travel); the next booster is timed from
   it, so the date usually stays and only the dose label changes. The routine
   16-year booster is not affected.
+  <!-- SOURCES: acip2020MilitaryBooster5Years, owner:B-3, owner:D6 -->
+  > "Military recruits: Every 5 yrs on basis of assignment" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=Military%20recruits%3A%20Every%205%20yrs%20on%20basis%20of%20assignment), read 2026-11-16.
+  >
+  > Owner decision B-3, 2026-11-15 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
+  >
+  > Owner decision D6, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  <!-- /SOURCES -->
 - **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
   ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
   and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
   outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
   routine 16-year booster still comes first. Untick the box when the risk is over.
+  <!-- SOURCES: owner:B-2 -->
+  > Owner decision B-2, 2026-11-15 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
+  <!-- /SOURCES -->
 - **Every outbreak card — MenACWY and MenB, any age — says "if outbreak risk
   continues"** on a booster not yet due ("for this outbreak" when due today), and
   its booster line reads "while outbreak risk continues" (your D7 answer,
   2026-11-17). Before, only the teenage MenACWY outbreak card said it. If another
   risk is also ticked (asplenia, for example), that risk's wording stays.
+  <!-- SOURCES: owner:D7 -->
+  > Owner decision D7, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  <!-- /SOURCES -->
 - **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
   10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
   complete.
+  <!-- SOURCES: owner:PneumoVax-Complete -->
+  > Owner decision PneumoVax-Complete, 2026-11-01 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
+  <!-- /SOURCES -->
 - **"Up to date" only when nothing is left** (your F-3 answer, STOP G1, 2026-11-18). A card
   with a date still to come names it: a booster reads **"Future booster needed"**, any other
   dose reads **"Next dose not yet due"**. Badge words only; the dates and doses are unchanged.
+  <!-- SOURCES: owner:F-3 -->
+  > Owner decision F-3, 2026-11-18 ([stop-g1-packet-2026-11-18.md](../archive/stop-g1-packet-2026-11-18.md)).
+  <!-- /SOURCES -->
 - **The combined pentavalent shot waits for the dose questions** (your B-5 answer): while
   a recorded dose shows "Needs input", the app offers no pentavalent and does not say
   both vaccines are due.
+  <!-- SOURCES: owner:B-5 -->
+  > Owner decision B-5, 2026-11-15 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
+  <!-- /SOURCES -->
 - **First-year college students in dorms**: one dose satisfies the requirement *only if
   given at ≥16 years old*, and it covers them **for 5 years**; after that, one dose is
   due (your D1 answer, 2026-11-17, replacing the 2026-09-15 "permanently"). ACIP's own
@@ -217,20 +359,36 @@ receive another.
   student). There is **no repeat dose for staying in a residence hall** — no
   source gives one (your D9 answer, 2026-11-17). An earlier dose (before 16) does not count for this requirement; a
   fresh dose is needed at ≥16.
+  <!-- SOURCES: acip2020College5Years, owner:D1, owner:D9 -->
+  > "Adolescents who received a first dose after their 16th birthday do not need another dose before college entry unless it has been more than 5 years since the dose." — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=do%20not%20need%20another%20dose%20before%20college%20entry%20unless%20it%20has%20been%20more%20than%205%20years%20since%20the%20dose), read 2026-11-17.
+  >
+  > Owner decision D1, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  >
+  > Owner decision D9, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  <!-- /SOURCES -->
 
 ### Single dose + ongoing booster
 - **Travellers** to hyperendemic/epidemic regions (including Hajj pilgrims, the
   sub-Saharan "meningitis belt"): 1 dose, then re-vaccinate while the risk continues.
   The first booster is at **3 years** if the primary dose was given before age 7,
   otherwise 5 years; every booster after that is 5 years.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Microbiologists** routinely handling *N. meningitidis*: 1 dose, then every 5 years
   while the exposure continues — a flat interval with no under-7 variation, because
   ACIP's microbiologist table covers ages ≥10 only.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **A booster given too soon does not count, for both** (your C10 answer,
   2026-11-15): checked like a medical high-risk booster — 3 or 5 years, less
   the 4-day grace. Before, a dose 6 weeks after a travel dose was counted as
   "the booster". (C10 also names the A/C/W/Y outbreak booster; that half comes
   with the outbreak card's booster date, your STOP B answer B-2.)
+  <!-- SOURCES: owner:C10 -->
+  > Owner decision C10, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+  <!-- /SOURCES -->
 - **A teenager still gets the 16-year dose** (your answer, 2026-11-18) — travel,
   lab worker, and A/C/W/Y outbreak alike. Maya, 15, had one dose at 14 for
   travel: the app used to put her next dose in 2030 (5 years on), while the same
@@ -241,6 +399,11 @@ receive another.
   given at 7 or older). Asplenia, complement and HIV are unchanged: their own
   schedule replaces the routine one, as ACIP's own example shows (an HIV child
   dosed at 9 gets the next dose at 14).
+  <!-- SOURCES: owner:16y-booster, todo -->
+  > Owner decision 16y-booster, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  >
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 
 ---
 
@@ -248,20 +411,43 @@ receive another.
 
 MenB vaccines (Bexsero, Trumenba, and the pentavalents Penmenvy/Penbraya) are
 **licensed from age 10 only** — never given younger, no exceptions.
+<!-- SOURCES: cdcChildMenbMinAge, menbLicensedAge1025 -->
+> "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+>
+> "MenB vaccines are licensed in the United States only for persons aged 10–25 years" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+<!-- /SOURCES -->
 
 ### Healthy patients, no risk factor: shared clinical decision-making
 - **Window: 16 years through 23 years 11 months** (preferably offered at
   16–18). Not indicated before 16 or at/after 24 without a risk factor.
+  <!-- SOURCES: menbHealthyPreferredAge1618 -->
+  > "MenB series at age 16–23 yrs on basis of shared clinical decision-making (preferred age 16–18 yrs)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=MenB%20series%20at%20age%2016%E2%80%9323%20yrs%20on%20basis%20of%20shared%20clinical%20decision-making%20(preferred%20age%2016%E2%80%9318%20yrs)), read 2026-11-15.
+  <!-- /SOURCES -->
 - **2-dose schedule**, ≥6 months apart (standard). If faster protection is
   needed (e.g. starting college within 6 months), a 3-dose accelerated
   schedule (0, 1–2, 6 months) can be used instead.
+  <!-- SOURCES: menbHealthy2Dose0and6, menbAcceleratedRapidProtection -->
+  > "ACIP recommends that MenB-4C be administered to healthy adolescents and young adults aged 16–23 years as a 2-dose series at 0 and 6 months for the prevention of serogroup B meningococcal disease, based on shared clinical decision-making" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  >
+  > "Persons receiving a MenB vaccine based on shared clinical decision-making who desire more rapid protection against serogroup B (e.g., students initiating vaccination <6 months before college entry) may receive the 3-dose series (0, 1–2, and 6 months) to optimize rapid protection. This guidance applies to both MenB-4C and MenB-FHbp." — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-07-24.
+  <!-- /SOURCES -->
 - **Dose 2 given under 4 weeks after dose 1** does **not** count (owner,
   2026-11-15; ACIP: 4 weeks between any two MenB doses). It is repeated at
   least 6 months after dose 1 (and at least 4 weeks after the uncounted dose).
+  <!-- SOURCES: acip2020MenbRepeat4Weeks, owner:C12 -->
+  > "For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > Owner decision C12, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+  <!-- /SOURCES -->
 - **Dose 2 given early** (4 weeks to <6 months after dose 1) is **not
   invalid** — it's accepted, but a third "rescue" dose is then required ≥4
   months after dose 2 to complete the series. A dose 2 only 1–4 days short of
   6 months counts as on time (the 4-day grace; your C7 answer).
+  <!-- SOURCES: menbRescueDoseRule, owner:C7 -->
+  > "the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  >
+  > Owner decision C7, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+  <!-- /SOURCES -->
 
 ### Doses given before age 16 (healthy patients) don't count
 Mirrors the MenACWY pre-age-10 rule above: a MenB dose given before 16 to a
@@ -271,20 +457,40 @@ series. Reason: MenB antibody protection wanes within about a year, so a dose
 given at, say, 10 provides no protection by 16. (Shipped 2026-07-23, P0-1 —
 previously this silently under-counted and could tell a healthy 16-year-old
 with an old dose "you're done" when they weren't.)
+<!-- SOURCES: todo -->
+> *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+<!-- /SOURCES -->
 
-### High-risk (asplenia/sickle cell, persistent complement deficiency,
-complement-inhibitor therapy, microbiologist, serogroup B outbreak)
+### High-risk (asplenia/sickle cell, persistent complement deficiency, complement-inhibitor therapy, microbiologist, serogroup B outbreak)
 - Eligible starting at age 10 (no upper age limit).
+  <!-- SOURCES: menbHighRisk3DoseSchedule -->
+  > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  <!-- /SOURCES -->
 - **3-dose primary**: 0, 1–2 months, 6 months.
+  <!-- SOURCES: menbHighRisk3DoseSchedule -->
+  > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  <!-- /SOURCES -->
   - Dose 2: ≥4 weeks after dose 1. **The card advises 1 month after dose 1** and
     says the 4 weeks beside it: "Next dose due Dec 3, 2026" over "It can be given
     from Dec 1, 2026 if needed (minimum 4 weeks)" (your Q9a answer, 2026-11-17, as
     PneumoVax). A dose given at 4 weeks still counts.
+    <!-- SOURCES: menbHighRisk3DoseSchedule, owner:Q9a -->
+    > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+    >
+    > Owner decision Q9a, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    <!-- /SOURCES -->
   - Dose 3: the app **advises** it ≥6 months after dose 1 **and** ≥4 months
     after dose 2 (both must be satisfied — whichever is later wins). A dose 3
     **already given** ≥4 months after dose 2 counts, even if it came before 6
     months from dose 1 (your C5 answer, 2026-11-15: no source says not to count
     it, and CDC's software counts it).
+    <!-- SOURCES: menbHighRisk3DoseSchedule, menbHighRiskEarlyD3ExtraDose, owner:C5 -->
+    > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+    >
+    > "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+    >
+    > Owner decision C5, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    <!-- /SOURCES -->
   - **If dose 2 was already given 6 months or more after dose 1, dose 3 is not
     needed** (corrected 2026-09-17). Those two doses are the 0-and-6-month
     schedule, so the series is complete and the patient moves to boosters. CDC
@@ -294,6 +500,11 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     test as the healthy rule above, read in the opposite direction, and it is
     compared on the calendar rather than as a fixed number of days, **with the
     4-day grace** (your D4 answer, 2026-11-17).
+    <!-- SOURCES: owner:D4, todo -->
+    > Owner decision D4, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    >
+    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+    <!-- /SOURCES -->
   - **If dose 3 was given earlier than 4 months after dose 2, that dose still
     counts — do not repeat it — but a 4th dose is then owed at least 4 months
     after dose 3** (corrected 2026-09-17). CDC says this in the second half of
@@ -304,37 +515,76 @@ complement-inhibitor therapy, microbiologist, serogroup B outbreak)
     starts from that 4th dose, not from the third. The four months are
     compared on the calendar, **with the 4-day grace** (your C7 answer): a dose
     3 given 1–4 days before 4 months is not early.
+    <!-- SOURCES: menbHighRiskEarlyD3ExtraDose, owner:C7 -->
+    > "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+    >
+    > Owner decision C7, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    <!-- /SOURCES -->
   - **Unless dose 3 was 6 months or more after dose 1** — then no 4th dose,
     even if dose 3 came under 4 months after dose 2 (your C6 answer: follow
     ACIP's 2024 MMWR, *"…unless the third dose was administered ≥6 months after
     the first dose"*; CDC's schedule notes leave the "unless" out). **With the
     4-day grace** (your D3 answer, 2026-11-17): 1–4 days short of 6 months
     also counts.
+    <!-- SOURCES: menbHighRiskEarlyD3Unless, owner:C6, owner:D3 -->
+    > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+    >
+    > Owner decision C6, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    >
+    > Owner decision D3, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    <!-- /SOURCES -->
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
+  <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox -->
+  > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > "the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-10-17.
+  <!-- /SOURCES -->
   - **Serogroup B outbreak alone: one booster only** (your D10 answer,
     2026-11-17), at least 1 year after the primary series; after it the card
     reads "Complete (outbreak booster given)". ACIP 2020 Table 8: *"Single dose
     if ≥1 yr after MenB primary series completion"*. The every-2–3-years
     boosters are Tables 4, 5 and 7 (complement, asplenia, microbiologists). If
     another of those risks is also ticked, its boosters win.
+    <!-- SOURCES: acip2020Table8MenbOutbreakBooster, owner:D10 -->
+    > "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-17.
+    >
+    > Owner decision D10, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    <!-- /SOURCES -->
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
   alone — only the specific list above triggers high-risk MenB.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 
 ### The two antigen families are NOT interchangeable
 - **MenB-4C family:** Bexsero, Penmenvy.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **MenB-FHbp family:** Trumenba, Penbraya.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 
 Whichever family the first known-brand dose belongs to, every later dose
 (including a pentavalent substitution) must stay in that same family. If the
 family is ever mismatched, that dose doesn't count and needs to be repeated
 in the correct family.
+<!-- SOURCES: acip2020MenbNotInterchangeable, acip2020MenbMixedProductsSelectOne -->
+> "MenB vaccines are not interchangeable, and the same vaccine product must be used for all doses" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+>
+> "If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+<!-- /SOURCES -->
 
 ### Pregnancy
 MenB is deferred during pregnancy **unless** a high-risk indication overrides
 it (asplenia, complement deficiency/inhibitor therapy, microbiologist, or an
 active serogroup B outbreak) — in which case the high-risk schedule still
 applies.
+<!-- SOURCES: menbPregnancyDeferral -->
+> "vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+<!-- /SOURCES -->
 
 ---
 
@@ -345,6 +595,13 @@ when, at the same visit: the patient is ≥10 years old, a MenACWY dose is due
 today, AND a MenB dose is due today (MenB "due" includes the 16–23y
 shared-decision window — it doesn't have to be a hard requirement, just
 on-the-table today).
+<!-- SOURCES: cdcAdultPenbrayaSameDay, pentavalentLicensed10to25, pentavalentHighRiskNoUpperAge -->
+> "Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day." — [CDC Adult Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening), read 2026-11-15.
+>
+> "licensed for use in persons aged 10–25 years" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
+>
+> "persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
+<!-- /SOURCES -->
 
 - **Also when MenB dose 2 can be given today but isn't due yet** (your F2a
   answer, 2026-11-18). High-risk MenB dose 2 is due 1 month after dose 1 but
@@ -355,13 +612,27 @@ on-the-table today).
   at the same visit". On those days the MenB card's badge says **"Can be
   given today"** (your answer, 2026-11-18), not "Up to date"; its date line
   still says "Next dose due <date>".
+  <!-- SOURCES: pentavalentHighRiskNoUpperAge, owner:F2a -->
+  > "persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
+  >
+  > Owner decision F2a, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  <!-- /SOURCES -->
 
 - **Penmenvy** = MenB-4C family → only offered/continued if the established
   family is 4C (or no family established yet).
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Penbraya** = MenB-FHbp family → only offered/continued if FHbp (or none
   established yet).
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Penbraya cannot be given again within 6 months of the last Penbraya**
   (added 2026-09-17). CDC allows Penbraya for further doses only once at least
   six months have passed since the most recent one. Before this, a patient who
@@ -369,15 +640,26 @@ on-the-table today).
   that rules out the only pentavalent the patient's MenB family allows, the app
   simply does not offer the combined injection and says why — **the vaccine
   itself is still given**, as two separate shots the same day.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Penmenvy follows the same six-month rule** (owner decision 2026-11-15). The
   CDC schedule page names only Penbraya, but ACIP's Penmenvy report (January
   2026) says a patient who needs more MenACWY and MenB doses within 6 months of
   a pentavalent should get the two separate vaccines instead. Example: a
   17-year-old with asplenia who had Penmenvy on July 1 is offered Menveo or
   MenQuadfi plus Bexsero on September 1, not a second Penmenvy.
+  <!-- SOURCES: owner:N1, todo -->
+  > Owner decision N1, 2026-11-15 ([clinical-rules.md](clinical-rules.md)).
+  >
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **After a Penbraya, MenB dose 2 should be Trumenba.** The app already does
   this, through the antigen-family rule — a Penbraya sets the family to FHbp and
   only Trumenba is then offered. No change was needed.
+  <!-- SOURCES: acip2020MenbNotInterchangeable -->
+  > "MenB vaccines are not interchangeable, and the same vaccine product must be used for all doses" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  <!-- /SOURCES -->
 
 ### A pentavalent already in the record counts for BOTH vaccines
 
@@ -385,20 +667,37 @@ The rules above are about *giving* a pentavalent. This one is about a pentavalen
 the patient has **already had**. It is a single injection that counts as a MenACWY
 dose **and** a MenB dose, so the app credits both families no matter which history
 step it was typed into:
+<!-- SOURCES: explains -->
+<!-- /SOURCES -->
 
 - **Record it once, on either step.** The other step then says the dose is already
   counted there and asks you not to enter it twice.
+  <!-- SOURCES: record-keeping -->
+  > About how the app records a dose, not about the vaccine: no source needed.
+  <!-- /SOURCES -->
 - **Dose numbers stay separate per vaccine.** The same shot can be MenACWY dose 3
   and MenB dose 1.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **It sets the MenB antigen family from either step** (Penbraya → FHbp,
   Penmenvy → 4C). A Bexsero recorded after a Penbraya is flagged as a family
   mismatch even when the Penbraya was entered on the MenACWY step.
+  <!-- SOURCES: todo -->
+  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- /SOURCES -->
 - **Editing or deleting the row moves both halves at once**, because there is only
   ever one row — the copy shown in the other vaccine's record is marked
   "one shot covering both — recorded under MenACWY/MenB" and is edited where it
   was entered.
+  <!-- SOURCES: record-keeping -->
+  > About how the app records a dose, not about the vaccine: no source needed.
+  <!-- /SOURCES -->
 - **The same shot recorded on both steps counts once**, not twice (matched on brand
   and date).
+  <!-- SOURCES: record-keeping -->
+  > About how the app records a dose, not about the vaccine: no source needed.
+  <!-- /SOURCES -->
 
 Why: CDC's child/adolescent schedule notes call a single Penbraya dose "an
 alternative to separate administration of MenACWY and MenB", and tell you that
@@ -407,6 +706,8 @@ for dose 2 MenB" — that sentence only makes sense if the pentavalent dose *is*
 MenB dose 1. (Verified live 2026-09-16:
 https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html and
 ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
+<!-- SOURCES: explains -->
+<!-- /SOURCES -->
 
 ---
 
