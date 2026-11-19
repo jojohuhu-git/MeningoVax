@@ -29,8 +29,8 @@ describe('Dateless dose below brand minimum age → invalid', () => {
   it('Penbraya recorded for a 2-year-old (no date) → invalid, does not count', () => {
     const res = validate('MenB', [{ brand: 'Penbraya (MenABCWY)' }], 24);
     expect(res[0].status).toBe('invalid');
-    expect(res[0].reasons[0]).toMatch(/minimum age of 10 years/);
-    expect(res[0].reasons[0]).toMatch(/does not count/i);
+    expect(res[0].reasons[0]).toMatch(/below the 10-year minimum age/);
+    expect(res[0].reasons[0]).toMatch(/given too young/i);
   });
 
   it('invalid dateless dose is dropped from the effective series', () => {
@@ -56,7 +56,7 @@ describe('Dateless dose below brand minimum age → invalid', () => {
     // — a 1-month-old is the case that still clears "below minimum".
     const res = validate('MenACWY', [{ brand: 'MenQuadfi (MenACWY)' }], 1);
     expect(res[0].status).toBe('invalid');
-    expect(res[0].reasons[0]).toMatch(/minimum age of 6 weeks/);
+    expect(res[0].reasons[0]).toMatch(/below the 6-week minimum age/);
   });
 });
 

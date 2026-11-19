@@ -38,8 +38,8 @@ describe('Item 3 — raw day counts routed through fmtDays()', () => {
     expect(results[1].status).toBe('invalid');
     expect(results[1].reasons.join(' ')).not.toMatch(RAW_DAYS_DUPLICATE);
     expect(results[1].detail).not.toMatch(RAW_DAYS_LITERAL_28_OR_MORE);
-    expect(results[1].detail).toMatch(/~3 weeks/);
-    expect(results[1].detail).toMatch(/~8 weeks/);
+    expect(results[1].detail).toMatch(/\b3 weeks/);
+    expect(results[1].detail).toMatch(/\b8 weeks/);
   });
 
   // STOP C C11 (2026-11-15): the baseline is 8 weeks (56 days) now, not 28 days.
@@ -54,7 +54,7 @@ describe('Item 3 — raw day counts routed through fmtDays()', () => {
     expect(results[1].status).toBe('invalid');
     expect(results[1].reasons.join(' ')).not.toMatch(RAW_DAYS_DUPLICATE);
     expect(results[1].detail).not.toMatch(RAW_DAYS_LITERAL_28_OR_MORE);
-    expect(results[1].detail).toMatch(/~8 weeks/);
+    expect(results[1].detail).toMatch(/\b8 weeks/);
   });
 
   it('MenB high-risk D2 too soon (10 days after D1): no "(28 days)" duplicate, detail uses fmtDays', () => {
@@ -68,6 +68,6 @@ describe('Item 3 — raw day counts routed through fmtDays()', () => {
     expect(results[1].status).toBe('invalid');
     expect(results[1].reasons.join(' ')).not.toMatch(RAW_DAYS_DUPLICATE);
     expect(results[1].detail).not.toMatch(RAW_DAYS_LITERAL_28_OR_MORE);
-    expect(results[1].detail).toMatch(/~4 weeks/);
+    expect(results[1].detail).toMatch(/\b4 weeks/);
   });
 });

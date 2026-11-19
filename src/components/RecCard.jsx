@@ -526,10 +526,11 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
             that isn't due yet. Bold weight still keeps it prominent. */}
         {boosterDueDate && !pending && (
           <div className="booster-due-banner" data-testid="booster-due-banner">
-            {/* Calendar P1-3: "~" only when the date really is approximate.
+            {/* Calendar P1-3: "about" only when the date really is approximate.
                 With a date of birth this IS the patient's 16th birthday; with
-                years/months the app does not know their birthday and says so. */}
-            Booster not yet due - {boosterDueDateExact ? '' : '~'}{fmtDate(boosterDueDate)}
+                years/months the app does not know their birthday and says so.
+                G1-a (style rule 8): "about", never "~". */}
+            Booster not yet due - {boosterDueDateExact ? '' : 'about '}{fmtDate(boosterDueDate)}
           </div>
         )}
 

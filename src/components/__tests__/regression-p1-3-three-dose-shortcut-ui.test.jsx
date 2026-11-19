@@ -69,7 +69,7 @@ describe('P1-3 (UI): a third dose given too early is sent back', () => {
   it('it is chipped Invalid and the card still asks for dose 3', () => {
     // Given at ~10.5 months — before the first birthday.
     const { container } = show('2026-12-15', 18, [D1_4MO, D2_8MO, '2026-05-01']);
-    expect(container.textContent).toMatch(/after age 12 months/i);
+    expect(container.textContent).toMatch(/before the first birthday/i);
     expect(container.textContent).toMatch(/Dose 3 of 3/);
   });
 });

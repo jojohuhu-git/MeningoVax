@@ -74,7 +74,7 @@ describe('N5: a booster given sooner than 8 weeks does not count', () => {
     const r = run({ doses: booster('2026-08-25'), today: '2026-09-01' });
     const p = r.history.MenACWY.perDose[1];
     expect(p.status).toBe('invalid');
-    expect(p.reasons[0]).toMatch(/at least 8 weeks after dose 1/);
+    expect(p.reasons[0]).toMatch(/after dose 1, under the 8-week minimum for the 16-year booster/);
     expect(r.menacwy[0].status).not.toBe('complete');
     expect(r.menacwy[0].earliestNextDate).toBe('2026-10-20');
   });

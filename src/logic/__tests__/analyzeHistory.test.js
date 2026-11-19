@@ -120,9 +120,12 @@ describe('MenB family mismatch → invalid, does not count', () => {
     expect(perDose[1].status).toBe('invalid');
     expect(perDose[1].effectiveDoseNum).toBeNull();
     expect(perDose[1].doesNotCount).toBe(true);
-    expect(perDose[1].reasons.some(r => /interchangeable|mismatch/i.test(r))).toBe(true);
-    // "does not count" message present
-    expect(perDose[1].reasons.some(r => /does not count/i.test(r))).toBe(true);
+    // G1-a: the line names the families; "not interchangeable" is behind "Why this".
+    expect(perDose[1].reasons.some(r => /MenB-FHbp, but the series so far is MenB-4C/.test(r))).toBe(true);
+    expect(perDose[1].whys.some(r => /not interchangeable/i.test(r))).toBe(true);
+    // G1-a: "does not count" is the chip's ("Not counted — repeat"); the line
+    // says how to repeat it.
+    expect(perDose[1].reasons.some(r => /Do not restart the series/.test(r))).toBe(true);
 
     // Only D1 kept; D2 dropped.
     expect(effective).toHaveLength(1);
@@ -208,7 +211,7 @@ describe('MenACWY high-risk: D2 with invalid interval, D3 valid', () => {
     expect(perDose[2].status).toBe('valid');
     expect(perDose[2].effectiveDoseNum).toBe(2);
     // Renumber note present
-    expect(perDose[2].reasons.some(r => /effective dose 2/i.test(r))).toBe(true);
+    expect(perDose[2].reasons.some(r => /so this is dose 2/i.test(r))).toBe(true);
     // No interval error — 10 weeks from D1 is fine
     const hasIntervalError = perDose[2].reasons.some(r =>
       /minimum interval/i.test(r) && /invalid|not valid|does not count/i.test(r)

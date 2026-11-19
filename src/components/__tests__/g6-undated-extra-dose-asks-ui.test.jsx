@@ -42,14 +42,14 @@ describe('G6 (UI) under C1: undated rows say they are not counted, never "extra"
     for (const row of rows) {
       expect(row.textContent).toMatch(/No date recorded — not counted/);
       expect(row.textContent).not.toMatch(/more than this series needs/);
-      expect(row.textContent).not.toMatch(/was already complete/);
+      expect(row.textContent).not.toMatch(/series was complete/); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
     }
   });
 
   it('says why, and that adding the date changes it', () => {
     const rows = rowsFor([newDoseRow({ detailsUnknown: true })]);
     expect(rows[0].textContent).toMatch(/written, dated records/);
-    expect(rows[0].textContent).toMatch(/add it and the dose will be judged on that date/);
+    expect(rows[0].textContent).toMatch(/add it, and the dose will be judged on that date/);
     // extinct: the undated 'counted' sentence was removed with STOP C C1, 2026-11-16.
     expect(rows[0].textContent).not.toMatch(/Dose is counted in the series/);
   });

@@ -39,7 +39,7 @@ import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
 
 const TODAY = '2026-11-18';
-const REPEAT_THIS_DOSE = 'This dose does not count toward the series: repeat this dose only (do not restart the series).';
+const REPEAT_THIS_DOSE = 'Do not restart the series.'; // G1-a (owner, STOP G1, 2026-11-18): "repeat" is the label's word
 const R_A = 'Repeat at 10 years or older, when the high-risk MenB series starts.';
 const R_B = 'Repeat at 11–12 years, with the routine dose.';
 const R_C = 'MenB is next offered at 16–23 years, by shared clinical decision-making.';
@@ -57,7 +57,7 @@ describe('R-A: high-risk child under 10, MenB given too young', () => {
     const d = r.history.MenB.perDose[0];
     expect(d.status).toBe('invalid');
     expect(d.reasons).toContain(REPEAT_THIS_DOSE);
-    expect(d.reasons.at(-1)).toBe(R_A);
+    expect(d.reasons.at(-2)).toBe(R_A); // G1-a: the when comes first
     expect(doseChipLabel(d)).toBe('Not counted — repeat');
   });
 
@@ -65,7 +65,7 @@ describe('R-A: high-risk child under 10, MenB given too young', () => {
     const r = run({ dob: '2015-11-01', riskIds: ['complement'], b: [bex('2025-01-01')] });
     const d = r.history.MenB.perDose[0];
     expect(d.status).toBe('invalid');
-    expect(d.reasons.at(-1)).toBe('Repeat from Nov 18, 2026.');
+    expect(d.reasons.at(-2)).toBe('Repeat from Nov 18, 2026.'); // G1-a: the when comes first
     expect(d.reasons).not.toContain(R_A);
   });
 });
@@ -77,7 +77,7 @@ describe('R-B: healthy baby, MenACWY given too young', () => {
     const d = r.history.MenACWY.perDose[0];
     expect(d.status).toBe('invalid');
     expect(d.reasons).toContain(REPEAT_THIS_DOSE);
-    expect(d.reasons.at(-1)).toBe(R_B);
+    expect(d.reasons.at(-2)).toBe(R_B); // G1-a: the when comes first
     expect(doseChipLabel(d)).toBe('Not counted — repeat');
   });
 
@@ -86,7 +86,7 @@ describe('R-B: healthy baby, MenACWY given too young', () => {
     const d = r.history.MenACWY.perDose[0];
     expect(d.status).toBe('invalid');
     expect(d.reasons).not.toContain(R_B);
-    expect(d.reasons.at(-1)).toMatch(/^Repeat from /);
+    expect(d.reasons.at(-2)).toMatch(/^Repeat from /); // G1-a: the when comes first
   });
 });
 
@@ -100,7 +100,7 @@ describe('R-C: healthy child, MenB given too young', () => {
     expect(d.reasons.some((x) => /\brepeat\b/i.test(x))).toBe(false);
     expect(d.reasons.at(-1)).toBe(R_C);
     // Why it did not count stays.
-    expect(d.reasons[0]).toMatch(/below the minimum age of 10 years/);
+    expect(d.reasons[0]).toMatch(/below the 10-year minimum age/);
     // R-C chip (owner, 2026-11-18): nothing is owed, so "do not repeat".
     expect(d.notRepeated).toBe(true);
     expect(doseChipLabel(d)).toBe('Not counted — do not repeat');

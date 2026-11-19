@@ -35,8 +35,8 @@ describe('impossible P1-1: a dose dated before birth is a date problem', () => {
       'MenACWY', [{ date: '1926-06-15' }], 192, [], '2026-09-15', null, '2010-06-15',
     );
     expect(perDose[0].recordProblem).toBe('before-birth');
-    expect(said(perDose)).not.toMatch(/below the minimum age/i);
-    expect(said(perDose)).not.toMatch(/~birth/i);
+    expect(said(perDose)).not.toMatch(/minimum age/i);
+    expect(said(perDose)).not.toMatch(/at birth/i); // G1-a: "~birth" now reads "at birth"
   });
 
   it('it does not advise another injection', () => {
@@ -51,7 +51,8 @@ describe('impossible P1-1: a dose dated before birth is a date problem', () => {
     const { perDose } = analyzeHistory(
       'MenACWY', [{ date: '1926-06-15' }], 192, [], '2026-09-15', null, '2010-06-15',
     );
-    expect(said(perDose)).toMatch(/before .*(was )?born|before the patient was born/i);
+    // G1-a: "Dated before birth" is the chip's; the line says the likely cause.
+    expect(said(perDose)).toMatch(/mistyped year is the usual cause|before the patient was born/i);
     expect(said(perDose)).toMatch(/year/i);
   });
 

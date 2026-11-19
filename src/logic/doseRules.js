@@ -241,12 +241,25 @@ export function ageAtDoseFromDate(dose, ageMonths, today, dob = null) {
 }
 
 // Human-readable rendering of a day count for error messages.
+// G1-a (owner, STOP G1, 2026-11-18, style rule 8): "about", never "~". A
+// whole number of weeks is exact and needs no "about".
 function fmtDays(n) {
   if (n < 14) return `${n} day${n === 1 ? '' : 's'}`;
-  if (n < 60) return `~${Math.round(n / 7)} week${Math.round(n / 7) === 1 ? '' : 's'}`;
-  if (n < 365) return `~${Math.round(n / AVG_DAYS_PER_MONTH)} month${Math.round(n / AVG_DAYS_PER_MONTH) === 1 ? '' : 's'}`;
-  return `~${+(n / 365.25).toFixed(1)} year${+(n / 365.25).toFixed(1) === 1 ? '' : 's'}`;
+  if (n < 60) {
+    const w = Math.round(n / 7);
+    return `${n % 7 === 0 ? '' : 'about '}${w} week${w === 1 ? '' : 's'}`;
+  }
+  if (n < 365) return `about ${Math.round(n / AVG_DAYS_PER_MONTH)} month${Math.round(n / AVG_DAYS_PER_MONTH) === 1 ? '' : 's'}`;
+  return `about ${+(n / 365.25).toFixed(1)} year${+(n / 365.25).toFixed(1) === 1 ? '' : 's'}`;
 }
+
+// G1-a (style rule 8, PneumoVax's `about`): an age in a sentence reads "about
+// 4 years", but "birth", "before birth" and an unknown age read as they are.
+function about(age) {
+  if (age === '?') return 'an unknown age';
+  return age === 'birth' || age === 'before birth' ? age : `about ${age}`;
+}
+const aboutAgeAt = (m, exactDays) => about(fmtAgeMClinical(m, exactDays));
 
 // Format an age in months using clinical units, for the record panel's
 // sentences. The units come from format.js's fmtAgeMonths(), the one
@@ -290,6 +303,31 @@ function fmtMinAge(minAge) {
   return `${minAge} month${minAge === 1 ? '' : 's'}`;
 }
 
+// The same threshold as an adjective, for "below the 10-year minimum age for
+// Bexsero" (G1-a: PneumoVax's too-young line, style rule 7 across the apps).
+function fmtMinAgeAdj(minAge) {
+  if (minAge && typeof minAge === 'object' && minAge.unit === 'months') return fmtMinAgeAdj(minAge.value);
+  if (minAge && typeof minAge === 'object') {
+    const { value } = minAge;
+    return value % 7 === 0 ? `${value / 7}-week` : `${value}-day`;
+  }
+  if (minAge >= 12 && minAge % 12 === 0) return `${minAge / 12}-year`;
+  return `${minAge}-month`;
+}
+
+// G1-a: the sentence a "Not counted — repeat" line keeps. "Repeat" is the
+// label's own word (style rule 6), so the line says only how: one dose, not
+// the whole series. validate.js adds it; recommend.js finds it by this copy.
+export const DO_NOT_RESTART = 'Do not restart the series.';
+
+// G1-a: a dose set aside on the answer "not high-risk then" or "unsure" (the
+// label already says it was not counted).
+function markedNotHighRisk(riskAnswer) {
+  return riskAnswer === 'unsure'
+    ? 'Marked as unsure whether the patient was high-risk on that date, so it is treated as not high-risk.'
+    : 'Marked as not high-risk on that date.';
+}
+
 // ── Verdict builders ──────────────────────────────────────────────────────
 
 export function unknownResult(reasons) {
@@ -300,10 +338,15 @@ export function unknownResult(reasons) {
 // line is the label plus one reason; background goes behind the dose's own
 // "Why this" fold-out, as a `whys` entry (rendered with the dose's `detail`).
 // Exported so the tests quote the one copy.
+// G1-a (owner, STOP G1, 2026-11-18): the packet's L3 and L1 "Why this" words.
 export const MENB_LICENSED_FROM_10_WHY =
-  'MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.';
+  'MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years.';
 export const MENB_WANES_BEFORE_16_WHY =
-  'MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.';
+  'MenB antibody protection wanes within about a year, so a dose before 16 does not count without a high-risk indication.';
+const MENB_NOT_INTERCHANGEABLE_WHY =
+  'MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.';
+const MENB_HR_BOOSTER_CADENCE_WHY = 'High-risk MenB boosters are given every 2–3 years.';
+const ACWY_BEFORE_16_SAFE_WHY = 'A MenACWY dose before 16 is safe, but it is not the routine booster.';
 
 function validResult(reasons = []) {
   return { status: 'valid', reasons };
@@ -352,7 +395,8 @@ function setAsideResult(reasons, reasonCites, beforeAgeY) {
 // advice would be wrong, and with no date it can never start a clock.
 function undatedNotCounted() {
   const r = recordProblemResult('undated', [
-    'No date recorded. Only written, dated records count as evidence of vaccination [c], so this dose is not counted and the recommendation above treats it as not given. If a record shows the date, add it and the dose will be judged on that date.',
+    // G1-a: the label says "No date recorded — not counted" (style rule 6).
+    'Only written, dated records count as evidence of vaccination [c]. The recommendation above treats this dose as not given. If a record shows the date, add it, and the dose will be judged on that date.',
   ]);
   r.reasonCites = [cite('gbpWrittenDatedRecords')];
   return r;
@@ -503,8 +547,10 @@ function acwyBoosterTooSoon(ctx, who) {
     cadenceLabel = '5 years';
   }
   if (calendarIntervalMeetsMinimum(prev.dose.date, cadenceYears * 12, ctx.dose.date)) return null;
+  // G1-a: the minimum folds into the reason; "does not count" is the label's.
+  const cadenceAdj = cadenceLabel.replace(' years', '-year');
   return invalidResult(
-    [`Booster given only ${fmtDays(prev.interval)} after the previous dose. ${who} must be spaced ≥${cadenceLabel}. This dose is too soon and does not count.`],
+    [`Booster given ${fmtDays(prev.interval)} after the previous dose, under the ${cadenceAdj} minimum for ${who}.`],
     `Actual interval: ${fmtDays(prev.interval)}. Required cadence: ${cadenceLabel}.`
   );
 }
@@ -561,7 +607,8 @@ export const DOSE_RULES = [
       if (!dose?.date || !today || dose.date <= today) return null;
       return recordProblemResult(
         'future',
-        [`This date is in the future — today is ${fmtDate(today)}. A dose cannot have been given yet, so it is not counted. Check the date: if the year is a typo, correct it; if this is an appointment the patient has not attended yet, take it out of the record, which lists doses already given.`],
+        // G1-a: PneumoVax's words (style rule 7); the label says "not counted".
+        [`Today is ${fmtDate(today)}. Correct a mistyped year, or remove an appointment not yet attended.`],
         `Recorded date: ${fmtDate(dose.date)}. Today: ${fmtDate(today)}.`
       );
     },
@@ -599,7 +646,8 @@ export const DOSE_RULES = [
         : 'The age entered puts this date before the patient was born.';
       return recordProblemResult(
         'before-birth',
-        [`This date is before the patient was born, so it is not counted. Check the date — a mistyped year is the usual cause. No repeat dose is needed on the strength of it: correct the date, or take the row out if it does not belong to this patient.`],
+        // G1-a: PneumoVax's words (style rule 7); the label says the rest.
+        ["A mistyped year is the usual cause. Correct the date, or remove the row if it is not this patient's. It needs no repeat dose."],
         `Recorded date: ${fmtDate(dose.date)}. ${because}`
       );
     },
@@ -629,10 +677,11 @@ export const DOSE_RULES = [
       const twin = kept.find((k) => k?.date === dose.date);
       if (!twin) return null;
       const reasons = [
-        `The same date is already recorded on an earlier row (${fmtDate(dose.date)}), so this looks like one dose entered twice. It is not counted. Two doses of the same vaccine are never given on the same day — if the patient really did receive another dose, correct its date; otherwise remove this row.`,
+        // G1-a: PneumoVax's words (style rule 7); the label says "not counted".
+        `Same date as an earlier row (${fmtDate(dose.date)}): most likely one dose entered twice. Two doses of the same vaccine are never given on the same day. Correct its date, or remove this row.`,
       ];
       if (dose.brand && twin.brand && dose.brand !== twin.brand) {
-        reasons.push(`The two rows name different brands (${stripAntigen(twin.brand)} and ${stripAntigen(dose.brand)}), so at least one of them is wrong.`);
+        reasons.push(`The two rows name different brands (${stripAntigen(twin.brand)} and ${stripAntigen(dose.brand)}), so at least one is wrong.`);
       }
       return recordProblemResult('duplicate', reasons, `Same date as a dose already recorded: ${fmtDate(dose.date)}.`);
     },
@@ -667,8 +716,8 @@ export const DOSE_RULES = [
       if (meetsMenacwyFloor(knownBrandFloor, ageMonths, currentAgeDays, { doseDate: today, ageMonths, today, dob })) return null;
       const label = brandLabelOf(brand, '');
       return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths, currentAgeDays)}, below the minimum age of ${fmtMinAge(knownBrandFloor)} for ${label}. A past dose cannot have been given later than today, so it could not have been given at a valid age. This dose does not count.`],
-        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths, currentAgeDays)}. Minimum for ${label}: ${fmtMinAge(knownBrandFloor)}.`
+        [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths, currentAgeDays)} today, below the ${fmtMinAgeAdj(knownBrandFloor)} minimum age for ${label}, so the dose was given too young.`],
+        `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths, currentAgeDays)}. Minimum for ${label}: ${fmtMinAge(knownBrandFloor)}.`
       );
     },
   },
@@ -717,8 +766,8 @@ export const DOSE_RULES = [
       if (ctx.ageAtDose === null || meetsMenacwyFloor(floor, ctx.ageAtDose, ctx.ageAtDoseDays, ctx.whenGiven)) return null;
       const label = brandLabelOf(ctx.brand, 'this brand');
       return invalidResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, below the minimum age of ${fmtMinAge(floor)} for ${label}.`],
-        `Age at administration: ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}. Minimum for ${label}: ${fmtMinAge(floor)}.`
+        [`Given at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)} — below the ${fmtMinAgeAdj(floor)} minimum age for ${label}.`],
+        `Age at administration: ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}. Minimum for ${label}: ${fmtMinAge(floor)}.`
       );
     },
   },
@@ -745,7 +794,8 @@ export const DOSE_RULES = [
     check: (ctx) => {
       if (!acwy(ctx).routineOnly || !acwyBefore10(ctx)) return null;
       return setAsideResult(
-        [`Given before age 10 (~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}): does not count toward the adolescent MenACWY series. [c]`],
+        // G1-a (packet L4): the second sentence is the cited quote's own.
+        [`Given at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}. The adolescent series still starts at 11–12 years. [c]`],
         [cite('acwyBeforeAge10')],
         10,
       );
@@ -777,7 +827,8 @@ export const DOSE_RULES = [
       return {
         status: 'pending',
         needsInput: true,
-        reasons: [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before age 10. Whether this dose counts toward the high-risk series depends on whether the patient was already high-risk on that date — not recorded.`],
+        // G1-a (packet L2): the question sits right below, so "not recorded" goes.
+        reasons: [`Given at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}, before age 10. Whether it counts toward the high-risk series depends on the patient's risk on that date.`],
         promptDate: ctx.dose.date,
       };
     },
@@ -803,7 +854,7 @@ export const DOSE_RULES = [
       if (!acwy(ctx).isHighRiskNow || !acwyBefore10(ctx)) return null;
       if (ctx.riskAnswer !== 'no' && ctx.riskAnswer !== 'unsure') return null;
       return setAsideResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before age 10. Marked as ${ctx.riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the adolescent/high-risk series. [c]`],
+        [`Given at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}, before age 10. ${markedNotHighRisk(ctx.riskAnswer)} [c]`],
         [cite('acwyBeforeAge10')],
         10,
       );
@@ -831,7 +882,7 @@ export const DOSE_RULES = [
     // it. U3 (2026-09-17): shortened to the part that varies.
     check: (ctx) => {
       if (!acwy(ctx).isHighRiskNow || !acwyBefore10(ctx) || ctx.riskAnswer === undefined) return null;
-      return { carryNote: `Counted — high risk confirmed at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}.` };
+      return { carryNote: `High risk confirmed at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}.` };
     },
   },
   {
@@ -865,17 +916,24 @@ export const DOSE_RULES = [
         && ctx.ageAtDose != null && !ageMeetsMinimum(ctx.ageAtDose, gate.minAgeMonths, ctx.whenGiven);
       if (!tooSoon && !tooYoung) return null;
       const weeks = gate.minIntervalDays / 7;
-      const why = [
-        tooSoon ? `only ${fmtDays(interval)} after the previous dose (minimum ${weeks} weeks)` : null,
-        tooYoung ? `before the first birthday (given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)})` : null,
-      ].filter(Boolean).join(', and ');
+      // G1-a: the line is the reason (the minimum folded in); CDC's rule goes
+      // behind "Why this"; "does not count; repeat it" is the label's.
+      const ageAt = aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays);
+      const line = tooSoon && tooYoung
+        ? `Given ${fmtDays(interval)} after the previous dose, under the ${weeks}-week minimum, and before the first birthday (at ${ageAt}).`
+        : tooSoon
+          ? `Given ${fmtDays(interval)} after the previous dose, under the ${weeks}-week minimum.`
+          : `Given at ${ageAt}, before the first birthday.`;
       const requirement = gate.isFinalPrimary
-        ? `CDC requires the dose completing an infant series at least ${weeks} weeks after the previous dose AND after age 12 months.`
+        ? `CDC requires the dose that completes an infant series to be at least ${weeks} weeks after the previous dose and after age 12 months.`
         : `CDC requires at least ${weeks} weeks between the early doses of an infant series.`;
-      return invalidResult(
-        [`This dose was given ${why}. ${requirement} This dose does not count; repeat it.`],
-        `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`
-      );
+      return {
+        ...invalidResult(
+          [line],
+          `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`
+        ),
+        whys: [requirement],
+      };
     },
   },
   {
@@ -900,7 +958,7 @@ export const DOSE_RULES = [
       if (!prev || acwySeries(ctx).onInfantPrimary || !acwy(ctx).isHighRiskNow || ctx.effectiveIdx !== 1) return null;
       if (intervalMeetsMinimum(prev.interval, MENACWY_HR_ADULT_MIN_INTERVAL)) return null;
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after the previous dose. Minimum interval is 8 weeks (high-risk primary series).`],
+        [`Given ${fmtDays(prev.interval)} after the previous dose, under the 8-week minimum for the high-risk primary series.`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL)}.`
       );
     },
@@ -923,7 +981,7 @@ export const DOSE_RULES = [
     },
     label: 'Not counted — repeat',
     // The shared check (acwyBoosterTooSoon, above) is also the travel row's.
-    check: (ctx) => (acwy(ctx).isHighRiskNow ? acwyBoosterTooSoon(ctx, 'High-risk MenACWY boosters') : null),
+    check: (ctx) => (acwy(ctx).isHighRiskNow ? acwyBoosterTooSoon(ctx, 'high-risk patients') : null),
   },
   {
     id: 'ACWY-TRAVEL-BOOSTER-GAP',
@@ -956,10 +1014,10 @@ export const DOSE_RULES = [
       if (a.militaryBoosterNow && (ctx.ageAtDose === null
         || !ageMeetsMinimum(ctx.ageAtDose, AGE_16Y_MONTHS, ctx.whenGiven))) return null;
       return acwyBoosterTooSoon(ctx, a.travelOrLabNow
-        ? 'MenACWY boosters for travel or laboratory exposure'
+        ? 'travel or laboratory exposure'
         : a.militaryBoosterNow
-          ? 'MenACWY boosters for military recruits'
-          : 'MenACWY boosters for an outbreak');
+          ? 'military recruits'
+          : 'an outbreak');
     },
   },
   {
@@ -1000,7 +1058,7 @@ export const DOSE_RULES = [
       if (!d1Before16) return null;
       const fromWhat = prev.dose === d1 ? 'dose 1' : 'the previous dose, which did not count';
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after ${fromWhat}. The 16-year booster must be at least 8 weeks after ${fromWhat === 'dose 1' ? 'dose 1' : 'it'} [c].`],
+        [`Given ${fmtDays(prev.interval)} after ${fromWhat}, under the 8-week minimum for the 16-year booster [c].`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_ROUTINE_BOOSTER_MIN_GAP)}.`,
         [cite('acwyBooster8WeeksAfterDose1')],
       );
@@ -1038,13 +1096,13 @@ export const DOSE_RULES = [
       if (intervalMeetsMinimum(prev.interval, floor)) return null;
       if (afterTooYoungDose1) {
         return invalidResult(
-          [`Given only ${fmtDays(prev.interval)} after the previous dose, which did not count. Its repeat must be at least 8 weeks after it [c].`],
+          [`Given ${fmtDays(prev.interval)} after the previous dose, which did not count, under the 8-week minimum for its repeat [c].`],
           `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`,
           [cite('gbpRepeatSpacedFromInvalidDose')],
         );
       }
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after the previous dose. MenACWY doses must be at least 8 weeks apart [c].`],
+        [`Given ${fmtDays(prev.interval)} after the previous dose, under the 8-week minimum between MenACWY doses [c].`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`,
         [cite('acip2020Acwy8WeekMinimum')],
       );
@@ -1073,11 +1131,14 @@ export const DOSE_RULES = [
     // https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm
     check: (ctx) => {
       if (!acwy(ctx).routineOnly || ctx.effectiveIdx !== 1 || !before(ctx, AGE_16Y_MONTHS)) return null;
-      return setAsideResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose, ctx.ageAtDoseDays)}, before the age-16 booster window. Safe, but does not count toward the routine series — the routine booster is still due at 16, and at least 8 weeks after this dose. [c]`],
-        [cite('acwyRoutine1112and16')],
-        16,
-      );
+      return {
+        ...setAsideResult(
+          [`Given at ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}. The routine booster is still due at 16, at least 8 weeks after this dose. [c]`],
+          [cite('acwyRoutine1112and16')],
+          16,
+        ),
+        whys: [ACWY_BEFORE_16_SAFE_WHY],
+      };
     },
   },
 
@@ -1105,11 +1166,14 @@ export const DOSE_RULES = [
       const minAgeM = brandMinAgeM(brand) ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
       if (ageMeetsMinimum(ageMonths, minAgeM, { doseDate: today, ageMonths, today, dob })) return null;
       const label = brandLabelOf(brand, 'MenB');
-      return invalidResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${label}. A past dose cannot have been given later than today, so it could not have been given at a valid age. MenB vaccines are licensed from age 10 years. [c] This dose does not count.`],
-        `Current age (upper bound on age at administration): ~${fmtAgeMClinical(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`,
-        [cite('menbLicensedAge1025')]
-      );
+      return {
+        ...invalidResult(
+          [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths)} today, below the ${fmtMinAgeAdj(minAgeM)} minimum age for ${label}, so the dose was given too young. [c]`],
+          `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`,
+          [cite('menbLicensedAge1025')]
+        ),
+        whys: [MENB_LICENSED_FROM_10_WHY],
+      };
     },
   },
   {
@@ -1133,11 +1197,14 @@ export const DOSE_RULES = [
     // patient is 16 or older today, the app cannot tell, and it counts.
     check: ({ riskIds, ageMonths, today, dob }) => {
       if (hasMenbRisk(riskIds) || ageMeetsMinimum(ageMonths, MENB_HEALTHY_MIN_AGE_MONTHS, { doseDate: today, ageMonths, today, dob })) return null;
-      return setAsideResult(
-        [`Recorded without a date, but the patient is currently only ~${fmtAgeMClinical(ageMonths)} — so this dose was given before age 16. It does not count toward the healthy 2-dose MenB series (recommended at 16–23 years) [c]; MenB given before 16 is not counted for a patient without a high-risk indication.`],
-        [cite('menbHealthyPreferredAge1618')],
-        16,
-      );
+      return {
+        ...setAsideResult(
+          [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths)} today, so it was given before age 16. The healthy 2-dose MenB series is given at 16–23 years by shared clinical decision-making [c].`],
+          [cite('menbHealthyPreferredAge1618')],
+          16,
+        ),
+        whys: [MENB_WANES_BEFORE_16_WHY],
+      };
     },
   },
   {
@@ -1187,8 +1254,8 @@ export const DOSE_RULES = [
       // source number stays on the line, on the sentence it supports.
       return {
         ...invalidResult(
-          [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabelOf(ctx.brand, 'MenB')}. [c]`],
-          `Age at administration: ~${fmtAgeMClinical(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
+          [`Given at ${aboutAgeAt(ctx.ageAtDose)} — below the ${fmtMinAgeAdj(minAgeM)} minimum age for ${brandLabelOf(ctx.brand, 'MenB')}. [c]`],
+          `Age at administration: ${aboutAgeAt(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
           [cite('menbLicensedAge1025')]
         ),
         whys: [MENB_LICENSED_FROM_10_WHY],
@@ -1219,7 +1286,9 @@ export const DOSE_RULES = [
       // G1-b: the background sentence goes behind "Why this" (as above).
       return {
         ...setAsideResult(
-          [`Given before age 16 (~${fmtAgeMClinical(ctx.ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c]`],
+          // G1-a (packet L1): "recommended" corrected to the cited quote's
+          // own words, "on basis of shared clinical decision-making".
+          [`Given at ${aboutAgeAt(ctx.ageAtDose)}. The healthy 2-dose MenB series is given at 16–23 years by shared clinical decision-making. [c]`],
           [cite('menbHealthyPreferredAge1618')],
           16,
         ),
@@ -1251,7 +1320,7 @@ export const DOSE_RULES = [
       return {
         status: 'pending',
         needsInput: true,
-        reasons: [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, before age 16. Whether this dose counts toward the high-risk MenB series depends on whether the patient was already high-risk on that date — not recorded.`],
+        reasons: [`Given at ${aboutAgeAt(ctx.ageAtDose)}, before age 16. Whether it counts toward the high-risk MenB series depends on the patient's risk on that date.`],
         promptDate: ctx.dose.date,
       };
     },
@@ -1277,7 +1346,7 @@ export const DOSE_RULES = [
       if (!hasMenbRisk(ctx.riskIds) || !menbBefore16(ctx)) return null;
       if (ctx.riskAnswer !== 'no' && ctx.riskAnswer !== 'unsure') return null;
       return setAsideResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, before age 16. Marked as ${ctx.riskAnswer === 'unsure' ? 'unsure whether the patient was' : 'not'} high-risk on that date — treated conservatively as not counting toward the high-risk series. [c]`],
+        [`Given at ${aboutAgeAt(ctx.ageAtDose)}, before age 16. ${markedNotHighRisk(ctx.riskAnswer)} [c]`],
         [cite('menbHealthyPreferredAge1618')],
         16,
       );
@@ -1302,7 +1371,7 @@ export const DOSE_RULES = [
     label: 'Dose N of M',
     check: (ctx) => {
       if (!hasMenbRisk(ctx.riskIds) || !menbBefore16(ctx) || ctx.riskAnswer === undefined) return null;
-      return { carryNote: `Counted — high risk confirmed at ~${fmtAgeMClinical(ctx.ageAtDose)}.` };
+      return { carryNote: `High risk confirmed at ${aboutAgeAt(ctx.ageAtDose)}.` };
     },
   },
   {
@@ -1332,12 +1401,14 @@ export const DOSE_RULES = [
       const d1Family = menbFamily(firstKeptWithBrand.brand);
       const thisFamily = menbFamily(ctx.brand);
       if (!d1Family || !thisFamily || d1Family === thisFamily) return null;
-      return wrongFamily(invalidResult(
-        [
-          `MenB-4C (Bexsero/Penmenvy) and MenB-FHbp (Trumenba/Penbraya) are not interchangeable: this dose must match the established antigen family (${d1Family}), but was given as ${thisFamily}.`,
-        ],
-        `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${ctx.brand} (family: ${thisFamily}). Does not count: give the correct dose in the ${d1Family} family.`
-      ));
+      // G1-a: answer first; "not interchangeable" goes behind "Why this".
+      return wrongFamily({
+        ...invalidResult(
+          [`Given as MenB-${thisFamily}, but the series so far is MenB-${d1Family}.`],
+          `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${ctx.brand} (family: ${thisFamily}). Give the repeat in the ${d1Family} family.`
+        ),
+        whys: [MENB_NOT_INTERCHANGEABLE_WHY],
+      });
     },
   },
   {
@@ -1362,7 +1433,7 @@ export const DOSE_RULES = [
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
       if (intervalMeetsMinimum(prev.interval, MENB_HR_D2_MIN_INTERVAL)) return null;
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after dose 1. High-risk schedule requires ≥4 weeks between D1 and D2.`],
+        [`Given ${fmtDays(prev.interval)} after dose 1, under the 4-week minimum for the high-risk schedule.`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`
       );
     },
@@ -1394,7 +1465,7 @@ export const DOSE_RULES = [
       const interval = daysBetween(failed.date, ctx.dose.date);
       if (intervalMeetsMinimum(interval, MENB_REPEAT_MIN)) return null;
       return invalidResult(
-        [`Given only ${fmtDays(interval)} after the MenB dose of ${fmtDate(failed.date)}, which did not count. A repeated MenB dose must be at least 4 weeks after the dose it repeats [c].`],
+        [`Given ${fmtDays(interval)} after the MenB dose of ${fmtDate(failed.date)}, which did not count, under the 4-week minimum for a repeat [c].`],
         `Actual interval: ${fmtDays(interval)}. Minimum: ${fmtDays(MENB_REPEAT_MIN)}.`,
         [cite('acip2020MenbRepeat4Weeks')],
       );
@@ -1431,7 +1502,8 @@ export const DOSE_RULES = [
       const d2Date = keptDated(ctx)[1]?.date || null;
       if (!menbHighRiskDose3Early(d1Date, d2Date, ctx.dose.date)) return null;
       return validResult([
-        `Dose 3 was given ${fmtDays(daysBetween(d2Date, ctx.dose.date))} after dose 2, less than the 4-month minimum for the high-risk schedule. The dose counts — do not repeat it — but a 4th dose is now required at least 4 months after this dose.`
+        // G1-a: the label ("Dose 3 of 4") says it counts (style rule 6).
+        `Given ${fmtDays(daysBetween(d2Date, ctx.dose.date))} after dose 2, under the 4-month minimum for the high-risk schedule. A 4th dose is needed, at least 4 months after this one.`
       ]);
     },
   },
@@ -1483,7 +1555,7 @@ export const DOSE_RULES = [
       if (ctx.effectiveIdx >= menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total) return null;
       if (calendarIntervalMeetsMinimum(prev.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after dose 3. The extra dose owed after an early dose 3 must be given at least 4 months after it.`],
+        [`Given ${fmtDays(prev.interval)} after dose 3, under the 4-month minimum for the extra dose owed after an early dose 3.`],
         `D3→D4: ${fmtDays(prev.interval)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`
       );
     },
@@ -1514,13 +1586,14 @@ export const DOSE_RULES = [
       const isFirstBooster = ctx.effectiveIdx === hrTotal;
       const minInterval = isFirstBooster ? MENB_HR_FIRST_BOOSTER_MIN : MENB_HR_SUBSEQUENT_BOOSTER_MIN;
       const minLabel = isFirstBooster
-        ? '1 year after completing the primary series'
-        : '2 years (every 2–3 years for high-risk boosters)';
+        ? '1-year minimum after the primary series'
+        : '2-year minimum between high-risk MenB boosters';
       if (intervalMeetsMinimum(prev.interval, minInterval)) return null;
-      return invalidResult(
-        [`MenB booster given only ${fmtDays(prev.interval)} after the previous dose. Minimum is ${minLabel}. This dose does not count.`],
+      const r = invalidResult(
+        [`MenB booster given ${fmtDays(prev.interval)} after the previous dose, under the ${minLabel}.`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(minInterval)}.`
       );
+      return isFirstBooster ? r : { ...r, whys: [MENB_HR_BOOSTER_CADENCE_WHY] };
     },
   },
   {
@@ -1546,7 +1619,7 @@ export const DOSE_RULES = [
       if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
       if (intervalMeetsMinimum(prev.interval, MENB_REPEAT_MIN)) return null;
       return invalidResult(
-        [`Given only ${fmtDays(prev.interval)} after dose 1. MenB dose 2 must be at least 4 weeks after dose 1 [c].`],
+        [`Given ${fmtDays(prev.interval)} after dose 1, under the 4-week minimum for MenB dose 2 [c].`],
         `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_REPEAT_MIN)}.`,
         [cite('acip2020MenbRepeat4Weeks')],
       );
@@ -1580,7 +1653,8 @@ export const DOSE_RULES = [
       if (hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !d1 || !prevDated(ctx)) return null;
       if (!menbHealthyDose2Early(d1.date, ctx.dose.date)) return null;
       return validResult([
-        `Dose 2 was given ${fmtDays(daysBetween(d1.date, ctx.dose.date))} after dose 1, less than the 6-month standard interval. Dose is accepted (not invalid), but a third rescue dose ≥4 months after this dose is now required to complete the series.`
+        // G1-a (packet L5): the label says it counts; "rescue" was jargon.
+        `Given ${fmtDays(daysBetween(d1.date, ctx.dose.date))} after dose 1, under the 6-month interval. A third dose is needed, at least 4 months after this one.`
       ]);
     },
   },
@@ -1614,9 +1688,9 @@ export const DOSE_RULES = [
       // itself came too soon.
       const from = prevDated(ctx)?.dose?.date ?? d2Date;
       if (calendarIntervalMeetsMinimum(from, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
-      const fromWhat = from === d2Date ? 'dose 2' : 'the previous rescue dose, which did not count';
+      const fromWhat = from === d2Date ? 'the early dose 2,' : 'the previous dose, which did not count,';
       return invalidResult(
-        [`Rescue dose given only ${fmtDays(daysBetween(from, ctx.dose.date))} after ${fromWhat}. Must be ≥4 months after ${from === d2Date ? 'the early dose 2' : 'it'}.`],
+        [`Given ${fmtDays(daysBetween(from, ctx.dose.date))} after ${fromWhat} under the 4-month minimum for the third dose.`],
         `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${fmtDays(daysBetween(from, ctx.dose.date))} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
       );
     },

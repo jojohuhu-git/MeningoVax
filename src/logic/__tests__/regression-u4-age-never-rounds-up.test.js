@@ -93,8 +93,9 @@ describe('U4 · the sentences that used to contradict themselves', () => {
   ).perDose[1].reasons?.[0] ?? '';
 
   it('no longer says a dose given before the age-16 window was given at 16', () => {
-    expect(reason()).toMatch(/before the age-16 booster window/);
-    expect(reason()).not.toMatch(/~16 years/);
-    expect(reason()).toMatch(/~15 years 11 months/);
+    expect(reason()).toMatch(/The routine booster is still due at 16/);
+    // extinct: never a literal in src/ — the age is built as `about ${age}` (G1-a, 2026-11-19); this guards the rounding, not a sentence.
+    expect(reason()).not.toMatch(/about 16 years/);
+    expect(reason()).toMatch(/about 15 years 11 months/);
   });
 });

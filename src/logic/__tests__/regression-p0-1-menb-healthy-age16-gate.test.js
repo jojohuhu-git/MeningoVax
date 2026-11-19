@@ -51,7 +51,7 @@ describe('P0-1: healthy MenB dose before age 16 does not count toward the health
     expect(perDose[0].status).toBe('valid');
     expect(perDose[0].notAdolescentCount).toBe(true);
     expect(perDose[0].effectiveDoseNum).toBeNull();
-    expect(perDose[0].reasons.join(' ')).toMatch(/before age 16.*does not count/i);
+    expect(perDose[0].reasons.join(' ')).toMatch(/healthy 2-dose MenB series is given at 16–23 years/i);
     // Must NOT be mislabeled as an invalid / below-minimum-age dose (it was validly given).
     expect(perDose[0].reasons.join(' ')).not.toMatch(/invalid.*below.*minimum age/i);
   });

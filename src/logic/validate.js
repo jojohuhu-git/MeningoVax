@@ -63,7 +63,7 @@ import { menacwyRiskClass, menacwyInfantSeriesIndicated, hasMenbRisk } from '../
 import { menacwySeriesInfo, menbSeriesInfo } from './seriesTotals.js';
 import { todayISO } from './dateUtils.js';
 import { doseAnswerKey, dropBlankDoseRows } from './doseIdentity.js';
-import { judgeDose, doseContext } from './doseRules.js';
+import { judgeDose, doseContext, DO_NOT_RESTART } from './doseRules.js';
 
 // Re-exported: display surfaces (the record panel, the compliance audit
 // table) import it from here.
@@ -166,6 +166,8 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
       });
     } else if (result.status === 'invalid') {
       // Dropped. Record as doesNotCount with advice to repeat only this dose.
+      // G1-a: "repeat" is the label's word, so the line says only "Do not
+      // restart the series." (recommend.js dates it or drops it).
       perDose.push({
         ...result,
         effectiveDoseNum: null,
@@ -175,7 +177,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           ? result.reasons
           : [
             ...result.reasons,
-            'This dose does not count toward the series: repeat this dose only (do not restart the series).',
+            DO_NOT_RESTART,
           ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
@@ -247,7 +249,8 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           extraDose: true,
           // Only the reason, as for a dose no card asked for (above).
           reasons: [
-            `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
+            // G1-a: "does not extend the series" is the label's "Extra".
+            `Given after the ${seriesInfo.total}-dose series was complete.`,
           ],
           reasonCites: undefined,
           whys: undefined,
@@ -260,7 +263,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         // If raw index > effective index, this dose was renumbered upward.
         const wasRenumbered = rawIdx > effectiveCount - 1;
         const renumberNote = wasRenumbered
-          ? `After excluding the dose(s) above that don't count, this counts as effective dose ${effectiveDoseNum}.`
+          ? `Doses above that did not count are skipped, so this is dose ${effectiveDoseNum}.`
           : null;
 
         const augmentedReasons = renumberNote

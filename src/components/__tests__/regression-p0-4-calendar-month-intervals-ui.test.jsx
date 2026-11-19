@@ -51,7 +51,7 @@ describe('P0-4 (UI): a 0/6-month MenB series is complete, not short a dose', () 
 
   it('dose 2 is not described as given early', () => {
     expect(show(SIX_CALENDAR_MONTHS).container.textContent)
-      .not.toMatch(/less than the 6-month standard interval/i);
+      .not.toMatch(/under the 6-month interval/i);
   });
 
   it('the verdict does not depend on the month the patient started in', () => {

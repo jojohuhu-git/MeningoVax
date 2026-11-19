@@ -27,7 +27,7 @@ describe('F-2: first MenACWY at 13–15 years reads catch-up', () => {
   it('Ava, 14 y 8 m, no MenACWY: catch-up label, CDC catch-up sentence', () => {
     const c = card('2012-03-03');
     expect(c.doseLabel).toBe(CATCHUP_LABEL);
-    expect(c.note.lead).toBe('A catch-up dose now; the booster follows at 16–18 years [c].');
+    expect(c.note.lead).toBe('A catch-up dose now, then the booster at 16–18 years [c].');
     expect(c.noteCites.map((x) => x.key)).toEqual(['cdcCatchupAcwyBooster8Weeks']);
   });
 

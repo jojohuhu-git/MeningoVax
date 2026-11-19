@@ -35,7 +35,7 @@ describe('D10: serogroup B outbreak — one booster', () => {
     const c = run(['outbreak_b'], PRIMARY);
     expect(c.dueToday).toBe(true);
     expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) for this outbreak');
-    expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak; no repeat boosters');
+    expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak, no repeat boosters');
     // Its source is Table 8's one-booster sentence, not "every 2–3 years".
     expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster']);
   });

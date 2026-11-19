@@ -94,7 +94,7 @@ describe('P0-4: a healthy MenB series six calendar months apart is complete', ()
 
   it('dose 2 is not annotated as given early', () => {
     const perDose = analyzeHistory('MenB', doses, 228, [], '2026-09-15', allYes(2)).perDose;
-    expect((perDose[1].reasons || []).join(' ')).not.toMatch(/less than the 6-month/i);
+    expect((perDose[1].reasons || []).join(' ')).not.toMatch(/under the 6-month interval/i);
   });
 
   it('control: a genuinely early dose 2 still triggers the rescue dose', () => {

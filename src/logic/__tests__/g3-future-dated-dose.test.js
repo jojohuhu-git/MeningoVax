@@ -39,7 +39,8 @@ describe('G3: a dose dated in the future is not counted', () => {
   it('says the date is the problem, and does not tell anyone to repeat the dose', () => {
     const { perDose } = analyzeHistory('MenB', [{ date: FUTURE, brand: '' }], 204, ['asplenia']);
     const said = perDose[0].reasons.join(' ');
-    expect(said).toMatch(/future/i);
+    // G1-a: the chip says "Date is in the future"; the line says what to do.
+    expect(said).toMatch(/Correct a mistyped year, or remove an appointment not yet attended/);
     // "repeat this dose only" is the advice for a dose given too early or too
     // close to the last one. Here nothing was given, so repeating is nonsense.
     expect(said).not.toMatch(/repeat this dose/i);
