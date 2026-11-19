@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-phase6-q10-fold-built.md`. F1–F3 are in
+> PR #113 and Q10 (the fold) is built in PR #114. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 6.2 G1-a was built (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
