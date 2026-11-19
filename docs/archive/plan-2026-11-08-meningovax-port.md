@@ -539,6 +539,9 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
 
 6.1 Show her five before/after lines and five "Why this" paragraphs (the most-seen), as in
     PneumoVax; she approves the style rules for MeningoVax (**STOP G1**).
+    **STOP G1 ANSWERED 2026-11-18** (`stop-g1-packet-2026-11-18.md`): the rules, yes; a dose-line
+    "Why this", yes; F-3, F-5 and the undated "repeat" lines (R-A, R-B, R-C) as recommended.
+    Not built yet. Still to ask: R-C's chip.
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask
