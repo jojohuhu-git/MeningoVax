@@ -1,4 +1,7 @@
-# MeningoVax port — Handoff after W1–W4, the wording answers after the fold (2026-11-19, latest)
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-phase7-rulebook-table.md`. #115 merged;
+> Phase 7.1 (dose rules) and 7.3 built as PR #116. Do not resume from this file.
+
+# MeningoVax port — Handoff after W1–W4, the wording answers after the fold (2026-11-19)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The
