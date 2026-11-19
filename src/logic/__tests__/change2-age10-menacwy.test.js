@@ -46,7 +46,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     expect(rec.status).not.toBe('not-indicated');
     expect(rec.doseLabel).not.toBe('Not yet due');
     expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
-    expect(rec.doseLabel).toBe('Booster due at 16y');
+    expect(rec.doseLabel).toBe('Booster (16y)');
     expect(rec.boosterDueDate).toBeTruthy();
   });
 
@@ -71,7 +71,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     });
     const rec = acwy(r);
     expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
-    expect(rec.doseLabel).toBe('Booster due at 16y');
+    expect(rec.doseLabel).toBe('Booster (16y)');
     expect(rec.noteCites[0].key).toBe('acwyAge10CountsAsDose1');
   });
 

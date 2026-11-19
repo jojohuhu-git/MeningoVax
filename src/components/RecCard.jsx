@@ -78,7 +78,7 @@ export function statusPillLabel(rec, pending) {
   }
 
   // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
-  // The routine "Booster due at 16y" card (status 'due' since STOP B: never
+  // The routine "Booster (16y)" card (status 'due' since STOP B: never
   // "complete" while a booster is coming) keeps the pill it had.
   if (!dueToday && boosterDueDate) return 'Future booster needed';
   // Gap badge (owner, 2026-11-18): not due yet, but its minimum has passed and a

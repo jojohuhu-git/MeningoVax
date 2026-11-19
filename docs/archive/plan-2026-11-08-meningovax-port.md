@@ -542,8 +542,10 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     **STOP G1 ANSWERED 2026-11-18** (`stop-g1-packet-2026-11-18.md`): the rules, yes; a dose-line
     "Why this", yes; F-3, F-5 and the undated "repeat" lines (R-A, R-B, R-C) as recommended.
     **F-3 built 2026-11-18** (branch `port/phase6-f3-badge`; 4,632 "Up to date" badges →
-    4,256 "Future booster needed" + 376 "Next dose not yet due"; badge words only). F-5, R-A–R-C,
-    the dose-line "Why this" and the rules rewrite not built yet. Still to ask: R-C's chip.
+    4,256 "Future booster needed" + 376 "Next dose not yet due"; badge words only; PR #107, merged).
+    **F-5 built 2026-11-18** (branch `port/phase6-f5-16y-label`; "Booster due at 16y" →
+    "Booster (16y)", 1,452 real patients, label the only change). R-A–R-C, the dose-line
+    "Why this" and the rules rewrite not built yet. Still to ask: R-C's chip.
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask

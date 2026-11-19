@@ -219,7 +219,7 @@ function run(c) {
   //   optional  a shared-decision card (healthy MenB 16–23), when CDC's patient
   //             did not "seek MenB protection" (code 177)
   //   booster   a "Complete" card that still states `boosterDueDate`
-  //             ("Booster due at 16y")
+  //             ("Booster (16y)")
   // The date is compared whichever way it came; the WAY is reported beside it,
   // because "same date, but the card says Complete" is a different finding
   // from "different date".
