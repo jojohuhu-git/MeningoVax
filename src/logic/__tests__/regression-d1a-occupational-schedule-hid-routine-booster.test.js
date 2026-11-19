@@ -49,7 +49,9 @@ describe('D1a — occupational/outbreak "done" never hides an unmet routine boos
     const c = card(['military'], DOSE_BEFORE_16);
     expect(c.status).not.toBe('complete');
     expect(c.dueToday).toBe(true);
-    expect(c.doseLabel).toMatch(/still owed/i);
+    // F-5 (owner, 2026-11-18): the title is "Booster (16y)"; the note says it is still owed.
+    expect(c.doseLabel).toBe('Booster (16y)');
+    expect(c.note.lead).toMatch(/still owed/i);
     expect(`${c.note.lead} ${c.note.detail}`).toMatch(/16/);
   });
 

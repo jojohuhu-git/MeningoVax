@@ -173,8 +173,8 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   (owner, 2026-11-18):** from 16 on the travel/lab/outbreak schedules
   (`routineSixteenBoosterCard`) the same dose reads "Booster (16y)" too, not "1 dose (routine
   booster at ≥16y still owed)" (648 real patients); its note still says the booster is still
-  owed. **Not decided:** military alone (its own card in `menacwyRec`, 162 real patients) still
-  reads "1 dose (routine booster at ≥16y still owed)" — asked separately. Test
+  owed. Military alone (its own card in `menacwyRec`, 162 real patients) too (owner,
+  2026-11-18, "Yes, military too"): no card reads the old title any more. Test
   `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
 - **F-4a / F-4b (owner, 2026-11-18)** the repeat line says when, or that it was:
   `recommend.js` `datedRepeatLines`, after Q10. A later shot of that vaccine on the

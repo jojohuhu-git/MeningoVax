@@ -283,8 +283,7 @@ function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCat
 // The card for that booster, on the travel / lab / outbreak schedules. From 16
 // it is the "still owed" card (its note says so) that the military schedule also
 // uses; at every age its title is the routine card's, "Booster (16y)" (F-5 and
-// its follow-up, owner 2026-11-18). Military alone keeps "1 dose (routine
-// booster at ≥16y still owed)" until the owner answers that separately.
+// its follow-ups, owner 2026-11-18; military too).
 function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, refs }) {
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return rec({
@@ -922,7 +921,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         // N5: no sooner than 8 weeks after the last dose.
         const timing = routineBoosterTiming(lastDate, today);
         return [rec({
-          vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at \u226516y still owed)',
+          vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
           doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
           note: routineBoosterStillOwedNote('military recruitment', !timing.dueToday),
           noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],

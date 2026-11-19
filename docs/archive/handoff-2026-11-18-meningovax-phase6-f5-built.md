@@ -9,7 +9,7 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 ## State (verified 2026-11-18)
 
 - `main` at `d6003ec` (PR #107, F-3, merged): 2,121 passed, 169 files (re-run this session).
-- Branch `port/phase6-f5-16y-label` (F-5 `ce1e251`, its follow-up next), pushed, **PR #108** open against
+- Branch `port/phase6-f5-16y-label` (F-5 `ce1e251`, travel/lab/outbreak follow-up `b56b954`, military follow-up next), pushed, **PR #108** open against
   `main`: **2,130 passed, 0 failing (170 files)**. MeningoVax has no CI checks; the owner merges.
 
 ## What's done
@@ -26,16 +26,15 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #108, and answer its open question:
+**Owner action first:** review and merge PR #108 (no open question left in it):
 - **Answered and built (owner, 2026-11-18, "Yes, same title"):** from 16, the travel/lab/outbreak
   card (`routineSixteenBoosterCard`) reads "Booster (16y)" instead of "1 dose (routine booster at
   ≥16y still owed)" — 648 real patients (incl. military + lab worker, which takes the lab path).
   Commit 2 on PR #108.
-- **Q (not decided, ask):** the question named "travel/lab/outbreak" but its count (810) also
-  held **162 military-only** patients, whose card comes from the military branch of `menacwyRec`
-  (`recommend.js` ~line 925). They still read "1 dose (routine booster at ≥16y still owed)".
-  Also "Booster (16y)"? If yes: one line, and flip the military control in
-  `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
+- **Answered and built (owner, 2026-11-18, "Yes, military too"):** military alone (162 real
+  patients; its card is in the military branch of `menacwyRec`) also reads "Booster (16y)".
+  Commit 3 on PR #108. No card on the grid reads the old title any more. (The first question
+  named only travel/lab/outbreak though its 810 count held these 162 — a measuring slip.)
 
 **Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
 (`docs/agent/testing.md` counts conflict between stacked branches):
