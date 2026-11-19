@@ -131,6 +131,10 @@ function rec(o) {
     // due", "Not yet age-eligible"). Only those cards carry it. validate.js
     // reads it so a dose given on such a day is not called Extra.
     ...(o.asksLater ? { asksLater: true } : {}),
+    // Port Phase 6.2 R-A/R-B/R-C (owner, STOP G1, 2026-11-18): the ending a
+    // "Not counted — repeat" line takes under this card, which asks later but
+    // prints no date. `{ line, dropRepeat }`; read by datedRepeatLines().
+    ...(o.repeatLater ? { repeatLater: o.repeatLater } : {}),
     // Owner F2a (2026-11-18): not due yet, but the minimum interval has passed,
     // so the card says "It can be given today if needed". Only MenB high-risk
     // dose 2 carries it (the one MenB place the routine date and the minimum
@@ -1423,6 +1427,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   }
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS) {
     return [rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet due',
+      repeatLater: REPEAT_LATER_ACWY_ROUTINE,
       note: {
         lead: 'No routine MenACWY dose is due at this age without a risk factor.',
         detail: 'The routine schedule starts at 11–12 years, with a booster at 16 years [c]. A risk indication — asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak — would bring vaccination forward.',
@@ -1619,6 +1624,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   if (am < MENB_MIN_AGE_MONTHS) {
     if (highRisk) {
       return [rec({ vaccine: 'MenB', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
+        repeatLater: REPEAT_LATER_MENB_HIGH_RISK,
         note: {
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
           detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)}.`,
@@ -1931,6 +1937,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     // E1 Q8): a dose 1–4 days before 16 counts under CDC's grace, though this
     // card is what the patient had that day.
     asksLater: am < MENB_HEALTHY_MIN_AGE_MONTHS,
+    ...(am < MENB_HEALTHY_MIN_AGE_MONTHS ? { repeatLater: REPEAT_LATER_MENB_HEALTHY } : {}),
     note: am < MENB_HEALTHY_MIN_AGE_MONTHS
       // M16: the pre-16 card names the preferred age too, so a clinician
       // planning ahead knows the conversation is best had at 16-18 rather than
@@ -2296,6 +2303,32 @@ function notRepeatedWhenNothingAsked(history, cards) {
 //   card cannot disagree. A card with no date (not yet due, deferred) adds
 //   nothing. Only lines that still carry REPEAT_THIS_DOSE are touched: a
 //   "do not repeat" line (Q10 above) has no repeat to date.
+//
+// Port Phase 6.2 R-A / R-B / R-C (owner, STOP G1, 2026-11-18): a card that asks
+// LATER but prints no date ("Not yet age-eligible", "Not yet due", "Not
+// routinely indicated" before 16) used to leave the line with no "when". That
+// card now carries its own ending (`repeatLater`), again READ from the card.
+// Sources, read live 2026-11-18 (quoted in stop-g1-packet-2026-11-18.md §4):
+// CDC Timing and Spacing (July 24, 2024), a too-young dose "should be repeated
+// on or after the date when the child reaches at least the minimum age"; CDC
+// child/adolescent notes (July 1, 2025), MenACWY "2-dose series at age 11–12
+// years; 16 years" and healthy MenB at "age 16–23 years" by shared clinical
+// decision-making; ACIP 2020, MenB "licensed ... only for persons aged 10–25
+// years". R-C (healthy MenB before 16) drops the repeat sentence: nothing is
+// owed until an optional series at 16, so "repeat" is wrong there. A deferred
+// card (pregnancy, group D) is left as it was.
+const REPEAT_LATER_MENB_HIGH_RISK = {
+  line: `Repeat at ${ageYears(MENB_MIN_AGE_MONTHS)} years or older, when the high-risk MenB series starts.`,
+  dropRepeat: false,
+};
+const REPEAT_LATER_ACWY_ROUTINE = {
+  line: 'Repeat at 11–12 years, with the routine dose.',
+  dropRepeat: false,
+};
+const REPEAT_LATER_MENB_HEALTHY = {
+  line: `MenB is next offered at ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)}–${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years, by shared clinical decision-making.`,
+  dropRepeat: true,
+};
 function datedRepeatLines(history, cards, today) {
   const per = history?.perDose ?? [];
   const doses = history?.sortedDoses ?? [];
@@ -2304,6 +2337,10 @@ function datedRepeatLines(history, cards, today) {
   const cardDate = !asking ? null
     : asking.dueToday ? today
       : (asking.earliestNextDate ?? asking.boosterDueDate ?? null);
+  // Only when NO card asks now or is deferred: then the one asking later speaks.
+  const later = (!asking && !(cards ?? []).some((c) => c.status === 'deferred'))
+    ? (cards ?? []).find((c) => c.repeatLater)?.repeatLater ?? null
+    : null;
   return {
     ...history,
     perDose: per.map((d, i) => {
@@ -2314,7 +2351,10 @@ function datedRepeatLines(history, cards, today) {
         const said = `Repeated on ${fmtDate(doses[k].date)}. See that dose.`;
         return { ...d, repeatedOn: doses[k].date, reasons: d.reasons.map((x) => (x === REPEAT_THIS_DOSE ? said : x)) };
       }
-      return cardDate ? { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] } : d;
+      if (cardDate) return { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] };
+      if (!later) return d;
+      const kept = later.dropRepeat ? d.reasons.filter((x) => x !== REPEAT_THIS_DOSE) : d.reasons;
+      return { ...d, reasons: [...kept, later.line] };
     }),
   };
 }

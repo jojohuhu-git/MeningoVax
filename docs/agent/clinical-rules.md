@@ -187,6 +187,19 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   repeat dose should be spaced after the invalid dose by the recommended minimum
   interval (Table 3-2)."* Test `regression-2026-11-18-phase5-f4-repeat-line-date.test.js`;
   `dose-rules-table.test.js` holds every floor dose on the grid to it.
+- **R-A / R-B / R-C (owner, STOP G1, 2026-11-18)** the repeat line under a card that
+  asks LATER with no date says when too. The card carries its own ending
+  (`repeatLater` in `recommend.js`), read by `datedRepeatLines` only when no card asks
+  now and none is deferred (F-4b still wins). R-A, high-risk MenB under 10 ("Not yet
+  age-eligible"): *"Repeat at 10 years or older, when the high-risk MenB series
+  starts."* R-B, healthy MenACWY under 11 ("Not yet due"): *"Repeat at 11–12 years,
+  with the routine dose."* R-C, healthy MenB before 16 ("Not routinely indicated"):
+  the repeat sentence is dropped (nothing is owed until an optional series at 16) and
+  the line ends *"MenB is next offered at 16–23 years, by shared clinical
+  decision-making."* Pregnancy (deferred) unchanged. The chip stays "Not counted —
+  repeat" (R-C's chip is a separate owner question). Sources in
+  `docs/archive/stop-g1-packet-2026-11-18.md` §4. Test
+  `regression-2026-11-18-r-abc-undated-repeat-line.test.js`.
 - **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not
   kept, not numbered, starts no clock, line = the reason only) when every card
   for that vaccine on the dose day asked for nothing. "The cards on the dose
