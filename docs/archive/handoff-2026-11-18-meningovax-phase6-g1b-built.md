@@ -11,7 +11,7 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 - `main` at `843a519` (PR #110 merged, head `e3c30d3` included): **2,140 passed, 171 files**.
   #110 carried the R-C later-shot change that PR #109 missed (#109 merged one commit early).
 - Branch `port/phase6-g1b-dose-why`, off `main`, pushed, clean, **PR #111** open against `main`
-  (one commit, `3be3c6d`): **2,144 passed, 0 failing, 172 files**. MeningoVax has no CI checks;
+  (`3be3c6d` G1-b, then this handoff): **2,144 passed, 0 failing, 172 files**. MeningoVax has no CI checks;
   the owner merges. Before saying "merged", check the PR's head commit is on `origin/main`.
 
 ## What's done
@@ -69,7 +69,7 @@ the same lines and touches `testing.md` counts, so it must start from `main` onc
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 111`. If merged (head `3be3c6d` on
+1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 111`. If merged (the PR's head commit on
    `origin/main`): `git checkout main && git pull --ff-only`; `npm test` should give
    **2,144 passed, 172 files**. If not merged, ask the owner; don't build on the unlanded branch.
 2. `preview_start` "MeningoVax dev server".
