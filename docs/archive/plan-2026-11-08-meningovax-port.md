@@ -565,7 +565,9 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     again, do not assume. Built only on a yes.
     **Q10 answered 2026-11-19: "Full PneumoVax fold"** (reverses 2026-11-06). Asked with the
     measure: card lines 16 / 44 / 65 words per page in view, disclaimer 117. What stays in view is
-    put to her as judgement calls first (`report-2026-11-19-result-page-fold.md`); not built.
+    put to her as judgement calls first (`report-2026-11-19-result-page-fold.md`); **answered the
+    same day: the six-line stay list as proposed; Sources inside "Why this"; disclaimer
+    paragraph behind "About risk history".**
 **STOP G2 — owner merges.**
 
 ### Phase 7 — The rulebook (2 sessions, ≈ 9%)

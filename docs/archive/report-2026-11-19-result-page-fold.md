@@ -72,3 +72,11 @@ wordiest pages is the recorded-dose lines, already shortened by G1-a.
    is not due today.
 3. The Sources row inside "Why this", as in PneumoVax.
 4. The disclaimer's risk-history paragraph behind "About risk history", as in PneumoVax.
+
+## Owner answers, 2026-11-19
+
+1. **Stay-in-view list: "Yes, that list."** The six kinds of line above stay in view; every other
+   card line folds behind "Why this".
+2. (Covered by 1: an interval alone does not keep a line in view.)
+3. and 4. **"Yes, both."** The Sources row goes inside "Why this", and the disclaimer's
+   risk-history paragraph goes behind "About risk history", as in PneumoVax.
