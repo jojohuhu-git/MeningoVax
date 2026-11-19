@@ -2347,6 +2347,13 @@ function datedRepeatLines(history, cards, today) {
     ...history,
     perDose: per.map((d, i) => {
       if (d.status !== 'invalid' || !(d.reasons ?? []).includes(REPEAT_THIS_DOSE)) return d;
+      // R-C before F-4b (owner, 2026-11-18: "did the patient need MenB or
+      // no", then "Yes, build it"): under the R-C card the patient needs no
+      // MenB, so a later MenB shot was no repeat. Every too-young dose there
+      // reads the same: "do not repeat" and the R-C ending.
+      if (later?.dropRepeat) {
+        return { ...d, notRepeated: true, reasons: [...d.reasons.filter((x) => x !== REPEAT_THIS_DOSE), later.line] };
+      }
       const at = doses[i]?.date;
       const k = at ? doses.findIndex((x, j) => x?.date && x.date > at && !per[j]?.recordProblem) : -1;
       if (k >= 0) {
@@ -2355,9 +2362,6 @@ function datedRepeatLines(history, cards, today) {
       }
       if (cardDate) return { ...d, reasons: [...d.reasons, `Repeat from ${fmtDate(cardDate)}.`] };
       if (!later) return d;
-      if (later.dropRepeat) {
-        return { ...d, notRepeated: true, reasons: [...d.reasons.filter((x) => x !== REPEAT_THIS_DOSE), later.line] };
-      }
       return { ...d, reasons: [...d.reasons, later.line] };
     }),
   };
