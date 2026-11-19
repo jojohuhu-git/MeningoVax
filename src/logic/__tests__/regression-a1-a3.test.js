@@ -67,7 +67,7 @@ describe('A3: a MenACWY dose given before age 10 does not count toward the adole
     expect(perDose[0].status).toBe('valid');
     expect(perDose[0].notAdolescentCount).toBe(true);
     expect(perDose[0].effectiveDoseNum).toBeNull();
-    expect(perDose[0].reasons.join(' ')).toMatch(/before age 10.*does not count/i);
+    expect(perDose[0].reasons.join(' ')).toMatch(/Given at about 15 months\. The adolescent series still starts at 11–12 years/);
     expect(perDose[0].reasons.join(' ')).not.toMatch(/invalid.*below minimum age/i);
     // The 2018 dose becomes effective dose 1.
     expect(perDose[1].effectiveDoseNum).toBe(1);

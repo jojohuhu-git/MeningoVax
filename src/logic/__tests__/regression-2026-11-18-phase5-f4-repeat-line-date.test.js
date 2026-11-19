@@ -29,7 +29,7 @@ const run = (doses, extra = {}) =>
   recommend({ today: TODAY, dob: DOB, riskIds: ['asplenia'], menacwyDoses: doses, menbDoses: [], ...extra });
 const lineOf = (r, i, v = 'MenACWY') => r.history[v].perDose[i];
 
-const REPEAT_THIS_DOSE = 'This dose does not count toward the series: repeat this dose only (do not restart the series).';
+const REPEAT_THIS_DOSE = 'Do not restart the series.'; // G1-a (owner, STOP G1, 2026-11-18): "repeat" is the label's word
 
 describe('F-4a: the repeat line gives the card\'s date', () => {
   it('Leo: Oct 1 and Oct 22 (3 weeks apart) -> "Repeat from Dec 17, 2026." matching the card', () => {
@@ -38,13 +38,13 @@ describe('F-4a: the repeat line gives the card\'s date', () => {
     expect(d.status).toBe('invalid');
     expect(r.menacwy[0].earliestNextDate).toBe('2026-12-17');
     expect(d.reasons).toContain(REPEAT_THIS_DOSE);
-    expect(d.reasons.at(-1)).toBe('Repeat from Dec 17, 2026.');
+    expect(d.reasons.at(-2)).toBe('Repeat from Dec 17, 2026.'); // G1-a: the when comes first
   });
 
   it('a repeat due today reads today\'s date', () => {
     const r = run(q('2026-08-01', '2026-08-22'));
     expect(r.menacwy[0].dueToday).toBe(true);
-    expect(lineOf(r, 1).reasons.at(-1)).toBe('Repeat from Nov 18, 2026.');
+    expect(lineOf(r, 1).reasons.at(-2)).toBe('Repeat from Nov 18, 2026.'); // G1-a: the when comes first
   });
 
   it('a card with no date leaves the line as it was (pregnancy: deferred)', () => {
@@ -75,7 +75,7 @@ describe('F-4b: a dose already repeated says so', () => {
     expect(d.repeatedOn).toBe('2026-08-20');
     expect(doseChipLabel(d)).toBe('Not counted — repeat');
     // The first sentence (why it did not count) stays.
-    expect(d.reasons[0]).toMatch(/^Given only ~3 weeks after the previous dose\./);
+    expect(d.reasons[0]).toMatch(/^Given 3 weeks after the previous dose, under the 8-week minimum/);
   });
 
   it('names the NEXT shot even when that one did not count either', () => {

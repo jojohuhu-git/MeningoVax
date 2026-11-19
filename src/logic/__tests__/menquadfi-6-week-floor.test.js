@@ -63,7 +63,7 @@ describe('M1 — MenQuadfi‘s 42-day floor is exact for every birth month', () 
     const dob = '2026-01-01';
     const results = validate('MenACWY', [{ date: addDays(dob, 37), brand: MENQUADFI }], 24, [], dob);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/below the minimum age of 6 weeks/);
+    expect(results[0].reasons[0]).toMatch(/below the 6-week minimum age/);
   });
 
   it('a dose at 38 days (4 days early — CDC\'s grace) is valid', () => {
@@ -79,7 +79,8 @@ describe('M1 — MenQuadfi‘s 42-day floor is exact for every birth month', () 
   it('fmtMinAge prints "6 weeks" for the 42-day floor, never a fractional month', () => {
     const dob = '2026-01-01';
     const results = validate('MenACWY', [{ date: addDays(dob, 37), brand: MENQUADFI }], 24, [], dob);
-    expect(results[0].reasons[0]).toMatch(/6 weeks/);
+    expect(results[0].reasons[0]).toMatch(/6-week/);
+    expect(results[0].detail).toMatch(/6 weeks/);
     expect(results[0].reasons[0]).not.toMatch(/1\.4/);
   });
 

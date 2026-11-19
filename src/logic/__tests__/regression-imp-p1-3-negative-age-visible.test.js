@@ -58,6 +58,6 @@ describe('impossible P1-3: a negative age is not displayed as a real age', () =>
     // A 6-month-old whose recorded dose is dated a year before they were born.
     const { perDose } = analyzeHistory('MenACWY', [{ date: '2025-03-15' }], 6, ['asplenia'], '2026-09-15');
     const said = (perDose[0].reasons || []).join(' ');
-    expect(said).not.toMatch(/at ~birth/i);
+    expect(said).not.toMatch(/\bat birth/i); // G1-a: "~birth" now reads "at birth"
   });
 });

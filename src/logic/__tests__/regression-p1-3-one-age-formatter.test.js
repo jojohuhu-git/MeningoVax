@@ -66,7 +66,7 @@ describe('P1-3: one age formatter, not two', () => {
   it('it prints the age the canonical formatter gives', () => {
     const reason = reasonFor(['2021-08-15', D2_EIGHT_DAYS_EARLY], 193, 1);
     expect(fmtAgeMonths(191.9)).toBe('15 years 11 months'); // guards the test itself
-    expect(reason).toContain(`~${fmtAgeMonths(191.9)}`);
+    expect(reason).toContain(`about ${fmtAgeMonths(191.9)}`);
   });
 
   it('no age the formatter can produce ever carries over to 12 months', () => {
@@ -84,7 +84,7 @@ describe('P1-3: the two deliberate differences survive', () => {
     // site writes "~${age}", so the empty string would render "Given at ~,".
     const undated = analyzeHistory('MenACWY', [{ date: '' }], null, [], TODAY, {});
     for (const d of undated.perDose) {
-      for (const r of d.reasons ?? []) expect(r).not.toMatch(/~[,.\s]/);
+      for (const r of d.reasons ?? []) expect(r).not.toMatch(/about [,.\s]/); // G1-a: "~" now reads "about"
     }
   });
 

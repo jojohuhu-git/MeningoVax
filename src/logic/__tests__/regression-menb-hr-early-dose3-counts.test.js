@@ -84,7 +84,7 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
   it('the clinician is told why a fourth dose is now owed', () => {
     const v = verdicts(EARLY_D3);
     expect(v[2].reasons.join(' ')).toMatch(/4th dose|fourth dose/i);
-    expect(v[2].reasons.join(' ')).toMatch(/4 months after (this dose|dose 3)/i);
+    expect(v[2].reasons.join(' ')).toMatch(/at least 4 months after this one/i);
   });
 
   it('the series total becomes 4, not 3', () => {
@@ -121,7 +121,7 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
     // Same patient, 4th dose only two months after dose 3.
     const tooSoon = [...RESCUE_COMPLETE.slice(0, 3), '2025-12-15'];
     expect(verdicts(tooSoon)[3].status).toBe('invalid');
-    expect(verdicts(tooSoon)[3].reasons.join(' ')).toMatch(/at least 4 months after it/i);
+    expect(verdicts(tooSoon)[3].reasons.join(' ')).toMatch(/under the 4-month minimum for the extra dose/i);
   });
 
   it('an ON-TIME dose 3 is untouched: series of 3, straight to the booster', () => {

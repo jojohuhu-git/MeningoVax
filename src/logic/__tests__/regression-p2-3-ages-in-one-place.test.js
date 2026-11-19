@@ -265,8 +265,9 @@ describe('P2-3 · the MenB ages', () => {
     // reason says so in the same words the card uses.
     const early = at(MENB_HEALTHY_MIN_AGE_MONTHS - 1);
     expect(early.effectiveDoseNum).toBeNull();
-    expect(early.reasons.join(' '))
-      .toContain(`before age ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)}`);
+    // G1-a: the age line is the chip's ("Not counted — given before age 16"),
+    // read from the verdict, not repeated in the line.
+    expect(early.setAsideBeforeAgeY).toBe(ageYears(MENB_HEALTHY_MIN_AGE_MONTHS));
 
     const onTime = at(MENB_HEALTHY_MIN_AGE_MONTHS);
     expect(onTime.effectiveDoseNum).toBe(1);

@@ -51,7 +51,7 @@ describe('D7: MenB outbreak cards', () => {
     expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) if outbreak risk continues');
     // D10 (owner, 2026-11-17): one outbreak booster, so the line no longer
     // promises repeats "while outbreak risk continues".
-    expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak; no repeat boosters');
+    expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak, no repeat boosters');
   });
 
   it('booster due today: "for this outbreak"', () => {

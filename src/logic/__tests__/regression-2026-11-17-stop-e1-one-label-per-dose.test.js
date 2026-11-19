@@ -156,7 +156,7 @@ describe('Q8 + Q11: a dose no card asked for that day reads "Not counted — Ext
     });
     for (const d of r.history.MenB.perDose) {
       expect(d.extraDose).toBe(true);
-      expect(d.reasons.join(' ')).not.toMatch(/rescue|required|repeat/i);
+      expect(d.reasons.join(' ')).not.toMatch(/third dose is needed|repeat/i); // G1-a: the early-dose-2 line's words
     }
   });
 });

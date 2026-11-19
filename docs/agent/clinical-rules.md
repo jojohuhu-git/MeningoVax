@@ -161,7 +161,7 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 - **Q10** …unless no card asks for that vaccine today: `recommend.js`
   `notRepeatedWhenNothingAsked` marks `notRepeated` when every card for it is
   `complete`/`not-indicated` without `asksLater`; the chip reads "Not counted —
-  do not repeat" and the line drops "repeat this dose only". `deferred`
+  do not repeat" and the line drops the repeat sentence. `deferred`
   (pregnancy) asks.
 - **Q6** a set-aside dose names its line: "Not counted — given before age
   10/16" (`setAsideBeforeAgeY`, stamped by `setAsideResult` in `doseRules.js`).
@@ -178,15 +178,32 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
 - **F-4a / F-4b (owner, 2026-11-18)** the repeat line says when, or that it was:
   `recommend.js` `datedRepeatLines`, after Q10. A later shot of that vaccine on the
-  record (no record problem, a later day, counted or not) swaps "repeat this dose
-  only …" for "Repeated on <date>. See that dose." (`repeatedOn`; PneumoVax
-  §C-P2-LATER). Otherwise the line ends "Repeat from <date>." with the date the
+  record (no record problem, a later day, counted or not) swaps the repeat sentence
+  ("Do not restart the series." since G1-a) for "Repeated on <date>. See that dose."
+  (`repeatedOn`; PneumoVax §C-P2-LATER). Otherwise "Repeat from <date>." goes just
+  before the repeat sentence (G1-a: answer first), with the date the
   card prints (today if it asks today, else `earliestNextDate`, else
   `boosterDueDate`), read from the card, never recomputed. No card date (not yet
   due, deferred) → nothing added. Chip unchanged. CDC Timing and Spacing: *"The
   repeat dose should be spaced after the invalid dose by the recommended minimum
   interval (Table 3-2)."* Test `regression-2026-11-18-phase5-f4-repeat-line-date.test.js`;
   `dose-rules-table.test.js` holds every floor dose on the grid to it.
+- **G1-a (owner, STOP G1, 2026-11-18, "Yes, the rules"; built 2026-11-19)** every dose
+  line, card lead and "Why this" follows PneumoVax's ten style rules
+  (`stop-g1-packet-2026-11-18.md` §1). On a dose line: "about", never "~" (`about()` and
+  `fmtDays` in `doseRules.js`; a whole number of weeks is exact, no "about"); the minimum
+  folds into the reason ("Given 3 weeks after the previous dose, under the 8-week
+  minimum …"); the line does not repeat its chip ("This dose does not count toward the
+  series: repeat this dose only (do not restart the series)." became `DO_NOT_RESTART`,
+  "Do not restart the series."; "This dose is too soon and does not count.", "The dose
+  counts — do not repeat it —" and "Counted —" went); background moves behind the dose's
+  "Why this" (`whys`: the infant-series CDC rule, MenB "not interchangeable", "every 2–3
+  years", "safe, but not the routine booster"). The packet's samples L1–L5 and W1–W5 are
+  built word for word; L1 also corrects "recommended at 16–23 years" to the cited quote's
+  "shared clinical decision-making". No verdict, date, dose number, chip, badge or source
+  number moved (measured 2026-11-19). Guard:
+  `regression-2026-11-19-g1a-style-rules.test.js` (no "~", no semicolon, at most one
+  dash a sentence, no label repeat, dose line ≤50 words, card "Why this" ≤66).
 - **R-A / R-B / R-C (owner, STOP G1, 2026-11-18)** the repeat line under a card that
   asks LATER with no date says when too. The card carries its own ending
   (`repeatLater` in `recommend.js`), read by `datedRepeatLines` only when no card asks

@@ -1,4 +1,6 @@
-# MeningoVax port — Handoff after Phase 6.2 G1-b was built (2026-11-18, latest)
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-phase6-g1a-built.md`. PR #111 merged; G1-a is built (PR #112). Do not resume from this file.
+
+# MeningoVax port — Handoff after Phase 6.2 G1-b was built (2026-11-18)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The

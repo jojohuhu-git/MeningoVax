@@ -40,7 +40,7 @@ describe('MenACWY — no date', () => {
     expect(results).toHaveLength(1);
     expect(results[0].recordProblem).toBe('undated');
     expect(results[0].doesNotCount).toBe(true);
-    expect(results[0].reasons[0]).toMatch(/No date recorded/);
+    expect(results[0].reasons[0]).toMatch(/written, dated records/); // G1-a: "No date recorded" is the chip's
   });
 
   it('two undated doses: neither counts (C1)', () => {
@@ -60,8 +60,7 @@ describe('MenACWY — MenQuadfi before 6 weeks', () => {
     // clearly under 6 weeks (~1.38 months) regardless of the no-dob approximation.
     const results = validate('MenACWY', [{ date: monthsAgo(239), brand: 'MenQuadfi (MenACWY)' }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/below the minimum age/);
-    expect(results[0].reasons[0]).toMatch(/6 weeks/i);
+    expect(results[0].reasons[0]).toMatch(/below the 6-week minimum age/);
   });
 
   it('MenQuadfi at 12 months → valid (well above 6 weeks; used to be invalid under the old 24-month rule)', () => {
@@ -95,7 +94,7 @@ describe('MenACWY — high-risk adult D2 interval check', () => {
     ], HR_AM, ['asplenia']);
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/minimum interval is 8 weeks/i);
+    expect(results[1].reasons[0]).toMatch(/under the 8-week minimum for the high-risk primary series/i);
   });
 
   it('D2 given 9 weeks after D1 (high-risk) → valid', () => {
@@ -119,7 +118,7 @@ describe('MenACWY — high-risk adult D2 interval check', () => {
       { date: d2 },
     ], ADULT_AM, []);
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/8 weeks/);
+    expect(results[1].reasons[0]).toMatch(/8-week minimum/);
   });
 });
 
@@ -134,7 +133,7 @@ describe('MenACWY — Menactra at 9 months', () => {
     // ageAtDose = 240 - 235 = 5
     const results = validate('MenACWY', [{ date: monthsAgo(235), brand: MENACTRA_LABEL }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/below the minimum age/i);
+    expect(results[0].reasons[0]).toMatch(/minimum age for/i);
   });
 });
 
@@ -144,7 +143,7 @@ describe('MenB — dose before age 10', () => {
     // Patient is now 20y (240 mo). Dose given 132 months ago → ageAtDose = 108
     const results = validate('MenB', [{ date: monthsAgo(132), brand: 'Bexsero (MenB)' }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/minimum age of 10 years/);
+    expect(results[0].reasons[0]).toMatch(/below the 10-year minimum age/);
     // G1-b (2026-11-18): the licensing background sits behind the dose's "Why this".
     expect(results[0].whys).toEqual([expect.stringMatching(/licensed from age 10 years/)]);
   });
@@ -170,8 +169,9 @@ describe('MenB — antigen-family mismatch', () => {
     ], ADULT_AM);
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/not interchangeable/i);
+    // G1-a: answer first; "not interchangeable" is behind "Why this".
     expect(results[1].reasons[0]).toMatch(/4C/);
+    expect(results[1].whys.join(' ')).toMatch(/not interchangeable/i);
     expect(results[1].reasons[0]).toMatch(/FHbp/);
   });
 
@@ -211,8 +211,9 @@ describe('MenB — healthy 2-dose: D2 early triggers rescue note (NOT invalid)',
       { date: d2, brand: 'Bexsero (MenB)' },
     ], ADULT_AM, []);
     expect(results[1].status).toBe('valid');
-    expect(results[1].reasons[0]).toMatch(/rescue dose/i);
-    expect(results[1].reasons[0]).toMatch(/required/i);
+    // G1-a (packet L5): "rescue" was jargon.
+    expect(results[1].reasons[0]).toMatch(/under the 6-month interval/i);
+    expect(results[1].reasons[0]).toMatch(/A third dose is needed/i);
   });
 
   it('D2 given 7 months after D1 (healthy) → valid, no rescue note', () => {
@@ -236,7 +237,7 @@ describe('MenB — high-risk D2 interval (<4 weeks → invalid)', () => {
       { date: d2, brand: 'Bexsero (MenB)' },
     ], HR_AM, ['asplenia']);
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/≥4 weeks/i);
+    expect(results[1].reasons[0]).toMatch(/4-week minimum/i);
   });
 
   it('D2 given 5 weeks after D1 (high-risk) → valid', () => {
@@ -291,7 +292,8 @@ describe('MenB — high-risk D3 interval checks', () => {
     ], HR_AM, ['complement']);
     expect(results[2].status).toBe('valid');
     expect(results[2].reasons.some(r => /4th dose/i.test(r))).toBe(true);
-    expect(results[2].reasons.some(r => /do not repeat it/i.test(r))).toBe(true);
+    // G1-a: the chip ("Dose 3 of 4") says it counts, so the line no longer does.
+    expect(results[2].reasons.some(r => /do not repeat it/i.test(r))).toBe(false); // extinct: the line repeated the label, removed by G1-a, 2026-11-19
   });
 
   it('D3 ≥6 months after D1 AND ≥4 months after D2 (high-risk) → valid', () => {
@@ -311,7 +313,7 @@ describe('MenB — no date → not counted (C1)', () => {
   it('dose with no date → not counted', () => {
     const results = validate('MenB', [undatedDose()], ADULT_AM);
     expect(results[0].recordProblem).toBe('undated');
-    expect(results[0].reasons[0]).toMatch(/No date recorded/);
+    expect(results[0].reasons[0]).toMatch(/written, dated records/); // G1-a: "No date recorded" is the chip's
   });
 });
 

@@ -552,7 +552,10 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     one commit early). **G1-b built 2026-11-18** (branch `port/phase6-g1b-dose-why`: each recorded
     dose has its own "Why this"; `detail` and two background sentences (`whys`) moved behind it;
     14,270 grid patients gain one (9,030 real), 0 sentences changed, 0 source numbers changed).
-    The rules rewrite (G1-a) not built yet.
+    **G1-a built 2026-11-19** (branch `port/phase6-g1a-style-rules`: the ten rules applied to
+    every dose line, card lead and "Why this"; 21,510 of 24,600 saved patients read different
+    words; 0 verdicts, dates, chips, badges or source numbers moved; longest dose line 73 → 50
+    words, longest "Why this" 74 → 66; guard `regression-2026-11-19-g1a-style-rules.test.js`).
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask

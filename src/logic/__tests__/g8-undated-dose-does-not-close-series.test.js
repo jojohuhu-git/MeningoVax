@@ -68,7 +68,7 @@ describe('G8: a dose with no date does not close the routine series', () => {
     expect(effective).toHaveLength(0);
     const said = perDose.map(d => d.reasons.join(' ')).join(' ');
     expect(said).not.toMatch(/extra dose/i);
-    expect(said).not.toMatch(/already complete/i);
+    expect(said).not.toMatch(/series was complete/i); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
   });
 });
 
@@ -77,7 +77,7 @@ describe('G8: an undated row never displaces a dose that has a date', () => {
     const doses = [undated(), { date: DOSE_AT_16_5, brand: '' }];
     const { perDose, effective } = analyzeHistory('MenACWY', doses, TEEN, [], TEST_TODAY);
     expect(effective.some(d => d.date === DOSE_AT_16_5)).toBe(true);
-    expect(perDose.map(d => d.reasons.join(' ')).join(' ')).not.toMatch(/already complete/i);
+    expect(perDose.map(d => d.reasons.join(' ')).join(' ')).not.toMatch(/series was complete/i); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
   });
 
   it('does not re-offer the 16-year booster to a 17-year-old who has one on record', () => {

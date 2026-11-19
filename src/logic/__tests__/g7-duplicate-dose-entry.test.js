@@ -83,9 +83,9 @@ describe('G7: one dose recorded on two rows', () => {
       []
     );
     const said = perDose[1].reasons.join(' ');
-    // C11 (2026-11-15): the interval sentence now reads "at least 8 weeks apart".
-    expect(said).toMatch(/at least 8 weeks apart/i);
-    expect(said).toMatch(/repeat this dose/i);
+    // C11 (2026-11-15); G1-a (2026-11-19): the minimum folds into the reason.
+    expect(said).toMatch(/under the 8-week minimum between MenACWY doses/i);
+    expect(said).toMatch(/Do not restart the series/i);
     expect(said).not.toMatch(/same date|twice/i);
   });
 

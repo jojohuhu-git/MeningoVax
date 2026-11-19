@@ -42,8 +42,8 @@ describe('G6 under C1: an undated row never asserts an extra dose', () => {
       expect(d.recordProblem).toBe('undated');
       expect(d.extraDose).toBeUndefined();
       const said = d.reasons.join(' ');
-      expect(said).toMatch(/no date/i);
-      expect(said).not.toMatch(/was already complete/i);
+      expect(said).toMatch(/written, dated records/i); // G1-a: "No date recorded" is the chip's
+      expect(said).not.toMatch(/series was complete/i); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
     }
   });
 
@@ -70,7 +70,7 @@ describe('G6 under C1: an undated row never asserts an extra dose', () => {
     ];
     const { perDose } = analyzeHistory('MenACWY', doses, 20 * 12, []);
     expect(perDose[2].extraDose).toBe(true);
-    expect(perDose[2].reasons.join(' ')).toMatch(/was already complete/i);
+    expect(perDose[2].reasons.join(' ')).toMatch(/series was complete/i);
   });
 
   it('a dated dose sitting after an undated one is still judged on its own date', () => {

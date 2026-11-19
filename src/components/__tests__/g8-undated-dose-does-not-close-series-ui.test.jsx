@@ -62,7 +62,7 @@ describe('G8 (UI): a blank date does not push out a documented dose', () => {
 
   it('never tells the clinician the series was already complete', () => {
     const { acwyCard } = renderWith([newDoseRow({ detailsUnknown: true }), dated(DOSE_AT_16_5)]);
-    expect(acwyCard.textContent).not.toMatch(/was already complete/);
+    expect(acwyCard.textContent).not.toMatch(/series was complete/); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
   });
 });
 
@@ -80,7 +80,7 @@ describe('G8 (UI) under C1: when no dose can be placed at 16 years or older', ()
     const { rows } = renderWith([newDoseRow({ detailsUnknown: true }), newDoseRow({ detailsUnknown: true })]);
     expect(rows).toHaveLength(2);
     expect(rows[1].textContent).not.toMatch(/Extra dose/);
-    expect(rows[1].textContent).not.toMatch(/already complete/);
+    expect(rows[1].textContent).not.toMatch(/series was complete/); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
   });
 
   it('says nothing about missing dates when every dose is dated', () => {

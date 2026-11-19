@@ -31,7 +31,9 @@ import { doseChipLabel, RECORD_PROBLEM_LABELS } from '../../components/doseChipL
 import { buildSavedAnswerCases, buildRecordProblemCases, buildTypicalCases } from '../../test-grid.js';
 import { TEST_TODAY } from '../../test-today.js';
 
-const REPEAT_SENTENCE = 'This dose does not count toward the series: repeat this dose only (do not restart the series).';
+// G1-a (owner, STOP G1, 2026-11-18, style rule 6): "repeat" is the label's
+// word, so the line's own sentence is now only this. Its "when" comes first.
+const REPEAT_SENTENCE = 'Do not restart the series.';
 // Phase 6.2 R-A / R-B (owner, STOP G1, 2026-11-18): exact sentences from
 // docs/archive/stop-g1-packet-2026-11-18.md, Answers table.
 const REPEAT_LATER_R_A = 'Repeat at 10 years or older, when the high-risk MenB series starts.';
@@ -215,9 +217,12 @@ describe('3 · what a row says happens is what happens, to every dose it decided
         ? !v.reasons.includes(REPEAT_SENTENCE)
         : v.repeatedOn
           ? !v.reasons.includes(REPEAT_SENTENCE) && /^Repeated on [A-Z][a-z]{2} \d{1,2}, \d{4}\. See that dose\.$/.test(v.reasons.at(-1))
+          // G1-a: the "when" now sits BEFORE the repeat sentence (answer first).
           : (v.reasons.at(-1) === REPEAT_SENTENCE
-            || (v.reasons.at(-2) === REPEAT_SENTENCE && /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-1)))
-            || (v.reasons.at(-2) === REPEAT_SENTENCE && [REPEAT_LATER_R_A, REPEAT_LATER_R_B].includes(v.reasons.at(-1))))),
+            && (v.reasons.length === 1
+              || /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-2))
+              || [REPEAT_LATER_R_A, REPEAT_LATER_R_B].includes(v.reasons.at(-2))
+              || !/^Repeat/.test(v.reasons.at(-2))))),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null
       && !v.reasons.includes(REPEAT_SENTENCE),
     'counts-with-note': (v) => v.status === 'valid' && v.effectiveDoseNum >= 1 && v.reasons.length >= 1,

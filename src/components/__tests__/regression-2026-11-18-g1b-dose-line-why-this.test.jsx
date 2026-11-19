@@ -50,7 +50,8 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
     });
     const [line] = doseLines(c);
     // Shut (the app's default).
-    expect(line.textContent).toContain('below the minimum age of 10 years (120 months) for Bexsero.');
+    // G1-a (owner, STOP G1, packet L3): the line's words.
+    expect(line.textContent).toContain('Given at about 9 years — below the 10-year minimum age for Bexsero.');
     expect(line.textContent).not.toContain(MENB_LICENSED_FROM_10_WHY);
     expect(line.textContent).not.toContain('Age at administration');
     const number = line.querySelector('.note-cite').textContent;
@@ -62,7 +63,7 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
     fireEvent.click(toggle);
     const why = within(line).getByTestId('dose-val-why');
     expect(why.textContent).toContain(MENB_LICENSED_FROM_10_WHY);
-    expect(why.textContent).toContain('Age at administration: ~9 years');
+    expect(why.textContent).toContain('Age at administration: about 9 years');
     expect(why.textContent).toContain('Minimum: 10 years (120 months).');
     // Opening it does not renumber the source.
     expect(line.querySelector('.note-cite').textContent).toBe(number);
@@ -74,7 +75,7 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
       menbDoses: [{ date: '2025-06-01', brand: 'Bexsero (MenB)' }],
     });
     const [line] = doseLines(c);
-    expect(line.textContent).toContain('does not count toward the healthy 2-dose MenB series');
+    expect(line.textContent).toContain('The healthy 2-dose MenB series is given at 16–23 years by shared clinical decision-making.');
     expect(line.textContent).not.toContain(MENB_WANES_BEFORE_16_WHY);
     fireEvent.click(within(line).getByTestId('dose-val-toggle'));
     expect(within(line).getByTestId('dose-val-why').textContent).toContain(MENB_WANES_BEFORE_16_WHY);
@@ -86,7 +87,7 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
       menbDoses: [{ date: '2026-10-15', brand: 'Bexsero (MenB)' }],
     });
     const [line] = doseLines(c);
-    expect(line.textContent).toContain('This date is in the future');
+    expect(line.textContent).toContain('Today is Sep 15, 2026. Correct a mistyped year');
     expect(line.textContent).not.toContain('Recorded date:');
     fireEvent.click(within(line).getByTestId('dose-val-toggle'));
     expect(within(line).getByTestId('dose-val-why').textContent).toContain('Recorded date: Oct 15, 2026. Today: Sep 15, 2026.');
