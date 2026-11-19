@@ -57,6 +57,18 @@ owed again; the 3-year fallback never runs. **Recommendation:** keep the code's 
 safety net, retag the rulebook line `explains` and add "no patient reaches this since C1",
 with a sweep test that proves it.
 
+**Owner's replies so far (2026-11-19), not yet decisions:**
+- T1: "shouldn't it be 1 more dose not including boosters: Dose #1 at age 24 months or older:
+  2-dose series at least 8 weeks apart". This is a third reading (current age decides; the
+  2-month dose counts as dose 1 of the ≥24-month series). Put back to her with all three
+  readings: app 3 more, CDSI 2 more, hers 1 more. CDSI's ≥2-year risk series starts dose 1 at
+  2 years, so it does not count the infant dose. No CDC test patient covers a lapsed infant
+  (checked all 104). Wait for her pick.
+- T2: she asked "this is for high risk only correct?". Answer given: yes. It applies only to
+  patients on a 3-year/5-year MenACWY booster schedule: asplenia, complement deficiency or
+  inhibitor, HIV, and since C10 also travel and A/C/W/Y outbreak (microbiologists too, but
+  they are always 10 or older). Wait for her pick.
+
 ## Found, not changed
 
 - §2 says healthy MenB "antibody protection wanes within about a year"; the new ACIP quote under
