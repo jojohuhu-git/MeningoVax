@@ -258,3 +258,10 @@ indicated" if it is not.
 | # | Question | Owner answer | Measured |
 |---|---|---|---|
 | F-6 | From 22, outbreak booster instead of "routine booster at ≥16y still owed"? | **Yes**, through 21 as travel and lab | Saved answers 48 of 18,780 real moved (ages 22 and 24: label, note, and the card's 5-year spacing field; still due today, no date moved), 0 of 5,820 impossible. Prose 48 screens |
+
+## Phase 5 close-out (A17, and when to ask the "Not yet due" repeat lines), answered 2026-11-18
+
+| # | Question | Owner answer |
+|---|---|---|
+| A17 | PneumoVax keeps two dates for a too-soon dose (when it would have counted; when the next dose may be given). MeningoVax's saved answers already hold the second (the card's `earliestNextDate`, the date F-4's line prints); the first is not computed and nothing on screen uses it. Close A17? | **Close it.** No date added, no answer moved. Phase 5 is finished |
+| — | 1,984 "Not counted — repeat" lines sit under a card that says "Not yet due" with no date (e.g. a baby's too-young MenQuadfi: "repeat", but the repeat is at 11). Ask now or with Phase 6? | **With Phase 6** (wording), beside F-3 and F-5, with worked patients |

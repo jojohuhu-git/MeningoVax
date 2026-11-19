@@ -191,7 +191,7 @@ column says which step below carries it. (Since the 2026-11-08 review, "step N" 
 | A14 | "This dose met that minimum" only for a dose that met it | §K-MET-ONLY, 2026-10-31; PR #110 | to measure | 6 |
 | A15 | What "extra" means: a dose is extra (not needed, not counted, nothing repeated) when the card the patient had on the day of that dose did not ask for it | P1-3, owner rulings 2026-11-06 (Theo, Mateo, Lena, Ben) | Has an "Extra dose" label for doses past the series total; the "card on that day" test is to measure | 4 |
 | A16 | An early dose where no source says to repeat it counts, with a note saying how early ("Counted — given early, accepted"). For PneumoVax adults this was ruled per vaccine (adult table 2026-10-25, PR #90; Ruling F 2026-10-24) | PRs #84, #90, #110 | MeningoVax already counts an early MenB D3 and adds a 4th dose (its CLAUDE.md); other early doses to measure | 4 (decision per vaccine) |
-| A17 | A dose given too soon carries two dates that answer different questions: when THIS dose would have been valid (kept in the data) and when the NEXT dose may be given (shown). Both are in the saved-answer files | PR #86 (2026-10-25); 2026-10-24 ruling | to measure | 1 and 5 |
+| A17 | A dose given too soon carries two dates that answer different questions: when THIS dose would have been valid (kept in the data) and when the NEXT dose may be given (shown). Both are in the saved-answer files | PR #86 (2026-10-25); 2026-10-24 ruling | **Closed 2026-11-18 (owner):** the next-dose date is saved (the card's `earliestNextDate`, which F-4's "Repeat from <date>" line prints); the "this dose would have counted" date is not computed and nothing shows it, so it is not added | 1 and 5 |
 | A18 | The 4-day grace (ACIP General Best Practices) applies to minimum AGES as well as intervals | §A-GRACE12, PR #109 (Lily, 2026-10-31) | to measure | 2 |
 
 ### B. The recommendation card
@@ -529,6 +529,10 @@ lab and outbreak teens pushed past the 16-year booster) **answered and built** t
 (decision log, "The 16-year booster…"; branch `feature/2026-11-18-phase5-16y-booster-exposure`).
 Still to ask: F-2 (13–15 y "routine, 11–12y" → catch-up, B4/B5), F-4 (a too-soon dose line
 names no date, A5/A17), F-3 and F-5 with Phase 6.
+**F-2, F-4, F-6 answered and built 2026-11-18** (PR #105, merged). **A17 closed 2026-11-18**
+(owner: the date shown is already saved; no second date added). **Phase 5 is finished.** Carried
+to Phase 6 by the owner (2026-11-18): the 1,984 "Not counted — repeat" lines under a "Not yet
+due" card with no date — ask with F-3 and F-5, with worked patients.
 **STOP F2 — owner merges.**
 
 ### Phase 6 — Wording (2 sessions, ≈ 8%)
