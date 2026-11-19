@@ -548,8 +548,11 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     **R-A–R-C built 2026-11-18** (branch `port/phase6-r-abc-undated-repeat`; 574 + 588 + 822
     real lines gain a "when"; no answer moved; PR #109). **R-C's chip answered and built
     2026-11-18** ("Not counted — do not repeat", 822 real patients), and its consequence (also when
-    a later MenB shot followed: no "Repeated on", 1,104 real patients). The dose-line "Why this"
-    and the rules rewrite not built yet.
+    a later MenB shot followed: no "Repeated on", 1,104 real patients; PR #110, after #109 merged
+    one commit early). **G1-b built 2026-11-18** (branch `port/phase6-g1b-dose-why`: each recorded
+    dose has its own "Why this"; `detail` and two background sentences (`whys`) moved behind it;
+    14,270 grid patients gain one (9,030 real), 0 sentences changed, 0 source numbers changed).
+    The rules rewrite (G1-a) not built yet.
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask

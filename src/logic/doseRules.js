@@ -296,6 +296,15 @@ export function unknownResult(reasons) {
   return { status: 'unknown', reasons };
 }
 
+// G1-b (owner, STOP G1, 2026-11-18, "Yes, as PneumoVax"): a recorded dose's
+// line is the label plus one reason; background goes behind the dose's own
+// "Why this" fold-out, as a `whys` entry (rendered with the dose's `detail`).
+// Exported so the tests quote the one copy.
+export const MENB_LICENSED_FROM_10_WHY =
+  'MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products.';
+export const MENB_WANES_BEFORE_16_WHY =
+  'MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.';
+
 function validResult(reasons = []) {
   return { status: 'valid', reasons };
 }
@@ -1173,11 +1182,17 @@ export const DOSE_RULES = [
     check: (ctx) => {
       const minAgeM = brandMinAgeM(ctx.brand) ?? MIN_AGE_MENB_PERMISSIVE_MONTHS;
       if (ctx.ageAtDose === null || ageMeetsMinimum(ctx.ageAtDose, minAgeM, ctx.whenGiven)) return null;
-      return invalidResult(
-        [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabelOf(ctx.brand, 'MenB')}. MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years for all products. [c]`],
-        `Age at administration: ~${fmtAgeMClinical(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
-        [cite('menbLicensedAge1025')]
-      );
+      // G1-b (owner, STOP G1, 2026-11-18): the line keeps the reason; the
+      // background sentence goes behind the dose's "Why this" (`whys`). Its
+      // source number stays on the line, on the sentence it supports.
+      return {
+        ...invalidResult(
+          [`Given at ~${fmtAgeMClinical(ctx.ageAtDose)}, below the minimum age of ${fmtMinAge(minAgeM)} for ${brandLabelOf(ctx.brand, 'MenB')}. [c]`],
+          `Age at administration: ~${fmtAgeMClinical(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
+          [cite('menbLicensedAge1025')]
+        ),
+        whys: [MENB_LICENSED_FROM_10_WHY],
+      };
     },
   },
   {
@@ -1201,11 +1216,15 @@ export const DOSE_RULES = [
     // start at 10 and keep counting their doses.
     check: (ctx) => {
       if (hasMenbRisk(ctx.riskIds) || !menbBefore16(ctx)) return null;
-      return setAsideResult(
-        [`Given before age 16 (~${fmtAgeMClinical(ctx.ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c] MenB antibody protection wanes within about a year, so a dose given before 16 is not counted for a patient without a high-risk indication.`],
-        [cite('menbHealthyPreferredAge1618')],
-        16,
-      );
+      // G1-b: the background sentence goes behind "Why this" (as above).
+      return {
+        ...setAsideResult(
+          [`Given before age 16 (~${fmtAgeMClinical(ctx.ageAtDose)}): does not count toward the healthy 2-dose MenB series, which is recommended at 16–23 years. [c]`],
+          [cite('menbHealthyPreferredAge1618')],
+          16,
+        ),
+        whys: [MENB_WANES_BEFORE_16_WHY],
+      };
     },
   },
   // Risk-at-dose ambiguity for MenB: high-risk NOW, dose between 10 and 16.

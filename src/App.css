@@ -1097,6 +1097,20 @@ body {
   color: var(--gy3);
   line-height: 1.4;
 }
+/* G1-b (owner, STOP G1, 2026-11-18): a recorded dose's own "Why this",
+   ported from PneumoVax (same class names, same rules). The trigger is
+   .rec-note-toggle; this only shrinks it to the chip's scale, because it sits
+   under a sentence rather than under a note. The revealed block borrows
+   .rec-note-detail's left rule. */
+.dose-val-toggle { font-size: var(--fs-xs); margin-top: var(--sp-4); align-self: flex-start; }
+.dose-val-why {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+  padding-left: var(--sp-8);
+  border-left: 2px solid var(--gy5);
+}
 /* Dropped invalid dose row — subtle strikethrough on the dose text */
 /* Group headings inside the recorded-dose list: "Primary series" / "Boosters"
    (owner decision 2026-09-15). Deliberately quiet — the dose numbers are what

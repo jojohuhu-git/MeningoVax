@@ -195,7 +195,7 @@ function cardCiteNumberer(doseValidations, noteCites, boosterCites) {
 function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, numberFor }) {
   const [editing, setEditing] = useState(false);
   if (!result) return null;
-  const { status, reasons, detail, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose, recordProblem } = result;
+  const { status, reasons, detail, whys, reasonCites, effectiveDoseNum, doesNotCount, notAdolescentCount, needsInput, promptDate, extraDose, recordProblem } = result;
 
   // Item 2 (2026-07-23 handoff): once answered, the validator's result no
   // longer carries needsInput/promptDate (see validate.js), so re-opening the
@@ -240,7 +240,7 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
           Edit
         </button>
       )}
-      {showReasonsBlock(reasons, detail, reasonCites, numberFor)}
+      {showReasonsBlock(reasons, detail, reasonCites, numberFor, whys)}
     </div>
   );
 }
@@ -368,7 +368,7 @@ export function RiskAgeNote({ note, noteCites = [] }) {
 // the quote on hover. `reasonCites` is one entry per literal "[c]" across the
 // whole reasons array, in order (validate.js). Reasons the walk appends
 // afterwards carry no marker, so they never disturb the pairing.
-function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumberer()) {
+function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumberer(), whys = null) {
   if (!reasons || reasons.length === 0) return null;
   let consumed = 0;
   return (
@@ -383,8 +383,42 @@ function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumb
           </span>
         );
       })}
-      {detail && <span className="dose-val-detail">{detail}</span>}
+      {(detail || whys?.length) && <DoseWhy whys={whys} detail={detail} />}
     </div>
+  );
+}
+
+// G1-b (owner, STOP G1, 2026-11-18, "Yes, as PneumoVax"): a recorded dose's
+// line is the label plus its reason; the background (`whys`) and the
+// age/interval/date detail sit behind the dose's own "Why this", ported from
+// PneumoVax's DoseValidation. The trigger re-uses .rec-note-toggle, so the
+// card's fold-out and the dose's cannot drift apart. `whys` carry no "[c]":
+// a source number stays on the line, on the sentence it supports, so the
+// card's numbering (cardCiteNumberer) is the same open or shut.
+function DoseWhy({ whys, detail }) {
+  // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
+  const openAll = useContext(OpenAllDisclosures);
+  const [open, setOpen] = useState(openAll);
+  return (
+    <>
+      <button
+        type="button"
+        className="rec-note-toggle dose-val-toggle"
+        data-testid="dose-val-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        Why this<Chevron open={open} />
+      </button>
+      {open && (
+        <span className="dose-val-why" data-testid="dose-val-why">
+          {whys?.map((w, i) => (
+            <span key={`w${i}`} className="dose-val-reason">{w}</span>
+          ))}
+          {detail && <span className="dose-val-detail">{detail}</span>}
+        </span>
+      )}
+    </>
   );
 }
 
