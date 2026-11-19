@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 176 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 118 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 177 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 119 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 54 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 53 (the 54th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,179 | `npm test`, 2026-11-19, W1–W4 after the fold |
+| Individual `it()` tests, total | 2,221 | `npm test`, 2026-11-19, Phase 7.1 rulebook table |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -78,6 +78,7 @@ for finding the right one:
 | [`date-pinning.test.js`](../../src/logic/__tests__/date-pinning.test.js) | The suite giving a different answer depending on what day it's run — a red suite that is nobody's fault, which teaches you to ignore red. |
 | [`citation-freshness.test.js`](../../src/data/__tests__/citation-freshness.test.js) | A source's `lastVerified` date in `refs.js` going stale (>12 months old by default) with nothing noticing. |
 | [`citation-integrity.test.js`](../../src/data/__tests__/citation-integrity.test.js) | A citation that's broken, orphaned, or attached to a recommendation it doesn't actually support. |
+| [`rulebook-table-matches-code.test.js`](../../src/logic/__tests__/rulebook-table-matches-code.test.js) | The rulebook's rule table (`meningococcal-rules-summary.md` §5, written by `npm run rulebook` from `src/data/rulebook.js`) differing from `DOSE_RULES` in any cell, any rule, or the order; the numbered app decisions and the quoted sentences differing from the code. Port Phase 7.1, 2026-11-19. |
 | [`rule-docs-match-code.test.js`](../../src/logic/__tests__/rule-docs-match-code.test.js) | `clinical-rules.md` / `meningococcal-rules-summary.md` describing a rule the code no longer implements — reads the real value out of the code and requires the doc to state it. |
 | [`regression-p2-1-intervals-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-1-intervals-in-one-place.test.js) | An interval (dose spacing) value hand-typed a second time somewhere instead of imported from `intervals.js`. |
 | [`regression-p2-3-ages-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-3-ages-in-one-place.test.js) | Same, for age thresholds — imported from the age-threshold source instead of retyped. |

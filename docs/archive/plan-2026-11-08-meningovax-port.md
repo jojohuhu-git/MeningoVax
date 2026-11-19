@@ -583,9 +583,16 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
 7.1 A MeningoVax `CLINICAL_SPEC.md`: every rule with its quote and date, sections in the
     app's own order, the app's own decisions numbered. The rule table generated from the
     Phase 2 describers, held to the code cell by cell (E7). Drop the vaxapp sync (R-7).
+    **PART BUILT 2026-11-19.** Owner: the rulebook is `docs/agent/meningococcal-rules-summary.md`
+    grown, not a new `CLINICAL_SPEC.md` (MeningoVax keeps three files at the top). Its §5 is
+    written from `DOSE_RULES` by `npm run rulebook` (`src/data/rulebook.js`): the 37-row table,
+    22 numbered app decisions, every quoted sentence with the date read; held cell by cell by
+    `rulebook-table-matches-code.test.js`. vaxapp sync line dropped. **Not yet:** quotes and dates
+    for the card (forecast) rules in §§1–3, which have no row table to generate from.
 7.2 **Q11** the in-app Rulebook tab (D1, D2)? Built only on a yes.
 7.3 MeningoVax `CLAUDE.md`: add the non-negotiables this port created (one rule table; a moved
     answer must be explained; one label list; the rulebook is held to the code).
+    **BUILT 2026-11-19** (CLAUDE.md, "What the PneumoVax Port Made Permanent").
 **STOP H — owner reviews the rulebook and merges.**
 
 ### Phase 8 — Citations (3–4 sessions, ≈ 20–25%)

@@ -57,8 +57,9 @@ const statedNear = (doc, anchor, needle, window = 260) => {
 const why = (path, what) =>
   `${path} no longer matches the code: ${what}\n\n`
   + 'The code is the behaviour patients see, so the document is what needs fixing — '
-  + 'unless the code change itself was wrong, in which case fix that instead. '
-  + 'This file is also copied into vaxapp; port the correction there too.';
+  + 'unless the code change itself was wrong, in which case fix that instead.';
+// Port Phase 7.1 (2026-11-19, plan R-7): the summary is no longer copied into vaxapp
+// (retired), so the failure no longer asks for a second copy to be corrected.
 
 describe('L2-4: the rule documents state the dose counts the code uses', () => {
   it('a series begun at 7-23 months is documented as the 2-dose series the code builds', () => {
