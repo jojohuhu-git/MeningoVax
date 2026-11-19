@@ -341,6 +341,12 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
 - **"Complete" only when nothing more is owed** (PneumoVax owner rule 2026-11-01, applied at
   STOP B): the routine "Booster due at 16y" card is status `due`, nothing due today, its
   booster date doubling as `earliestNextDate` (pill "Future booster needed").
+- **"Up to date" only when nothing is left** (owner F-3, STOP G1, 2026-11-18;
+  `statusPillLabel` in `RecCard.jsx`). Not due today with an `earliestNextDate`: a dose past
+  the primary series (`doseNum > primaryTotal`) reads "Future booster needed", any other
+  "Next dose not yet due". `primaryTotal`, not `seriesTotal`, because the routine 16-year card
+  counts its booster in `seriesTotal`. Guarded by never-events property 16 and
+  `regression-2026-11-18-f3-badge-names-what-is-left.test.jsx`.
 - **The pentavalent option waits for the dose questions** (owner STOP B B-5): no combined
   shot, and no "both are due today" banner, while any recorded dose is "Needs input".
 - **Do not conflate these three.**

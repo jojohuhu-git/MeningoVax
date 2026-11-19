@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase6-f3-built.md`. F-3 was built (PR #107). Do not resume from this file.
+
 # MeningoVax port — Handoff after STOP G1 (Phase 6.1) was answered (2026-11-18, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit

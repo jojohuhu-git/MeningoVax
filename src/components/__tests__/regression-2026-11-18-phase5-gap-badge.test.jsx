@@ -46,8 +46,11 @@ describe('gap badge: high-risk MenB dose 2 between its 4-week minimum and its 1-
     expect(badge).toBe('Can be given today');
   });
 
-  it('control, Nov 16 (before the 4-week minimum): "Up to date", unchanged', () => {
-    expect(menbBadge('2026-11-16').badge).toBe('Up to date');
+  // F-3 (owner, STOP G1, 2026-11-18): this was "Up to date". A dated dose 2
+  // still to come now reads "Next dose not yet due"; still never "Can be given
+  // today" before the 4-week minimum.
+  it('control, Nov 16 (before the 4-week minimum): "Next dose not yet due" (F-3), not "Can be given today"', () => {
+    expect(menbBadge('2026-11-16').badge).toBe('Next dose not yet due');
   });
 
   it('control, Nov 20 (due): "Dose due today, future boosters needed", unchanged', () => {

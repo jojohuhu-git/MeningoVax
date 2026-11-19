@@ -195,6 +195,9 @@ receive another.
 - **"Complete" means nothing more is owed** (your PneumoVax rule, 2026-11-01): a healthy
   10–15-year-old with the 11–12 dose reads "Future booster needed", with the date — not
   complete.
+- **"Up to date" only when nothing is left** (your F-3 answer, STOP G1, 2026-11-18). A card
+  with a date still to come names it: a booster reads **"Future booster needed"**, any other
+  dose reads **"Next dose not yet due"**. Badge words only; the dates and doses are unchanged.
 - **The combined pentavalent shot waits for the dose questions** (your B-5 answer): while
   a recorded dose shows "Needs input", the app offers no pentavalent and does not say
   both vaccines are due.
