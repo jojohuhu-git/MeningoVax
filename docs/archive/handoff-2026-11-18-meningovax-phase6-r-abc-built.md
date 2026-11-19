@@ -8,11 +8,15 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## State (verified 2026-11-18)
 
-- `main` at `f4b055f` (PR #108, F-5 + both follow-ups, merged): 2,130 passed, 170 files (re-run
-  this session).
-- Branch `port/phase6-r-abc-undated-repeat`, off `main`, pushed, **PR #109** open against `main`
-  (commits `cf87aa8`, `b4123e5` R-C chip, the later-shot follow-up, and handoffs): **2,140 passed, 0 failing (171 files)**. MeningoVax has no CI
-  checks; the owner merges.
+- `main` at `8453494` (PR #109 merged: R-A–R-C + the R-C chip): **2,138 passed, 171 files**
+  (re-run 2026-11-18). **#109 was merged one commit early**: its head was `b4123e5`, so item 3
+  below (the later-shot follow-up, `dbeedba`) never reached `main`.
+- Branch `port/phase6-r-c-later-shot`, off `main`, pushed, **PR #110** open against `main`: that
+  one commit, cherry-picked unchanged, plus this handoff fix: **2,140 passed, 0 failing (171 files)**;
+  the 2 new tests fail on `main`'s engine. Live-checked (healthy 10 y, Bexsero Sep 1 and Oct 6,
+  2025: both doses "Not counted — do not repeat", no "Repeated on"; on `main` dose 1 still says
+  "Repeated on Oct 6, 2025"). MeningoVax has no CI checks; the owner merges. The old branch
+  `port/phase6-r-abc-undated-repeat` is spent; don't reuse it.
 
 ## What's done
 
@@ -42,7 +46,8 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #109 (no open question left in it).
+**Owner action first:** review and merge PR #110 (no open question left in it). Before saying
+"merged", check that the PR's head commit is on `origin/main`.
 
 **Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
 (`docs/agent/testing.md` counts conflict between stacked branches):
@@ -61,11 +66,11 @@ A10, A11, A16, CDC 2024-0069/0034/0035/0040 in shared `dateUtils.js`). Then 6.3 
 ## Why this is a good stopping point
 
 R-A–R-C is complete and isolated in one PR; its chip question and the later-shot consequence are answered and built. G1-b touches the same dose-line component and `testing.md`
-counts, so it should start from `main` once #109 lands.
+counts, so it should start from `main` once #110 lands.
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 109`. If merged:
+1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 110`. If merged (head commit on `origin/main`):
    `git checkout main && git pull --ff-only`; `npm test` should give **2,140 passed, 171 files**.
    If not merged, ask the owner; don't build on the unlanded branch.
 2. `preview_start` "MeningoVax dev server".
