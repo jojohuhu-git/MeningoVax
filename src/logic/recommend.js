@@ -107,6 +107,12 @@ import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_ROUTINE_CATCHUP_MIN_AGE_MO
 // product or correcting its licensed age cannot leave this function behind.
 const menacwyBrands = (am) => menacwyBrandLabelsForAge(am);
 
+// F-5 (owner, STOP G1, 2026-11-18): ONE label for the routine 16-year MenACWY
+// booster, before it is due and when it is due. It was "Booster due at 16y"
+// before (1,452 cards) and "Booster (16y)" from 16 (306 cards): same dose, two
+// labels. The shorter form matches the app's other booster labels.
+const ROUTINE_16Y_BOOSTER_LABEL = 'Booster (16y)';
+
 // MenB brand options given the established family (from dose 1) and dose number.
 // Pentavalents are NOT included here — they are surfaced only via the dedicated
 // pentavalent card in the public recommend() API.
@@ -276,7 +282,7 @@ function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCat
 
 // The card for that booster, on the travel / lab / outbreak schedules. From 16
 // it is the "still owed" card the outbreak and military schedules already used;
-// under 16 it reads as the routine card does ("Booster due at 16y").
+// under 16 it reads as the routine card does ("Booster (16y)").
 function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, refs }) {
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return rec({
@@ -290,7 +296,7 @@ function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boos
   }
   const waits = lastDate != null && owed.earliestNextDate === addDays(lastDate, MENACWY_ROUTINE_BOOSTER_MIN_GAP);
   return rec({
-    vaccine: 'MenACWY', status: 'exposure', doseLabel: 'Booster due at 16y',
+    vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
     doseNum: given + 1, seriesTotal: 1, dueToday: false,
     earliestNextDate: owed.earliestNextDate, boosterDueDate: owed.boosterDueDate, boosterDueDateExact: owed.boosterDueDateExact,
     boosterSummary, brands: menacwyBrands(am),
@@ -1399,7 +1405,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // "booster due at 16y" outcome as an 11–15y patient with dose 1 recorded,
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
-    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
+    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: ROUTINE_16Y_BOOSTER_LABEL, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
@@ -1456,7 +1462,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       ? ` The booster waits ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} after the last dose given (${fmtDate(lastDate)}) [c].`
       : '';
     const waitCites = waitsAfterLastDose ? [cite('acwyBooster8WeeksAfterDose1')] : [];
-    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: 'Booster due at 16y', seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
+    return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: ROUTINE_16Y_BOOSTER_LABEL, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
       boosterSummary: 'Boosters: 1 more - at age 16 [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
@@ -1493,7 +1499,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     // N5 (2026-11-15): the booster waits 8 weeks after dose 1, whatever the age.
     const boosterTiming = given === 0 ? { dueToday: true, earliestNextDate: null } : routineBoosterTiming(lastDate, today);
     return [rec({ vaccine: 'MenACWY', status: given === 0 ? 'catchup' : 'due',
-      doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : 'Booster (16y)',
+      doseLabel: given === 0 ? 'Dose 1 (catch-up, ≥16y, no booster needed)' : ROUTINE_16Y_BOOSTER_LABEL,
       // P2-2 (2026-09-15): primaryTotal was omitted, so rec() defaulted it to
       // seriesTotal (2 in the booster case) and RecCard's headings would have
       // filed the 16-year BOOSTER under "Primary series". Routine MenACWY is the
@@ -2053,14 +2059,14 @@ function routineBoosterDate(dob, am, today) {
   return addDays(today, DAYS.months(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - am));
 }
 
-// N5 (2026-11-15): the date printed under "Booster due at 16y" is the LATER of
+// N5 (2026-11-15): the date printed under "Booster (16y)" is the LATER of
 // the 16th birthday and 8 weeks after the last dose, so a dose 1 given in the
 // last weeks before the 16th birthday does not get a booster date inside 8
 // weeks of it. An 8-week date is exact (it is counted from a recorded date),
 // even when the birthday itself is only estimated.
 // PneumoVax owner rule (2026-11-01), applied here at STOP B: "Complete should
 // only be used if no additional doses/boosters are needed." The two routine
-// "Booster due at 16y" cards are therefore status 'due' with nothing due today,
+// "Booster (16y)" cards are therefore status 'due' with nothing due today,
 // and the booster date doubles as their next-dose date (earliestNextDate), as
 // every other card with a dose coming later has. RecCard shows it once.
 function routineBoosterDueDate(dob, am, today, lastDate) {
@@ -2139,7 +2145,7 @@ function outbreakWording(cards, applies) {
     // so is the routine 16-year booster (its own ACIP rule, not an outbreak
     // booster; Port Phase 5, owner 2026-11-18).
     const label = c.doseLabel ?? '';
-    if (label.startsWith('Booster') && !/outbreak/.test(label) && label !== 'Booster due at 16y') {
+    if (label.startsWith('Booster') && !/outbreak/.test(label) && label !== ROUTINE_16Y_BOOSTER_LABEL) {
       out.doseLabel = `${label} ${c.dueToday ? 'for this outbreak' : 'if outbreak risk continues'}`;
     }
     return out;
@@ -2210,7 +2216,7 @@ export function recommend(input) {
   // birthday by any later visit — including the visit the dose was given at,
   // when the patient is still 1–4 days short of it. Without this the dose-day
   // card kept the younger schedule and changed a few days later with no new
-  // dose (CDC 2013-0488: "Booster due at 16y" on the day, "Complete" after).
+  // dose (CDC 2013-0488: "Booster (16y)" on the day, "Complete" after).
   let ageFloor = 0;
   const atLines = (input.menacwyDoses ?? []).map((d) => {
     const line = menacwyGraceLine(d, input.dob);
@@ -2241,7 +2247,7 @@ export function recommend(input) {
 // How many MenACWY doses the cards still ask for, counting the dose due next:
 // "Dose 2 of 4" owes 3, a first booster after a 1-dose series ("dose 2 of 1")
 // owes 0 more primary doses, "complete" owes 0. An open card with no dose
-// number ("Booster due at 16y") still asks for a dose: it owes 1.
+// number ("Booster (16y)") still asks for a dose: it owes 1.
 function menacwyDosesOwed(result) {
   let owed = 0;
   for (const c of result.menacwy ?? []) {

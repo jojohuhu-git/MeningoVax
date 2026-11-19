@@ -177,7 +177,7 @@ describe('Q8 limits: what the Extra rule must never take away', () => {
   it('healthy 12 y, Menveo at 10 y 3 m: still Dose 1 of 2 — not asked for again at 12', () => {
     const r = run({ dob: '2014-03-01', menacwyDoses: [{ date: '2024-06-01', brand: 'Menveo' }] });
     expect(chips(r, 'MenACWY')).toEqual(['Dose 1 of 2']);
-    expect(r.menacwy[0].doseLabel).toBe('Booster due at 16y');
+    expect(r.menacwy[0].doseLabel).toBe('Booster (16y)');
   });
 
   // CDC's 4-day grace counts a MenB dose 1–4 days before 16; the card that

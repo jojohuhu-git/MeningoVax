@@ -177,8 +177,11 @@ describe('P2-3 · the routine adolescent ages', () => {
   it('a dose at the module\'s booster age closes the series; one before it still owes a booster', () => {
     const at16 = card(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS + 1, [], [TODAY]);
     const before16 = card(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS - 6, [], [TODAY]);
-    expect(at16.doseLabel).not.toContain('Booster due');
-    expect(before16.doseLabel).toContain('Booster due');
+    // F-5 (owner, 2026-11-18): the routine 16-year booster has one label, "Booster (16y)".
+    expect(at16.status).toBe('complete');
+    expect(at16.doseLabel).not.toBe('Booster (16y)');
+    expect(before16.status).toBe('due');
+    expect(before16.doseLabel).toBe('Booster (16y)');
   });
 
   it('the validator NUMBERS a dose from the counts-from age, and refuses to before it', () => {

@@ -105,6 +105,6 @@ describe('Owner rule 2026-11-01 (PneumoVax): "Complete" only when nothing more i
     expect(c.status).not.toBe('complete');
     expect(c.dueToday).toBe(false);
     expect(c.earliestNextDate).toBe(c.boosterDueDate);
-    expect(c.doseLabel).toBe('Booster due at 16y');
+    expect(c.doseLabel).toBe('Booster (16y)');
   });
 });

@@ -2,7 +2,7 @@
 //
 // Found by the Phase 5 run-forward check (B17) and a risk-vs-healthy sweep: 830
 // saved patients were told a LATER MenACWY date because a risk box was ticked.
-// Maya, 15, MenQuadfi at 14 y 10 m: no box -> "Booster due at 16y" (Jan 10,
+// Maya, 15, MenQuadfi at 14 y 10 m: no box -> "Booster (16y)" (Jan 10,
 // 2027); travel or outbreak -> Nov 1, 2030. The outbreak card then changed its
 // mind on her 16th birthday ("routine booster at ≥16y still owed"), and a
 // traveler's 16-year dose read "too soon, does not count".
@@ -32,7 +32,7 @@ describe('Maya, 15, one MenACWY at 14 y 10 m: the 16-year booster comes first', 
     it(`${risk}: next dose Jan 10, 2027 (her 16th birthday), not 2030`, () => {
       const c = card([risk], acwy('2025-11-01'));
       expect(c.dueToday).toBe(false);
-      expect(c.doseLabel).toBe('Booster due at 16y');
+      expect(c.doseLabel).toBe('Booster (16y)');
       expect(c.earliestNextDate).toBe('2027-01-10');
     });
 
@@ -52,7 +52,7 @@ describe('Maya, 15, one MenACWY at 14 y 10 m: the 16-year booster comes first', 
 
   it('control, no box: unchanged', () => {
     const c = card([], acwy('2025-11-01'));
-    expect(c.doseLabel).toBe('Booster due at 16y');
+    expect(c.doseLabel).toBe('Booster (16y)');
     expect(c.earliestNextDate).toBe('2027-01-10');
   });
 
@@ -66,7 +66,7 @@ describe('Maya, 15, one MenACWY at 14 y 10 m: the 16-year booster comes first', 
 describe('the 16-year booster waits 8 weeks after the last dose, as on the routine card', () => {
   it('travel, dose 2 weeks before the 16th birthday: due 8 weeks after it, not on the birthday', () => {
     const c = card(['travel'], acwy('2026-12-27'), '2027-01-05');
-    expect(c.doseLabel).toBe('Booster due at 16y');
+    expect(c.doseLabel).toBe('Booster (16y)');
     expect(c.earliestNextDate).toBe('2027-02-21');
   });
 });
@@ -75,7 +75,7 @@ describe('what does not change', () => {
   it('travel, a dose before age 10 only: the travel booster schedule, unchanged', () => {
     // Dose at 8 (2019-02-01); 5-year travel booster Feb 1, 2024 -> long past, due now.
     const c = card(['travel'], acwy('2019-02-01'), '2023-06-01');
-    expect(c.doseLabel).not.toBe('Booster due at 16y');
+    expect(c.doseLabel).not.toBe('Booster (16y)');
   });
 
   it('travel booster due now under 16 (dose at 10, now 15): the travel booster is given now', () => {

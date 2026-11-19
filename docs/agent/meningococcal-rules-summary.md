@@ -229,7 +229,7 @@ receive another.
   travel: the app used to put her next dose in 2030 (5 years on), while the same
   girl with no box ticked got it at 16. ACIP's routine rule — *"1 dose at age 16
   yrs if first dose administered before 16th birthday"* — names no exception.
-  Now her card says "Booster due at 16y"; the dose counts when given; boosters
+  Now her card says "Booster (16y)"; the dose counts when given; boosters
   then follow every 5 years from it while she is at risk (5 years because it is
   given at 7 or older). Asplenia, complement and HIV are unchanged: their own
   schedule replaces the routine one, as ACIP's own example shows (an HIV child
