@@ -547,7 +547,8 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     "Booster (16y)", 1,452 real patients, label the only change; PR #108, merged).
     **R-A–R-C built 2026-11-18** (branch `port/phase6-r-abc-undated-repeat`; 574 + 588 + 822
     real lines gain a "when"; no answer moved; PR #109). **R-C's chip answered and built
-    2026-11-18** ("Not counted — do not repeat", 822 real patients). The dose-line "Why this"
+    2026-11-18** ("Not counted — do not repeat", 822 real patients), and its consequence (also when
+    a later MenB shot followed: no "Repeated on", 1,104 real patients). The dose-line "Why this"
     and the rules rewrite not built yet.
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).

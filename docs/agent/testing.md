@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,138 | `npm test`, 2026-11-18, port Phase 6.2 R-A–R-C undated repeat lines |
+| Individual `it()` tests, total | 2,140 | `npm test`, 2026-11-18, port Phase 6.2 R-A–R-C undated repeat lines |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 

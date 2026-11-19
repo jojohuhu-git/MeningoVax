@@ -198,7 +198,11 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   the line ends *"MenB is next offered at 16–23 years, by shared clinical
   decision-making."* Its chip reads "Not counted — do not repeat" (`notRepeated`;
   owner, 2026-11-18, "Yes, do not repeat": 822 real patients, chip words the only
-  change). R-A and R-B keep "Not counted — repeat". Pregnancy (deferred) unchanged. Sources in
+  change). Because that patient needs no MenB, this holds even when another MenB shot
+  followed the dose: R-C is applied before F-4b, so no "Repeated on" there (owner,
+  2026-11-18, "did the patient need MenB or no"; 1,104 real patients, all 10–11 y with no
+  risk factor or a MenACWY-only one). R-A and R-B keep "Not counted — repeat", and F-4b
+  still applies to them. Pregnancy (deferred) unchanged. Sources in
   `docs/archive/stop-g1-packet-2026-11-18.md` §4. Test
   `regression-2026-11-18-r-abc-undated-repeat-line.test.js`.
 - **Q8 + Q11 — Extra.** `validate.js` `notAskedFor`: a valid dose is Extra (not
