@@ -571,7 +571,12 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     **Built 2026-11-19** (`src/logic/noteFold.js`, guard
     `regression-2026-11-19-q10-result-page-fold.test.jsx`): words in view 280/424/623 →
     201/325/523; 0 of 24,600 saved pages lost or gained a word.
-**STOP G2 — owner merges.**
+**STOP G2 — owner merges.** **Done 2026-11-19** (#113, #114 merged). Then four wording answers
+    after the fold, W1–W4 (`decisions-2026-11-19-after-the-fold.md`): the 16-year booster's badge
+    "Booster due today" (264 real patients); "before 16 years" in its "Why this" (closes Phase 0's
+    B16 sighting, 264); the 13–15 booster line "at age 16–18" citing CDC's 13–15 sentence (216;
+    ACIP's 11–12 sentence off 270 pages, owner W3a); the healthy MenB "Why this" drops its repeated
+    sentence (79 → 69 words, 944). Built on `port/phase6-after-fold-w1-w4`.
 
 ### Phase 7 — The rulebook (2 sessions, ≈ 9%)
 

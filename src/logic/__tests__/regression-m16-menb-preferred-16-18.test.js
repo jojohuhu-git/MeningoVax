@@ -46,7 +46,11 @@ describe('M16 — the healthy MenB card states the preferred age, not just the w
   it('still states the full 16-23 eligibility window alongside it', () => {
     // The preference must not replace the window -- a 22-year-old is still
     // eligible, and the card has to keep saying so.
-    expect(noteText(menbAt(204))).toMatch(/16\D{1,3}23/);
+    // W4 (owner, 2026-11-19): "A healthy 16–23-year-old may receive MenB by
+    // shared clinical decision-making." was dropped as a repeat of the card's
+    // first sentence; the window's far end is now stated by "Past 18, the
+    // series may still be given up to the 24th birthday."
+    expect(noteText(menbAt(204))).toMatch(/Past 18, the series may still be given up to the 24th birthday/);
   });
 
   it('a 22-year-old is past the preferred age but still offered the series', () => {

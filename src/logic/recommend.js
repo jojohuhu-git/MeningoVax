@@ -1444,7 +1444,11 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       // catch-up ("Age 13–15 years: 1 dose now and booster at age 16–18
       // years"). Wording only: same dose, status, badge and booster line.
       const catchup = am >= MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS;
-      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: catchup ? 'Dose 1 (catch-up, 13–15y)' : 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, boosterSummary: 'Boosters: 1 more - at age 16 [c]', dueToday: true,
+      return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: catchup ? 'Dose 1 (catch-up, 13–15y)' : 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
+        // W3 (owner, 2026-11-19): the 13–15 card's booster line gives CDC's
+        // ages, "booster at age 16–18 years", as its "Why this" does; its
+        // source mark points at that sentence. 11–12 keeps ACIP's "age 16".
+        boosterSummary: catchup ? 'Boosters: 1 more - at age 16–18 [c]' : 'Boosters: 1 more - at age 16 [c]', dueToday: true,
         brands: menacwyBrands(am),
         note: {
           lead: catchup
@@ -1453,7 +1457,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
           detail: 'If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given on the same day.',
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
-        boosterCites: [cite('acwyRoutine1112and16')],
+        boosterCites: [cite(catchup ? 'cdcCatchupAcwyBooster8Weeks' : 'acwyRoutine1112and16')],
         noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : [],
         refs })];
     }
@@ -1521,7 +1525,9 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
         : boosterTiming.dueToday
           ? {
             lead: 'The routine 16-year booster is due [c].',
-            detail: `The dose given at 11–12 years is the first dose of the series, not the booster, so a second dose is due from the 16th birthday.`,
+            // W2 (owner, 2026-11-19; Phase 0 B16): "before 16 years", true whatever
+            // the earlier age — 228 of 264 grid cards had the dose at 13–15.
+            detail: 'The dose given before 16 years is the first dose of the series, not the booster, so a booster is due from the 16th birthday.',
           }
           : {
             lead: `The routine 16-year booster is due once ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} have passed since dose 1 [c].`,
@@ -1835,9 +1841,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: 'Dose 1 of 2 (shared clinical decision)', doseNum: 1, seriesTotal: 2, dueToday: true,
         family, brands: menbBrands(family),
+        // W4 (owner, 2026-11-19): "A healthy 16–23-year-old may receive MenB by
+        // shared clinical decision-making." dropped — it repeated the lead, which
+        // the fold puts first in "Why this" (79 → 69 words). "Up to the 24th
+        // birthday" still gives the age range.
         note: {
           lead: 'Two MenB doses, at least 6 months apart, under shared clinical decision-making [c].',
-          detail: `A healthy 16–23-year-old may receive MenB by shared clinical decision-making. The preferred age is 16 through 18 [c]. Past 18, the series may still be given up to the 24th birthday. The 6-month interval applies to both Bexsero and Trumenba. If rapid protection is needed, such as starting college within 6 months, a planned 3-dose series at 0, 1–2 and 6 months may be used instead.${menbPregnancyCaveat}`,
+          detail: `The preferred age is 16 through 18 [c]. Past 18, the series may still be given up to the 24th birthday. The 6-month interval applies to both Bexsero and Trumenba. If rapid protection is needed, such as starting college within 6 months, a planned 3-dose series at 0, 1–2 and 6 months may be used instead.${menbPregnancyCaveat}`,
         },
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one

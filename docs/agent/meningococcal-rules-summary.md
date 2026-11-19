@@ -75,9 +75,11 @@ Two deliberate limits:
 - **11–12 years:** Dose 1.
 - **13–15 years, no dose yet:** the same dose 1, called catch-up (owner decision 2026-11-18).
   CDC: *"Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8
-  weeks)"*. Only the words change; the 16-year booster and its date are the same.
-- **16 years:** booster (this is the "real" booster — a dose 1 given at 11–12
-  does not itself count as the 16y booster).
+  weeks)"*. Only the words change; the 16-year booster and its date are the same. The card's
+  booster line says "at age 16–18", as CDC does (owner decision 2026-11-19).
+- **16 years:** booster (this is the "real" booster — a dose given before 16
+  does not itself count as the 16y booster). The card says "Booster due today" (owner
+  decision 2026-11-19).
 - **The booster waits at least 8 weeks after dose 1** (owner decision
   2026-11-15). ACIP: *"the booster dose can be administered at any time, as long
   as a minimum interval of 8 weeks between doses is maintained."* Example: dose 1
