@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase5-closed.md`. PR #105 merged; A17 closed and Phase 5 finished. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 5 questions F-2, F-4 and F-6 were answered and built (2026-11-18, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit

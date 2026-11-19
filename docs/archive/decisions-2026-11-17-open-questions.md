@@ -258,3 +258,21 @@ indicated" if it is not.
 | # | Question | Owner answer | Measured |
 |---|---|---|---|
 | F-6 | From 22, outbreak booster instead of "routine booster at ≥16y still owed"? | **Yes**, through 21 as travel and lab | Saved answers 48 of 18,780 real moved (ages 22 and 24: label, note, and the card's 5-year spacing field; still due today, no date moved), 0 of 5,820 impossible. Prose 48 screens |
+
+## Phase 5 close-out (A17, and when to ask the "Not yet due" repeat lines), answered 2026-11-18
+
+| # | Question | Owner answer |
+|---|---|---|
+| A17 | PneumoVax keeps two dates for a too-soon dose (when it would have counted; when the next dose may be given). MeningoVax's saved answers already hold the second (the card's `earliestNextDate`, the date F-4's line prints); the first is not computed and nothing on screen uses it. Close A17? | **Close it.** No date added, no answer moved. Phase 5 is finished |
+| — | 1,984 "Not counted — repeat" lines sit under a card that says "Not yet due" with no date (e.g. a baby's too-young MenQuadfi: "repeat", but the repeat is at 11). Ask now or with Phase 6? | **With Phase 6** (wording), beside F-3 and F-5, with worked patients |
+
+## STOP G1 (Phase 6.1 wording), F-3, F-5 and the undated "repeat" lines, answered 2026-11-18
+
+Asked from `stop-g1-packet-2026-11-18.md` (five before/after dose lines and five "Why this"
+paragraphs, the most-seen, measured on `main` `9331624` over 18,780 real patients; sources read
+live 2026-11-18: CDC Timing and Spacing, July 24, 2024; CDC child/adolescent notes, July 1, 2025).
+All seven answered as recommended; **none built yet**. The table of answers is in the packet
+("Answers"). In short: PneumoVax's 10 style rules apply (G1-a); a dose-line "Why this" as PneumoVax
+(G1-b); "Up to date" only when nothing is left (F-3); "Booster (16y)" for both forms (F-5); the
+undated "repeat" lines say when (R-A, R-B) or, for a healthy child's too-young MenB, name the
+optional series instead of a repeat (R-C). Still to ask: R-C's chip.
