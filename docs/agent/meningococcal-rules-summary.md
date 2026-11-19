@@ -127,16 +127,16 @@ Two deliberate limits:
 - **17–21 years, no dose recorded on/after the 16th birthday:** one catch-up
   dose. Because it's given at ≥16, no further booster is needed. Especially
   called out for first-year college students in dorms.
-  <!-- SOURCES: acwyCatchup1921, acwyFirstDoseAfter16NoBooster, todo -->
+  <!-- SOURCES: cdcCatchupAcwy1618OneDose, acwyCatchup1921, acwyFirstDoseAfter16NoBooster -->
+  > "Age 16–18 years: 1 dose" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-19.
+  >
   > "Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
   >
   > "Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
-  >
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
   <!-- /SOURCES -->
 - **≥22 years, healthy, no risk factor:** not indicated.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: acip2020Table2CatchupOnly1921 -->
+  > "Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **Golden rule that cuts across all the bands above:** *any* dose given at
   age ≥16 satisfies the adolescent schedule — no further routine doses,
@@ -170,8 +170,12 @@ purposes. This only applies to healthy patients; a high-risk infant series
   series* as a high-risk one — ACIP prints the identical "2–23 months" row in Tables
   4–6, 8 and 9. Microbiologists and military recruits are excluded: ACIP gives them no
   infant row at all.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: acip2020AcwyRiskGroupsFrom2mo, cdcChildAcwyTravelUnder24m, acwyInfantHighRisk2to6mo -->
+  > "ACIP also recommends routine vaccination with MenACWY for persons aged ≥2 months at increased risk for meningococcal disease caused by serogroups A, C, W, or Y, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor (e.g., eculizumab [Soliris] or ravulizumab [Ultomiris]); persons who have anatomic or functional asplenia; persons with human immunodeficiency virus infection; microbiologists routinely exposed to isolates of Neisseria meningitidis; persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y; persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic; unvaccinated or incompletely vaccinated first-year college students living in residence halls; and military recruits" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  >
+  > "Children younger than age 24 months: Menveo* (age 2–23 months)" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-19.
+  >
+  > "4 doses at 2, 4, 6, and 12 mos" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
   <!-- /SOURCES -->
   - Dose 1 at 2 months: 4-dose infant MenACWY series (2, 4, 6, 12 months). No shortcut.
     Menveo and MenQuadfi are both offered — see the licensed-age note just below.
@@ -372,14 +376,16 @@ receive another.
   sub-Saharan "meningitis belt"): 1 dose, then re-vaccinate while the risk continues.
   The first booster is at **3 years** if the primary dose was given before age 7,
   otherwise 5 years; every booster after that is 5 years.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: boosterBeforeAge7, boosterAtOrAfterAge7 -->
+  > "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  >
+  > "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   <!-- /SOURCES -->
 - **Microbiologists** routinely handling *N. meningitidis*: 1 dose, then every 5 years
   while the exposure continues — a flat interval with no under-7 variation, because
   ACIP's microbiologist table covers ages ≥10 only.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: acip2020Table7MicrobiologistBooster -->
+  > "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **A booster given too soon does not count, for both** (your C10 answer,
   2026-11-15): checked like a medical high-risk booster — 3 or 5 years, less
@@ -399,10 +405,10 @@ receive another.
   given at 7 or older). Asplenia, complement and HIV are unchanged: their own
   schedule replaces the routine one, as ACIP's own example shows (an HIV child
   dosed at 9 gets the next dose at 14).
-  <!-- SOURCES: owner:16y-booster, todo -->
+  <!-- SOURCES: owner:16y-booster, acip2020Table2Booster16 -->
   > Owner decision 16y-booster, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
   >
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  > "Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
   <!-- /SOURCES -->
 
 ---
@@ -457,8 +463,10 @@ series. Reason: MenB antibody protection wanes within about a year, so a dose
 given at, say, 10 provides no protection by 16. (Shipped 2026-07-23, P0-1 —
 previously this silently under-counted and could tell a healthy 16-year-old
 with an old dose "you're done" when they weren't.)
-<!-- SOURCES: todo -->
-> *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+<!-- SOURCES: menbHealthyPreferredAge1618, acip2020MenbShortProtection -->
+> "MenB series at age 16–23 yrs on basis of shared clinical decision-making (preferred age 16–18 yrs)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=MenB%20series%20at%20age%2016%E2%80%9323%20yrs%20on%20basis%20of%20shared%20clinical%20decision-making%20(preferred%20age%2016%E2%80%9318%20yrs)), read 2026-11-15.
+>
+> "the estimated relatively short duration of MenB protection (antibody waning within 1–2 years postcompletion of the primary series)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
 <!-- /SOURCES -->
 
 ### High-risk (asplenia/sickle cell, persistent complement deficiency, complement-inhibitor therapy, microbiologist, serogroup B outbreak)
@@ -500,10 +508,10 @@ with an old dose "you're done" when they weren't.)
     test as the healthy rule above, read in the opposite direction, and it is
     compared on the calendar rather than as a fixed number of days, **with the
     4-day grace** (your D4 answer, 2026-11-17).
-    <!-- SOURCES: owner:D4, todo -->
+    <!-- SOURCES: owner:D4, cdcChildMenbHighRiskD2SixMonthsNoD3 -->
     > Owner decision D4, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
     >
-    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+    > "if dose 2 was administered at least 6 months after dose 1, dose 3 not needed" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
     <!-- /SOURCES -->
   - **If dose 3 was given earlier than 4 months after dose 2, that dose still
     counts — do not repeat it — but a 4th dose is then owed at least 4 months
@@ -553,18 +561,26 @@ with an old dose "you're done" when they weren't.)
     <!-- /SOURCES -->
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
   alone — only the specific list above triggers high-risk MenB.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: acip2020MenbRiskGroups, acip2020AcwyRiskGroupsFrom2mo -->
+  > "ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  >
+  > "ACIP also recommends routine vaccination with MenACWY for persons aged ≥2 months at increased risk for meningococcal disease caused by serogroups A, C, W, or Y, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor (e.g., eculizumab [Soliris] or ravulizumab [Ultomiris]); persons who have anatomic or functional asplenia; persons with human immunodeficiency virus infection; microbiologists routinely exposed to isolates of Neisseria meningitidis; persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y; persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic; unvaccinated or incompletely vaccinated first-year college students living in residence halls; and military recruits" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
   <!-- /SOURCES -->
 
 ### The two antigen families are NOT interchangeable
 - **MenB-4C family:** Bexsero, Penmenvy.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: cdcChildMenbMinAge, penmenvyIsCrm4C, penmenvyMenb4COtherDoses -->
+  > "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+  >
+  > "A new pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) protects against N. meningitidis serogroups A, B, C, W, and Y" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
+  >
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, when MenACWY-CRM/MenB-4C is used, MenB-4C should be used for the other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **MenB-FHbp family:** Trumenba, Penbraya.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: cdcChildMenbMinAge, penbrayaMenbFhbpOtherDoses -->
+  > "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+  >
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, persons who receive pentavalent MenACWY-TT/MenB-FHbp should have already received or should next receive MenB-FHbp for other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 
 Whichever family the first known-brand dose belongs to, every later dose
@@ -620,18 +636,24 @@ on-the-table today).
 
 - **Penmenvy** = MenB-4C family → only offered/continued if the established
   family is 4C (or no family established yet).
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: penmenvyIsCrm4C, penmenvyMenb4COtherDoses -->
+  > "A new pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) protects against N. meningitidis serogroups A, B, C, W, and Y" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
+  >
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, when MenACWY-CRM/MenB-4C is used, MenB-4C should be used for the other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **Penbraya** = MenB-FHbp family → only offered/continued if FHbp (or none
   established yet).
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: penbrayaMenbFhbpOtherDoses, cdcChildPenbrayaDose2Trumenba -->
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, persons who receive pentavalent MenACWY-TT/MenB-FHbp should have already received or should next receive MenB-FHbp for other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
+  >
+  > "if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered for dose 2 MenB" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
   <!-- /SOURCES -->
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: pentavalentWhenBothIndicated, cdcAdultPenbrayaSameDay -->
+  > "ACIP recommended that MenACWY-CRM/MenB-4C may be used when both MenACWY and MenB are indicated at the same visit" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
+  >
+  > "Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day." — [CDC Adult Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening), read 2026-11-15.
   <!-- /SOURCES -->
 - **Penbraya cannot be given again within 6 months of the last Penbraya**
   (added 2026-09-17). CDC allows Penbraya for further doses only once at least
@@ -640,8 +662,8 @@ on-the-table today).
   that rules out the only pentavalent the patient's MenB family allows, the app
   simply does not offer the combined injection and says why — **the vaccine
   itself is still given**, as two separate shots the same day.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: cdcChildPenbraya6Months -->
+  > "Penbraya may be used for additional MenACWY and MenB doses (including booster doses) if both would be given on the same clinic day and at least 6 months have elapsed since most recent Penbraya dose" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
   <!-- /SOURCES -->
 - **Penmenvy follows the same six-month rule** (owner decision 2026-11-15). The
   CDC schedule page names only Penbraya, but ACIP's Penmenvy report (January
@@ -649,10 +671,10 @@ on-the-table today).
   a pentavalent should get the two separate vaccines instead. Example: a
   17-year-old with asplenia who had Penmenvy on July 1 is offered Menveo or
   MenQuadfi plus Bexsero on September 1, not a second Penmenvy.
-  <!-- SOURCES: owner:N1, todo -->
+  <!-- SOURCES: owner:N1, penmenvySeparateUnder6Months -->
   > Owner decision N1, 2026-11-15 ([clinical-rules.md](clinical-rules.md)).
   >
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  > "Persons at increased risk for meningococcal disease who receive a dose of MenACWY-CRM/MenB-4C and who are recommended to receive additional doses of MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine should receive separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C, following recommended intervals" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **After a Penbraya, MenB dose 2 should be Trumenba.** The app already does
   this, through the antigen-family rule — a Penbraya sets the family to FHbp and
@@ -677,14 +699,16 @@ step it was typed into:
   <!-- /SOURCES -->
 - **Dose numbers stay separate per vaccine.** The same shot can be MenACWY dose 3
   and MenB dose 1.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: pentavalentValidPerComponent -->
+  > "MenACWY-CRM/MenB-4C doses deviating from the licensed 6-month interval can be considered valid for MenACWY or MenB if the timing would otherwise have been valid for that component" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **It sets the MenB antigen family from either step** (Penbraya → FHbp,
   Penmenvy → 4C). A Bexsero recorded after a Penbraya is flagged as a family
   mismatch even when the Penbraya was entered on the MenACWY step.
-  <!-- SOURCES: todo -->
-  > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  <!-- SOURCES: penbrayaMenbFhbpOtherDoses, penmenvyMenb4COtherDoses -->
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, persons who receive pentavalent MenACWY-TT/MenB-FHbp should have already received or should next receive MenB-FHbp for other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
+  >
+  > "Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, when MenACWY-CRM/MenB-4C is used, MenB-4C should be used for the other MenB doses" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-19.
   <!-- /SOURCES -->
 - **Editing or deleting the row moves both halves at once**, because there is only
   ever one row — the copy shown in the other vaccine's record is marked
