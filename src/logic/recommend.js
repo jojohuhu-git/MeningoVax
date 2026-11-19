@@ -1870,7 +1870,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         family, brands: menbBrands(family),
         note: {
           lead: `Dose 2 is due at least ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
-          detail: `Two doses ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third rescue dose is needed at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
+          detail: `Two doses ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third dose is needed at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
         },
         noteCites: [cite('menbRescueDoseRule')],
         refs: refs([], ['mm7349a3']) })];
@@ -1895,7 +1895,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         const elapsed = calendarIntervalElapsed(rescueFrom, MENB_HEALTHY_RESCUE_MONTHS, today);
         return [rec({
           vaccine: 'MenB', status: 'shared-decision',
-          doseLabel: 'Dose 3 of 3 (rescue: dose 2 given early)',
+          // G1-a-F2 (owner, 2026-11-19): no "rescue" (jargon; ACIP says "a third dose").
+          doseLabel: 'Dose 3 of 3 (dose 2 given early)',
           doseNum: 3, seriesTotal: 3, dueToday: elapsed,
           earliestNextDate: elapsed ? null : addCalendarMonths(rescueFrom, MENB_HEALTHY_RESCUE_MONTHS),
           minIntervalDays: DAYS.months(MENB_HEALTHY_RESCUE_MONTHS),
@@ -2335,10 +2336,18 @@ const REPEAT_LATER_MENB_HEALTHY = {
   line: `MenB is next offered at ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)}–${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years, by shared clinical decision-making.`,
   dropRepeat: true,
 };
+// G1-a-F3 (owner, 2026-11-19): a too-soon booster's line has no repeat
+// sentence ("Do not restart the series." means nothing for a booster) but is
+// still repeated, so it is dated the same way: its "when" goes at the end.
+const awaitsRepeat = (d) => d.status === 'invalid' && !d.recordProblem && !d.notRepeated
+  && ((d.reasons ?? []).includes(REPEAT_THIS_DOSE) || d.tooSoonBooster === true);
+const withWhen = (reasons, when) => (reasons.includes(REPEAT_THIS_DOSE)
+  ? reasons.flatMap((x) => (x === REPEAT_THIS_DOSE ? [when, x] : [x]))
+  : [...reasons, when]);
 function datedRepeatLines(history, cards, today) {
   const per = history?.perDose ?? [];
   const doses = history?.sortedDoses ?? [];
-  if (!per.some((d) => d.status === 'invalid' && (d.reasons ?? []).includes(REPEAT_THIS_DOSE))) return history;
+  if (!per.some(awaitsRepeat)) return history;
   const asking = (cards ?? []).find((c) => !CARDS_ASK_NOTHING.has(c.status) && c.status !== 'deferred');
   const cardDate = !asking ? null
     : asking.dueToday ? today
@@ -2350,7 +2359,7 @@ function datedRepeatLines(history, cards, today) {
   return {
     ...history,
     perDose: per.map((d, i) => {
-      if (d.status !== 'invalid' || !(d.reasons ?? []).includes(REPEAT_THIS_DOSE)) return d;
+      if (!awaitsRepeat(d)) return d;
       // R-C before F-4b (owner, 2026-11-18: "did the patient need MenB or
       // no", then "Yes, build it"): under the R-C card the patient needs no
       // MenB, so a later MenB shot was no repeat. Every too-young dose there
@@ -2362,11 +2371,17 @@ function datedRepeatLines(history, cards, today) {
       const k = at ? doses.findIndex((x, j) => x?.date && x.date > at && !per[j]?.recordProblem) : -1;
       if (k >= 0) {
         const said = `Repeated on ${fmtDate(doses[k].date)}. See that dose.`;
-        return { ...d, repeatedOn: doses[k].date, reasons: d.reasons.map((x) => (x === REPEAT_THIS_DOSE ? said : x)) };
+        return {
+          ...d,
+          repeatedOn: doses[k].date,
+          reasons: d.reasons.includes(REPEAT_THIS_DOSE)
+            ? d.reasons.map((x) => (x === REPEAT_THIS_DOSE ? said : x))
+            : [...d.reasons, said],
+        };
       }
       const when = cardDate ? `Repeat from ${fmtDate(cardDate)}.` : later?.line;
       if (!when) return d;
-      return { ...d, reasons: d.reasons.flatMap((x) => (x === REPEAT_THIS_DOSE ? [when, x] : [x])) };
+      return { ...d, reasons: withWhen(d.reasons, when) };
     }),
   };
 }

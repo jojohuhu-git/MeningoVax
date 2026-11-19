@@ -233,7 +233,7 @@ describe('P2-1 · the healthy 2-dose MenB intervals', () => {
   it('the rescue dose states the module\'s interval', () => {
     // Dose 2 given one month after dose 1 -> a third dose is owed.
     const card = menb(['2026-01-15', '2026-02-15']);
-    expect(card.doseLabel).toContain('rescue');
+    expect(card.doseLabel).toContain('dose 2 given early') // G1-a-F2: no \"rescue\";
     expect(noteText(card)).toContain(monthsLabel(MENB_HEALTHY_RESCUE_MONTHS));
   });
 });

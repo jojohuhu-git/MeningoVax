@@ -332,7 +332,7 @@ export const CITATIONS = {
   menbRescueDoseRule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose',
-    label: 'ACIP Oct 2024 MMWR: healthy 2-dose interval and the early-dose-2 rescue-dose rule',
+    label: 'ACIP Oct 2024 MMWR: healthy 2-dose interval and the third dose after an early dose 2',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
   },

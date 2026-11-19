@@ -46,7 +46,7 @@ describe('P0-4 (UI): a 0/6-month MenB series is complete, not short a dose', () 
   it('no rescue dose is offered', () => {
     const { rec, container } = show(SIX_CALENDAR_MONTHS);
     expect(rec.dueToday).toBeFalsy();
-    expect(container.textContent).not.toMatch(/rescue/i);
+    expect(container.textContent).not.toMatch(/dose 2 given early/i); // G1-a-F2: the title no longer says "rescue"
   });
 
   it('dose 2 is not described as given early', () => {
@@ -63,7 +63,7 @@ describe('P0-4 (UI): a 0/6-month MenB series is complete, not short a dose', () 
 
   it('control: a genuinely early dose 2 still asks for the rescue dose', () => {
     const { rec, container } = show(['2025-01-15', '2025-06-15']); // five months
-    expect(rec.doseLabel).toMatch(/rescue/i);
-    expect(container.textContent).toMatch(/rescue/i);
+    expect(rec.doseLabel).toMatch(/dose 2 given early/i) // G1-a-F2: no \"rescue\";
+    expect(container.textContent).toMatch(/dose 2 given early/i); // G1-a-F2: no "rescue"
   });
 });

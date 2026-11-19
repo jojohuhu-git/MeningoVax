@@ -175,10 +175,14 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         reasons: result.recordProblem
           // G3: the entry is wrong, not the vaccination — see recordProblemResult.
           ? result.reasons
-          : [
-            ...result.reasons,
-            DO_NOT_RESTART,
-          ],
+          // G1-a-F3 (owner, 2026-11-19): not on a too-soon booster, which has
+          // no series to restart.
+          : result.tooSoonBooster
+            ? result.reasons
+            : [
+              ...result.reasons,
+              DO_NOT_RESTART,
+            ],
       });
       // Do NOT add to kept; do NOT increment effectiveCount.
       if (dose.date && !result.recordProblem) {

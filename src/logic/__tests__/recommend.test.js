@@ -311,7 +311,7 @@ describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
       { date: '2025-12-03', brand: 'Bexsero' }, // 91 days after dose 1 — early
     ] });
     expect(menb(r).status).toBe('shared-decision');
-    expect(menb(r).doseLabel).toMatch(/rescue/i);
+    expect(menb(r).doseLabel).toMatch(/dose 2 given early/i); // G1-a-F2: no "rescue"
     expect(menb(r).doseNum).toBe(3);
     expect(menb(r).minIntervalDays).toBe(DAYS.months(4));
     // C5: an interrupted/off-schedule series is a "does this old dose

@@ -204,6 +204,18 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   number moved (measured 2026-11-19). Guard:
   `regression-2026-11-19-g1a-style-rules.test.js` (no "~", no semicolon, at most one
   dash a sentence, no label repeat, dose line ≤50 words, card "Why this" ≤66).
+  **Its three findings, answered by the owner 2026-11-19 (all as recommended):**
+  F1, where the rounded gap would print the minimum itself ("about 4 months after the
+  early dose 2, under the 4-month minimum"), the line prints the exact calendar gap
+  ("3 months 19 days"; `gapUnder`/`exactGap` in `doseRules.js`), and its detail says
+  "minimum 4 months"; every other gap keeps "about". F2, the healthy MenB card title
+  "Dose 3 of 3 (rescue: dose 2 given early)" is now "Dose 3 of 3 (dose 2 given early)"
+  (a change to this closed label list) and its "Why this" says "a third dose" (ACIP Oct
+  2024, `menbRescueDoseRule`: *"a third dose should be administered ≥4 months after the
+  second dose"*). F3, a too-soon MenACWY or MenB booster (`tooSoonBooster`) gets no "Do
+  not restart the series." (a booster has no series to restart); its line still ends
+  "Repeat from <date>." or "Repeated on <date>. See that dose." Test
+  `regression-2026-11-19-g1a-findings-f1-f2-f3.test.js`.
 - **R-A / R-B / R-C (owner, STOP G1, 2026-11-18)** the repeat line under a card that
   asks LATER with no date says when too. The card carries its own ending
   (`repeatLater` in `recommend.js`), read by `datedRepeatLines` only when no card asks
