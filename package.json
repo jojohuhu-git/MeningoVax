@@ -14,7 +14,8 @@
     "prepare": "git config core.hooksPath .githooks || true",
     "sweep:update": "node scripts/updateSavedAnswers.mjs",
     "prose": "vite-node scripts/proseDiff.mjs --",
-    "whole-app": "node scripts/wholeApp/run.mjs"
+    "whole-app": "node scripts/wholeApp/run.mjs",
+    "rulebook": "vite-node scripts/rulebook.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

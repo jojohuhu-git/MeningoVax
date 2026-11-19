@@ -26,7 +26,7 @@ The save-time guardrail (flags stray top-level notes — see Root Directory Hygi
 | Plain-English folder guide (owner is a non-coder) | [MAP.md](MAP.md) |
 | Architecture, file map, engine API, validation model | [docs/agent/architecture.md](docs/agent/architecture.md) |
 | MenACWY/MenB clinical rules, schedules, booster cadence | [docs/agent/clinical-rules.md](docs/agent/clinical-rules.md) |
-| Plain-English rules summary (owner-facing; source of truth) | [docs/agent/meningococcal-rules-summary.md](docs/agent/meningococcal-rules-summary.md) |
+| Plain-English rules summary and **rulebook** (owner-facing; source of truth; §5 generated) | [docs/agent/meningococcal-rules-summary.md](docs/agent/meningococcal-rules-summary.md) |
 | Test files and coverage requirements | [docs/agent/testing.md](docs/agent/testing.md) |
 | Session history (2026-06-04 through 2026-06-13) | [docs/archive/agent-session-log.md](docs/archive/agent-session-log.md) |
 
@@ -62,7 +62,7 @@ routine-only under 16, pentavalent waits, no false "Complete" (B-2–B-5). **Own
 3-month, 7-month, 2-year and 16-year lines, only when it means fewer doses owed, from the dose day
 on; age 7 is not a grace line — owner D11–D13). **Phase 4 (one label per dose) built 2026-11-17**: STOP E1
 answers Q5–Q11 in `docs/archive/decisions-2026-11-17-open-questions.md`; the closed label list is in
-`docs/agent/clinical-rules.md` ("One Label Per Dose"). **Phase 5 STOP F1 answered 2026-11-17** (routine date with the minimum beside it, at MenB high-risk dose 2 and infant MenACWY doses 2–3; built, #101). **Its two consequences F2a/F2b answered and built 2026-11-18** (combined shot offered while MenB dose 2 can be given; switch line says "due"). **F-2, F-4, F-6 built (#105); A17 closed 2026-11-18: Phase 5 finished.** **STOP G1 answered 2026-11-18** (`docs/archive/stop-g1-packet-2026-11-18.md`). **Phase 6.2 F-3 built 2026-11-18** (badge says "Up to date" only when nothing is left). **F-5 built 2026-11-18** (one label, "Booster (16y)", for the routine 16-year booster). **R-A–R-C built 2026-11-18** (an undated "repeat" line says when). **G1-b built 2026-11-18** (each recorded dose has its own "Why this"). **G1-a built 2026-11-19** (every dose line, card lead and "Why this" follows the ten style rules; guard `regression-2026-11-19-g1a-style-rules.test.js`; its findings F1–F3 answered and built the same day). **Phase 6.3 Q10 built 2026-11-19** (owner: "Full PneumoVax fold"; a card line that repeats its heading moves behind "Why this", only the owner's list stays in view, `src/logic/noteFold.js`; sources inside "Why this"; disclaimer's risk-history half behind a click). **STOP G2 done 2026-11-19** (#113, #114 merged). **W1–W4 built 2026-11-19** (`docs/archive/decisions-2026-11-19-after-the-fold.md`: 16y booster badge "Booster due today"; "before 16 years"; 13–15 booster line "at age 16–18" citing CDC; healthy MenB "Why this" repeat dropped). Next: Phase 7. Open owner questions are
+`docs/agent/clinical-rules.md` ("One Label Per Dose"). **Phase 5 STOP F1 answered 2026-11-17** (routine date with the minimum beside it, at MenB high-risk dose 2 and infant MenACWY doses 2–3; built, #101). **Its two consequences F2a/F2b answered and built 2026-11-18** (combined shot offered while MenB dose 2 can be given; switch line says "due"). **F-2, F-4, F-6 built (#105); A17 closed 2026-11-18: Phase 5 finished.** **STOP G1 answered 2026-11-18** (`docs/archive/stop-g1-packet-2026-11-18.md`). **Phase 6.2 F-3 built 2026-11-18** (badge says "Up to date" only when nothing is left). **F-5 built 2026-11-18** (one label, "Booster (16y)", for the routine 16-year booster). **R-A–R-C built 2026-11-18** (an undated "repeat" line says when). **G1-b built 2026-11-18** (each recorded dose has its own "Why this"). **G1-a built 2026-11-19** (every dose line, card lead and "Why this" follows the ten style rules; guard `regression-2026-11-19-g1a-style-rules.test.js`; its findings F1–F3 answered and built the same day). **Phase 6.3 Q10 built 2026-11-19** (owner: "Full PneumoVax fold"; a card line that repeats its heading moves behind "Why this", only the owner's list stays in view, `src/logic/noteFold.js`; sources inside "Why this"; disclaimer's risk-history half behind a click). **STOP G2 done 2026-11-19** (#113, #114 merged). **W1–W4 built 2026-11-19** (`docs/archive/decisions-2026-11-19-after-the-fold.md`: 16y booster badge "Booster due today"; "before 16 years"; 13–15 booster line "at age 16–18" citing CDC; healthy MenB "Why this" repeat dropped). **Phase 7.1 (dose rules) and 7.3 built 2026-11-19**: the rulebook is `docs/agent/meningococcal-rules-summary.md` (owner: grow the summary, no CLINICAL_SPEC.md); its section 5 is the rule table written from `DOSE_RULES` by `npm run rulebook`, held cell by cell; vaxapp sync dropped. Next: the rest of 7.1 (card rules' quotes), then Q11 (Rulebook tab). Open owner questions are
 in the newest handoff.
 CDC's CDSI files and the test-patient script are in `scripts/cdsi/` (`README.md` there).
 
@@ -118,6 +118,21 @@ made here fails there — apply the same change to both.
 
 ### college_dorm vs military vs acwy_outbreak
 The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`, and only for 5 years after that dose (owner D1, 2026-11-17, reversing M17's "permanently"). Do not apply it to `military` or `acwy_outbreak`.
+
+### What the PneumoVax Port Made Permanent (Phase 7.3, 2026-11-19)
+- **One rule table.** Every rule that judges a recorded dose is one row of `DOSE_RULES` in
+  `doseRules.js`, with its five answers and `sourcesSay` (the quoted sentences and a verdict).
+  A new rule is a new row, never a branch somewhere else.
+- **A moved answer must be explained.** When `sweep-saved-answers.test.js` fails on purpose, run
+  `npm run sweep:update` and put the number of moved answers and the reason in the PR. If you
+  cannot say why those patients should get a different answer, it is a bug. Wording changes are
+  counted with `npm run prose` (`docs/agent/testing.md`).
+- **One label per dose, from a closed list** (`doseChipLabel.js`; list in
+  `docs/agent/clinical-rules.md`, "One Label Per Dose"). A new label is an owner question.
+- **The rulebook is held to the code.** `docs/agent/meningococcal-rules-summary.md` is the
+  rulebook (owner 2026-11-19). Its section 5 is written by `npm run rulebook` and never by hand;
+  `rulebook-table-matches-code.test.js` fails if one cell differs from `DOSE_RULES`. After
+  changing a row or a quoted sentence in `refs.js`, run it and commit the diff with the change.
 
 ### End-of-Session Checklist (E4)
 Four questions, at the end of any session and in any PR body. They take two minutes and catch drift a green suite alone won't:
