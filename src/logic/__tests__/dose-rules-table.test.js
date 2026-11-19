@@ -212,8 +212,14 @@ describe('3 · what a row says happens is what happens, to every dose it decided
     // sentence is followed by when. R-C (healthy MenB before 16) is not
     // repeated (`notRepeated`, owner 2026-11-18): the repeat sentence is gone
     // and the line ends with when MenB is next offered.
+    // G1-a-F3 (owner, 2026-11-19): a too-soon booster has no repeat sentence;
+    // its line ends with its date ("Repeat from" / "Repeated on"), or with its
+    // reason when no card gives a date.
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
-      && (v.notRepeated
+      && (v.tooSoonBooster
+        ? !v.reasons.includes(REPEAT_SENTENCE)
+          && (v.reasons.length === 1 || /^Repeat(ed on| from) [A-Z][a-z]{2} \d{1,2}, \d{4}\./.test(v.reasons.at(-1)))
+        : v.notRepeated
         ? !v.reasons.includes(REPEAT_SENTENCE)
         : v.repeatedOn
           ? !v.reasons.includes(REPEAT_SENTENCE) && /^Repeated on [A-Z][a-z]{2} \d{1,2}, \d{4}\. See that dose\.$/.test(v.reasons.at(-1))

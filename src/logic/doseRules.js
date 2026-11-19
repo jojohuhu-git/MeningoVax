@@ -102,7 +102,7 @@
 // stay in step with recommend.js (CLAUDE.md).
 // ─────────────────────────────────────────────────────────────────────────
 
-import { daysBetween, calendarIntervalElapsed, DAYS, AVG_DAYS_PER_MONTH } from './dateUtils.js';
+import { daysBetween, calendarIntervalElapsed, calendarMonthsBetween, addCalendarMonths, DAYS, AVG_DAYS_PER_MONTH } from './dateUtils.js';
 import { hasMenbRisk, menacwyRiskClass, menacwyInfantSeriesIndicated } from '../data/riskFactors.js';
 import {
   menbFamily, ALL_BRANDS, brandMinAge, MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
@@ -261,6 +261,33 @@ function about(age) {
 }
 const aboutAgeAt = (m, exactDays) => about(fmtAgeMClinical(m, exactDays));
 
+// G1-a-F1 (owner, 2026-11-19, "Exact months and days"): "about 4 months after
+// the early dose 2, under the 4-month minimum" read as if the minimum was met.
+// Where the rounded gap would print the minimum itself, the line prints the
+// exact calendar gap ("3 months 19 days"); every other gap keeps "about".
+function exactGap(fromISO, toISO) {
+  const whole = Math.floor(calendarMonthsBetween(fromISO, toISO));
+  const days = daysBetween(addCalendarMonths(fromISO, whole), toISO);
+  const y = Math.floor(whole / 12);
+  const m = whole % 12;
+  return [
+    y ? `${y} year${y === 1 ? '' : 's'}` : null,
+    m ? `${m} month${m === 1 ? '' : 's'}` : null,
+    days ? `${days} day${days === 1 ? '' : 's'}` : null,
+  ].filter(Boolean).join(' ') || '0 days';
+}
+const fmtMonths = (n) => (n % 12 === 0
+  ? `${n / 12} year${n === 12 ? '' : 's'}`
+  : `${n} month${n === 1 ? '' : 's'}`);
+// The gap a "… under the N-month minimum" line prints: `exact` when rounding
+// would have printed the minimum (then the detail says "minimum N months").
+function gapUnder(fromISO, toISO, minMonths) {
+  const rounded = fmtDays(daysBetween(fromISO, toISO));
+  return rounded === `about ${fmtMonths(minMonths)}`
+    ? { text: exactGap(fromISO, toISO), exact: true }
+    : { text: rounded, exact: false };
+}
+
 // Format an age in months using clinical units, for the record panel's
 // sentences. The units come from format.js's fmtAgeMonths(), the one
 // canonical formatter (P1-3, 2026-09-17: a near-copy here once printed
@@ -372,6 +399,13 @@ function invalidResult(reasons, detail, reasonCites) {
   if (detail != null) r.detail = detail;
   if (reasonCites && reasonCites.length) r.reasonCites = reasonCites;
   return r;
+}
+
+// G1-a-F3 (owner, 2026-11-19, "Drop it on boosters"): a booster given too
+// soon has no series to restart, so validate.js does not add DO_NOT_RESTART to
+// its line; recommend.js still dates its repeat ("Repeat from <date>.").
+function tooSoonBooster(r) {
+  return { ...r, tooSoonBooster: true };
 }
 
 // E2 (owner, 2026-11-15): marks a wrong-family MenB dose, so the walk keeps it
@@ -549,10 +583,11 @@ function acwyBoosterTooSoon(ctx, who) {
   if (calendarIntervalMeetsMinimum(prev.dose.date, cadenceYears * 12, ctx.dose.date)) return null;
   // G1-a: the minimum folds into the reason; "does not count" is the label's.
   const cadenceAdj = cadenceLabel.replace(' years', '-year');
-  return invalidResult(
-    [`Booster given ${fmtDays(prev.interval)} after the previous dose, under the ${cadenceAdj} minimum for ${who}.`],
-    `Actual interval: ${fmtDays(prev.interval)}. Required cadence: ${cadenceLabel}.`
-  );
+  const gap = gapUnder(prev.dose.date, ctx.dose.date, cadenceYears * 12);
+  return tooSoonBooster(invalidResult(
+    [`Booster given ${gap.text} after the previous dose, under the ${cadenceAdj} minimum for ${who}.`],
+    `Actual interval: ${gap.text}. Required cadence: ${cadenceLabel}.`
+  ));
 }
 
 // MenACWY: the shape of the series so far, for the gap rows.
@@ -1503,7 +1538,7 @@ export const DOSE_RULES = [
       if (!menbHighRiskDose3Early(d1Date, d2Date, ctx.dose.date)) return null;
       return validResult([
         // G1-a: the label ("Dose 3 of 4") says it counts (style rule 6).
-        `Given ${fmtDays(daysBetween(d2Date, ctx.dose.date))} after dose 2, under the 4-month minimum for the high-risk schedule. A 4th dose is needed, at least 4 months after this one.`
+        `Given ${gapUnder(d2Date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2).text} after dose 2, under the 4-month minimum for the high-risk schedule. A 4th dose is needed, at least 4 months after this one.`
       ]);
     },
   },
@@ -1554,9 +1589,10 @@ export const DOSE_RULES = [
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx < 3 || !prev) return null;
       if (ctx.effectiveIdx >= menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total) return null;
       if (calendarIntervalMeetsMinimum(prev.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
+      const gap = gapUnder(prev.dose.date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2);
       return invalidResult(
-        [`Given ${fmtDays(prev.interval)} after dose 3, under the 4-month minimum for the extra dose owed after an early dose 3.`],
-        `D3→D4: ${fmtDays(prev.interval)} (min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}).`
+        [`Given ${gap.text} after dose 3, under the 4-month minimum for the extra dose owed after an early dose 3.`],
+        `D3→D4: ${gap.text} (${gap.exact ? `minimum ${fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2)}` : `min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}`}).`
       );
     },
   },
@@ -1589,11 +1625,13 @@ export const DOSE_RULES = [
         ? '1-year minimum after the primary series'
         : '2-year minimum between high-risk MenB boosters';
       if (intervalMeetsMinimum(prev.interval, minInterval)) return null;
+      const minYears = isFirstBooster ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS;
+      const gap = gapUnder(prev.dose.date, ctx.dose.date, minYears * 12);
       const r = invalidResult(
-        [`MenB booster given ${fmtDays(prev.interval)} after the previous dose, under the ${minLabel}.`],
-        `Actual interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(minInterval)}.`
+        [`MenB booster given ${gap.text} after the previous dose, under the ${minLabel}.`],
+        `Actual interval: ${gap.text}. Minimum: ${gap.exact ? fmtMonths(minYears * 12) : fmtDays(minInterval)}.`
       );
-      return isFirstBooster ? r : { ...r, whys: [MENB_HR_BOOSTER_CADENCE_WHY] };
+      return tooSoonBooster(isFirstBooster ? r : { ...r, whys: [MENB_HR_BOOSTER_CADENCE_WHY] });
     },
   },
   {
@@ -1654,7 +1692,7 @@ export const DOSE_RULES = [
       if (!menbHealthyDose2Early(d1.date, ctx.dose.date)) return null;
       return validResult([
         // G1-a (packet L5): the label says it counts; "rescue" was jargon.
-        `Given ${fmtDays(daysBetween(d1.date, ctx.dose.date))} after dose 1, under the 6-month interval. A third dose is needed, at least 4 months after this one.`
+        `Given ${gapUnder(d1.date, ctx.dose.date, MENB_HEALTHY_D2_MONTHS).text} after dose 1, under the 6-month interval. A third dose is needed, at least 4 months after this one.`
       ]);
     },
   },
@@ -1689,9 +1727,10 @@ export const DOSE_RULES = [
       const from = prevDated(ctx)?.dose?.date ?? d2Date;
       if (calendarIntervalMeetsMinimum(from, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
       const fromWhat = from === d2Date ? 'the early dose 2,' : 'the previous dose, which did not count,';
+      const gap = gapUnder(from, ctx.dose.date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2);
       return invalidResult(
-        [`Given ${fmtDays(daysBetween(from, ctx.dose.date))} after ${fromWhat} under the 4-month minimum for the third dose.`],
-        `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${fmtDays(daysBetween(from, ctx.dose.date))} (min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}).`
+        [`Given ${gap.text} after ${fromWhat} under the 4-month minimum for the third dose.`],
+        `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${gap.text} (${gap.exact ? `minimum ${fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2)}` : `min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}`}).`
       );
     },
   },

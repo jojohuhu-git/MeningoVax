@@ -371,7 +371,7 @@ describe('All-valid baseline — no regressions', () => {
       ageMonths: 240, riskIds: [],
       menbDoses: [{ date: d1, brand: 'Bexsero (MenB)' }, { date: d2, brand: 'Bexsero (MenB)' }],
     });
-    expect(menb(r).doseLabel).toMatch(/rescue/i);
+    expect(menb(r).doseLabel).toMatch(/dose 2 given early/i); // G1-a-F2: no "rescue"
     expect(menb(r).doseNum).toBe(3);
   });
 });

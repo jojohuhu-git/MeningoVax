@@ -88,7 +88,7 @@ describe('P0-4: a healthy MenB series six calendar months apart is complete', ()
   it('no rescue dose is demanded', () => {
     const r = run();
     expect(r.status).toBe('complete');
-    expect(r.doseLabel).not.toMatch(/rescue/i);
+    expect(r.doseLabel).not.toMatch(/dose 2 given early/i); // G1-a-F2: the title no longer says "rescue"
     expect(r.dueToday).toBeFalsy();
   });
 

@@ -208,7 +208,7 @@ column says which step below carries it. (Since the 2026-11-08 review, "step N" 
 | B8 | One short clinical line in view, the rest behind "Why this"; disposition in bold | owner, 2026-10-25 | Has the "Why this" lead/detail split (PneumoVax copied it from MeningoVax) | 6 |
 | B9 | "Why this" follows the same style rules as the dose lines | §M-L5 / §WHY-THIS, 2026-11-08 | Not applied | 6 |
 | B10 | The sentences in view and shut "Complete" cards follow the style rules too | §WORD-TIDY, 2026-11-08 | Not applied | 6 |
-| B11 | The result page folds: only what must be seen stays in view (a named list, each with its reason) | §WORD-1, 2026-11-06. **Her answer then: "PneumoVax only"** | Not folded | 6 (decision) |
+| B11 | The result page folds: only what must be seen stays in view (a named list, each with its reason) | §WORD-1, 2026-11-06. **Her answer then: "PneumoVax only"; 2026-11-19: "Full PneumoVax fold"** | Not folded yet | 6 |
 | B12 | Option cards: "Choose ONE option" wording; each option names its own wait and its own date. Never an option due today beside one due years away under a single "due" | §D-note-8W, P0-1; FINDING A (PR #62) | to measure (pentavalent card) | 6 |
 | B13 | No "now" in a sentence under a date still in the future | P2-1 (R9), 2026-11-06 | to measure | 6 |
 | B14 | No interval is mentioned when nothing is on the record ("with nothing on the record, a card has nothing to measure from") | P2-10, owner question 2026-11-06 | to measure | 6 |
@@ -556,10 +556,18 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     every dose line, card lead and "Why this"; 21,510 of 24,600 saved patients read different
     words; 0 verdicts, dates, chips, badges or source numbers moved; longest dose line 73 → 50
     words, longest "Why this" 74 → 66; guard `regression-2026-11-19-g1a-style-rules.test.js`).
+    **Its findings F1–F3 answered and built 2026-11-19** (exact gap where rounding printed the
+    minimum, 561 lines; no "rescue" on the card, 1,044 patients; no "Do not restart the series"
+    on a too-soon booster, 810 lines; PR #113, because #112 merged before they were pushed).
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask
     again, do not assume. Built only on a yes.
+    **Q10 answered 2026-11-19: "Full PneumoVax fold"** (reverses 2026-11-06). Asked with the
+    measure: card lines 16 / 44 / 65 words per page in view, disclaimer 117. What stays in view is
+    put to her as judgement calls first (`report-2026-11-19-result-page-fold.md`); **answered the
+    same day: the six-line stay list as proposed; Sources inside "Why this"; disclaimer
+    paragraph behind "About risk history".**
 **STOP G2 — owner merges.**
 
 ### Phase 7 — The rulebook (2 sessions, ≈ 9%)

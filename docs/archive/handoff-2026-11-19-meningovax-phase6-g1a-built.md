@@ -8,11 +8,13 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## State (verified 2026-11-19)
 
-- `main` at `294968c` (PR #111, G1-b, squash-merged): 2,144 passed, 172 files.
-- Branch `port/phase6-g1a-style-rules`, off `main`, pushed, clean, **PR #112** open against
-  `main` (`e6f34af` G1-a, then this handoff): **2,150 passed, 0 failing, 173 files**.
-  MeningoVax has no CI checks; the owner merges. #111 was squash-merged, so "merged" means the
-  PR shows MERGED and `git diff origin/main <branch>` is empty, not that the head sha is on main.
+- `main` at `9a82e8d` (PR #112, G1-a, squash-merged 2026-11-19) (test count not re-run on main itself).
+  **#112 was merged at `0300cbe`, BEFORE the F1–F3 commits were pushed**, so F1–F3 and this
+  handoff's update did not land with it. They were replayed onto `main` as branch
+  `port/phase6-g1a-findings`, **PR #113** open against `main`: **2,157 passed, 0 failing, 174
+  files** (same tree as the old branch). Live-checked 2026-11-19 (F1, F2, F3 worked patients).
+  MeningoVax has no CI checks; the owner merges. "Merged" means the PR shows MERGED and
+  `git diff origin/main <branch>` is empty, not that the head sha is on main.
 
 ## What's done
 
@@ -34,18 +36,30 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
      old repeat sentence each caught). 84 tests in 34 files pinned old words; updated.
    - Live-checked: L3 patient + MenACWY 3 weeks apart; fresh tab, no console errors. Phone width
      not re-checked (text only got shorter).
-   - Every before/after is in the PR #112 body.
+   - Every before/after is in the PR #112 body (G1-a) and the PR #113 body (F1–F3).
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #112.
+**Owner action first:** review and merge PR #113 (F1–F3). #112 is merged.
 
-**Open findings from G1-a (listed in PR #112, not fixed, ask):**
-1. "about 4 months after dose 2, under the 4-month minimum" (115–119 days rounds to 4 months):
-   show weeks/days there? Pre-existing.
-2. "rescue" dropped from dose lines but kept in the card label "Dose 3 of 3 (rescue: dose 2
-   given early)" and its "Why this" (rule 7). Label is on the Phase 4 closed list.
-3. "Do not restart the series." also ends a too-soon booster line (no series to restart).
+**G1-a findings: ANSWERED by the owner 2026-11-19, all three as recommended; BUILT 2026-11-19, in PR #113** (#112 merged without them) (test `regression-2026-11-19-g1a-findings-f1-f2-f3.test.js`; saved answers: 810 real + 2 impossible patients each lose one sentence on one booster line, nothing else moved):
+1. **G1-a-F1, exact gap.** Where rounding would print the minimum itself ("about 4 months
+   after the early dose 2, under the 4-month minimum", 561 real patients), print the exact
+   months and days: "Given 3 months 19 days after the early dose 2, under the 4-month minimum
+   for the third dose." "Why this": "D2→D3: 3 months 19 days (minimum 4 months)." Other gaps
+   keep "about". Worked patient: healthy 19 y (DOB 2007-09-15), Bexsero 2025-08-11, 2025-09-10,
+   2025-12-29. Control: dose 3 on 2025-11-10 keeps "about 2 months".
+2. **G1-a-F2, drop "rescue".** Card title "Dose 3 of 3 (rescue: dose 2 given early)" → "Dose 3
+   of 3 (dose 2 given early)" (492 real cards; changes the Phase 4 closed label list in
+   clinical-rules.md); card "Why this" "a third rescue dose is needed" → "a third dose is
+   needed" (552 cards). 1,044 real patients. ACIP Oct 2024 (refs `menbRescueDoseRule`): "a
+   third dose should be administered ≥4 months after the second dose". Control: Bexsero
+   2025-08-11 + 2026-02-11 stays "Complete (2-dose series)".
+3. **G1-a-F3, booster lines.** A too-soon MenACWY or MenB booster line ends at "Repeat from
+   <date>." without "Do not restart the series." (810 real lines). Every other repeat line
+   keeps it. Worked patient: adult microbiologist, Menveo 2-vial 2026-04-08 then 2026-06-03.
+   Control: asplenia adult, Menveo 2026-07-01 then 2026-07-22 keeps it.
+   (`dose-rules-table.test.js` `floor` expects the repeat sentence last: update it.)
 
 **Not started:**
 - **6.3 Q10**: fold the result page? Her 2026-11-06 answer was "PneumoVax only". Ask again;
@@ -63,12 +77,11 @@ The next item (Q10) needs an owner answer before any code.
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 112`. If merged:
-   `git checkout main && git pull --ff-only`; `npm test` should give **2,150 passed, 173 files**.
+1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 113`. If merged:
+   `git checkout main && git pull --ff-only`; `npm test` should give **2,157 passed, 174 files**.
    If not merged, ask the owner; don't build on the unlanded branch.
 2. `preview_start` "MeningoVax dev server".
-3. Ask the owner the three G1-a findings and Q10 (one question each, worked patients). Ask,
-   don't default.
+3. Ask the owner Q10 (worked patients). Ask, don't default.
 4. Per item: prototype → measure (saved answers, `npm run prose -- dump/diff` in the scratchpad)
    → failing test → change → docs in the same commit → live check → PR against `main` (E4
    checklist in the body); the owner merges.
