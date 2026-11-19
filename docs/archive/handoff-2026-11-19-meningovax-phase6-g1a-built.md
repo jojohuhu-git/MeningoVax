@@ -40,12 +40,24 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 **Owner action first:** review and merge PR #112.
 
-**Open findings from G1-a (listed in PR #112, not fixed, ask):**
-1. "about 4 months after dose 2, under the 4-month minimum" (115–119 days rounds to 4 months):
-   show weeks/days there? Pre-existing.
-2. "rescue" dropped from dose lines but kept in the card label "Dose 3 of 3 (rescue: dose 2
-   given early)" and its "Why this" (rule 7). Label is on the Phase 4 closed list.
-3. "Do not restart the series." also ends a too-soon booster line (no series to restart).
+**G1-a findings: ANSWERED by the owner 2026-11-19, all three as recommended, NOT BUILT yet:**
+1. **G1-a-F1, exact gap.** Where rounding would print the minimum itself ("about 4 months
+   after the early dose 2, under the 4-month minimum", 561 real patients), print the exact
+   months and days: "Given 3 months 19 days after the early dose 2, under the 4-month minimum
+   for the third dose." "Why this": "D2→D3: 3 months 19 days (minimum 4 months)." Other gaps
+   keep "about". Worked patient: healthy 19 y (DOB 2007-09-15), Bexsero 2025-08-11, 2025-09-10,
+   2025-12-29. Control: dose 3 on 2025-11-10 keeps "about 2 months".
+2. **G1-a-F2, drop "rescue".** Card title "Dose 3 of 3 (rescue: dose 2 given early)" → "Dose 3
+   of 3 (dose 2 given early)" (492 real cards; changes the Phase 4 closed label list in
+   clinical-rules.md); card "Why this" "a third rescue dose is needed" → "a third dose is
+   needed" (552 cards). 1,044 real patients. ACIP Oct 2024 (refs `menbRescueDoseRule`): "a
+   third dose should be administered ≥4 months after the second dose". Control: Bexsero
+   2025-08-11 + 2026-02-11 stays "Complete (2-dose series)".
+3. **G1-a-F3, booster lines.** A too-soon MenACWY or MenB booster line ends at "Repeat from
+   <date>." without "Do not restart the series." (810 real lines). Every other repeat line
+   keeps it. Worked patient: adult microbiologist, Menveo 2-vial 2026-04-08 then 2026-06-03.
+   Control: asplenia adult, Menveo 2026-07-01 then 2026-07-22 keeps it.
+   (`dose-rules-table.test.js` `floor` expects the repeat sentence last: update it.)
 
 **Not started:**
 - **6.3 Q10**: fold the result page? Her 2026-11-06 answer was "PneumoVax only". Ask again;
