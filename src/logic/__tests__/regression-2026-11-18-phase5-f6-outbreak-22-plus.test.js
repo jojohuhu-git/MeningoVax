@@ -32,7 +32,7 @@ describe('F-6: outbreak contact 22+, only a dose before 16', () => {
 
   it('control: the same history at 21 still names the routine booster (catch-up runs through 21)', () => {
     const c = card('2026-11-18', ['2017-11-01'], ['outbreak_acwy'], '2005-06-01');
-    expect(c.doseLabel).toBe('1 dose (routine booster at ≥16y still owed)');
+    expect(c.doseLabel).toBe('Booster (16y)');
     expect(c.dueToday).toBe(true);
   });
 

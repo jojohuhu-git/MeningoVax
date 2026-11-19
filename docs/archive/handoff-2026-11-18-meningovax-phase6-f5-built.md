@@ -9,8 +9,8 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 ## State (verified 2026-11-18)
 
 - `main` at `d6003ec` (PR #107, F-3, merged): 2,121 passed, 169 files (re-run this session).
-- Branch `port/phase6-f5-16y-label`, one commit `ce1e251`, pushed, **PR #108** open against
-  `main`: **2,125 passed, 0 failing (170 files)**. MeningoVax has no CI checks; the owner merges.
+- Branch `port/phase6-f5-16y-label` (F-5 `ce1e251`, its follow-up next), pushed, **PR #108** open against
+  `main`: **2,130 passed, 0 failing (170 files)**. MeningoVax has no CI checks; the owner merges.
 
 ## What's done
 
@@ -26,10 +26,16 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #108, and answer its question:
-- **Q (asked in the PR, not decided):** the same 16-year dose reads a third title, "1 dose
-  (routine booster at ≥16y still owed)", on travel/lab/outbreak from 16 on — **810 real
-  patients** (+45 impossible) on the grid. Also "Booster (16y)"? Ask, don't default.
+**Owner action first:** review and merge PR #108, and answer its open question:
+- **Answered and built (owner, 2026-11-18, "Yes, same title"):** from 16, the travel/lab/outbreak
+  card (`routineSixteenBoosterCard`) reads "Booster (16y)" instead of "1 dose (routine booster at
+  ≥16y still owed)" — 648 real patients (incl. military + lab worker, which takes the lab path).
+  Commit 2 on PR #108.
+- **Q (not decided, ask):** the question named "travel/lab/outbreak" but its count (810) also
+  held **162 military-only** patients, whose card comes from the military branch of `menacwyRec`
+  (`recommend.js` ~line 925). They still read "1 dose (routine booster at ≥16y still owed)".
+  Also "Booster (16y)"? If yes: one line, and flip the military control in
+  `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
 
 **Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
 (`docs/agent/testing.md` counts conflict between stacked branches):
@@ -56,7 +62,7 @@ same `testing.md` counts, so it should start from `main` once #108 lands.
 ## Resuming
 
 1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 108`. If merged:
-   `git checkout main && git pull --ff-only`; `npm test` should give **2,125 passed, 170 files**.
+   `git checkout main && git pull --ff-only`; `npm test` should give **2,130 passed, 170 files**.
    If not merged, ask the owner; don't build on the unlanded branch.
 2. `preview_start` "MeningoVax dev server".
 3. Prose measuring: `npm run prose -- dump <file>` before and after, then

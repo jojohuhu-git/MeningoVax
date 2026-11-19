@@ -39,7 +39,7 @@ describe('Maya, 15, one MenACWY at 14 y 10 m: the 16-year booster comes first', 
     it(`${risk}: on her 16th birthday the same dose is due (the card does not change its mind)`, () => {
       const c = card([risk], acwy('2025-11-01'), '2027-01-10');
       expect(c.dueToday).toBe(true);
-      expect(c.doseLabel).toBe('1 dose (routine booster at ≥16y still owed)');
+      expect(c.doseLabel).toBe('Booster (16y)');
     });
 
     it(`${risk}: a 16-year dose given counts, and the next booster is 5 years after it`, () => {

@@ -281,12 +281,14 @@ function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCat
 }
 
 // The card for that booster, on the travel / lab / outbreak schedules. From 16
-// it is the "still owed" card the outbreak and military schedules already used;
-// under 16 it reads as the routine card does ("Booster (16y)").
+// it is the "still owed" card (its note says so) that the military schedule also
+// uses; at every age its title is the routine card's, "Booster (16y)" (F-5 and
+// its follow-up, owner 2026-11-18). Military alone keeps "1 dose (routine
+// booster at ≥16y still owed)" until the owner answers that separately.
 function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, refs }) {
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return rec({
-      vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (routine booster at \u226516y still owed)',
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
       doseNum: given + 1, seriesTotal: 1, dueToday: owed.dueToday, earliestNextDate: owed.earliestNextDate,
       boosterSummary, brands: menacwyBrands(am),
       note: routineBoosterStillOwedNote(indication, !owed.dueToday),

@@ -42,6 +42,31 @@ describe('the routine 16-year booster reads "Booster (16y)" before and when it i
   });
 });
 
+// F-5 follow-up (owner, 2026-11-18, "Yes, same title"): from 16, on the travel,
+// lab-worker and outbreak schedules, the same dose read "1 dose (routine
+// booster at ≥16y still owed)" (648 real patients on the grid, counting
+// military + lab worker, which takes the lab schedule). It now reads
+// "Booster (16y)" too; the card's note still says the booster is still owed.
+describe('from 16, travel / lab worker / outbreak: the same title', () => {
+  // Maya: born Jan 10, 2011; MenQuadfi Nov 1, 2025 (14 y 10 m); seen on her 16th birthday.
+  for (const riskIds of [['travel'], ['microbiologist'], ['outbreak_acwy'], ['military', 'microbiologist']]) {
+    it(`${riskIds.join(' + ')}, 16 y: "Booster (16y)", due today`, () => {
+      const c = card({ dob: '2011-01-10', today: '2027-01-10', riskIds, doses: acwy('2025-11-01', 'MenQuadfi (MenACWY)') });
+      expect(c.dueToday).toBe(true);
+      expect(c.doseLabel).toBe('Booster (16y)');
+      expect(c.note.lead).toMatch(/still owed/);
+    });
+  }
+
+  // NOT decided: military alone builds its card elsewhere (the military branch of
+  // menacwyRec in recommend.js) and was not named in the question the owner answered. Asked
+  // separately; if the owner says yes, this control flips to "Booster (16y)".
+  it('military alone, 16 y: the old title, pending the owner\'s answer', () => {
+    const c = card({ dob: '2011-01-10', today: '2027-01-10', riskIds: ['military'], doses: acwy('2025-11-01', 'MenQuadfi (MenACWY)') });
+    expect(c.doseLabel).toBe('1 dose (routine booster at ≥16y still owed)');
+  });
+});
+
 describe('the outbreak schedule does not add its caveat to the 16-year booster', () => {
   it('outbreak, 15 y, MenQuadfi at 14 y 10 m: plain "Booster (16y)"', () => {
     const c = card({

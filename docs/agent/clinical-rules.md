@@ -169,9 +169,13 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 - **F-5 (owner, STOP G1, 2026-11-18)** card title, not a chip: the routine 16-year MenACWY
   booster has ONE label, "Booster (16y)", before it is due and when it is due (it read
   "Booster due at 16y" before 16). One constant, `ROUTINE_16Y_BOOSTER_LABEL` in `recommend.js`,
-  also used by `outbreakWording` to leave this label without the outbreak caveat. From 16 on
-  the travel/lab/outbreak schedules the same dose still reads "1 dose (routine booster at ≥16y
-  still owed)" (not part of F-5). Test `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
+  also used by `outbreakWording` to leave this label without the outbreak caveat. **Follow-up
+  (owner, 2026-11-18):** from 16 on the travel/lab/outbreak schedules
+  (`routineSixteenBoosterCard`) the same dose reads "Booster (16y)" too, not "1 dose (routine
+  booster at ≥16y still owed)" (648 real patients); its note still says the booster is still
+  owed. **Not decided:** military alone (its own card in `menacwyRec`, 162 real patients) still
+  reads "1 dose (routine booster at ≥16y still owed)" — asked separately. Test
+  `regression-2026-11-18-f5-one-label-16y-booster.test.js`.
 - **F-4a / F-4b (owner, 2026-11-18)** the repeat line says when, or that it was:
   `recommend.js` `datedRepeatLines`, after Q10. A later shot of that vaccine on the
   record (no record problem, a later day, counted or not) swaps "repeat this dose
@@ -377,8 +381,9 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   that dose back about 5 years (830 saved patients; Maya, 15, dose at 14: 2030 instead of her
   16th birthday). Now: under 16, once a dose given at 10 or older is on record, the card reads
   "Booster (16y)" when that date (the 16th birthday, or 8 weeks after the last dose if
-  later) is no later than the travel/lab/outbreak booster; from 16, "1 dose (routine booster at
-  ≥16y still owed)" whenever no dose at 16 or older counted — through 21 for travel, lab and
+  later) is no later than the travel/lab/outbreak booster; from 16, also "Booster (16y)" (F-5
+  follow-up; it read "1 dose (routine booster at ≥16y still owed)" before) whenever no dose at 16
+  or older counted — through 21 for travel, lab and
   outbreak (a healthy 22-year-old is owed nothing; outbreak joined with owner F-6, 2026-11-18:
   from 22 the outbreak card offers its own booster, "Booster (dose N) for this outbreak", ACIP
   Table 8 *"Aged ≥7 yrs: single dose if ≥5 yrs since vaccination"*; a dose before 16 is always
