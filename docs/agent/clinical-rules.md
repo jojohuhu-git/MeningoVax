@@ -216,6 +216,17 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   not restart the series." (a booster has no series to restart); its line still ends
   "Repeat from <date>." or "Repeated on <date>. See that dose." Test
   `regression-2026-11-19-g1a-findings-f1-f2-f3.test.js`.
+- **Q10, the result page folds (owner, 2026-11-19, "Full PneumoVax fold"; reverses
+  2026-11-06's "PneumoVax only")** as PneumoVax's §WORD-1. A card line that repeats its
+  heading moves behind "Why this"; only the owner's list stays in view ("Yes, that list"):
+  the switch to the other MenB product, the minimum beside a routine date (STOP F1), "It can
+  be given once 8 weeks have passed since that dose", and "Not before <date>: … which did not
+  count." The pentavalent card's line is not folded. The card's source buttons sit inside
+  "Why this" ("Sources" when there is no explanation, PneumoVax's 2026-11-07 ruling), and the
+  disclaimer's risk-history paragraph sits behind "About risk history" ("Yes, both"). No
+  sentence is written, dropped or re-cited: 0 of 24,600 saved pages lost or gained a word
+  (measured 2026-11-19). Report: `docs/archive/report-2026-11-19-result-page-fold.md`.
+  Guard: `regression-2026-11-19-q10-result-page-fold.test.jsx`.
 - **R-A / R-B / R-C (owner, STOP G1, 2026-11-18)** the repeat line under a card that
   asks LATER with no date says when too. The card carries its own ending
   (`repeatLater` in `recommend.js`), read by `datedRepeatLines` only when no card asks

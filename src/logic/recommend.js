@@ -15,6 +15,7 @@
 // brand strings. Do not re-derive brand eligibility in the UI.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { foldResult } from './noteFold.js';
 import { resolveRefs, cite } from '../data/refs.js';
 import {
   menacwyRiskClass,
@@ -2217,7 +2218,16 @@ function withMenbSwitchLine(cards, history, am, riskIds, today) {
 // travel baby given Menveo 2 days before 7 months owed four doses, and two on
 // the 7-month day; now two. A dose 5+ days early, or with no date of birth on
 // file, is never read at the line.
+// Port Phase 6.3, Q10 (owner, 2026-11-19, "Full PneumoVax fold"): the app's
+// answer is the engine's, with each card's note folded (noteFold.js) as the
+// very last step. A test pinning how a sentence is WRITTEN, or which citation
+// it carries, may read `recommendBeforeFold`; the fold has its own guard
+// (regression-2026-11-19-q10-result-page-fold.test.js).
 export function recommend(input) {
+  return foldResult(recommendBeforeFold(input));
+}
+
+export function recommendBeforeFold(input) {
   const asGiven = recommendOneReading(input);
   if (!input?.dob || asGiven.excluded) return asGiven;
   const originals = new Map();
@@ -2454,7 +2464,7 @@ function recommendOneReading(input) {
     if (!cardsSeen.has(dose.date)) {
       const before = (list) => (list ?? []).filter((d) => d && (!d.date || d.date < dose.date));
       const { menacwyAgeFloorMonths: _floor, ...rest } = input;
-      const then = recommend({
+      const then = recommendBeforeFold({
         ...rest, cardsSeen, today: dose.date,
         menacwyDoses: before(input.menacwyDoses), menbDoses: before(input.menbDoses),
       });

@@ -1246,6 +1246,9 @@ body {
   border-left: 3px solid var(--gy5);
 }
 .disclaimer strong { color: var(--gy2); }
+/* Q10 (2026-11-19), as PneumoVax: the risk-history paragraph behind a click. */
+.disclaimer-toggle { display: inline-flex; margin-left: var(--sp-4); vertical-align: baseline; }
+.disclaimer-more { display: block; margin-top: var(--sp-8); }
 
 /* ── Reset button area ─────────────────────────────────────────── */
 .results-actions {

@@ -22,10 +22,12 @@ describe('M9 (UI): the travel booster card names the real interval', () => {
     const rec = acwyRec(77, ['travel'], ['2023-09-15']);
     render(<RecCard rec={rec} doses={[{ date: '2023-09-15', brand: '' }]} doseValidations={[{ status: 'valid', reasons: [] }]} />);
     expect(screen.getByText(/Booster \(dose 2, first booster, 3 years after the primary dose\)/)).toBeTruthy();
-    // U1 (2026-09-17): the lead states the interval; WHY it is 3 years and not
-    // 5 is the detail, behind "Why this".
-    expect(screen.getByText(/first booster is due 3 years after the primary dose/)).toBeTruthy();
+    // Q10 fold (owner, 2026-11-19): the heading above names the 3 years; the
+    // sentence that repeats it, and WHY it is 3 years and not 5, are behind
+    // "Why this".
+    expect(screen.queryByText(/first booster is due 3 years after the primary dose/)).toBeNull();
     openWhyThis();
+    expect(screen.getByText(/first booster is due 3 years after the primary dose/)).toBeTruthy();
     expect(screen.getByText(/primary dose was given before the 7th birthday/)).toBeTruthy();
   });
 

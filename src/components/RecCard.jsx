@@ -298,17 +298,28 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
 // `detail` takes the rest. The card's citation numbers are seeded from the
 // whole list by cardCiteNumberer, so a source keeps the same [N] whether the
 // disclosure happens to be open or shut.
-export function RecNote({ note, noteCites = [], numberFor, className = 'rec-note' }) {
+export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note' }) {
   // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
   const openAll = useContext(OpenAllDisclosures);
   const [open, setOpen] = useState(openAll);
-  const leadCiteCount = (note.lead.match(/\[c\]/g) || []).length;
+  const lead = note?.lead ?? '';
+  const detail = note?.detail ?? '';
+  const leadCiteCount = (lead.match(/\[c\]/g) || []).length;
+  // Port Phase 6.3, Q10 (owner, 2026-11-19, as PneumoVax §WORD-1): the card's
+  // source buttons sit inside the disclosure, not below it. A card with sources
+  // and no explanation sentence titles the toggle "Sources" (PneumoVax's owner
+  // ruling of 2026-11-07, "Call it Sources"), so it never opens onto an empty
+  // "Why this".
+  const hasSources = citations && citations.length > 0;
+  const toggleLabel = detail ? 'Why this' : 'Sources';
   return (
     <div className={className}>
-      <div className="rec-note-lead">
-        {renderNoteWithCites(note.lead, noteCites.slice(0, leadCiteCount), numberFor)}
-      </div>
-      {note.detail && (
+      {lead && (
+        <div className="rec-note-lead">
+          {renderNoteWithCites(lead, noteCites.slice(0, leadCiteCount), numberFor)}
+        </div>
+      )}
+      {(detail || hasSources) && (
         <>
           <button
             type="button"
@@ -317,11 +328,27 @@ export function RecNote({ note, noteCites = [], numberFor, className = 'rec-note
             aria-expanded={open}
             data-testid="rec-note-toggle"
           >
-            Why this<Chevron open={open} />
+            {toggleLabel}<Chevron open={open} />
           </button>
           {open && (
             <div className="rec-note-detail" data-testid="rec-note-detail">
-              {renderNoteWithCites(note.detail, noteCites.slice(leadCiteCount), numberFor)}
+              {detail && renderNoteWithCites(detail, noteCites.slice(leadCiteCount), numberFor)}
+              {hasSources && (
+                <div className="rec-citations">
+                  {citations.map((c, i) => (
+                    <a
+                      key={i}
+                      href={c.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="citation-chip"
+                      title={c.label}
+                    >
+                      {c.short || c.label}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </>
@@ -581,23 +608,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {note && <RecNote note={note} noteCites={noteCites} numberFor={numberFor} />}
-
-        {citations && citations.length > 0 && (
-          <div className="rec-citations">
-            {citations.map((c, i) => (
-              <a
-                key={i}
-                href={c.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="citation-chip"
-                title={c.label}
-              >
-                {c.short || c.label}
-              </a>
-            ))}
-          </div>
+        {(note || citations?.length > 0) && (
+          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} />
         )}
       </div>
       )}

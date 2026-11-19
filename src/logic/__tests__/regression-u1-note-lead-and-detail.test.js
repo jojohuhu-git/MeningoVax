@@ -16,7 +16,10 @@
 // These are invariants over a wide patient sweep, not spot checks, so a new
 // card cannot quietly reintroduce a one-paragraph note.
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): U1 is the engine's own split (what it writes as the
+// lead); after the fold most leads move behind "Why this" by owner decision.
+// regression-2026-11-19-q10-result-page-fold guards what shows.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 import { TEST_TODAY } from '../../test-today.js';
 
 // The lead is one or two lines at card width. The audit's target was ~90-140

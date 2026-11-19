@@ -21,7 +21,9 @@
 // "row" is allowed on a dose line: there it means the patient's record row
 // ("Same date as an earlier row"), PneumoVax's own words for the same entry.
 import { describe, it, expect } from 'vitest';
-import { recommend } from '../recommend.js';
+// Q10 fold (2026-11-19): this file pins how a sentence is WRITTEN, so it reads the
+// note before the fold; where it shows is regression-2026-11-19-q10-result-page-fold.
+import { recommendBeforeFold as recommend } from '../recommend.js';
 import { buildSavedAnswerCases, buildRecordProblemCases, buildTypicalCases } from '../../test-grid.js';
 
 // Longest on 2026-11-19, after the rewrite (before: 73, 74).
