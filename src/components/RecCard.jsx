@@ -20,6 +20,8 @@ import { citeTitle } from '../data/refs.js';
 //   series done, booster in future  -> "Future booster needed"
 //   optional (MenB 16-23y)          -> "Optional today - shared decision"
 //   not due, minimum passed         -> "Can be given today" (owner, 2026-11-18)
+//   not due, next dose dated        -> "Next dose not yet due" (F-3, owner 2026-11-18)
+//   not due, next booster dated     -> "Future booster needed" (F-3)
 //   nothing left                    -> "Up to date"
 //   not indicated for this patient  -> "Not needed"
 //   MenB in pregnancy               -> "Deferred in pregnancy"
@@ -56,7 +58,24 @@ export function statusPillLabel(rec, pending) {
   if (status === 'not-indicated') return 'Not needed';
   if (status === 'complete') return boosterDueDate ? 'Future booster needed' : 'Up to date';
   if (status === 'catchup') return 'Catch-up dose due today';
-  if (status === 'shared-decision') return dueToday ? 'Optional today - shared decision' : 'Up to date';
+  // F-3 (owner, STOP G1, 2026-11-18): "Up to date" only when nothing is left.
+  // A card not due today that still prints "Next dose due <date>"
+  // (earliestNextDate, the same condition the date line below uses) names
+  // what is coming: a booster, or the next dose of the series.
+  // A dose past the PRIMARY series is a booster. primaryTotal, not
+  // seriesTotal: the routine 16-year card counts its booster inside
+  // seriesTotal (dose 2 of 2), so seriesTotal read "Booster (16y)" in its
+  // 8-week wait as a series dose (42 grid cards, measured 2026-11-18).
+  // primaryTotal matched every dated card's own label on the grid.
+  const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
+  const pastPrimary = (rec.primaryTotal ?? seriesTotal);
+  const comingIsBooster = doseNum != null && pastPrimary != null && doseNum > pastPrimary;
+  const datedNext = !dueToday && !!rec.earliestNextDate;
+  const comingLabel = comingIsBooster ? 'Future booster needed' : 'Next dose not yet due';
+  if (status === 'shared-decision') {
+    if (dueToday) return 'Optional today - shared decision';
+    return datedNext ? comingLabel : 'Up to date';
+  }
 
   // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
   // The routine "Booster due at 16y" card (status 'due' since STOP B: never
@@ -66,8 +85,8 @@ export function statusPillLabel(rec, pending) {
   // dose given today counts (high-risk MenB dose 2, STOP F1 Q9a). Never "due" —
   // the date line beside it still says "Next dose due <date>".
   if (!dueToday && rec.canGiveToday) return 'Can be given today';
+  if (datedNext) return comingLabel;
   if (!dueToday) return 'Up to date';
-  const isBooster = doseNum != null && seriesTotal != null && doseNum > seriesTotal;
   if (isBooster) return 'Booster due today';
   return boosterSummary ? 'Dose due today, future boosters needed' : 'Dose due today';
 }

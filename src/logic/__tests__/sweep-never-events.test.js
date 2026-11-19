@@ -320,6 +320,8 @@ let p14GapRows = 0;
 // for the generous doses and once for the deliberately-invalid tight ones
 // (B2c). `dob` is threaded through to `recommend()`/`analyzeHistory()` so
 // both passes exercise the app's real dob-derived age path, not a bypass.
+const p16 = [];
+let p16Rows = 0;
 function checkProperties1to5(where, am, dob, riskIds, menacwyDoses, menbDoses) {
   let result;
   try {
@@ -337,6 +339,22 @@ function checkProperties1to5(where, am, dob, riskIds, menacwyDoses, menbDoses) {
   ];
 
   for (const r of allRecs) {
+    // ── Property 16 (F-3, owner STOP G1, 2026-11-18): "Up to date" only ──
+    // when nothing is left. A card not due today that still holds a date
+    // (next dose or booster) names what is coming instead.
+    {
+      const badge = statusPillLabel(r, false);
+      const dated = !r.dueToday && (r.earliestNextDate != null || r.boosterDueDate != null);
+      p16Rows += 1;
+      if (badge === 'Up to date' && (dated || r.dueToday)) {
+        p16.push(`${where} ${r.vaccine}: "Up to date" with ${r.dueToday ? 'a dose due today' : `a date (${r.earliestNextDate ?? r.boosterDueDate})`} — ${r.doseLabel}`);
+      }
+      if (dated && !r.canGiveToday && !['Future booster needed', 'Next dose not yet due'].includes(badge)
+        && !['complete', 'deferred', 'not-indicated'].includes(r.status)) {
+        p16.push(`${where} ${r.vaccine}: dated card reads "${badge}" — ${r.doseLabel}`);
+      }
+    }
+
     // ── Property 1: no brand below its own licensed minimum age ──────
     if (r.dueToday) {
       for (const brandLabel of r.brands) {
@@ -582,6 +600,12 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     report(`Property 15 (${p15Rows} visits)`, p15);
     expect(p15Rows).toBeGreaterThan(600);
     expect(p15).toEqual([]);
+  });
+
+  it('property 16 (F-3, owner STOP G1) — "Up to date" only when nothing is left; a dated card names the booster or the next dose', () => {
+    report(`Property 16 (${p16Rows} cards)`, p16);
+    expect(p16Rows).toBeGreaterThan(10000);
+    expect(p16).toEqual([]);
   });
 
   it('property 13 (owner STOP E1, Q5–Q9) — every dose chip is one label from the closed list', () => {
