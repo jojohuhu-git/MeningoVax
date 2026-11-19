@@ -32,6 +32,10 @@ import { buildSavedAnswerCases, buildRecordProblemCases, buildTypicalCases } fro
 import { TEST_TODAY } from '../../test-today.js';
 
 const REPEAT_SENTENCE = 'This dose does not count toward the series: repeat this dose only (do not restart the series).';
+// Phase 6.2 R-A / R-B (owner, STOP G1, 2026-11-18): exact sentences from
+// docs/archive/stop-g1-packet-2026-11-18.md, Answers table.
+const REPEAT_LATER_R_A = 'Repeat at 10 years or older, when the high-risk MenB series starts.';
+const REPEAT_LATER_R_B = 'Repeat at 11–12 years, with the routine dose.';
 
 const VACCINES = ['any', 'MenACWY', 'MenB'];
 const MEASURED_FROM = [
@@ -201,14 +205,19 @@ describe('3 · what a row says happens is what happens, to every dose it decided
     // Phase 5 F-4 (owner, 2026-11-18): a dose already repeated says "Repeated
     // on <date>. See that dose." in place of the repeat sentence (F-4b); one
     // not yet repeated keeps it, followed by "Repeat from <date>." when the
-    // card gives a date (F-4a).
+    // card gives a date (F-4a). Phase 6.2 R-A / R-B (owner, STOP G1,
+    // 2026-11-18): under a card that asks later with no date, the repeat
+    // sentence is followed by when. R-C (healthy MenB before 16) is not
+    // repeated (`notRepeated`, owner 2026-11-18): the repeat sentence is gone
+    // and the line ends with when MenB is next offered.
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
       && (v.notRepeated
         ? !v.reasons.includes(REPEAT_SENTENCE)
         : v.repeatedOn
           ? !v.reasons.includes(REPEAT_SENTENCE) && /^Repeated on [A-Z][a-z]{2} \d{1,2}, \d{4}\. See that dose\.$/.test(v.reasons.at(-1))
           : (v.reasons.at(-1) === REPEAT_SENTENCE
-            || (v.reasons.at(-2) === REPEAT_SENTENCE && /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-1))))),
+            || (v.reasons.at(-2) === REPEAT_SENTENCE && /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-1)))
+            || (v.reasons.at(-2) === REPEAT_SENTENCE && [REPEAT_LATER_R_A, REPEAT_LATER_R_B].includes(v.reasons.at(-1))))),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null
       && !v.reasons.includes(REPEAT_SENTENCE),
     'counts-with-note': (v) => v.status === 'valid' && v.effectiveDoseNum >= 1 && v.reasons.length >= 1,

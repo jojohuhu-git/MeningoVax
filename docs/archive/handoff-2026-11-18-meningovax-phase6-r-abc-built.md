@@ -1,0 +1,83 @@
+# MeningoVax port — Handoff after Phase 6.2 R-A/R-B/R-C was built (2026-11-18, latest)
+
+Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
+that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The
+owner is a clinician: plain English, worked patients, ask, don't default. Plan:
+`docs/archive/plan-2026-11-08-meningovax-port.md` ("Phase 6"). **Supersedes**
+`handoff-2026-11-18-meningovax-phase6-f5-built.md`.
+
+## State (verified 2026-11-18)
+
+- `main` at `f4b055f` (PR #108, F-5 + both follow-ups, merged): 2,130 passed, 170 files (re-run
+  this session).
+- Branch `port/phase6-r-abc-undated-repeat`, off `main`, pushed, **PR #109** open against `main`
+  (commits `cf87aa8`, the R-C chip, and this handoff): **2,138 passed, 0 failing (171 files)**. MeningoVax has no CI
+  checks; the owner merges.
+
+## What's done
+
+1. **R-A / R-B / R-C** (owner, STOP G1): a "Not counted — repeat" line under a card that asks
+   later but prints no date now says when. Each of the three cards carries `repeatLater`
+   (`recommend.js`, constants `REPEAT_LATER_MENB_HIGH_RISK`, `REPEAT_LATER_ACWY_ROUTINE`,
+   `REPEAT_LATER_MENB_HEALTHY`); `datedRepeatLines` reads it only when no card asks now and none
+   is deferred; F-4b ("Repeated on …") still wins. R-C drops the repeat sentence.
+   Measured: 574 / 588 / 822 real lines (match the packet); 2,443 patients' wording moved
+   (1,755 real, 688 impossible); saved answers moved only in sentence counts (0 differences
+   otherwise). 242 patients still have an undated repeat line: all pregnancy (group D, as decided).
+   Live-checked: Maya (2 y, complement, Bexsero at 12 mo), Noah (healthy, MenQuadfi at 3 wk),
+   Ava (healthy 10 y, Bexsero at 9). Guard: `regression-2026-11-18-r-abc-undated-repeat-line.test.js`
+   (3 ending tests fail on the old engine; 5 controls pass on both); `dose-rules-table.test.js`
+   accepts the three endings. Docs: clinical-rules.md, rules summary, testing.md, plan, CLAUDE.md.
+2. **R-C chip** (owner, 2026-11-18, "Yes, do not repeat"): R-C doses carry `notRepeated`, so the
+   chip reads "Not counted — do not repeat". 822 real patients, chip words the only change
+   (prose diff byte-identical to the measured prototype); saved answers unchanged. R-A and R-B
+   keep "repeat". Live-checked on Ava.
+
+## What's NOT done
+
+**Owner action first:** review and merge PR #109, and answer one consequence question (ask,
+don't default; measured 2026-11-18, nothing built):
+- **R-C with a later shot:** under the same healthy pre-16 MenB card, a too-young MenB dose that
+  has a later MenB shot on the record still takes F-4b: chip "Not counted — repeat", line
+  "Repeated on <date>. See that dose." **1,104 real patients, 1,716 lines.** Worked patient (grid
+  key `a120|r:|A:Penbraya@330|B:Bexsero@365`): healthy 10 y; Bexsero Sep 15, 2025 (age 9) reads
+  "Not counted — repeat … Repeated on Oct 20, 2025"; Penbraya Oct 20, 2025 (age 9 y 1 mo, also
+  too young) reads "Not counted — do not repeat … MenB is next offered at 16–23 years". One
+  patient, both chips. Recommended: under the R-C card every too-young MenB dose reads the same
+  (chip "do not repeat", R-C ending, no "Repeated on"), since nothing is owed and the later shot
+  was no valid repeat. Control: Maya-type R-A child with two too-young shots keeps "Repeated on"
+  and "repeat" (owed at 10). Build = in `datedRepeatLines`, check `later?.dropRepeat` before the
+  F-4b branch. Count script: scratch `rc-edge.mjs` (grid via `buildSavedAnswerCases`, count
+  MenB doses with `repeatedOn` under a card with `repeatLater.dropRepeat`).
+
+**Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
+(`docs/agent/testing.md` counts conflict between stacked branches):
+1. **G1-b** dose-line "Why this" fold-out (port PneumoVax's `DoseValidation`).
+2. **G1-a** style-rules rewrite with a machine guard (see
+   `handoff-2026-11-18-meningovax-phase6-g1-answered.md` item 5).
+
+**Open finding (not fixed, ask):** 264 routine "Booster (16y)" cards due today have the badge
+"Dose due today", not "Booster due today" (`RecCard.jsx` `statusPillLabel`, `seriesTotal`
+counting; switching to `primaryTotal` would mislabel 36 catch-up cards).
+
+**Carried over (not fixed):** see `handoff-2026-11-18-meningovax-phase6-g1-answered.md`
+"Carried over" (MenB booster note, MenB "every 2–3 years", whole-app checks 5 and 7, Phase 4 A2,
+A10, A11, A16, CDC 2024-0069/0034/0035/0040 in shared `dateUtils.js`). Then 6.3 (Q10, ask again).
+
+## Why this is a good stopping point
+
+R-A–R-C is complete and isolated in one PR; its chip question is answered and built; the one consequence question (R-C with a later shot) is measured and written down. G1-b touches the same dose-line component and `testing.md`
+counts, so it should start from `main` once #109 lands.
+
+## Resuming
+
+1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 109`. If merged:
+   `git checkout main && git pull --ff-only`; `npm test` should give **2,138 passed, 171 files**.
+   If not merged, ask the owner; don't build on the unlanded branch.
+2. `preview_start` "MeningoVax dev server".
+3. Prose measuring: `npm run prose -- dump <file>` before and after, then
+   `npm run prose -- diff <before> <after>` (~12 s each; dumps go in the scratchpad). Saved answers:
+   `npx vite-node scripts/updateSavedAnswers.mjs`, then diff old/new with
+   `sed -E 's/:n[0-9]+/:n#/g'` on both to prove only sentence counts moved.
+4. Per item: prototype → measure → failing test → change → docs in the same commit → live check
+   → PR against `main` (E4 checklist in the body); the owner merges.
