@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 173 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 117 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 174 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 118 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 52 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 51 (the 52nd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,150 | `npm test`, 2026-11-19, port Phase 6.2 G1-a style rules |
+| Individual `it()` tests, total | 2,157 | `npm test`, 2026-11-19, port Phase 6.2 G1-a findings F1–F3 |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 

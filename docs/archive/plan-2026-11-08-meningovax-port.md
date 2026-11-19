@@ -556,6 +556,9 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     every dose line, card lead and "Why this"; 21,510 of 24,600 saved patients read different
     words; 0 verdicts, dates, chips, badges or source numbers moved; longest dose line 73 → 50
     words, longest "Why this" 74 → 66; guard `regression-2026-11-19-g1a-style-rules.test.js`).
+    **Its findings F1–F3 answered and built 2026-11-19** (exact gap where rounding printed the
+    minimum, 561 lines; no "rescue" on the card, 1,044 patients; no "Do not restart the series"
+    on a too-soon booster, 810 lines; all in PR #112).
 6.2 Apply §M-L3, §M-L5 and §WORD-TIDY to every dose line, card and "Why this", with the same
     sweep test (A4, A7–A9, A12, A14, B7–B10, B12–B14, B16, B18).
 6.3 **Q10** fold the result page (B11)? Her 2026-11-06 answer was "PneumoVax only"; ask

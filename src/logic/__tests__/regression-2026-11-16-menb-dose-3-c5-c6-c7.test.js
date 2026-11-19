@@ -82,7 +82,7 @@ describe('C7: the 4-day grace at the two "is one more dose owed?" lines', () => 
 
   it('healthy: 5 days short (outside the grace) still owes the rescue dose 3', () => {
     const r = run({ ...HEALTHY, menbDoses: [T('2026-01-01'), T('2026-06-26')] });
-    expect(card(r).doseLabel).toMatch(/Dose 3 of 3 \(rescue/);
+    expect(card(r).doseLabel).toMatch(/Dose 3 of 3 \(dose 2 given early\)/) // G1-a-F2: no "rescue";
   });
 
   it('high-risk: dose 3 three days short of 4 months after dose 2 — no 4th dose', () => {
