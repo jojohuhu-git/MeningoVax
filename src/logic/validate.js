@@ -9,7 +9,8 @@
 //
 //   perDose — parallel to input doses. Each entry:
 //     { status: 'valid'|'invalid'|'unknown', effectiveDoseNum: number|null,
-//       reasons: string[], detail?: string, doesNotCount?: true }
+//       reasons: string[], whys?: string[], detail?: string, doesNotCount?: true }
+//   (`whys` and `detail` show behind the dose's "Why this"; G1-b, 2026-11-18)
 //
 //   effective — the kept (valid + unknown) doses in chronological order.
 //     These are what the recommendation engine should count.
@@ -231,6 +232,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
           extraDose: true,
           reasons: [NOT_ASKED_FOR_SENTENCE[unasked]],
           reasonCites: undefined,
+          whys: undefined,
         });
       } else if (isExtra) {
         // A dose past the series total on a schedule with no booster phase.
@@ -248,6 +250,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
             `Given after the ${seriesInfo.total}-dose series was already complete: this dose does not extend the series.`,
           ],
           reasonCites: undefined,
+          whys: undefined,
         });
         // Do NOT add to kept; do NOT increment effectiveCount.
       } else {

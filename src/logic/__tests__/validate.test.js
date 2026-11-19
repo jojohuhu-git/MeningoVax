@@ -144,7 +144,9 @@ describe('MenB — dose before age 10', () => {
     // Patient is now 20y (240 mo). Dose given 132 months ago → ageAtDose = 108
     const results = validate('MenB', [{ date: monthsAgo(132), brand: 'Bexsero (MenB)' }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/age 10 years/);
+    expect(results[0].reasons[0]).toMatch(/minimum age of 10 years/);
+    // G1-b (2026-11-18): the licensing background sits behind the dose's "Why this".
+    expect(results[0].whys).toEqual([expect.stringMatching(/licensed from age 10 years/)]);
   });
 
   it('MenB dose at 10y 3 months (123 mo) → valid (above minimum)', () => {

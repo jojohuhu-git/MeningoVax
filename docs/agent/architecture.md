@@ -72,7 +72,7 @@ Engine brand strings are `'Menveo (MenACWY)'`, `'Bexsero (MenB)'`, `'Penmenvy (M
 ## Dose Validation (`validate.js`)
 
 `analyzeHistory(vaccine, doses, ageMonths, riskIds, today)` is the single source of truth. One chronological "last-kept" walk returns:
-- `perDose` — parallel to input; each `{ status:'valid'|'invalid'|'unknown', effectiveDoseNum, reasons[], detail? }` for display.
+- `perDose` — parallel to input; each `{ status:'valid'|'invalid'|'unknown', effectiveDoseNum, reasons[], whys?[], detail? }` for display. `reasons` are the line beside the dose (the label's reason, and what to do); `whys` (background) and `detail` (age, interval or dates) sit behind the dose's own "Why this" fold-out (`DoseWhy` in `RecCard.jsx`; owner G1-b, STOP G1, 2026-11-18, as PneumoVax). A `whys` entry carries no `[c]`: a source number stays on the line, on the sentence it supports.
 - `effective` — the KEPT dose list fed into `recommend()`. Invalid doses are dropped BEFORE the engine counts.
 - `decidedBy` — parallel to `perDose`: the `DOSE_RULES` row id that decided each dose (null = no row spoke; it counts).
 

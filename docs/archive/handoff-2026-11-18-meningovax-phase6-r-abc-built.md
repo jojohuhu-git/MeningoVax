@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-18** by `handoff-2026-11-18-meningovax-phase6-g1b-built.md`. PRs #109 and #110 merged; G1-b built (PR #111). Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 6.2 R-A/R-B/R-C was built (2026-11-18, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
