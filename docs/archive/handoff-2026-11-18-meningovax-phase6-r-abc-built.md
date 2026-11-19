@@ -8,11 +8,15 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## State (verified 2026-11-18)
 
-- `main` at `f4b055f` (PR #108, F-5 + both follow-ups, merged): 2,130 passed, 170 files (re-run
-  this session).
-- Branch `port/phase6-r-abc-undated-repeat`, off `main`, pushed, **PR #109** open against `main`
-  (commits `cf87aa8`, the R-C chip, and this handoff): **2,138 passed, 0 failing (171 files)**. MeningoVax has no CI
-  checks; the owner merges.
+- `main` at `8453494` (PR #109 merged: R-A–R-C + the R-C chip): **2,138 passed, 171 files**
+  (re-run 2026-11-18). **#109 was merged one commit early**: its head was `b4123e5`, so item 3
+  below (the later-shot follow-up, `dbeedba`) never reached `main`.
+- Branch `port/phase6-r-c-later-shot`, off `main`, pushed, **PR #110** open against `main`: that
+  one commit, cherry-picked unchanged, plus this handoff fix: **2,140 passed, 0 failing (171 files)**;
+  the 2 new tests fail on `main`'s engine. Live-checked (healthy 10 y, Bexsero Sep 1 and Oct 6,
+  2025: both doses "Not counted — do not repeat", no "Repeated on"; on `main` dose 1 still says
+  "Repeated on Oct 6, 2025"). MeningoVax has no CI checks; the owner merges. The old branch
+  `port/phase6-r-abc-undated-repeat` is spent; don't reuse it.
 
 ## What's done
 
@@ -32,23 +36,18 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
    chip reads "Not counted — do not repeat". 822 real patients, chip words the only change
    (prose diff byte-identical to the measured prototype); saved answers unchanged. R-A and R-B
    keep "repeat". Live-checked on Ava.
+3. **R-C with a later shot** (owner, 2026-11-18: "It depends - did the patient need MenB or no";
+   answer measured: none of the 1,104 did, all 10–11 y with no risk or a MenACWY-only one; then
+   "Yes, build it"): in `datedRepeatLines` the R-C ending is applied before F-4b, so under the
+   R-C card no MenB dose says "Repeated on" and every too-young one reads "do not repeat".
+   1,104 real patients, 0 impossible; saved answers unchanged. R-A/R-B keep F-4b. Live-checked
+   (Ava with Bexsero Sep 1 and Oct 6, 2025). Owner principle worth reusing: "repeat" only if
+   the patient needed that vaccine.
 
 ## What's NOT done
 
-**Owner action first:** review and merge PR #109, and answer one consequence question (ask,
-don't default; measured 2026-11-18, nothing built):
-- **R-C with a later shot:** under the same healthy pre-16 MenB card, a too-young MenB dose that
-  has a later MenB shot on the record still takes F-4b: chip "Not counted — repeat", line
-  "Repeated on <date>. See that dose." **1,104 real patients, 1,716 lines.** Worked patient (grid
-  key `a120|r:|A:Penbraya@330|B:Bexsero@365`): healthy 10 y; Bexsero Sep 15, 2025 (age 9) reads
-  "Not counted — repeat … Repeated on Oct 20, 2025"; Penbraya Oct 20, 2025 (age 9 y 1 mo, also
-  too young) reads "Not counted — do not repeat … MenB is next offered at 16–23 years". One
-  patient, both chips. Recommended: under the R-C card every too-young MenB dose reads the same
-  (chip "do not repeat", R-C ending, no "Repeated on"), since nothing is owed and the later shot
-  was no valid repeat. Control: Maya-type R-A child with two too-young shots keeps "Repeated on"
-  and "repeat" (owed at 10). Build = in `datedRepeatLines`, check `later?.dropRepeat` before the
-  F-4b branch. Count script: scratch `rc-edge.mjs` (grid via `buildSavedAnswerCases`, count
-  MenB doses with `repeatedOn` under a card with `repeatLater.dropRepeat`).
+**Owner action first:** review and merge PR #110 (no open question left in it). Before saying
+"merged", check that the PR's head commit is on `origin/main`.
 
 **Not started, Phase 6.2, in order, one PR each, each off `main` after the previous merges**
 (`docs/agent/testing.md` counts conflict between stacked branches):
@@ -66,13 +65,13 @@ A10, A11, A16, CDC 2024-0069/0034/0035/0040 in shared `dateUtils.js`). Then 6.3 
 
 ## Why this is a good stopping point
 
-R-A–R-C is complete and isolated in one PR; its chip question is answered and built; the one consequence question (R-C with a later shot) is measured and written down. G1-b touches the same dose-line component and `testing.md`
-counts, so it should start from `main` once #109 lands.
+R-A–R-C is complete and isolated in one PR; its chip question and the later-shot consequence are answered and built. G1-b touches the same dose-line component and `testing.md`
+counts, so it should start from `main` once #110 lands.
 
 ## Resuming
 
-1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 109`. If merged:
-   `git checkout main && git pull --ff-only`; `npm test` should give **2,138 passed, 171 files**.
+1. `cd ~/Downloads/MeningoVax-main && git fetch && gh pr view 110`. If merged (head commit on `origin/main`):
+   `git checkout main && git pull --ff-only`; `npm test` should give **2,140 passed, 171 files**.
    If not merged, ask the owner; don't build on the unlanded branch.
 2. `preview_start` "MeningoVax dev server".
 3. Prose measuring: `npm run prose -- dump <file>` before and after, then

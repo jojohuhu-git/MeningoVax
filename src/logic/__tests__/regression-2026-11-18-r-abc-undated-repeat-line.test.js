@@ -28,6 +28,12 @@
 // - R-C chip (owner, 2026-11-18, "Yes, do not repeat"): "Not counted — do not
 //   repeat", the chip for a dose nobody is owed (Q10). Measured: 822 real
 //   patients, chip words the only change. R-A and R-B keep "repeat".
+// - R-C with a later shot (owner, 2026-11-18: "It depends — did the patient
+//   need MenB or no", then "Yes, build it"): under the R-C card the patient
+//   needs no MenB, so a too-young MenB dose reads the same even when another
+//   MenB shot followed it: "do not repeat", the R-C ending, no "Repeated on".
+//   Measured: 1,104 real patients, all 10–11 y with no risk factor or a
+//   MenACWY-only one. A child who needs MenB (R-A) keeps "Repeated on".
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
@@ -105,6 +111,33 @@ describe('R-C: healthy child, MenB given too young', () => {
     const d = r.history.MenB.perDose[0];
     expect(d.status).toBe('invalid');
     expect(d.reasons).not.toContain(R_C);
+  });
+});
+
+describe('R-C with a later MenB shot: the patient needs no MenB, so no dose is repeated', () => {
+  it('healthy 10 y, Bexsero at 9 then Bexsero at 9 y 1 mo (both too young) -> both "do not repeat", both end with R-C', () => {
+    const r = run({ dob: '2016-06-01', b: [bex('2025-09-01'), bex('2025-10-06')] });
+    expect(r.menb[0].doseLabel).toBe('Not routinely indicated');
+    for (const d of r.history.MenB.perDose) {
+      expect(d.status).toBe('invalid');
+      expect(d.notRepeated).toBe(true);
+      expect(d.repeatedOn).toBeUndefined();
+      expect(d.reasons.some((x) => /^Repeated on /.test(x))).toBe(false);
+      expect(d.reasons).not.toContain(REPEAT_THIS_DOSE);
+      expect(d.reasons.at(-1)).toBe(R_C);
+      expect(doseChipLabel(d)).toBe('Not counted — do not repeat');
+    }
+  });
+
+  it('healthy 11 y, Bexsero at 9 then Bexsero at 10 (set aside) -> the age-9 dose is "do not repeat", no "Repeated on"', () => {
+    const r = run({ dob: '2015-06-01', b: [bex('2024-09-01'), bex('2025-09-01')] });
+    const [first, second] = r.history.MenB.perDose;
+    expect(first.status).toBe('invalid');
+    expect(first.repeatedOn).toBeUndefined();
+    expect(first.reasons.at(-1)).toBe(R_C);
+    expect(doseChipLabel(first)).toBe('Not counted — do not repeat');
+    // The age-10 shot keeps its own chip (set aside before 16), untouched.
+    expect(doseChipLabel(second)).toBe('Not counted — given before age 16');
   });
 });
 
