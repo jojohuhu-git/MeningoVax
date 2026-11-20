@@ -1866,7 +1866,11 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // U2: "then every 2-3 years while the high-risk condition persists" is
       // the booster line's sentence.
       note: {
-        lead: `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`,
+        // E3 (2026-11-19): a later booster counts 2–3 years from the previous
+        // booster, as its label and due date do; not "every" (U2).
+        lead: firstBooster
+          ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`
+          : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.${menbPregnancyCaveat}`,
       },
       // D10: an outbreak's one booster cites Table 8, not the "every 2–3
