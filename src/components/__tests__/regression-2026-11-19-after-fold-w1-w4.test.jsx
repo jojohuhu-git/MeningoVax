@@ -79,7 +79,7 @@ describe('W4: the healthy MenB "Why this" drops its repeated sentence', () => {
     expect(c.doseLabel).toBe('Dose 1 of 2 (shared clinical decision)');
     // extinct: W4 dropped this sentence on purpose, owner 2026-11-19
     expect(c.note.detail).not.toMatch(/A healthy 16–23-year-old may receive MenB by shared clinical decision-making\./);
-    expect(c.note.detail).toMatch(/^Two MenB doses, at least 6 months apart, under shared clinical decision-making \[c\]\. The preferred age is 16 through 18 \[c\]\. Past 18, the series may still be given up to the 24th birthday\./);
-    expect(c.note.detail.replace(/\[c\]/g, '').split(/\s+/).filter(Boolean)).toHaveLength(69);
+    expect(c.note.detail).toMatch(/^Two MenB doses 6 months apart, by shared clinical decision-making \[c\]\. Preferred age 16–18 years \[c\], given until the 24th birthday\./);   // P42 (review v10)
+    expect(c.note.detail.replace(/\[c\]/g, '').split(/\s+/).filter(Boolean)).toHaveLength(40);   // P42 (review v10): was 69
   });
 });

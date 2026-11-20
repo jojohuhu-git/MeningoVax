@@ -7,7 +7,7 @@ owner is a clinician: plain English, ask, don't default. **Supersedes**
 
 Branch: `port/review-v10-wording`, off `origin/main` `8b51c38` (PR #123 merged). **Pushed; PR #124
 open against `main`** (https://github.com/jojohuhu-git/MeningoVax/pull/124), waiting for the owner.
-Suite **2,283 passed / 188 files**, all green (run 2026-11-20 at `68fc893`; baseline was 2,267 / 186).
+Suite **2,289 passed / 189 files**, all green (run 2026-11-20 after Batch 2b; baseline was 2,267 / 186).
 Working tree clean.
 
 ## The source of truth for this queue
@@ -39,9 +39,6 @@ Working tree clean.
 
 ## What's NOT done — the remaining queue (all approved; build in this order)
 
-- **2b**: card leads and "Why this", **P31–P52 (not P40, built) and P75**: mostly `recommend.js`
-  notes. P75 fixes the false "earliest any MenACWY vaccine may be given is 2 months" lead
-  (`recommend.js` lines ~564 and ~1080). P41, P46, P52 drop "4C"/"FHbp"/"antigen family".
 - **2c**: lines under recorded dose rows, **P53–P66**: mostly `doseRules.js` reasons/whys.
   Changing a `DOSE_RULES` row's text means `npm run rulebook` and committing the diff.
 - **2d**: combined shot and disclaimer, **P67–P72**. P72 pairs with L7.
@@ -59,6 +56,16 @@ Working tree clean.
   the record" (owner: never "tick"). Whether to offer MenQuadfi before 2 months is a separate
   clinical question (read AAP live before asking).
 
+4. **Batch 2b, P31–P52 (not P40) and P75**: card leads and "Why this" (`recommend.js`,
+   `intervals.js`; `noteFold.js` stay-in-view patterns follow P34–P36's new wording). Owner rulings:
+   one-sentence notes allowed when they fold whole (P43, P49, P50; U1 test relaxed for exactly
+   that). Siblings: the two other "16 or older complete(s/d)" leads, the exposure under-2-months
+   lead ("MenACWY starts at 2 months"), the two other combined-shot leads. Prose: 14,948 changed
+   (12,533 real), 26 groups, all these edits; 0 answers moved. Test
+   `regression-2026-11-20-review-v10-batch2b-card-notes.test.js`. Live-checked.
+   Suite then **2,289 / 189 files**. Not changed on purpose: the exposure first-booster notes
+   ("…after the primary dose", "ACIP puts the first booster…"), which P38/P39 did not name.
+
 ## Why this is a good stopping point
 
 Batches 1 and 2a are complete and pushed: test first, fix, full suite, wording count, live check.
@@ -68,7 +75,7 @@ What's left is independent, and Batch 5 needs one owner answer before it starts.
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git checkout port/review-v10-wording && git pull`
    (or branch from `origin/main` if #124 is merged).
-2. `npm test`: confirm **2,283 passed / 188 files**. `preview_start {name: "MeningoVax dev server"}`.
+2. `npm test`: confirm **2,289 passed / 189 files**. `preview_start {name: "MeningoVax dev server"}`.
 3. Per batch (fix-queue skill): `npm run prose -- dump <scratch>/before.txt` → failing test quoting
    the approved wording → fix (no semicolons) → update old tests that pin the old wording (a
    `not.toMatch` on retired text needs an `// extinct:` comment) → `npm test` → prose dump after

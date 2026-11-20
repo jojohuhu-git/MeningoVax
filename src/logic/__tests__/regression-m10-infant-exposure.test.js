@@ -85,7 +85,8 @@ describe('M10 — an infant at risk in an A/C/W/Y outbreak gets the same series'
   it('the copy names the outbreak, not travel and not a medical condition', () => {
     const r = acwy(run(4, ['outbreak_acwy'], []));
     expect(noteText(r)).not.toMatch(/asplenia|complement deficiency|HIV/i);
-    expect(noteText(r)).toMatch(/outbreak/i);
+    // P44 (review v10) dropped the who-phrase from the note; the dose label names the outbreak.
+    expect(`${r.doseLabel} ${noteText(r)}`).toMatch(/outbreak/i);
   });
 });
 

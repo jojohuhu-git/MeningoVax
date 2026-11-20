@@ -349,3 +349,15 @@ P25, P32, P42, P44, P45, P47, P48, P51, P53–P60, P64, P65, P68) contain a semi
 owner's style rule 4 (STOP G1, 2026-11-18) forbids. Asked; answer: **"Keep rule 4"**. Each
 semicolon becomes a period or a comma, and the words otherwise stay as approved (for example P25
 "…otherwise 5, then every 5 years while at risk"; P53 "Repeat from [date]. Do not restart.").
+
+## Later the same day: one-sentence notes (owner, in chat)
+
+P43, P49 and P50 are one sentence each, with nothing left for "Why this", against the owner's
+2026-09-17 rule that every card note has both halves (`regression-u1-note-lead-and-detail.test.js`).
+Answer: **"Allow one-sentence notes"**: built exactly as approved, and the U1 test now allows an
+empty detail only when the whole lead folds behind "Why this" (Q10), so the card still shows the
+link. A lead that stays in view, or a card shut by default, still needs a detail.
+
+Also in Batch 2b: the Q10 "stay in view" list (`noteFold.js`) matched three sentences by their old
+wording (P34, P35, P36). Its patterns now match the approved wording, so those lines still show on
+the card. This changes no owner decision.

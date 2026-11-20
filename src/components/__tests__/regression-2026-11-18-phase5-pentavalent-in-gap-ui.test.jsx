@@ -24,7 +24,7 @@ describe('F2a (screen): combined shot in the gap', () => {
   it('Dec 1: both options shown; the summary says MenB can be given today, not that it is due', () => {
     const c = show('2026-12-01');
     expect(c.querySelector('[data-testid="option-separate-label"]')).toBeTruthy();
-    expect(c.textContent).toContain('One pentavalent (MenABCWY) dose may replace both.');
+    expect(c.textContent).toContain('One MenABCWY injection can replace both.');
     expect(c.textContent).toContain('Due today: MenACWY. MenB dose 2 can also be given today (its minimum interval has passed), as two injections or one MenABCWY injection.');
     expect(c.textContent).not.toContain('Due today: MenACWY and MenB');
   });

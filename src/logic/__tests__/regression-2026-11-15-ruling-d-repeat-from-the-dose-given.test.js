@@ -176,7 +176,7 @@ describe('E2: a wrong-family MenB dose (owner, 2026-11-15)', () => {
     // floor (2026-06-30), not dose 1's (2026-06-29).
     const r = run({ ...base, today: '2026-06-10', menbDoses: [bex, { date: '2026-06-02', brand: 'Trumenba' }] });
     expect(when(r.menb)).toBe('2026-07-01');
-    expect(r.menb[0].note.lead).toContain('It can be given from Jun 30, 2026 if needed (minimum 4 weeks).');
+    expect(r.menb[0].note.lead).toContain('Earliest valid date: Jun 30, 2026 (minimum interval 4 weeks).');
   });
 });
 

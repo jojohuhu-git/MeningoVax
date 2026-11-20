@@ -28,13 +28,13 @@ describe('M11 — a pregnant patient at increased risk is told it is a judgement
   it('the high-risk MenB card names the benefit-versus-risk discussion', () => {
     const r = menb(['pregnancy', 'asplenia']);
     expect(r.status).toBe('risk-based');              // still offered, not deferred
-    expect(noteText(r)).toMatch(/only after discussing it with her/i);
-    expect(noteText(r)).toMatch(/outweighs the potential risk/i);
+    expect(noteText(r)).toMatch(/Discuss the benefit and potential risk before giving it/i);
+    expect(noteText(r)).toMatch(/benefit and potential risk/i)   // P51 (review v10);
   });
 
   it('it applies to a later dose in the series too, not just dose 1', () => {
     expect(noteText(menb(['pregnancy', 'complement'], ['2026-06-15'])))
-      .toMatch(/only after discussing it with her/i);
+      .toMatch(/Discuss the benefit and potential risk before giving it/i);
   });
 
   it('control: the same patient without pregnancy sees no such text', () => {
@@ -45,6 +45,6 @@ describe('M11 — a pregnant patient at increased risk is told it is a judgement
     const r = menb(['pregnancy']);
     expect(r.status).toBe('deferred');
     expect(r.doseLabel).toMatch(/Defer during pregnancy/);
-    expect(noteText(r)).not.toMatch(/only after discussing it with her/i);
+    expect(noteText(r)).not.toMatch(/Discuss the benefit and potential risk before giving it/i);
   });
 });

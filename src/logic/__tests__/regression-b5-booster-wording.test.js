@@ -37,7 +37,7 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 3 years after primary/);
-    expect(noteText(acwy(r))).toMatch(/first booster is due 3 years/i);
+    expect(noteText(acwy(r))).toMatch(/first booster is 3 years later/i);
     expect(acwy(r).doseLabel).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
     expect(noteText(acwy(r))).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
   });
@@ -56,7 +56,7 @@ describe('B5: adult high-risk MenACWY booster cadence wording', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     expect(acwy(r).doseLabel).toMatch(/first booster, 5 years after primary/);
-    expect(noteText(acwy(r))).toMatch(/first booster is due 5 years/i);
+    expect(noteText(acwy(r))).toMatch(/first booster is 5 years later/i);
     expect(acwy(r).doseLabel).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
     expect(noteText(acwy(r))).not.toMatch(/3–5 years/); // extinct: blanket wording removed (B5, 2026-07-16)
   });

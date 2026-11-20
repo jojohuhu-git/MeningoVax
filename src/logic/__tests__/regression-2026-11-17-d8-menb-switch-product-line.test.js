@@ -22,7 +22,7 @@ describe('D8: one line offers finishing with the other MenB product', () => {
     }).menb[0];
     expect(c.earliestNextDate).toBe('2026-09-01');
     // F2b (owner, 2026-11-18): the line says "due <date>", not "from".
-    expect(noteText(c)).toContain('Or finish with Trumenba instead: dose 2 due Nov 1, 2026 (the Bexsero dose then does not count)');
+    expect(noteText(c)).toContain('Or complete the series with Trumenba: dose 2 due Nov 1, 2026, and the Bexsero dose no longer counts');
   });
 
   it('high-risk 20 y, Trumenba then Bexsero: the Bexsero alternative uses the high-risk schedule', () => {
@@ -30,7 +30,7 @@ describe('D8: one line offers finishing with the other MenB product', () => {
       dob: '2006-01-01', today: '2026-06-01', riskIds: ['asplenia'],
       menbDoses: [{ date: '2026-03-01', brand: 'Trumenba (MenB)' }, { date: '2026-05-01', brand: 'Bexsero (MenB)' }],
     }).menb[0];
-    expect(noteText(c)).toMatch(/Or finish with Bexsero instead: dose 2 (today|due [A-Z][a-z]{2} \d{1,2}, 2026) \(the Trumenba dose then does not count\)/);
+    expect(noteText(c)).toMatch(/Or complete the series with Bexsero: dose 2 (today|due [A-Z][a-z]{2} \d{1,2}, 2026), and the Trumenba dose no longer counts/);
   });
 
   it('control: two doses of the same product — no such line', () => {
@@ -38,6 +38,6 @@ describe('D8: one line offers finishing with the other MenB product', () => {
       dob: '2009-01-01', today: '2026-06-01',
       menbDoses: [{ date: '2026-03-01', brand: 'Bexsero (MenB)' }, { date: '2026-05-01', brand: 'Bexsero (MenB)' }],
     }).menb[0];
-    expect(noteText(c)).not.toMatch(/Or finish with/);
+    expect(noteText(c)).not.toMatch(/Or complete the series with/);
   });
 });

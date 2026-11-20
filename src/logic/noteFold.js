@@ -31,10 +31,10 @@ const shutByDefault = (card) => NEUTRAL.has(card.status) && !card.boosterDueDate
 // and "MenB is optional today" are on it too: the pentavalent note is not a
 // card note and is never folded (see foldResult).
 export const STAY_IN_VIEW = Object.freeze([
-  { why: 'A second option, with its own date (owner D-switch line, 2026-11-17)', re: /^Or finish with \S+ instead\b/ },
-  { why: 'The minimum beside a routine date: both numbers go on the card (owner STOP F1, 2026-11-17; PneumoVax C10-2)', re: /^It can be given (today|from) .*\bif needed\b/ },
+  { why: 'A second option, with its own date (owner D-switch line, 2026-11-17)', re: /^Or complete the series with \S+:/ },   // P36 wording (review v10)
+  { why: 'The minimum beside a routine date: both numbers go on the card (owner STOP F1, 2026-11-17; PneumoVax C10-2)', re: /^It can be given today .*\bif needed\b|^Earliest valid date: / },   // P34 wording (review v10)
   { why: 'Says why the date is later than expected', re: /^It can be given once \d+ weeks? have passed since that dose\b/ },
-  { why: 'A date tied to a dose that did not count', re: /^Not before .*\bwhich did not count\.$/ },
+  { why: 'A date tied to a dose that did not count', re: /^Not before .*\bafter the invalid dose of .*\.$/ },   // P35 wording (review v10)
 ]);
 
 const markers = (s) => (s.match(/\[c\]/g) ?? []).length;

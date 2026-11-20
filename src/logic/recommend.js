@@ -459,8 +459,9 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
         doseNum: 1, seriesTotal: 2, boosterSummary: MENACWY_HIGHRISK_BOOSTER_LINE, dueToday: true, brands: menacwyBrands(am),
         note: {
-          lead: `Two MenACWY doses, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} apart, because of this patient's high-risk indication.`,
-          detail: 'ACIP recommends the same 2-dose primary series for all four high-risk indications: asplenia, persistent complement deficiency, complement-inhibitor therapy and HIV.',
+          // P43 (review v10): one sentence; it folds whole behind "Why this" (owner 2026-11-20).
+          lead: `Two MenACWY doses, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} apart, for this high-risk condition.`,
+          detail: '',
         },
         // U2: the booster half of this sentence, and both of its sources, moved
         // up to the booster line, which was already saying the same thing.
@@ -482,8 +483,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         earliestNextDate: elapsed ? null : addDays(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP),
         minIntervalDays: MENACWY_HIGHRISK_PRIMARY_GAP, brands: menacwyBrands(am),
         note: {
-          lead: `The second dose of the high-risk primary series, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} after dose 1.`,
-          detail: `The minimum is ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)}. A later dose 2 still counts, and the series is not restarted. Two doses complete the primary series, then boosters continue while the risk lasts.`,
+          lead: `Dose 2, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} after dose 1.`,
+          detail: 'A late dose 2 still counts. Do not restart. Boosters follow while the risk lasts.',
         },
         // U2: the booster tail moved to the booster line above. It gains the
         // sources the dose-1 card always had and this one never did.
@@ -513,10 +514,10 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       // left to add, so it carries no note at all.
       note: isFirstBooster
         ? {
-          lead: `Primary series complete. The first booster is due ${boostYears} years after it [c].`,
+          lead: 'Series complete.',
           detail: boostYears === '3'
-            ? 'ACIP puts the first booster 3 years out when the primary series finished before the 7th birthday, rather than the 5 years it allows from age 7.'
-            : 'ACIP puts the first booster 5 years out when the primary series finished at age 7 or older. A series finished before then brings the first booster forward to 3 years.',
+            ? 'The first booster is 3 years later because the series ended before 7 years [c].'
+            : 'The first booster is 5 years later because the series ended at 7 years or older [c].',
         }
         : null,
       noteCites: isFirstBooster ? [
@@ -561,7 +562,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     return [rec({
       vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible', dueToday: false,
       note: {
-        lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+        lead: `MenACWY starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, so nothing is due yet [c].`,
         detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
       },
       noteCites: [cite('acwyInfantHighRisk2to6mo')],
@@ -772,8 +773,9 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           doseNum: given + 1, seriesTotal: 1, dueToday: true, brands: menacwyBrands(am),
           noteCites: [cite('acip2020College5Years')],
           note: {
-            lead: `The dose given at 16 or older was more than ${yearsLabel(MENACWY_COLLEGE_COVER_YEARS)} ago, so one dose is due before college entry [c].`,
-            detail: 'A dose at 16 or older covers college residence for 5 years. ACIP asks for at least one dose within 5 years before college entry.',
+            // P50 (review v10): one sentence; it folds whole behind "Why this" (owner 2026-11-20).
+            lead: `The dose at 16 years or older was over ${yearsLabel(MENACWY_COLLEGE_COVER_YEARS)} ago, so one dose is due before college entry [c].`,
+            detail: '',
           },
           refs: refsExposure(),
         })];
@@ -826,8 +828,9 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose', seriesTotal: 1,
         doseNum: 1, dueToday: true, brands: menacwyBrands(am),
         note: {
-          lead: 'A single MenACWY dose for a first-year college student living in a residence hall.',
-          detail: 'A dose already given at age 16 or older would satisfy this requirement on its own. Nothing on record does, so one dose is due.',
+          // P49 (review v10): one sentence; it folds whole behind "Why this" (owner 2026-11-20).
+          lead: 'One MenACWY dose before college entry, since none is on record at 16 years or older.',
+          detail: '',
         },
         // C2/2026-07-24: cites college_dorm's own Table 10 anchor.
         refs: refsExposure(),
@@ -1077,7 +1080,8 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
         dueToday: false,
         note: {
-          lead: `The earliest any MenACWY vaccine may be given is ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)} of age, so nothing is due yet [c].`,
+          // P75 (review v10): the old sentence was false; a MenQuadfi dose from 6 weeks counts.
+          lead: `The infant series starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, so nothing is due yet [c].`,
           detail: `This patient has an indication that calls for the ${why} series, so track them and start it at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}.`,
         },
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
@@ -1131,8 +1135,8 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why})`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT_SERIES_BRANDS, minIntervalDays: startGate.minIntervalDays,
         note: {
-          lead: `Start the 4-dose infant MenACWY series — doses at 2, 4, 6 and 12 months, the early ones at least ${weeksLabel(startGate.minIntervalDays)} apart [c].`,
-          detail: `${whoAged('2–6 months')} need four doses. The final dose comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
+          lead: 'Start the four-dose infant series at 2, 4, 6 and 12 months [c].',
+          detail: `Early doses are ≥${weeksLabel(startGate.minIntervalDays)} apart. The final dose is at ≥${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} and ≥${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before.${outbreakTopUp}`,
         },
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         boosterCites: infantBoosterCites, refs });
@@ -1305,10 +1309,10 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       // booster line and the note keeps only the 3-years-not-5 explanation.
       note: isFirstInfantBooster
         ? {
-          lead: `${whyTitle} primary series complete. The first booster is due ${yearsLabel(infantBoostYears)} after it [c].`,
+          lead: `${whyTitle} series complete.`,
           detail: infantFirstBoost3
-            ? 'ACIP puts the first booster 3 years out when the primary series finished before the 7th birthday, rather than the 5 years it allows from age 7.'
-            : 'ACIP puts the first booster 5 years out when the primary series finished at age 7 or older. A series finished before then brings the first booster forward to 3 years.',
+            ? 'The first booster is 3 years later because the series ended before 7 years [c].'
+            : 'The first booster is 5 years later because the series ended at 7 years or older [c].',
         }
         : null,
       noteCites: isFirstInfantBooster ? [infantBoosterCite] : [],
@@ -1537,7 +1541,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     if (hasDoseAt16) {
       return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
         note: {
-          lead: 'A MenACWY dose at age 16 or older completes the routine adolescent schedule [c].',
+          lead: 'A MenACWY dose at age 16 years or older completes the routine adolescent schedule [c].',
           detail: 'No further routine doses are needed. A new risk indication would start a schedule of its own: asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak.',
         },
         noteCites: routineCite, refs })];
@@ -1560,8 +1564,8 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, ...boosterTiming, brands: menacwyBrands(am),
       note: given === 0
         ? {
-          lead: 'A single MenACWY dose now. Given at 16 years or older, it needs no booster [c].',
-          detail: 'Nothing is on record for this patient. ACIP asks for no booster after a first dose given on or after the 16th birthday.',
+          lead: 'One MenACWY dose now.',
+          detail: 'A first dose at 16 years or older needs no booster [c].',
         }
         : boosterTiming.dueToday
           ? {
@@ -1609,7 +1613,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     // Has a dose at ≥16y → complete
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       note: {
-        lead: 'A MenACWY dose at age 16 or older satisfies the adolescent schedule [c].',
+        lead: 'A MenACWY dose at age 16 years or older completes the adolescent schedule [c].',
         detail: 'No further routine doses are needed. A new risk indication would start a schedule of its own: asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak.',
       },
       noteCites: routineCite, refs })];
@@ -1627,7 +1631,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
     // satisfies ACIP's "no booster needed" rule on its own).
     return [rec({ vaccine: 'MenACWY', status: 'complete', doseLabel: 'Complete', seriesTotal: hasDoseBefore16 ? 2 : 1, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
       note: {
-        lead: 'A MenACWY dose at age 16 or older completed the adolescent schedule [c].',
+        lead: 'A MenACWY dose at age 16 years or older completed the adolescent schedule [c].',
         detail: 'No further routine doses are needed. A new risk indication would start a schedule of its own: asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak.',
       },
       noteCites: routineCite, refs })];
@@ -1705,7 +1709,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   // cdc.gov 2026-09-15). shouldDeferMenB() is false for those patients, so they
   // dropped through to the ordinary high-risk cards with pregnancy unmentioned.
   const menbPregnancyCaveat = (riskIds.includes('pregnancy') && !shouldDeferMenB(riskIds))
-    ? ' Pregnancy: safety data for MenB in pregnancy are limited, so give it only after discussing it with her — it is offered here because she is at increased risk, and the decision is whether the benefit outweighs the potential risk.'
+    ? ' Pregnancy: safety data for MenB in pregnancy are limited. Offered because of increased risk. Discuss the benefit and potential risk before giving it.'
     : '';
   if (shouldDeferMenB(riskIds)) {
     return [rec({ vaccine: 'MenB', status: 'deferred', doseLabel: 'Defer during pregnancy', seriesTotal: highRisk ? 3 : 2,
@@ -1738,8 +1742,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
         family, brands: menbBrands(family),
         note: {
-          lead: 'A 3-dose MenB series at 0, 1–2 and 6 months, for this high-risk indication [c].',
-          detail: `Use one antigen family for every dose. MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.${menbPregnancyCaveat}`,
+          lead: 'A three-dose MenB series at 0, 1–2 and 6 months [c].',
+          detail: `Use one product for every dose: Bexsero (or Penmenvy), or Trumenba (or Penbraya).${menbPregnancyCaveat}`,
         },
         // C5/2026-07-24: ACIP Oct 2024 MMWR (mm7349a3) states this 3-dose
         // schedule explicitly and supersedes the 2020 MMWR's brand-split
@@ -1767,10 +1771,12 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         canGiveToday: !due && statedMin <= today,
         family, brands: menbBrands(family),
         note: {
+          // P46 (review v10): one sentence; the earliest-date line, when there is
+          // one, stays on the card (Q10 list).
           lead: minClause
-            ? `Dose 2 is given 1–2 months after dose 1.${minClause}`
-            : `Dose 2 is given 1–2 months after dose 1, and no sooner than ${weeksLabel(MENB_HIGHRISK_D2_GAP)}.`,
-          detail: `Continue in the same antigen family as dose 1 — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable. The series then completes with a third dose about 6 months after dose 1.${menbPregnancyCaveat}`,
+            ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1.${minClause}`
+            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1.`,
+          detail: menbPregnancyCaveat.trim(),
         },
         refs: refs(['mm7349a3']) })];
     }
@@ -1837,8 +1843,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // takes on the precise version -- which dose the clock runs from -- and
         // the note drops the sentence.
         note: {
-          lead: `Dose 3 counts. A fourth dose is needed at least ${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} after it [c].`,
-          detail: `Dose 3 was given less than ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2. CDC credits that dose and completes the high-risk series with one further dose ${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} or more later.${menbPregnancyCaveat}`,
+          lead: `Dose 3 was given <${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2.`,
+          detail: `It counts. Dose 4 is due ≥${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
         },
         noteCites: [cite('menbHighRiskEarlyD3ExtraDose')],
         refs: refs(['mm7349a3']) })];
@@ -1893,8 +1899,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // the fold puts first in "Why this" (79 → 69 words). "Up to the 24th
         // birthday" still gives the age range.
         note: {
-          lead: 'Two MenB doses, at least 6 months apart, under shared clinical decision-making [c].',
-          detail: `The preferred age is 16 through 18 [c]. Past 18, the series may still be given up to the 24th birthday. The 6-month interval applies to both Bexsero and Trumenba. If rapid protection is needed, such as starting college within 6 months, a planned 3-dose series at 0, 1–2 and 6 months may be used instead.${menbPregnancyCaveat}`,
+          lead: 'Two MenB doses 6 months apart, by shared clinical decision-making [c].',
+          detail: `Preferred age 16–18 years [c], given until the 24th birthday. For faster protection (for example, college entry within 6 months), give three doses at 0, 1–2 and 6 months.${menbPregnancyCaveat}`,
         },
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one
@@ -1960,8 +1966,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           minIntervalDays: DAYS.months(MENB_HEALTHY_RESCUE_MONTHS),
           family, brands: menbBrands(family),
           note: {
-            lead: `A third dose is needed, at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].`,
-            detail: `Dose 2 was given less than ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1, so the 2-dose schedule is not complete. This further dose finishes the series — dose 2 itself is not repeated.${menbPregnancyCaveat}`,
+            lead: `Dose 2 was given <${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
+            detail: `It counts. Dose 3 is due ≥${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].${menbPregnancyCaveat}`,
           },
           // C5: an interrupted/off-schedule series is a "does this old dose
           // count" practical judgment call -- immunize.org's Ask the
@@ -2003,7 +2009,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // planning ahead knows the conversation is best had at 16-18 rather than
       // only that it becomes possible at 16.
       ? {
-        lead: 'MenB is not routinely indicated yet at this age, without a risk factor.',
+        lead: 'MenB is not routine at this age. A healthy patient may choose it from 16 years.',
         detail: 'From 16 through 23 years, MenB is given by shared clinical decision-making. The preferred age is 16 through 18 years [c].',
       }
       : {
@@ -2054,8 +2060,7 @@ const EXCLUSION_MESSAGE = 'Revaccination after hematopoietic cell transplant, '
 // given, the REST of the MenB series has to stay in that brand's antigen family.
 // G1-a (owner, STOP G1, 2026-11-18, packet W2): answer first, no semicolons.
 const PENTAVALENT_FAMILY_LOCK = 'After Penmenvy, continue MenB with Bexsero or '
-  + 'Penmenvy (both MenB-4C). After Penbraya, continue with Trumenba or Penbraya '
-  + '(both MenB-FHbp).';
+  + 'Penmenvy. After Penbraya, continue with Trumenba or Penbraya.';   // P52 (review v10)
 
 // ── impossible P1-2: questioning a tick-box the age makes unlikely ───────
 //
@@ -2165,7 +2170,7 @@ function applyRepeatFloor(recs, uncountedDate, minDays, today) {
   return recs.map((r) => {
     const asks = r.dueToday || r.earliestNextDate;
     if (!asks || (r.earliestNextDate && r.earliestNextDate >= floor)) return r;
-    const why = ` Not before ${fmtDate(floor)}: ${weeksLabel(minDays)} after the dose of ${fmtDate(uncountedDate)}, which did not count.`;
+    const why = ` Not before ${fmtDate(floor)}: ${weeksLabel(minDays)} after the invalid dose of ${fmtDate(uncountedDate)}.`;
     return {
       ...r,
       dueToday: false,
@@ -2245,8 +2250,8 @@ function withMenbSwitchLine(cards, history, am, riskIds, today) {
   // F2b (owner, 2026-11-18): the date is the advised one (Q9a), so it says
   // "due", as the card's "Next dose due <date>" does — never "from".
   const when = alt.dueToday ? 'today' : `due ${fmtDate(alt.earliestNextDate)}`;
-  const line = ` Or finish with ${MENB_PRODUCT_BY_FAMILY[otherFam]} instead: dose ${alt.doseNum} ${when} `
-    + `(the ${MENB_PRODUCT_BY_FAMILY[firstFam]} dose then does not count) [c].`;
+  const line = ` Or complete the series with ${MENB_PRODUCT_BY_FAMILY[otherFam]}: dose ${alt.doseNum} ${when}, `
+    + `and the ${MENB_PRODUCT_BY_FAMILY[firstFam]} dose no longer counts [c].`;
   // In the lead (always shown, not behind "Why this"): a clinic that stocks
   // only the other product needs to see it. The lead's citations come first in
   // noteCites, so the new one goes right after them.
@@ -2626,16 +2631,16 @@ function recommendOneReading(input) {
         // repeated for each of the two openings.
         note: bGivableRec
           ? {
-            lead: `MenACWY is due today; MenB dose ${bGivableRec.doseNum} can be given today (its ${weeksLabel(bGivableRec.minIntervalDays).replace(/ weeks?$/, '-week')} minimum has passed). One pentavalent (MenABCWY) dose may replace both.`,
+            lead: `MenACWY is due today, and MenB dose ${bGivableRec.doseNum} can be given today (its ${weeksLabel(bGivableRec.minIntervalDays).replace(/ weeks?$/, '-week')} minimum has passed). One MenABCWY injection can replace both.`,
             detail: PENTAVALENT_FAMILY_LOCK,
           }
           : bRequiredToday
           ? {
-            lead: 'Both MenACWY and MenB are due today, so one pentavalent (MenABCWY) dose may replace the two injections.',
+            lead: 'Both MenACWY and MenB are due today, so one MenABCWY injection can replace the two injections.',
             detail: PENTAVALENT_FAMILY_LOCK,
           }
           : {
-            lead: 'MenACWY is due today. MenB is optional today (shared clinical decision). One pentavalent (MenABCWY) dose may replace both.',
+            lead: 'MenACWY is due today, and MenB may be offered (shared clinical decision-making). One MenABCWY injection can replace both.',
             detail: PENTAVALENT_FAMILY_LOCK,
           },
         brands: pentavalentBrands,

@@ -111,8 +111,8 @@ describe('C2-5 — a pregnant microbiologist occupationally exposed to N. mening
   it('MenB is offered (microbiologist overrides the pregnancy deferral), and the card says so is a benefit-vs-risk call', () => {
     const r = run(['microbiologist', 'pregnancy']);
     expect(r.menb[0].status).toBe('risk-based');
-    expect(r.menb[0].note.detail).toMatch(/only after discussing it with her/i);
-    expect(r.menb[0].note.detail).toMatch(/outweighs the potential risk/i);
+    expect(r.menb[0].note.detail).toMatch(/Discuss the benefit and potential risk before giving it/i);
+    expect(r.menb[0].note.detail).toMatch(/benefit and potential risk/i)   // P51 (review v10);
   });
   it('at a plausible adult age, neither tick-box is questioned (microbiologist floor 10y, pregnancy floor 9y, patient is 25)', () => {
     const r = run(['microbiologist', 'pregnancy']);

@@ -64,7 +64,7 @@ describe('the card for a baby born six and a half months ago', () => {
   it('shows the younger band, which is the one CDC puts them in', () => {
     const { container } = show(cardFor(DOB_SIX_AND_A_HALF));
     expect(screen.getByText(/Dose 1 of 4 \(infant high-risk\)/)).toBeTruthy();
-    expect(container.textContent).toMatch(/4-dose infant MenACWY series/); // M3: brand-neutral
+    expect(container.textContent).toMatch(/four-dose infant series/); // M3: brand-neutral
     expect(container.textContent).not.toMatch(/7–11mo/);
   });
 });

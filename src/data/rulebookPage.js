@@ -196,7 +196,7 @@ const P = {
   pregnantAsp: ex('Pregnant 20-year-old with asplenia', { dob: '2006-06-01', riskIds: ['pregnancy', 'asplenia'], menacwyDoses: doses(MV, '2020-01-01', '2020-03-01', '2025-03-01') },
     { menb: [/^Dose 1 of 3 \(high-risk series\)$/] }),
   wrongFamily: ex('Healthy 17-year-old, Bexsero then Trumenba', { dob: '2009-06-01', menacwyDoses: doses(MV, '2020-07-01', '2025-07-01'), menbDoses: doses(BX, '2026-01-05').concat(doses(TR, '2026-08-01')) },
-    { menb: [/^Dose 2 of 2 \(4C\)$/], chip: ['MenB', 1, 'Not counted — repeat'], note: [/Or finish with Trumenba instead/] }),
+    { menb: [/^Dose 2 of 2 \(4C\)$/], chip: ['MenB', 1, 'Not counted — repeat'], note: [/Or complete the series with Trumenba:/] }),
 
   // The combined shot
   pentaRecent: ex('17-year-old with asplenia, Penmenvy 11 weeks ago', { dob: '2009-06-01', riskIds: ['asplenia'], menbDoses: doses(PMV, '2026-09-01') },
@@ -232,7 +232,7 @@ const P = {
   menquadfi6wk: ex('Infant with asplenia, MenQuadfi at 6 weeks', { dob: '2026-09-01', riskIds: ['asplenia'], menacwyDoses: doses(MQ, '2026-10-14'), riskAtDoseAnswers: { MenACWY: yes(1) } },
     { chip: ['MenACWY', 0, 'Dose 1 of 4'] }),
   unknown6wk: ex('Infant with asplenia, MenACWY of unknown brand at 6 weeks', { dob: '2026-09-01', riskIds: ['asplenia'], menacwyDoses: [{ brand: '', date: '2026-10-14' }] },
-    { chip: ['MenACWY', 0, 'Not counted — repeat'], note: [/8 weeks after the dose of Oct 14, 2026, which did not count/], due: ['MenACWY', '2026-12-09'] }),
+    { chip: ['MenACWY', 0, 'Not counted — repeat'], note: [/8 weeks after the invalid dose of Oct 14, 2026/], due: ['MenACWY', '2026-12-09'] }),
   setAside: ex('Healthy 10-year-old, MenACWY at 9 years 11 months and 6 weeks later', { dob: '2016-01-01', menacwyDoses: doses(MV, '2025-12-01', '2026-01-15') },
     { chip: ['MenACWY', 1, 'Not counted — repeat'] }),
   aspBoosterEarly: ex('14-year-old with asplenia, MenACWY booster 2 years after the series', { dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2023-06-10', '2023-08-15', '2025-08-15') },

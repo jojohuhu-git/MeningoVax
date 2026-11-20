@@ -34,28 +34,28 @@ describe('Q10 worked patient: a card line that repeats its heading goes behind "
   it('before the fold the engine writes it as the in-view line', () => {
     const c = recommendBeforeFold(input).menacwy[0];
     expect(c.doseLabel).toBe('Dose 2 of 2 (high-risk primary series)');
-    expect(c.note.lead).toBe('The second dose of the high-risk primary series, at least 8 weeks after dose 1.');
+    expect(c.note.lead).toBe('Dose 2, at least 8 weeks after dose 1.')   // P45 (review v10);
   });
   it('after the fold nothing is in view under the heading; the line opens first in "Why this"', () => {
     const c = recommend(input).menacwy[0];
     expect(c.doseLabel).toBe('Dose 2 of 2 (high-risk primary series)');
     expect(c.note.lead).toBe('');
-    expect(c.note.detail.startsWith('The second dose of the high-risk primary series, at least 8 weeks after dose 1.')).toBe(true);
+    expect(c.note.detail.startsWith('Dose 2, at least 8 weeks after dose 1.')).toBe(true);
   });
 });
 
 describe('Q10 stay-in-view list: each line the owner kept stays in view', () => {
   it('the Trumenba switch', () => {
     const c = recommend(byKey('a228|r:complement|A:Penbraya@330|B:Bexsero@365')).menb[0];
-    expect(c.note.lead).toMatch(/^Or finish with Trumenba instead: dose 2 today/);
+    expect(c.note.lead).toMatch(/^Or complete the series with Trumenba: dose 2 today/);
   });
   it('the minimum beside a routine date (STOP F1)', () => {
     const c = recommend({
       dob: '2006-01-01', riskIds: ['asplenia'], today: '2026-11-17',
       menacwyDoses: [], menbDoses: [{ date: '2026-11-03', brand: 'Bexsero (MenB)' }],
     }).menb[0];
-    expect(c.note.lead).toBe('It can be given from Dec 1, 2026 if needed (minimum 4 weeks).');
-    expect(c.note.detail.startsWith('Dose 2 is given 1–2 months after dose 1.')).toBe(true);
+    expect(c.note.lead).toBe('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks).');
+    expect(c.note.detail.startsWith('Give dose 2 1–2 months after dose 1, with the same MenB product')).toBe(true);
   });
   it('"once 8 weeks have passed since that dose"', () => {
     const c = recommend(byKey('a192|r:microbiologist|A:MenQuadfi@40|B:')).menacwy[0];
@@ -63,7 +63,7 @@ describe('Q10 stay-in-view list: each line the owner kept stays in view', () => 
   });
   it('"Not before <date> … which did not count"', () => {
     const c = recommend(byKey('a2|r:complement|A:MenQuadfi@40|B:')).menacwy[0];
-    expect(c.note.lead).toMatch(/^Not before \w{3} \d{1,2}, \d{4}: 8 weeks after the dose of .*, which did not count\.$/);
+    expect(c.note.lead).toMatch(/^Not before \w{3} \d{1,2}, \d{4}: 8 weeks after the invalid dose of .*\.$/);
   });
   it('the pentavalent card\'s line is never folded', () => {
     const input = saved.map((x) => x.input).find((i) => recommend(i).pentavalent?.eligible);
@@ -122,12 +122,12 @@ describe('Q10 on the screen: sources inside "Why this", disclaimer paragraph beh
   it('no source button and no folded line shows until "Why this" is opened', () => {
     const { container } = draw();
     expect(container.querySelectorAll('.citation-chip')).toHaveLength(0);
-    expect(screen.queryByText(/The second dose of the high-risk primary series/)).toBeNull();
+    expect(screen.queryByText(/Dose 2, at least 8 weeks after dose 1/)).toBeNull();
     for (const t of screen.getAllByTestId('rec-note-toggle')) fireEvent.click(t);
     expect(container.querySelectorAll('.rec-note-detail .citation-chip').length).toBeGreaterThan(0);
     expect(container.querySelectorAll('.citation-chip').length)
       .toBe(container.querySelectorAll('.rec-note-detail .citation-chip').length);
-    expect(screen.getByText(/The second dose of the high-risk primary series/)).toBeTruthy();
+    expect(screen.getByText(/Dose 2, at least 8 weeks after dose 1/)).toBeTruthy();
   });
 
   it('the disclaimer keeps its first half in view; the risk-history paragraph opens on "About risk history"', () => {

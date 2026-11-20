@@ -31,14 +31,14 @@ const show = (rec) => {
 describe('M10 (UI): an infant exposure indication shows the infant series', () => {
   it('a 4-month-old traveler sees the 4-dose infant series', () => {
     show(acwyRec(4, ['travel'], []));
-    expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(screen.getByText(/travelling to or living in a country where meningococcal disease/i)).toBeTruthy();
+    // P44 (review v10) dropped the who-phrase from the note; the dose label names the group.
+    expect(screen.getByText(/Dose 1 of 4 \(infant travel\)/)).toBeTruthy();
   });
 
   it('a 4-month-old outbreak contact sees the same series, named as an outbreak', () => {
     show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(screen.getByText(/increased risk during a serogroup A, C, W or Y outbreak/i)).toBeTruthy();
+    // P44 (review v10): the dose label names the outbreak.
+    expect(screen.getByText(/Dose 1 of 4 \(infant outbreak\)/)).toBeTruthy();
   });
 
   it('neither card blames a medical condition the infant does not have', () => {
@@ -74,6 +74,6 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
   it('control: a 4-month-old with asplenia still sees the high-risk wording', () => {
     const { container } = show(acwyRec(4, ['asplenia'], []));
     expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(container.textContent).toMatch(/High-risk infants 2–6 months/);
+    expect(container.textContent).toMatch(/four-dose infant series/)   // P44 (review v10) dropped the who-phrase; the label names the group;
   });
 });

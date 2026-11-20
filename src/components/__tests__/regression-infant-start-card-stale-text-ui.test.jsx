@@ -66,7 +66,7 @@ describe('what must NOT change', () => {
     // U1 (2026-09-17): same claim, re-worded when the note split into a lead and
     // a detail (see the logic twin for the matching change).
     // M3 (2026-09-23): brand-neutral now that MenQuadfi is also offered.
-    expect(container.textContent).toMatch(/4-dose infant MenACWY series/);
+    expect(container.textContent).toMatch(/four-dose infant series/);
     expect(container.textContent).toMatch(/2, 4, 6 and 12 months/);
   });
 });

@@ -36,8 +36,8 @@ describe('F2a — the combined shot is offered once MenB dose 2\'s minimum has p
       expect(r.pentavalent.eligible).toBe(true);
       expect(r.pentavalent.brands).toEqual(['Penmenvy (MenABCWY)']);
       expect(r.pentavalent.note.lead).toBe(
-        'MenACWY is due today; MenB dose 2 can be given today (its 4-week minimum has passed). '
-        + 'One pentavalent (MenABCWY) dose may replace both.',
+        'MenACWY is due today, and MenB dose 2 can be given today (its 4-week minimum has passed). '
+        + 'One MenABCWY injection can replace both.',
       );
     });
   }
@@ -69,20 +69,20 @@ describe('F2a — the combined shot is offered once MenB dose 2\'s minimum has p
 });
 
 describe('F2b — the switch line says "due <date>"', () => {
-  it('owner\'s patient on Dec 1: "Or finish with Trumenba instead: dose 2 due Dec 3, 2026"', () => {
+  it('owner\'s patient on Dec 1: "Or complete the series with Trumenba: dose 2 due Dec 3, 2026"', () => {
     const c = run({ ...HR, today: '2026-12-01', menbDoses: [B('2026-09-01'), T('2026-11-03')] }).menb[0];
-    expect(lead(c)).toContain('Or finish with Trumenba instead: dose 2 due Dec 3, 2026 (the Bexsero dose then does not count)');
+    expect(lead(c)).toContain('Or complete the series with Trumenba: dose 2 due Dec 3, 2026, and the Bexsero dose no longer counts');
     // extinct: the switch line's "from <date>" wording, removed by owner F2b, 2026-11-18
     expect(lead(c)).not.toMatch(/instead: dose 2 from/);
   });
 
   it('on Dec 3: "today", unchanged', () => {
     const c = run({ ...HR, today: '2026-12-03', menbDoses: [B('2026-09-01'), T('2026-11-03')] }).menb[0];
-    expect(lead(c)).toContain('Or finish with Trumenba instead: dose 2 today');
+    expect(lead(c)).toContain('Or complete the series with Trumenba: dose 2 today');
   });
 
   it('control, healthy 16 y with the same doses: "due May 3, 2027"', () => {
     const c = run({ dob: '2010-01-01', today: '2026-12-01', menbDoses: [B('2026-09-01'), T('2026-11-03')] }).menb[0];
-    expect(lead(c)).toContain('Or finish with Trumenba instead: dose 2 due May 3, 2027');
+    expect(lead(c)).toContain('Or complete the series with Trumenba: dose 2 due May 3, 2027');
   });
 });

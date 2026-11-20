@@ -21,6 +21,7 @@ import { describe, it, expect } from 'vitest';
 // regression-2026-11-19-q10-result-page-fold guards what shows.
 import { recommendBeforeFold as recommend } from '../recommend.js';
 import { TEST_TODAY } from '../../test-today.js';
+import { sentencesOf, staysInView } from '../noteFold.js';
 
 // The lead is one or two lines at card width. The audit's target was ~90-140
 // characters; 140 is the ceiling enforced here, measured with the "[c]"
@@ -80,6 +81,7 @@ function sweepNotes() {
           found.set(key, {
             note: card.note,
             noteCites: card.noteCites || [],
+            shut: ['complete', 'not-indicated', 'deferred'].includes(card.status) && !card.boosterDueDate,
             where: `${card.vaccine} · ${card.doseLabel} · age ${ageMonths}m · risks [${riskIds.join(', ') || 'none'}]`,
           });
         }
@@ -100,16 +102,22 @@ describe('U1 · a note is a lead plus a detail, never one paragraph', () => {
     expect(NOTES.length).toBeGreaterThan(25);
   });
 
-  for (const { note, noteCites, where } of NOTES) {
+  for (const { note, noteCites, shut, where } of NOTES) {
     describe(where, () => {
       it('is an object with both halves, each non-empty', () => {
         expect(typeof note, `note is still a bare string: ${JSON.stringify(note).slice(0, 120)}`).toBe('object');
         expect(typeof note.lead).toBe('string');
         expect(typeof note.detail).toBe('string');
         expect(note.lead.trim().length, 'lead is empty').toBeGreaterThan(0);
-        // Owner decision: every card that has a note has a "Why this" link, so
-        // a detail is not optional.
-        expect(note.detail.trim().length, 'detail is empty — every note gets a "Why this"').toBeGreaterThan(0);
+        // Owner decision: every card that has a note has a "Why this" link.
+        // Owner, 2026-11-20 (review v10, P43/P49/P50): a one-sentence note is
+        // allowed when the whole lead folds behind "Why this" (Q10), because the
+        // card then still shows the link. A lead that stays in view, or a card
+        // shut by default (its note is shown whole), still needs a detail.
+        if (note.detail.trim().length === 0) {
+          const foldsWhole = !shut && sentencesOf(note.lead).every((t) => !staysInView(t));
+          expect(foldsWhole, 'detail is empty and the lead would not fold behind "Why this"').toBe(true);
+        }
       });
 
       it(`lead is at most ${LEAD_MAX} characters`, () => {

@@ -96,7 +96,7 @@ export function minimumBesideRoutine({ minDate, advisedDate, today, minWords, fm
   if (!minDate || !advisedDate || advisedDate <= today || advisedDate <= minDate) return '';
   return minDate <= today
     ? ` It can be given today if needed, as the minimum interval of ${minWords} has passed.`
-    : ` It can be given from ${fmt(minDate)} if needed (minimum ${minWords}).`;
+    : ` Earliest valid date: ${fmt(minDate)} (minimum interval ${minWords}).`;   // P34 (review v10)
 }
 
 /**
