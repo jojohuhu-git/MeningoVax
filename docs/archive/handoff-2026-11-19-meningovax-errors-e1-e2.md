@@ -38,7 +38,7 @@ wording review. Here they are E1–E3.
 
 ## What's NOT done — the remaining queue
 
-1. **E3: built, awaiting the owner's OK on the wording** (`b4f5f8a`). A later MenB booster (dose 5
+1. **E3: built; owner approved the wording as written 2026-11-19** (`b4f5f8a`). A later MenB booster (dose 5
    on, label "every 2–3 years") said "1 year after the primary series was completed"; it now says
    "A MenB booster, 2–3 years after the previous booster [c]." Dose 4 is unchanged. Prose: 200
    changed, all later boosters; 0 answers moved. Suite **2,254 passed / 183 files**; live-checked
