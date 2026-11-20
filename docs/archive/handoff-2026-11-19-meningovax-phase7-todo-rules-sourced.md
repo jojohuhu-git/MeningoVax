@@ -8,9 +8,10 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 
 ## State (verified 2026-11-19)
 
-- `main` at `f72c546` (#117, card-rule sources, MERGED).
-- Branch `port/phase7-todo-rule-sources`, off `main`, pushed, PR open against `main` (this
-  handoff is in it). MeningoVax has no CI; the owner merges.
+- `main` at `600d1d2` (#118, the 18 sourced rules and T1, MERGED). #118 was merged before
+  the T2 commit reached it, so T2 sits in **PR #119** (branch `port/phase7-t2-safety-net`, off
+  `main`, the same change as `a8576b9`; this handoff is in it). Branch
+  `port/phase7-todo-rule-sources` is spent: do not reopen it. MeningoVax has no CI; the owner merges.
 - **2,233 passed, 0 failing, 179 files** after T1 and T2 (2,226 / 177 before them). The todo
   count in `rulebook-table-matches-code.test.js` is now held at 0.
 - Dev server: `preview_start {name}` refuses (other chats hold the 5-per-folder limit);
@@ -110,7 +111,7 @@ Q11, the Rulebook screen (plan §D1, D2; PneumoVax's `src/components/Rulebook.js
 
 ## Resuming
 
-1. `git fetch && gh pr list --state all --limit 3`. If this PR merged: `git checkout main && git pull
+1. `git fetch && gh pr list --state all --limit 3`. If #119 merged: `git checkout main && git pull
    --ff-only`; `npm test` should give **2,233 passed, 179 files**. If not merged, ask; don't stack.
 2. T1 and T2 are done. (Kept for reference, the usual way to build an owner answer:
    failing test → fix → `npm run sweep:update` with the moved-answer count explained →
