@@ -734,8 +734,15 @@ document.addEventListener('click',e=>{const b=e.target.closest('.vd[data-id] but
   const v=cur.v===b.dataset.v?null:b.dataset.v;put(id,{v:v||'',note:cur.note||''});if(v==='edit'||v==='no'){const i=b.closest('.vd').querySelector('input');i.hidden=false;i.focus();}return;}
   const a=e.target.closest('button[data-all]');if(a){const ids=[...document.querySelectorAll(`details[data-g="${a.dataset.all}"] .vd[data-id]`)].map(x=>x.dataset.id).filter(id=>!(V[id]&&V[id].v));
   ids.forEach(id=>put(id,{v:'yes',note:(V[id]&&V[id].note)||''}));}});
-document.addEventListener('change',e=>{const i=e.target.closest('.vd[data-id] input');if(!i)return;const id=i.closest('.vd').dataset.id;const cur=V[id]||{};
-  if((cur.note||'')!==i.value) put(id,{v:cur.v||(i.value?'edit':''),note:i.value});});
+/* A note saves while typing (after a 0.8 s pause) and on leaving the box, so closing the tab
+   mid-note no longer loses it (owner's R1 "Change" arrived with no text, 2026-11-20). */
+const noteT={};
+function saveNote(i){const id=i.closest('.vd').dataset.id;clearTimeout(noteT[id]);const cur=V[id]||{};
+  if((cur.note||'')!==i.value) put(id,{v:cur.v||(i.value?'edit':''),note:i.value});}
+document.addEventListener('input',e=>{const i=e.target.closest('.vd[data-id] input');if(!i)return;const id=i.closest('.vd').dataset.id;
+  status('Typing…');clearTimeout(noteT[id]);noteT[id]=setTimeout(()=>saveNote(i),800);});
+document.addEventListener('change',e=>{const i=e.target.closest('.vd[data-id] input');if(i) saveNote(i);});
+addEventListener('pagehide',()=>document.querySelectorAll('.vd[data-id] input').forEach(i=>{if(!i.hidden) saveNote(i);}));
 $('only').addEventListener('change',e=>document.body.classList.toggle('only',e.target.checked));
 ALL.forEach(paint);count();
 (async()=>{const t=setTimeout(()=>status('Still connecting…'),10000);
