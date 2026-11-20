@@ -5,10 +5,19 @@ that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys 
 owner is a clinician: plain English, worked patients, ask, don't default. **Supersedes**
 `handoff-2026-11-19-meningovax-rulebook-mockup-v6.md` (its open items are carried below).
 
-Branch: `port/phase7-rulebook-errors`, off `origin/main` (`443bef9`, PR #120). **NOT pushed**:
-the owner has not asked for a push or a PR yet. Baseline was 2,247 passing (180 files); now
-**2,252 passing (182 files)**, all green, after the E2 commit `e0748c8`; this handoff and the
-superseded banner on the v6 handoff are committed on top of it.
+**Update, later 2026-11-19:** E1–E3 are on `main` (PR #121, merged, deployed). Work continues on
+branch `port/phase7-wording-slips` (off `origin/main` `0d852e7`, **not pushed**): queue item 3,
+the two wording slips, built as `5bfec53`; **owner approved both sentences as written 2026-11-19**. Suite
+**2,262 passed / 184 files**. Outbreak note, first booster: "ACIP gives a booster 3 years after the
+last dose if the series finished before age 7 years, otherwise 5 years." Later booster (new, not in
+mockup v9): "ACIP gives each later booster 5 years after the last dose." Teen line: "Booster: at age
+16 years" / "…16–18 years". Prose: 2,689 of 24,600 changed (2,396 real), only these sentences; 0
+answers moved. Live-checked (born 2012-06-01 no doses; born 1998-06-01, outbreak, MenQuadfi
+2018-07-01 and 2023-07-05). If reworded: `recommend.js` (outbreak branch and the three 11–15/under-11
+`boosterSummary` lines) and `regression-2026-11-19-wording-slips-outbreak-and-16y-line.test.js`.
+
+Old branch `port/phase7-rulebook-errors` (merged as #121). Baseline then was 2,247 passing (180
+files).
 
 The "errors" are the three card errors listed in the v6 handoff, found during the Patient-screen
 wording review. Here they are E1–E3.
@@ -38,7 +47,7 @@ wording review. Here they are E1–E3.
 
 ## What's NOT done — the remaining queue
 
-1. **E3: built, awaiting the owner's OK on the wording** (`b4f5f8a`). A later MenB booster (dose 5
+1. **E3: built; owner approved the wording as written 2026-11-19** (`b4f5f8a`). A later MenB booster (dose 5
    on, label "every 2–3 years") said "1 year after the primary series was completed"; it now says
    "A MenB booster, 2–3 years after the previous booster [c]." Dose 4 is unchanged. Prose: 200
    changed, all later boosters; 0 answers moved. Suite **2,254 passed / 183 files**; live-checked
@@ -49,7 +58,7 @@ wording review. Here they are E1–E3.
    the card's `citations` (e.g. "ACIP 2020 MMWR"), while the numbered marks can point at other papers
    (CDC catch-up page, Penmenvy MMWR) that appear only on hover. True before E1. Take it up in a
    future citations pass; ask the owner.
-3. Wording slips from the v6 handoff (not started): the A/C/W/Y outbreak note says 5 years twice;
+3. Wording slips from the v6 handoff: BUILT on `port/phase7-wording-slips`, owner approved 2026-11-19 (see top). Were: the A/C/W/Y outbreak note says 5 years twice;
    "Boosters: 1 more - at age 16".
 4. Owner review of mockup v8/v9 (https://claude.ai/artifact/CYSRYKdqNTrrKcbMeydktr): the Rulebook
    screen, its wording review, the Patient screen wording (72 items) and placement (7 items).

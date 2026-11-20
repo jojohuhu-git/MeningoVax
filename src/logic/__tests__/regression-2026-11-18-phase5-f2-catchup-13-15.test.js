@@ -41,7 +41,7 @@ describe('F-2: first MenACWY at 13–15 years reads catch-up', () => {
     expect(c.doseNum).toBe(1);
     expect(c.seriesTotal).toBe(2);
     // W3 (owner, 2026-11-19): the booster line now gives CDC's 13–15 ages.
-    expect(c.boosterSummary).toBe('Boosters: 1 more - at age 16–18 [c]');
+    expect(c.boosterSummary).toBe('Booster: at age 16–18 years [c]');
   });
 
   it('on the 13th birthday it is catch-up; the day before it is routine', () => {
