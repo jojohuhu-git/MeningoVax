@@ -1,4 +1,4 @@
-# MeningoVax — Handoff after card errors E1 and E2 (2026-11-19, latest)
+# MeningoVax — Handoff after card errors E1–E3 (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The
@@ -38,13 +38,13 @@ wording review. Here they are E1–E3.
 
 ## What's NOT done — the remaining queue
 
-1. **E3 (not started)**: a later MenB booster's "Why this" says "A MenB booster, 1 year after the
-   primary series was completed [c]" under the label "Booster (dose 5, every 2–3 years)". Reproduce:
-   asplenia, born 2006-06-01, Bexsero 2023-07-01, 2023-08-01, 2024-01-01, 2025-01-01, today
-   2026-11-19. Sentence at `src/logic/recommend.js` (search "after the primary series was
-   completed"). The cited quote (`menbHighRiskBoosterCadenceBox`) already covers "additional
-   boosters every 2–3 years if the risk remains". New card wording, so put the sentence to the owner first,
-   as was done for E1.
+1. **E3: built, awaiting the owner's OK on the wording** (`b4f5f8a`). A later MenB booster (dose 5
+   on, label "every 2–3 years") said "1 year after the primary series was completed"; it now says
+   "A MenB booster, 2–3 years after the previous booster [c]." Dose 4 is unchanged. Prose: 200
+   changed, all later boosters; 0 answers moved. Suite **2,254 passed / 183 files**; live-checked
+   (asplenia, born 2006-06-01, Bexsero 2023-07-01, 2023-08-01, 2024-01-01, 2025-01-01). If the
+   owner rewords it, change the lead in `recommend.js` and the test
+   `regression-2026-11-19-e3-later-menb-booster-note.test.js`.
 2. **Citations, later (owner: "save this for then")**: the source buttons under "Why this" list only
    the card's `citations` (e.g. "ACIP 2020 MMWR"), while the numbered marks can point at other papers
    (CDC catch-up page, Penmenvy MMWR) that appear only on hover. True before E1. Take it up in a
@@ -66,7 +66,7 @@ independent and needs the owner to approve a new sentence before it is built.
 ## Resuming
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git checkout port/phase7-rulebook-errors`
-2. `npm test` — confirm **2,252 passed / 182 files**. `preview_start {name: "MeningoVax dev server"}`.
+2. `npm test` — confirm **2,254 passed / 183 files**. `preview_start {name: "MeningoVax dev server"}`.
 3. Ask, don't default: E3's sentence; whether to push and open a PR for E1–E2 now or after E3.
 4. Per item (fix-queue skill): reproduce → failing test → fix → full suite → `npm run prose -- dump`
    before/after and `diff` (number in the commit) → live check → commit by ID. New test files
