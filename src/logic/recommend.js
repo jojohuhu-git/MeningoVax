@@ -1491,11 +1491,11 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
           lead: catchup
             ? 'A catch-up dose now, then the booster at 16–18 years [c].'
             : 'The routine adolescent dose, given at 11–12 years.',
-          detail: 'If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given on the same day.',
+          detail: 'Without a MenB risk factor, MenB is offered from 16 through 23 years by shared clinical decision-making [c]. A pentavalent dose may be used only when MenACWY and MenB are due at the same visit [c].',
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
         boosterCites: [cite(catchup ? 'cdcCatchupAcwyBooster8Weeks' : 'acwyRoutine1112and16')],
-        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : [],
+        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks'), cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')] : [cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')],
         refs })];
     }
     // already has dose 1 → booster due at 16y (future)
@@ -1678,12 +1678,14 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
       note: {
         lead: 'MenB is not indicated at this age without a qualifying risk factor.',
-        detail: `MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c]. From ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)} through ${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years MenB may be given under shared clinical decision-making. Between ${ageYears(MENB_MIN_AGE_MONTHS)} and ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS) - 1} years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, or microbiologist exposure.`,
+        detail: `MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c]. From ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)} through ${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years MenB may be given under shared clinical decision-making. Between ${ageYears(MENB_MIN_AGE_MONTHS)} and ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS) - 1} years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, microbiologist exposure, or a serogroup B outbreak [c].`,
       },
       // C5/2026-07-24: consolidate — replace the lone "CDC MenB Notes"
       // whole-page chip with the exact 2020 MMWR licensure sentence
       // (citation audit finding).
-      noteCites: [cite('menbLicensedAge1025')],
+      // E2 (2026-11-19): the 10–15 list names all five ACIP groups, a
+      // serogroup B outbreak included, and cites ACIP's sentence.
+      noteCites: [cite('menbLicensedAge1025'), cite('acip2020MenbRiskGroups')],
       refs: refs([], ['acip2020']) })];
   }
 
@@ -1864,7 +1866,11 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // U2: "then every 2-3 years while the high-risk condition persists" is
       // the booster line's sentence.
       note: {
-        lead: `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`,
+        // E3 (2026-11-19): a later booster counts 2–3 years from the previous
+        // booster, as its label and due date do; not "every" (U2).
+        lead: firstBooster
+          ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`
+          : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.${menbPregnancyCaveat}`,
       },
       // D10: an outbreak's one booster cites Table 8, not the "every 2–3

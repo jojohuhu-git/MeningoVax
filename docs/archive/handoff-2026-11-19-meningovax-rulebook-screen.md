@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-rulebook-mockups.md`, which carries this file's "What's NOT done" list forward and adds the Rulebook screen mockup decisions. Do not resume from this file.
+
 # MeningoVax port — Handoff after the in-app Rulebook screen (Phase 7.2, Q11) (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
