@@ -1,0 +1,738 @@
+<title>MeningoVax Rulebook Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Review form v10 (2026-11-20), built on mockup v9. Owner verdicts are saved to the page's db
+   (collection "verdicts", one doc per item id: R = Rulebook wording, P = Patient wording,
+   L = placement, D = design). Mockup v6. One framed app screen (decision path, then quick look), then the colour key,
+   the full wording review and the owner questions. Tokens copy the app's App.css meanings:
+   green = give/counts, blue = shared decision, amber = wait, red = not counted, teal = tappable. */
+:root{
+  --c:#1a6b8a; --clt:#e8f5fb; --cmd:#9dd4e8;
+  --g:#2e7d32; --glt:#e8f5e9; --gmd:#a5d6a7;
+  --b:#1565c0; --blt:#e3f2fd; --bmd:#90caf9;
+  --r:#b71c1c; --rlt:#ffebee; --rmd:#ef9a9a;
+  --a:#a14000; --alt:#fff3e0; --amd:#f0c79a;
+  --gy:#37474f; --gy2:#546e7a; --gy3:#78909c; --gy4:#a9b6bc; --gy5:#cfd8dc; --gy6:#eceff1; --gy7:#f6f8f9;
+  --bg:#f4f7f8; --card:#ffffff;
+  --rad:8px; --rads:4px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --c:#6cc3e2; --clt:#16303a; --cmd:#2f6578;
+  --g:#81c784; --glt:#1b2e1d; --gmd:#3c6b3f; --b:#90caf9; --blt:#16263a; --bmd:#2f4f78;
+  --r:#ef9a9a; --rlt:#3a1a1a; --rmd:#7a3434; --a:#ffb74d; --alt:#3a2a14; --amd:#7a5a2a;
+  --gy:#e3eaed; --gy2:#b6c4ca; --gy3:#8fa1a9; --gy4:#5f6f76; --gy5:#3a474d; --gy6:#263035; --gy7:#1e282c;
+  --bg:#121a1d; --card:#1a2428; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --c:#6cc3e2; --clt:#16303a; --cmd:#2f6578;
+  --g:#81c784; --glt:#1b2e1d; --gmd:#3c6b3f; --b:#90caf9; --blt:#16263a; --bmd:#2f4f78;
+  --r:#ef9a9a; --rlt:#3a1a1a; --rmd:#7a3434; --a:#ffb74d; --alt:#3a2a14; --amd:#7a5a2a;
+  --gy:#e3eaed; --gy2:#b6c4ca; --gy3:#8fa1a9; --gy4:#5f6f76; --gy5:#3a474d; --gy6:#263035; --gy7:#1e282c;
+  --bg:#121a1d; --card:#1a2428; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--gy);font-family:var(--font);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1{font-size:22px;margin:0 0 6px;text-wrap:balance}
+h2{font-size:18px;margin:0 0 4px;text-wrap:balance}
+h3{font-size:15px;margin:0}
+p{margin:0}
+.lede{color:var(--gy2);max-width:72ch}
+.note{font-size:13px;color:var(--gy2)}
+.mocklabel{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gy3)}
+.box{background:var(--card);border:1px solid var(--gy5);border-radius:var(--rad);padding:12px 14px;display:grid;gap:8px}
+.box ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:14px}
+button{font:inherit}
+button:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+
+/* app frame */
+.screen{background:var(--card);border:1px solid var(--gy5);border-radius:var(--rad);overflow:hidden}
+.apphdr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gy5)}
+.brand{display:flex;flex-direction:column;line-height:1.2}
+.brand b{color:var(--c);font-size:15px}.brand span{font-size:11px;color:var(--gy3)}
+.switch{display:flex;border:1px solid var(--gy5);border-radius:var(--rads);overflow:hidden;font-size:13px}
+.switch span{padding:4px 10px;color:var(--gy2)}.switch span.on{background:var(--clt);color:var(--c);font-weight:600}
+.body{padding:18px 18px 24px;display:grid;gap:26px;min-width:0}
+.part{display:grid;gap:12px;min-width:0}
+.part>header{display:grid;gap:2px;border-bottom:1px solid var(--gy5);padding-bottom:8px}
+
+/* tappable text control: the only teal on the page */
+.tap{font-size:12px;font-weight:600;color:var(--c);background:var(--card);border:1px solid var(--cmd);border-radius:var(--rads);padding:3px 10px;cursor:pointer;white-space:nowrap}
+.tap:hover{background:var(--clt)}
+.tap[aria-expanded="true"]{background:var(--c);color:var(--card);border-color:var(--c)}
+.src{font-size:12px;color:var(--c);border-bottom:1px dotted var(--c);white-space:nowrap;cursor:pointer}
+
+/* the path */
+.path{display:grid}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;position:relative}
+.step:not(:last-child)::before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:var(--gy5)}
+.num{width:30px;height:30px;border-radius:50%;border:2px solid var(--gy4);color:var(--gy2);display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--card);position:relative;z-index:1}
+.stepbody{padding-bottom:16px;display:grid;gap:8px;min-width:0}
+.stephead{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.stephead .t{display:grid;gap:1px}
+.stephead .sum{font-size:14px;color:var(--gy2)}
+.stepmore{display:grid;gap:8px}
+.stepmore[hidden]{display:none}
+.ask{font-size:13px;color:var(--gy2)}
+.rows{display:grid;border:1px solid var(--gy5);border-radius:var(--rads);overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;padding:8px 10px;border-top:1px solid var(--gy6);font-size:14px;align-items:start}
+.row:first-child{border-top:0}
+.row .then{color:var(--gy2)}.row .then b{color:var(--gy)}
+.row.head{background:var(--gy6);font-size:12px;color:var(--gy2);font-weight:600}
+.row.stop .then b{color:var(--r)}
+.next{font-size:14px;border-left:3px solid var(--gy4);padding:2px 0 2px 10px}
+.next b{font-weight:700}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;border-radius:var(--rads);border:1px solid;margin:1px 0}
+.chip.ok{color:var(--g);background:var(--glt);border-color:var(--gmd)}
+.chip.no{color:var(--r);background:var(--rlt);border-color:var(--rmd)}
+.chip.ex{color:var(--a);background:var(--alt);border-color:var(--amd)}
+.chip.un{color:var(--gy3);background:var(--gy6);border-color:var(--gy5)}
+.chip.in{color:var(--gy2);background:var(--gy6);border:1px dashed var(--gy4)}
+
+.reclist{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14px}
+.reclist li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;line-height:1.5}
+.reclist .chip{white-space:nowrap;margin:0}
+.reclist li span:last-child{color:var(--gy2)}
+/* quick look tables */
+.qwrap{overflow-x:auto;border:1px solid var(--gy5);border-radius:var(--rads)}
+table.q{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed}
+table.q.a{min-width:1080px} table.q.b{min-width:960px}
+table.q th,table.q td{border-bottom:1px solid var(--gy6);padding:6px 4px;text-align:left;vertical-align:middle;white-space:nowrap}
+table.q thead th{background:var(--gy6);font-size:12px;color:var(--gy2);font-weight:600;padding:6px 8px}
+table.q col.grp{width:190px} table.q col.age{width:118px} table.q col.bst{width:230px} table.q col.dbtn{width:82px}
+table.q thead th.bst,table.q td.bst{border-left:2px solid var(--gy5);padding-left:10px}
+table.q td.bst{color:var(--gy);font-size:13px;white-space:normal;line-height:1.3}
+table.q tbody th{font-weight:600;padding:8px;white-space:normal;line-height:1.3}
+table.q tbody tr[data-id]{cursor:pointer}
+table.q tbody tr[data-id]:hover th,table.q tbody tr[data-id]:hover td{background:var(--gy7)}
+table.q tbody tr.on th{box-shadow:inset 3px 0 0 var(--c)}
+td.dcell{text-align:right;padding-right:8px}
+tr.detrow>td{background:var(--gy7);padding:0;white-space:normal;border-bottom:2px solid var(--gy5)}
+.detin{position:sticky;left:0;padding:12px 14px 14px;display:grid;gap:10px}
+.det{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 24px;font-size:13px}
+.det ul{margin:0;padding-left:16px;display:grid;gap:2px}
+.det .dh{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--gy3);margin-bottom:3px}
+.det .todo{font-size:14px;font-weight:600}
+.bw{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:2px 10px;margin:0}
+.bw dt{color:var(--gy3)}.bw dd{margin:0}
+.tl{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.tl span{border:1px solid var(--gy5);background:var(--card);border-radius:var(--rads);padding:1px 6px}
+.tl i{font-style:normal;color:var(--gy3)}
+.det blockquote{margin:0 0 4px;border-left:3px solid var(--gy5);padding:2px 0 2px 10px;font-size:12px;color:var(--gy2)}
+.det blockquote cite{display:block;font-style:normal;font-size:11px;color:var(--gy3)}
+.bar{display:block;padding:5px 8px;border-radius:var(--rads);border:1px solid var(--gmd);background:var(--glt);color:var(--g);font-weight:600;font-size:13px}
+.bar.sd{border-color:var(--bmd);background:var(--blt);color:var(--b)}
+.bar.wait{border-color:var(--amd);background:var(--alt);color:var(--a)}
+.quiet{color:var(--gy3);font-size:13px;padding-left:8px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--gy2);align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend .bar{display:inline-block;width:28px;height:14px;padding:0}
+.notes{margin:0;padding:0;list-style:none;font-size:13px;color:var(--gy2)}
+
+.give{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px;max-width:80ch}
+details.srcd>summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--c);width:max-content}
+details.srcd blockquote{margin:6px 0 0;border-left:3px solid var(--gy5);padding:2px 0 2px 10px;font-size:12px;color:var(--gy2)}
+details.srcd blockquote cite{display:block;font-style:normal;font-size:11px;color:var(--gy3)}
+/* colour key, review, questions */
+.kt{display:grid;border:1px solid var(--gy5);border-radius:var(--rads);overflow:hidden;background:var(--card)}
+.kr{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,1.2fr);gap:12px;padding:8px 12px;border-top:1px solid var(--gy6);font-size:14px;align-items:center}
+.kr:first-child{border-top:0;background:var(--gy6);font-size:12px;font-weight:600;color:var(--gy2)}
+.sw{display:inline-block;width:54px;height:20px;border-radius:var(--rads);border:1px solid}
+details.grp{background:var(--card);border:1px solid var(--gy5);border-radius:var(--rads)}
+details.grp>summary{cursor:pointer;padding:9px 12px;font-weight:600;font-size:14px;color:var(--gy)}
+details.grp>summary span{font-weight:400;color:var(--gy3);font-size:13px}
+.wt{display:grid;border-top:1px solid var(--gy5)}
+.wr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr);gap:12px;padding:9px 12px;border-top:1px solid var(--gy6);font-size:14px}
+.wr:first-child{border-top:0;background:var(--gy6);font-size:12px;font-weight:600;color:var(--gy2)}
+.wr .old{color:var(--gy2)}
+.wr .why2{font-size:13px;color:var(--gy2)}
+.qs{display:grid;gap:14px}
+.qq{background:var(--card);border:1px solid var(--gy5);border-radius:var(--rad);padding:12px 14px;display:grid;gap:8px;font-size:14px}
+.qq h3{font-size:15px}
+.qq .lab{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--gy3)}
+.qq blockquote{margin:0;border-left:3px solid var(--gy5);padding:2px 0 2px 10px;font-size:13px;color:var(--gy2)}
+.qq blockquote cite{display:block;font-style:normal;font-size:12px;color:var(--gy3)}
+.qq ul{margin:0;padding-left:18px;display:grid;gap:3px}
+
+/* review form */
+.bar2{position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--gy5);border-radius:var(--rad);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:14px}
+.bar2 .meter{flex:1 1 160px;height:8px;background:var(--gy6);border-radius:4px;overflow:hidden;min-width:120px}
+.bar2 .meter i{display:block;height:100%;width:0;background:var(--c)}
+.bar2 label{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--gy2);cursor:pointer}
+.save{font-size:12px;color:var(--gy3)}
+.warn{border-left:3px solid var(--a);background:var(--alt);color:var(--gy);padding:8px 12px;border-radius:var(--rads);font-size:14px}
+.vd{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.vd .id{font-size:12px;font-weight:700;color:var(--gy2);min-width:38px}
+.vd button{font-size:12px;font-weight:600;color:var(--c);background:var(--card);border:1px solid var(--cmd);border-radius:var(--rads);padding:3px 10px;cursor:pointer}
+.vd button:hover{background:var(--clt)}
+.vd button[aria-pressed="true"]{background:var(--c);color:var(--card);border-color:var(--c)}
+.vd button[aria-pressed="true"]::before{content:"\2713  "}
+.vd input{flex:1 1 220px;min-width:0;font:inherit;font-size:13px;padding:3px 8px;border:1px solid var(--gy5);border-radius:var(--rads);background:var(--card);color:var(--gy)}
+.vd input[hidden]{display:none}
+.built{font-size:12px;font-weight:600;color:var(--gy2);background:var(--gy6);border:1px solid var(--gy5);border-radius:var(--rads);padding:1px 7px}
+.idl{font-size:12px;font-weight:700;color:var(--gy2);margin-right:6px}
+.grpbtn{font-size:12px;font-weight:600;color:var(--c);background:var(--card);border:1px solid var(--cmd);border-radius:var(--rads);padding:3px 10px;cursor:pointer;margin:8px 12px}
+body.only .wr[data-done="1"],body.only .wr.nc{display:none}
+.dbox{display:grid;gap:8px}
+@media (max-width:640px){
+  table.q{font-size:13px}
+  .row{grid-template-columns:minmax(0,1fr);gap:4px}
+  .row.head{display:none}
+  .row .then{padding-left:10px;border-left:2px solid var(--gy5)}
+  .body{padding:14px 12px 20px}
+  .wr,.kr{grid-template-columns:minmax(0,1fr);gap:4px}
+  .wr:first-child,.kr:first-child{display:none}
+  .wr .old::before{content:"Now: ";font-weight:600}
+  .wr .new::before{content:"Proposed: ";font-weight:600}
+  }
+</style>
+
+<div class="wrap">
+  <div>
+    <div class="mocklabel">Review form, version 10 · 2026-11-20</div>
+    <h1>Rulebook screen and Patient screen: your review</h1>
+    <p class="lede">Each proposal has a number and three buttons. Approve it, reject it, or choose "Change" and type what you want instead. Your answers save as you go, and I read them from here. Items marked "Built" are already in the app.</p>
+  </div>
+
+  <div class="bar2" id="bar2"><b id="cnt">0 of 0 decided</b><span class="meter"><i id="mtr"></i></span><label><input type="checkbox" id="only"> Show only undecided</label><span class="save" id="save"></span></div>
+  <div class="warn" id="nodb" hidden>Answers can't be saved in this view. You can still read everything; reply in chat with item numbers instead (for example "approve all, reject P15").</div>
+
+  <div class="box">
+    <h3>Built since version 9</h3>
+    <ul>
+      <li>Rulebook screen: "Bexsero" and "Trumenba" replace "4C" and "FHbp" (your question 2; PR #123, waiting for you to merge). Items R3–R7, R9 and R70.</li>
+      <li>"Wanes within 1–2 years" on the healthy MenB card (your question 4; PR #123). Item R110.</li>
+      <li>The three errors and the two wording slips (PRs #121 and #122, merged). Items R107–R109, P22, P23 and P40.</li>
+      <li>Every other item was checked against today's app on 2026-11-20 and still reads as shown under "Now".</li>
+    </ul>
+  </div>
+
+  <div class="box dbox">
+    <h3>The redesigned Rulebook screen (below)</h3>
+    <p class="note">The seven-step path, the two Quick look tables (your question 1) and the short Details panels. Approving this means I build it into the app's Rulebook screen; the wording items further down then apply inside it.</p>
+    <div class="wr" data-id="D1" style="padding:0;border:0;background:none"><div class="vd" data-id="D1"></div></div>
+  </div>
+
+  <div class="screen">
+    <div class="apphdr"><div class="brand"><b>MeningoVax</b><span>Meningococcal Vaccine Advisor</span></div><div class="switch"><span>Patient</span><span class="on">Rulebook</span></div></div>
+    <div class="body">
+
+      <section class="part">
+        <header><h2>Rulebook</h2><p class="note">How MeningoVax decides, in the order it decides, then who gets what. <span class="src">Source</span> opens the CDC or ACIP sentence behind a rule.</p></header>
+      </section>
+
+      <section class="part">
+        <header><h2>How MeningoVax decides</h2><p class="note">Seven steps, always in this order.</p></header>
+        <div class="path" id="path"></div>
+      </section>
+
+      <section class="part">
+        <header><h2>Quick look: who gets what</h2><p class="note">Rows are by age today. Details opens the group's schedule and its booster timing.</p></header>
+        <h3>MenACWY</h3>
+        <div class="qwrap"><table class="q a" id="tA"></table></div>
+        <ul class="notes"><li>Serogroup B outbreak and pregnancy: same as healthy.</li></ul>
+        <h3>MenB</h3>
+        <div class="qwrap"><table class="q b" id="tB"></table></div>
+        <ul class="notes"><li>HIV, travel, military, college and an A/C/W/Y outbreak: same as healthy.</li></ul>
+      </section>
+    </div>
+  </div>
+
+  <section class="part">
+    <header><h2>Colour key</h2><p class="note">Each colour means one thing, the same thing it means on the app's cards and dose labels.</p></header>
+    <div class="kt" id="kt"></div>
+    <p class="note">Your answer to question 5: red means repeat; amber on a dose label means not counted, with nothing to give now. "Not counted — do not repeat" moves from red to amber. Before building, check PneumoVax's dose labels for the same rule</p>
+  </section>
+
+  <section class="part">
+    <header><h2>Rulebook screen: wording review</h2><p class="note">Every sentence on today's Rulebook screen is listed in screen order. No rule changes; every number was checked against the app. Tap a section to open it.</p></header>
+    <div id="wt" style="display:grid;gap:8px"></div>
+  </section>
+
+  <section class="part">
+    <header><h2>Patient screen: wording review</h2><p class="note">The words a clinician reads on the Patient screen, found by rendering it for the rulebook's 69 test patients with every "Why this" open. [date] and [age] stand for the patient's own. Proposals only; nothing has changed. A chip label (the "Dose due on each card" group) is on your closed list, so approving one adds it to that list.</p></header>
+    <div id="pw" style="display:grid;gap:8px"></div>
+  </section>
+
+  <section class="part">
+    <header><h2>Patient screen: placement</h2><p class="note">Where explanations sit. Your three rules: next to what they explain, long text behind a tap, and fewer repeats.</p></header>
+    <div id="pl" style="display:grid;gap:8px"></div>
+  </section>
+
+  <section class="part">
+    <header><h2>Errors found (not wording)</h2><p class="note">All three are fixed in the app.</p></header>
+    <ul class="box" id="er" style="margin:0;padding:12px 14px 12px 32px;font-size:14px;display:grid;gap:8px"></ul>
+  </section>
+
+  <section class="part">
+    <header><h2>Your earlier answers</h2><p class="note">Questions 1–5, recorded 2026-11-19.</p></header>
+    <div class="qs" id="qs"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const Qt=(q,c)=>`<blockquote>"${q}"<cite>${c}</cite></blockquote>`;
+
+/* ---------------- The path ---------------- */
+const C=(k,t)=>`<span class="chip ${k}">${t}</span>`;
+const STEPS=[
+ {t:'Stop check',sum:'A transplant, CAR-T therapy or B-cell therapy stops the app.',
+  ask:'Has the patient had a stem cell transplant, CAR-T therapy, a B-cell cancer or B-cell-depleting therapy?',head:['Answer','What the app does'],rows:[
+   ['Yes','<b>The app stops.</b> It shows only "Individualized revaccination schedule required."','stop'],
+   ['No','The app goes on to step 2.']],
+  next:'If the answer is yes, follow your institution\'s revaccination protocol.'},
+ {t:'Read the record',sum:'Each recorded dose is checked and given one label.',
+  ask:'Each dose is checked for a date, the minimum age and the minimum interval; both minimums include the 4-day grace period. A combined shot counts as one MenACWY dose and one MenB dose.',
+  list:[
+   ['un','No date recorded — not counted','No date on the record.'],
+   ['un','Date is in the future — not counted','Date is after today.'],
+   ['un','Entered twice — this row not counted','Same dose entered twice.'],
+   ['no','Not counted — repeat','Minimum age not met.'],
+   ['no','Not counted — repeat','Minimum interval not met.'],
+   ['no','Not counted — repeat','MenB product not interchangeable with the first MenB dose.'],
+   ['ex','Not counted — do not repeat','Invalid dose, but no further dose is owed.'],
+   ['ex','Not counted — given before age 10','Routine MenACWY before age 10 years.'],
+   ['ex','Not counted — given before age 16','Healthy MenB before age 16 years.'],
+   ['ex','Not counted — Extra. Do not repeat.','Given when no dose was due.'],
+   ['in','Needs input','Risk status on the dose date unknown.'],
+   ['ok','Dose 2 of 2','Valid dose, with its place in the series.'],
+   ['ok','Booster','Valid booster after a completed series.']],
+  next:'Red labels mean repeat; amber labels mean not counted, with nothing to give now. Repeat only the invalid dose, on the date the card shows. Do not restart the series.'},
+ {t:'MenACWY schedule',sum:'The patient\'s risk group determines the doses and the boosters.',
+  ask:'If the patient is in more than one group, the first matching row applies.',head:['Patient','What to give'],rows:[
+   ['Under 2 years, with asplenia, complement deficiency, HIV, travel or an A/C/W/Y outbreak','<b>An infant series</b> of two to four doses; the age at the first dose determines how many are needed.'],
+   ['2 years or older, with asplenia, complement deficiency or HIV','<b>Two doses</b>, at least 8 weeks apart, then boosters while at risk.'],
+   ['Travel, or lab work with meningococcus','<b>One dose</b>, then boosters while the risk continues.'],
+   ['Military recruit','<b>One dose.</b> Boosters are given only if the assignment requires them.'],
+   ['A/C/W/Y outbreak','<b>One dose.</b> A booster is given only if the outbreak continues.'],
+   ['College residence hall, 16 years or older','<b>One dose</b>, unless one was given at 16 years or older within the last 5 years. No booster follows.'],
+   ['None of these','<b>The routine schedule:</b> a first dose at 11–12 years and a booster at 16 years.']],
+  foot:'Under 16 years, college and military follow the routine schedule. Under 16 years, travel, lab work and an outbreak still get the 16-year booster, and later boosters are timed from it.',
+  next:''},
+ {t:'MenB schedule',sum:'MenB is not routine. High-risk patients start at 10 years; healthy patients aged 16–23 years may choose it.',
+  ask:'The first matching row applies.',head:['Patient','What to give'],rows:[
+   ['Under 10 years','<b>Nothing is due yet.</b> A high-risk patient starts at 10 years.'],
+   ['10 years or older, with asplenia, complement deficiency, lab work or a B outbreak','<b>Three doses:</b> the second 1 month after the first, the third 6 months after the first. Pregnancy does not delay them.'],
+   ['Pregnant without risk factors','<b>Wait</b> until after pregnancy.'],
+   ['Healthy, 16–23 years','<b>Offer two doses</b>, 6 months apart, after discussing it with the patient. The preferred age is 16–18 years.'],
+   ['Healthy, 10–15 years or 24 years and older','<b>Not routinely recommended.</b>']],
+  foot:'HIV, travel, military service, college and an A/C/W/Y outbreak do not change the MenB schedule.',
+  next:'If a healthy patient chooses MenB, give the first dose today and the second 6 months later.'},
+ {t:'Set the dates',sum:'The card shows the routine date, and the earliest valid date when it is sooner.',
+  ask:'',head:null,rows:[
+   ['After a valid dose','The next dose is due on the routine date. If the minimum interval allows an earlier date, it is shown beside it.'],
+   ['After an invalid dose','Repeat only the invalid dose, at the minimum interval after it: 8 weeks for MenACWY, 4 weeks for MenB.'],
+   ['A booster','Timed from the last dose of the series, or from the last booster.'],
+   ['A MenACWY dose within 4 days before age 3 months, 7 months, 2 years or 16 years','The app applies the schedule that needs fewer doses.']],
+  next:''},
+ {t:'Combined shot (MenABCWY)',sum:'Penmenvy or Penbraya replaces two injections when both vaccines are due.',
+  ask:'It is offered only when every statement below is true.',head:null,rows:[
+   ['MenACWY is due today.',''],
+   ['MenB is due today, or can be given today.',''],
+   ['The patient is 10 years or older.',''],
+   ['It matches the earlier MenB doses.','Penmenvy follows Bexsero; Penbraya follows Trumenba.'],
+   ['The same combined shot was not given in the last 6 months.',''],
+   ['No dose on the record reads "Needs input."','']],
+  next:'Otherwise, MenACWY and MenB are given as two injections.'},
+ {t:'The cards',sum:'This is what the Patient screen shows.',ask:'',head:null,rows:[
+   ['Each vaccine','The card shows the dose due and its date. It says "Up to date" only when nothing is left.'],
+   ['Each recorded dose','Each dose has one label, from step 2.'],
+   ['"Why this"','This opens the reasons and the CDC or ACIP sentence behind them.']],
+  next:''}
+];
+$('path').innerHTML=STEPS.map((s,i)=>{
+  let rows=s.head?`<div class="row head"><span>${s.head[0]}</span><span>${s.head[1]}</span></div>`:'';
+  rows+=(s.rows||[]).map(r=>`<div class="row ${r[2]||''}"><span>${r[0]}</span><span class="then">${r[1]}</span></div>`).join('');
+  const body=s.list?`<ul class="reclist">${s.list.map(([k,c,r])=>`<li>${C(k,c)}<span>${r}</span></li>`).join('')}</ul>`:`<div class="rows">${rows}</div>`;
+  return `<div class="step"><div class="num">${i+1}</div><div class="stepbody">
+    <div class="stephead"><div class="t"><h3>${s.t}</h3><p class="sum">${s.sum}</p></div><button class="tap" aria-expanded="false" data-t="s${i}">Show</button></div>
+    <div class="stepmore" id="s${i}" hidden>${s.ask?`<p class="ask">${s.ask}</p>`:''}${body}${s.foot?`<p class="note">${s.foot}</p>`:''}${s.next?`<p class="next">${s.next}</p>`:''}<span class="note"><span class="src">Source</span></span></div>
+  </div></div>`;
+}).join('');
+
+/* ---------------- Quick look ---------------- */
+const _=(s=1)=>['',s,''], Q=(t,s=1)=>[t,s,'q'], B=(t,s=1)=>[t,s,'bar'], S=(t,s=1)=>[t,s,'sd'], WT=(t,s=1)=>[t,s,'wait'];
+const ACWY={cols:['Under 2 years','2–10 years','11–15 years','16–21 years','22+ years'],rows:[
+ {g:'Healthy',id:'healthy',c:[_(),_(),B('Dose 1'),B('Booster at 16 years'),_()],b:'At 16 years, if the first dose was before 16 years'},
+ {g:'Asplenia, complement deficiency, HIV',id:'hr',c:[B('Infant series'),B('Two doses',4)],b:'3 or 5 years after the series, then every 5'},
+ {g:'Travel',id:'travel',c:[B('Infant series'),B('One dose',4)],b:'3 or 5 years after the dose, then every 5'},
+ {g:'A/C/W/Y outbreak',id:'acwyout',c:[B('Infant series'),B('One dose',4)],b:'3 or 5 years after the dose, if the outbreak continues'},
+ {g:'Lab work',id:'lab',c:[B('One dose',5)],b:'5 years after the dose, then every 5'},
+ {g:'Military recruit',id:'military',c:[Q('Same as healthy',4),B('One dose')],b:'5 years after the dose, if the assignment requires'},
+ {g:'College residence hall',id:'college',c:[Q('Same as healthy',3),B('One dose',2)],b:'<span class="quiet">None</span>'}
+]};
+const MENB={cols:['Under 10 years','10–15 years','16–23 years','24+ years'],rows:[
+ {g:'Healthy',id:'bhealthy',c:[_(),_(),S('Two doses'),_()],b:'<span class="quiet">None</span>'},
+ {g:'Asplenia, complement deficiency, lab work',id:'bhr',c:[_(),B('Three doses',3)],b:'1 year after the series, then every 2–3'},
+ {g:'Serogroup B outbreak',id:'bout',c:[_(),B('Three doses',3)],b:'One, 1 year after the series'},
+ {g:'Pregnancy',id:'preg',c:[WT('Wait until after pregnancy',4)],b:''}
+]};
+
+/* Details: a few full sentences per group (owner, 2026-11-19: shorter; no "Next step", no
+   "Differs from healthy", no booster label list, no examples; v8: no "Check the app"). Every timing was checked
+   with recommend() on 2026-11-19. */
+const D={
+ healthy:{give:['The first dose is given at 11–12 years, or at 13–15 years as catch-up.','A booster is given at 16 years, at least 8 weeks after the first dose.','A patient with no dose at 16 years or older gets one dose by age 21 years. No booster follows it.','From 22 years, MenACWY is not routine for a healthy adult.'],
+  q:[Qt('ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years','ACIP 2020, MMWR'),Qt('the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained','ACIP 2020, MMWR'),Qt('Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination','ACIP 2020, MMWR')]},
+ hr:{give:['Under 2 years, the infant series has two to four doses; the age at the first dose determines how many are needed.','From 2 years, the series is two doses, at least 8 weeks apart.','The first booster is due 3 years after the last series dose if that dose was given before age 7 years, and 5 years after it otherwise.','Further boosters follow every 5 years, each timed from the one before, while the risk lasts.'],
+  q:[Qt('Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart','CDC child and adolescent schedule notes'),Qt('Aged &lt;7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter','ACIP 2020, MMWR'),Qt('Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter','ACIP 2020, MMWR')]},
+ travel:{give:['Under 2 years, the infant series is given; from 2 years, one dose.','The first booster is due 3 years after that dose if it was given before age 7 years, and 5 years after it otherwise.','Further boosters follow every 5 years while travel continues.','A patient under 16 years still gets the routine 16-year booster first; later boosters are timed from it.'],
+  q:[Qt('Children younger than age 24 months: Menveo* (age 2–23 months)','CDC child and adolescent schedule notes'),Qt('Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter','ACIP 2020, MMWR')]},
+ acwyout:{give:['Under 2 years, the infant series is given; from 2 years, one dose.','A booster is given only if the outbreak is still going on: 3 years after the last dose if it was given before age 7 years, and 5 years after it otherwise.','When the outbreak ends, untick the outbreak box.'],
+  q:[]},
+ lab:{give:['One dose is given, at any age.','A booster is due every 5 years while the exposure continues, each timed from the dose before.','MenB is also given; see the MenB table.'],
+  q:[Qt('Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter','ACIP 2020, MMWR, Table 7')]},
+ military:{give:['Under 22 years, the routine schedule applies. From 22 years, one dose is given.','A booster is due 5 years after the last dose, but only if the assignment requires it.','The app cannot see the assignment, so the card never says "Complete."'],
+  q:[Qt('Military recruits: Every 5 yrs on basis of assignment','ACIP 2020, MMWR, Table 10')]},
+ college:{give:['Under 16 years, the routine schedule applies.','From 16 years, one dose is given before college entry, unless one was given at 16 years or older within the last 5 years.','No booster follows.'],
+  q:[Qt('Adolescents who received a first dose after their 16th birthday do not need another dose before college entry unless it has been more than 5 years since the dose.','ACIP 2020, MMWR, Table 10 footnote')]},
+ bhealthy:{give:['MenB is offered after discussion with the patient: two doses, 6 months apart. The preferred age is 16–18 years.','If the second dose came less than 6 months after the first, a third dose is given at least 4 months after the second.','A dose before 16 years does not count. No booster follows the series.'],
+  q:[Qt('MenB series at age 16–23 yrs on basis of shared clinical decision-making (preferred age 16–18 yrs)','ACIP 2020, MMWR'),Qt('the 2 doses should be separated by 6 months. If the second dose is administered &lt;6 months after the first dose, a third dose should be administered ≥4 months after the second dose','ACIP Oct 2024, MMWR')]},
+ bhr:{give:['From 10 years, with no upper age limit, the series is three doses: the second 1 month after the first (ACIP allows 1–2 months), the third 6 months after the first.','If the second dose came 6 months or more after the first, a third dose is not needed.','The first booster is due 1 year after the last series dose. Further boosters follow every 2–3 years while the risk lasts; the app dates each one 2 years after the last.'],
+  q:[Qt('ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease','ACIP Oct 2024, MMWR'),Qt('the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains','ACIP, Penmenvy MMWR 2026')]},
+ bout:{give:['The series is three doses: the second 1 month after the first (ACIP allows 1–2 months), the third 6 months after the first.','One booster is given 1 year after the last series dose, if the outbreak is still going on. No further boosters follow.'],
+  q:[Qt('Single dose if ≥1 yr after MenB primary series completion','ACIP 2020, MMWR, Table 8')]},
+ preg:{give:['MenB waits until after pregnancy.','A patient with asplenia, complement deficiency, lab exposure or a serogroup B outbreak gets the three-dose series now.'],
+  q:[Qt('vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks','ACIP 2020, MMWR')]}
+};
+function detail(id){
+  const d=D[id];
+  return `<ul class="give">${d.give.map(x=>`<li>${x}</li>`).join('')}</ul>`
+   +(d.q.length?`<details class="srcd"><summary>Sources</summary>${d.q.join('')}</details>`:'<p class="note">No source sentence on file for this group yet.</p>');
+}
+function table(el,data){
+  const n=data.cols.length+3;
+  let h=`<colgroup><col class="grp">${data.cols.map(()=>'<col class="age">').join('')}<col class="bst"><col class="dbtn"></colgroup>`;
+  h+='<thead><tr><th>Group</th>'+data.cols.map(c=>`<th>${c}</th>`).join('')+'<th class="bst">Boosters</th><th></th></tr></thead><tbody>';
+  data.rows.forEach(r=>{
+    h+=`<tr data-id="${r.id}" data-n="${n}"><th scope="row">${r.g}</th>`;
+    r.c.forEach(([t,s,k])=>{const inner=k==='q'?`<span class="quiet">${t}</span>`:k==='bar'?`<span class="bar">${t}</span>`:k==='sd'?`<span class="bar sd">${t}</span>`:k==='wait'?`<span class="bar wait">${t}</span>`:'';h+=`<td${s>1?` colspan="${s}"`:''}>${inner}</td>`;});
+    h+=`<td class="bst">${r.b}</td><td class="dcell"><button class="tap" aria-expanded="false">Details</button></td></tr>`;
+  });
+  el.innerHTML=h+'</tbody>';
+}
+table($('tA'),ACWY); table($('tB'),MENB);
+function fit(){document.querySelectorAll('tr.detrow .detin').forEach(x=>{x.style.width=x.closest('.qwrap').clientWidth+'px';});}
+function closeAll(){
+  document.querySelectorAll('tr.detrow').forEach(x=>x.remove());
+  document.querySelectorAll('table.q tbody tr.on').forEach(x=>{x.classList.remove('on');const b=x.querySelector('.tap');b.setAttribute('aria-expanded','false');b.textContent='Details';});
+}
+function toggle(tr){
+  const was=tr.classList.contains('on'); closeAll(); if(was) return;
+  tr.classList.add('on'); const b=tr.querySelector('.tap'); b.setAttribute('aria-expanded','true'); b.textContent='Close';
+  const d=document.createElement('tr'); d.className='detrow';
+  d.innerHTML=`<td colspan="${tr.dataset.n}"><div class="detin">${detail(tr.dataset.id)}</div></td>`;
+  tr.after(d); fit();
+}
+document.querySelectorAll('table.q').forEach(t=>t.addEventListener('click',e=>{
+  if(e.target.closest('tr.detrow')) return;
+  const tr=e.target.closest('tbody tr[data-id]'); if(tr) toggle(tr);
+}));
+addEventListener('resize',fit);
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button.tap[data-t]'); if(!b) return;
+  const id=b.dataset.t==='w'?'wdl':b.dataset.t, el=$(id), open=el.hidden;
+  el.hidden=!open; b.setAttribute('aria-expanded',String(open)); b.textContent=open?'Hide':'Show';
+});
+
+/* ---------------- Colour key ---------------- */
+const K=[
+ ['Green','A dose is due, or a recorded dose counts.','Quick look bars; the "Dose 2 of 2" and "Booster" labels; due cards','var(--glt)','var(--gmd)'],
+ ['Blue','Offer the vaccine after discussing it with the patient.','The healthy MenB bar; shared-decision cards','var(--blt)','var(--bmd)'],
+ ['Amber','Wait before giving; or a recorded dose that is not counted but needs no repeat.','The pregnancy bar (MenB); the "do not repeat", "given before age 10/16" and "Extra" labels','var(--alt)','var(--amd)'],
+ ['Red','A recorded dose is invalid and must be repeated.','The "Not counted — repeat" label only','var(--rlt)','var(--rmd)'],
+ ['Grey','Page structure, "Same as healthy", "None", or a dose not yet checked.','Table lines, quiet text, "No date", "Needs input" (dashed)','var(--gy6)','var(--gy5)'],
+ ['Teal','You can tap it.','Show, Details, Sources; the open row\'s left edge','var(--card)','var(--c)']
+];
+$('kt').innerHTML='<div class="kr"><span>Colour</span><span>Means</span><span>Used on</span></div>'+K.map(k=>`<div class="kr"><span><span class="sw" style="background:${k[3]};border-color:${k[4]}"></span> ${k[0]}</span><span>${k[1]}</span><span class="note">${k[2]}</span></div>`).join('')+'<div class="kr"><span class="note">Removed</span><span>The yellow highlight, teal bars, teal step circles and teal detail panel are gone.</span><span class="note">Each repeated something the words already said.</span></div>';
+
+/* ---------------- Review form helpers ---------------- */
+/* Items already built since v9, checked against today's app 2026-11-20. */
+const DONE_R={3:'PR #123',4:'PR #123',5:'PR #123',6:'PR #123',7:'PR #123',9:'PR #123',70:'PR #123',107:'PR #121',108:'PR #122',109:'PR #122',110:'PR #123'};
+const DONE_P={22:'PR #122',23:'PR #122',40:'PR #122'};
+const esc=t=>String(t).replace(/&(?![a-z#0-9]+;)/gi,'&amp;').replace(/"/g,'&quot;');
+function review(arr,pre,done){
+  let n=0;
+  return arr.map(([g,rows],gi)=>{
+    const body=rows.map(r=>{n++;const id=pre+n;const nc=r[1]==='No change.';const d=done[n];
+      const ctl=d?`<div class="vd"><span class="id">${id}</span><span class="built">Built, ${d}</span></div>`:nc?'':`<div class="vd" data-id="${id}"></div>`;
+      return `<div class="wr${nc?' nc':''}" data-id="${id}"${d?' data-done="1"':''}><span class="old"><span class="idl">${id}</span>${r[0]}</span><span class="new">${r[1]}</span><span class="why2">${r[2]}</span>${ctl}</div>`;}).join('');
+    const open=rows.filter(r=>r[1]!=='No change.').length;
+    return `<details class="grp"${gi===0?' open':''} data-g="${pre}${gi}"><summary>${g} <span>· ${rows.length} item${rows.length>1?'s':''}, ${open} changed</span></summary><div class="wt"><div class="wr"><span>Now</span><span>Proposed</span><span>Why</span></div>${body}</div><button class="grpbtn" data-all="${pre}${gi}">Approve the undecided items in this section</button></details>`;
+  }).join('');
+}
+
+/* ---------------- Wording review: every sentence on today's screen ---------------- */
+const NC='No change.';
+const W=[
+ ['Opening',[
+  ['Recommendations are based on age, risk conditions and dated vaccine history. The parts below follow the order the app decides in. Source shows the CDC or ACIP sentence a rule rests on. A MeningoVax decision marks a rule they do not state, and opens to show the problem, what CDC and ACIP say, and what MeningoVax does.','This page shows how MeningoVax decides, in the order it decides. "Source" opens the CDC or ACIP sentence behind a rule. "MeningoVax decision" marks a gap that CDC and ACIP leave open, and opens the answer the app chose.','The current text runs to four long sentences, and "they" has no clear subject.']]],
+ ['1. The vaccines',[
+  ['MenACWY and MenB are separate vaccines with separate schedules. The combined shot gives one dose of each at the same visit.','MenACWY and MenB are two vaccines with separate schedules. The combined shot (MenABCWY) gives one dose of each in a single injection.','"Gives one dose of each" could be read as two injections.'],
+  ['Column heading "MenB family", with the values "4C" and "FHbp".','Column heading "Counts as", with the values "Bexsero" and "Trumenba".','Clinicians know the brand names; 4C and FHbp are antigen names (your answer to question 2).'],
+  ['Bexsero: Every MenB dose. Stay in the 4C family.','Use for every MenB dose. Do not mix it with Trumenba or Penbraya.','The row should state the action, not a term the reader has to look up.'],
+  ['Trumenba: Every MenB dose. Stay in the FHbp family.','Use for every MenB dose. Do not mix it with Bexsero or Penmenvy.','Same reason as the row above.'],
+  ['Penmenvy: Replaces a MenACWY and a 4C MenB dose given at the same visit.','Gives one MenACWY dose and one Bexsero dose in a single injection.','Same reason as the row above.'],
+  ['Penbraya: Replaces a MenACWY and an FHbp MenB dose given at the same visit.','Gives one MenACWY dose and one Trumenba dose in a single injection.','Same reason as the row above.'],
+  ['Menactra: History only. Counts as a MenACWY dose.','Found on older records only. A recorded dose counts as MenACWY.','"History only" is shorthand.'],
+  ['Every MenB dose stays in the family of the first. A dose from the other family does not count; the next dose of the right family waits ≥4 weeks after it.','Every MenB dose must match the first: Bexsero (or Penmenvy), or Trumenba (or Penbraya). A dose of the other product does not count, and the matching product is given at least 4 weeks after it.','"Stays in the family" is a figure of speech.']]],
+ ['2. Age and risk group: the age lines',[
+  ['6 weeks: MenQuadfi licensed. A product limit only.','MenQuadfi is licensed from 6 weeks, but the infant series still starts at 2 months.','"A product limit only" does not say what to do.'],
+  ['2 months: First MenACWY dose of the infant series, for asplenia, complement deficiency, HIV, travel or an outbreak.','The infant MenACWY series can start, for asplenia, complement deficiency, HIV, travel or an A/C/W/Y outbreak.','"An outbreak" does not say which serogroups.'],
+  ['2 years: Dose 1 at this age or older: no infant series. Medical high risk gets a 2-dose series; other indications, 1 dose.','A patient who starts at 2 years or older skips the infant series. Asplenia, complement deficiency and HIV need two doses; travel and an outbreak need one.','"Medical high risk" and "other indications" send the reader to look them up.'],
+  ['7 years: First MenACWY booster 3 years after a series finished before this age, 5 years after one finished at it or older.','A series finished before age 7 years has its first booster 3 years later; one finished at 7 years or older, 5 years later.','"At it or older" is hard to follow.'],
+  ['10 years: MenB, Menveo 1-vial and the combined shot licensed. Routine MenACWY before this age does not count.','MenB, Menveo 1-vial and the combined shot can be given from 10 years. A routine MenACWY dose before 10 years does not count, and the teen series still starts at 11–12 years.','It now says what happens next.'],
+  ['11–12 years: Routine MenACWY dose 1.',NC,''],
+  ['16 years: MenACWY booster. A first dose at this age or older needs no booster. Healthy MenB from this age, by shared clinical decision-making.','The MenACWY booster is due. A first dose at 16 years or older needs no booster. A healthy patient can be offered MenB after discussion.','"From this age, by" is clipped.'],
+  ['19–21 years: MenACWY catch-up, if no dose at 16 years or older.','A patient with no MenACWY at 16 years or older can have one catch-up dose.','It now says how many doses.'],
+  ['22 years: Healthy MenACWY no longer indicated.','MenACWY is not routine for a healthy adult.','"Healthy MenACWY" reads like a product name.'],
+  ['24 years: Healthy MenB no longer indicated.','MenB is no longer offered to a healthy adult.','Same reason as the row above.']]],
+ ['2. Age and risk group: the risk table',[
+  ['Each condition the app asks about: what to give, and when boosters are due.','For each condition, this table shows what to give and when boosters are due.','It is now a sentence.'],
+  ['Under 2 years: infant series (2–4 doses). 2 years and older: 2 doses, ≥8 weeks apart.','Under 2 years, an infant series of two to four doses is given; the age at the first dose determines how many are needed. From 2 years, two doses are given at least 8 weeks apart.','It now says why the number of doses varies.'],
+  ['Boosters: 3 years after the series if it ended before age 7, otherwise 5 years. Then every 5 years.','The first booster is 3 years after the last series dose if that dose was given before age 7 years, otherwise 5 years. Boosters then follow every 5 years after the last one.','"Then every 5 years" did not say from when.'],
+  ['MenB: From 10 years: 3 doses. Dose 2 at 1 month, dose 3 at 6 months.','From 10 years: three doses, dose 2 at 1 month and dose 3 at 6 months.','Units added, and the dose count is a word. Dose 2 at 1 month stays (your answer to question 3); the 1–2 month range goes in Details.'],
+  ['MenB boosters: 1 year after the series, then every 2–3 years.','The first booster is 1 year after the last series dose. Boosters then follow every 2–3 years after the last one; the app dates each at 2 years.','It now says from when, and which date the card will show.'],
+  ['As for a healthy patient.','Same as healthy.','This matches the Quick look wording.'],
+  ['Microbiologist, MenACWY: 1 dose. Boosters: Every 5 years while exposed.','One dose is given, then a booster every 5 years while exposed, timed from the last dose.','It now says from when. This group has no 3-year rule.'],
+  ['Travel boosters: 3 years after a dose before age 7, otherwise 5 years. Then every 5 years while travel continues.','The first booster is 3 years after the dose if it was given before age 7 years, otherwise 5 years. Boosters then follow every 5 years while travel continues.','"After a dose before age 7" stacks two time words.'],
+  ['Military boosters: Every 5 years, if the assignment requires it.','A booster is given 5 years after the last dose, if the assignment requires it.','It now says from when.'],
+  ['College: 1 dose at 16 years or older. Not needed if one was given at 16 years or older in the last 5 years. Boosters: None.','One dose is given at 16 years or older, unless one was given at 16 years or older within the last 5 years. No booster follows.','Two sentences become one.'],
+  ['A/C/W/Y outbreak boosters: 3 years after a dose before age 7, otherwise 5 years, while the outbreak continues. Then every 5 years.','Boosters are given only while the outbreak continues: 3 years after the dose if it was given before age 7 years, otherwise 5 years, then every 5 years.','The condition now comes first, so it is not missed.'],
+  ['Serogroup B outbreak, MenB boosters: One booster, ≥1 year after the series. No more after it.','One booster is given 1 year after the last series dose, if the outbreak continues. No further boosters follow.','It now says from when, and that the booster depends on the outbreak, as the card does.'],
+  ['Pregnancy, MenB: Wait until after pregnancy, unless asplenia, complement deficiency, laboratory exposure or a serogroup B outbreak is also present.','Wait until after pregnancy. If asplenia, complement deficiency, lab exposure or a serogroup B outbreak is also present, give the series now.','The action now comes first.']]],
+ ['2. More than one condition',[
+  ['Each vaccine follows the condition that needs the most.','Each vaccine follows the condition that needs more doses or boosters.','"Needs the most" did not say the most of what.'],
+  ['Give the high-risk series and its boosters. They cover the other condition.','Give the high-risk series and its boosters. These also cover the other condition.','"They" could be read as the conditions.'],
+  ['Give 1 dose, then boosters while travel or exposure continues.',NC,''],
+  ['Still give the 16-year dose. That condition\'s boosters are then counted from it.','Still give the 16-year booster. Later boosters for that condition are timed from it.','It now uses "booster" and "timed from", as the rest of the page does.'],
+  ['Follow the routine teen schedule. The college or military dose is given later, if still needed.','Follow the routine schedule, and check again at 16 years or older.','It now says when to look again. The rule is unchanged.'],
+  ['Give that condition\'s boosters (every 2–3 years), not the single outbreak booster.',NC,''],
+  ['Give the high-risk series. Pregnancy does not delay it.',NC,'']]],
+ ['3. MenACWY',[
+  ['Booster ≥8 weeks after dose 1.','The booster is given at 16 years, at least 8 weeks after the first dose.','On its own, "≥8 weeks" reads as the booster\'s timing.'],
+  ['13–15 years: Dose 1 (catch-up), booster at 16–18 years.',NC,''],
+  ['16–18 years: One dose. No booster.','One dose is given. No booster is needed after it.','"No booster" could be read as "do not give one".'],
+  ['19–21 years: One catch-up dose, if none at 16 years or older.',NC,''],
+  ['A dose at 16 years or older completes the routine schedule.',NC,''],
+  ['A dose before 10 years does not count toward the routine series.',NC,''],
+  ['The series is set by the age at dose 1. Travel and an outbreak give the same infant series.','The age at the first dose determines the series. A child under 2 years with travel or an A/C/W/Y outbreak gets the same infant series.','A condition cannot "give" a series.'],
+  ['If dose 2 comes at 7 months or older: 3 doses in all.',NC,''],
+  ['Infant series step: "≥12 weeks and ≥12 months"','"At least 12 weeks after the last dose, and at age 12 months or older"','"≥12 months" reads as a gap rather than an age.'],
+  ['3 doses if dose 2 is at 7 months or older, else 4.',NC,''],
+  ['Infant series: early doses ≥8 weeks apart; the final dose ≥12 weeks after the one before and at 12 months or older.',NC,''],
+  ['Boosters. First booster 3 years after the last primary dose if it was before 7 years, 5 years if at 7 years or older. Then every 5 years while at risk.','The first booster is 3 years after the last series dose if that dose was given before age 7 years, otherwise 5 years. Boosters then follow every 5 years after the last one, while at risk.','"Primary" is jargon, and "then every 5 years" did not say from when.'],
+  ['Travel: …then every 5 years while at risk.','…then every 5 years while travel continues.','This matches the risk table.'],
+  ['Microbiologist: Every 5 years while exposure continues.','A booster is given every 5 years while exposed, timed from the last dose.','It now says from when.'],
+  ['College: None. A dose at 16 years or older covers 5 years.','No booster. A dose at 16 years or older covers college entry for 5 years.','"Covers 5 years" did not say covers what.'],
+  ['A teenager with a dose before 16 years for travel, laboratory work or an outbreak still gets the 16-year booster.',NC,'']]],
+ ['4. MenB',[
+  ['Healthy patients, 16–23 years: by shared clinical decision-making. Not routinely indicated before 16 years or from 24 years.','Healthy patients aged 16–23 years can be offered MenB after discussion (shared clinical decision-making). The preferred age is 16–18 years. It is not offered before 16 years or from 24 years.','It now says what to do, and gives the preferred age the card already shows.'],
+  ['Dose 2 &lt;6 months after dose 1 counts; add dose 3 ≥4 months after dose 2.','If dose 2 is given less than 6 months after dose 1, it still counts; give dose 3 at least 4 months after dose 2.','"Add" is vague.'],
+  ['A dose before 16 years does not count.',NC,''],
+  ['High risk: Persistent complement deficiency or complement-inhibitor therapy; Anatomic or functional asplenia/sickle cell disease; Microbiologist routinely exposed to N. meningitidis; Increased risk from a serogroup B outbreak. From 10 years, no upper age.','High risk means asplenia (including sickle cell disease), complement deficiency or a complement inhibitor, lab work with meningococcus, or a serogroup B outbreak. The series is given from 10 years, with no upper age limit.','Four checkbox labels were pasted in a row.'],
+  ['Dose 2 step: "≥4 weeks (advised 1 month)"','"1 month after dose 1 (at least 4 weeks)"','Dose 2 at 1 month stays (your answer to question 3); "advised" is vague.'],
+  ['Dose 2 ≥6 months after dose 1: complete in 2 doses.','If dose 2 was given 6 months or more after dose 1, dose 3 is not needed.','It now says which dose is skipped.'],
+  ['Dose 3 &lt;4 months after dose 2 counts; add dose 4 ≥4 months later.','If dose 3 is given less than 4 months after dose 2, it still counts; give dose 4 at least 4 months after dose 3.','"Later" did not say later than what.'],
+  ['…unless dose 3 was ≥6 months after dose 1: no dose 4.','Exception: dose 4 is not needed if dose 3 was given 6 months or more after dose 1.','A row starting with "…unless" only makes sense next to the row above it.'],
+  ['Dose 3 ≥4 months after dose 2 counts, even &lt;6 months after dose 1.',NC,''],
+  ['Boosters: 1 year after the series, then every 2–3 years while at risk. A later booster &lt;2 years after the one before does not count.','The first booster is 1 year after the last series dose. Boosters then follow every 2–3 years while at risk; the app dates each one 2 years after the last. A booster given sooner does not count.','It now says which date the card shows.'],
+  ['Serogroup B outbreak alone: one booster, then complete.',NC,''],
+  ['HIV alone is not a MenB indication.','HIV alone does not change MenB; follow the healthy schedule.','It now says what to do.'],
+  ['Deferred during pregnancy, unless a MenB condition is also present.','Wait until after pregnancy, unless a MenB high-risk condition is present.','"A MenB condition" is vague.']]],
+ ['5. The combined shot',[
+  ['Offered when MenACWY is due today, MenB is due or can be given today, and the patient is 10 years or older.',NC,''],
+  ['Only the product in the patient\'s MenB family: Penmenvy for 4C, Penbraya for FHbp.','The product must match the earlier MenB doses: Penmenvy after Bexsero, Penbraya after Trumenba.','Brand names replace antigen names.'],
+  ['Not within 6 months of the last dose of the same product: give the two vaccines separately.',NC,''],
+  ['Not offered while a dose on the record reads Needs input.',NC,''],
+  ['A combined shot on the record counts as a MenACWY dose and a MenB dose, whichever list it is entered in.',NC,'']]],
+ ['6. Doses on the record',[
+  ['Each dose on the record is checked against the patient\'s age and the dose before it, and gets one label. The card advises the routine date, which can be later than the minimum.','Each recorded dose is checked for the minimum age and the minimum interval, and given one label. The card shows the routine date; the earliest valid date can be sooner.','"Advises" is vague.'],
+  ['Dose 2 of 2: Counts. "Dose N" alone when no series is running.','The dose counts, and the label gives its place in the series. It reads "Dose 1", with no "of", when no further doses are owed.','"Dose N" and "no series is running" are shorthand.'],
+  ['Booster: Counts, after the primary series.','The dose counts. It was given after the series was finished.','"Primary series" is jargon.'],
+  ['Not counted — repeat: Too soon, too young or the wrong MenB family. The line under it gives the date.','Invalid dose: the minimum age or minimum interval was not met, or the MenB product is not interchangeable with the first MenB dose. The line under it gives the repeat date.','It now uses the clinical terms and says which date.'],
+  ['Not counted — do not repeat: The same, when no dose of that vaccine is owed.','Invalid dose, but no further dose of that vaccine is owed.','"The same" points the reader back to another row.'],
+  ['Not counted — given before age 10: Routine MenACWY given too early to count toward the series.','A routine MenACWY dose was given before 10 years. The teen series still starts at 11–12 years.','It now says what happens next.'],
+  ['Not counted — given before age 16: Healthy MenB given too early to count toward the series.','A healthy patient\'s MenB dose was given before 16 years. The series is given at 16 years or older.','Same reason as the row above.'],
+  ['Not counted — Extra. Do not repeat.: Given when no dose was recommended.',NC,''],
+  ['No date recorded: Only dated records count. Add the date to have it judged.','Only dated records count. Add the date, and the dose will be checked.','"To have it judged" is awkward.'],
+  ['Date is in the future: A typing mistake or a visit not yet held. Correct the date.',NC,''],
+  ['Entered twice: Same date as a dose already counted. Remove the row.',NC,''],
+  ['Needs input: Was the patient high-risk on that date?','Answer the question beside the dose: was the patient high-risk on that date?','It now says where to answer.'],
+  ['The 4-day grace. A dose given ≤4 days before a minimum age or interval counts. The card still advises the full date.','A dose given up to 4 days before the minimum age or minimum interval is valid (the 4-day grace period). The card still shows the full date.','It now names both minimums and uses the standard term.'],
+  ['Minimum interval, MenACWY infant series final dose: "12 weeks and 12 months of age"','"12 weeks after the last dose, and age 12 months or older"','The cell held two different things without saying so.'],
+  ['Minimum interval, MenACWY booster: "3 years or 5 years, then 5 years"','"3 or 5 years after the series (3 if its last dose was before age 7 years), then 5 years after the last booster"','It now says from when.'],
+  ['Minimum interval, high-risk MenB booster: "1 year, then 2 years"','"1 year after the series, then 2 years after the last booster"','It now says from when.'],
+  ['Healthy MenB dose 2: Sooner still counts; dose 3 is added.',NC,''],
+  ['The repeat is timed from the dose that did not count, by the minimum interval.','The repeat is given at the minimum interval after the invalid dose.','"Invalid dose" is the standard clinical term.'],
+  ['A set-aside MenACWY dose starts the 8 weeks.','A routine MenACWY dose given before 10 years does not count, but the next dose must still wait 8 weeks after it.','"Set aside" is app shorthand.'],
+  ['Wrong MenB family: finish in the first family, or the card offers to finish in the other.','If a MenB dose is the wrong product, finish the series with the first product, or the card offers to finish it with the other.','"Product" replaces "family".']]],
+ ['7. MeningoVax decisions (all 14)',[
+  ['The label "CDC and ACIP:" is followed by a command, for example "Give revaccination for these patients outside the routine…"','The label becomes "CDC and ACIP say:", followed by a statement, for example "Revaccination for these patients falls outside the routine and risk-based schedules."','The command form reads as an order to the reader. This applies to all 14 decisions.'],
+  ['High-risk on the date: No or unsure: it is set aside, as for a patient with no risk.','If the answer is no or unsure, the dose is judged as for a patient with no risk.','"Set aside" is shorthand.'],
+  ['MenQuadfi: CDC\'s notes list MenQuadfi from an older age than AAP, which lists it from 6 weeks.','CDC\'s notes list MenQuadfi from 2 years; AAP lists it from 6 weeks.','The current text hides CDC\'s age. CDC\'s wording on file is "2 years [MenACWY-TT, MenQuadfi]".'],
+  ['Infant who fell behind: Follows CDC\'s scheduling software (CDSI): 3 doses in all.','The app follows CDSI, CDC\'s rules for immunization software: 3 doses in all.','It now says what CDSI is.'],
+  ['College: Counts the 5 years to today\'s visit, read as the college-entry visit.','The app counts the 5 years up to today, treating today as the college-entry visit.','"Read as" is unclear.'],
+  ['A booster given early: …(beyond the 4-day grace) does not count.','…given more than 4 days early does not count.','This is plainer than "beyond the 4-day grace".'],
+  ['Title: "Grace at a birthday"','Title: "Up to 4 days early at a birthday"','The title now says what the decision is about.'],
+  ['Title: "A dose nobody asked for"','Title: "A dose given when none was due"','The current title is informal.'],
+  ['Repeat of a too-young first dose: Waits the vaccine\'s minimum interval after the dose that did not count: 8 weeks for MenACWY, 4 weeks for MenB.','The repeat is given at the minimum interval after the invalid dose: 8 weeks for MenACWY, 4 weeks for MenB.','"Invalid dose" is the standard clinical term.'],
+  ['Grace at a birthday: Reads the dose as given on the birthday only when that means fewer doses, at 3 months, 7 months, 2 years, 16 years.','When a MenACWY dose falls within 4 days before age 3 months, 7 months, 2 years or 16 years, the app applies the schedule that needs fewer doses.','It states the result instead of the mechanism.'],
+  ['A dose nobody asked for: CDC and ACIP: Give each series\' size.','CDC and ACIP say how many doses each series has. They do not say whether a dose beyond that counts.','"Give each series\' size" is not a sentence.']]],
+ ['8. Sources and footer',[
+  ['Every document the app cites. A document\'s count is how many of its sentences the app quotes.',NC,''],
+  ['This page is a guide to the app\'s reasoning, not a clinical reference. Where it and a CDC or ACIP document disagree, the document is right and this is a bug. Please report it.',NC,'']]],
+ ['Found on the cards while checking (not the rulebook)',[
+  ['A later MenB booster\'s card note reads "A MenB booster, 1 year after the primary series was completed", under the label "Booster (dose 5, every 2–3 years)".','The note should match the label: "A MenB booster, 2–3 years after the last booster."','The note is wrong for every booster after the first. To see it, enter a patient with asplenia, born Jun 1, 2006, with a Bexsero series ending Jul 1, 2024 and a booster on Jul 1, 2025.'],
+  ['The A/C/W/Y outbreak note reads "…once 5 years have passed since the last dose (3 years if the series finished before age 7, otherwise 5)."','"…3 years after the last dose if the series finished before age 7 years, otherwise 5 years."','The current note says 5 years twice.'],
+  ['The routine teen booster line reads "Boosters: 1 more - at age 16".','"Booster: at age 16 years."','The spaced hyphen and "1 more" read as informal.'],
+  ['The healthy MenB "Why this" text reads "MenB antibody protection wanes within about a year…"','"…wanes within 1–2 years…"','The source says 1–2 years (approved: your answer to question 4).']]]
+];
+$('wt').innerHTML=review(W,'R',DONE_R);
+
+/* ---------------- Patient screen review (proposals; nothing changed in the app) ---------------- */
+const PW=[
+ ['Entering the patient',[
+  ['Select all that apply: these drive vaccine class and booster schedule','Select all that apply. They determine which vaccines are due and when boosters are given.','"Drive vaccine class" is jargon.'],
+  ['Dose row label: "Date (optional)"','"Date", with a hint under the row: "A dose with no date is not counted."','A dose without a date is not counted (your C1 answer), so "optional" misleads.'],
+  ['A dose was given, but the date and brand are unknown. Tick this to keep the dose on the record. An empty row is removed when you continue.','Tick this if a dose was given but its date and brand are unknown. It stays on the record but is not counted. An empty row is removed when you continue.','It now says what happens to the dose.'],
+  ['Transplant sublabel: "this tool does not apply — needs an individualized, specialist-guided schedule"','No change.','This wording is frozen and mirrored in PneumoVax; it changes in both apps or neither.']]],
+ ['Top of the results',[
+  ['MenB is optional today (shared clinical decision). No other MenACWY or MenB doses due today.','No MenACWY dose is due today. MenB may be offered today by shared clinical decision-making.','The sentence now leads with what is due, and uses the full term.'],
+  ['Due today: MenACWY. MenB is optional (shared clinical decision).','Due today: MenACWY. MenB may also be offered (shared clinical decision-making).','The term now matches the rest of the app.'],
+  ['Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.','Due today: MenACWY and MenB, as two injections or one combined MenABCWY injection.','The combined shot now has one name throughout.']]],
+ ['Card headers',[
+  ['Dose due today, future boosters needed','Due today; boosters to follow','Shorter, same meaning.'],
+  ['Optional today - shared decision','Shared decision today','The spaced hyphen reads as informal.'],
+  ['Future booster needed','Booster due later','Plainer.'],
+  ['Answers needed','Answer needed below','It now says where.']]],
+ ['Dose due on each card',[
+  ['Dose 1 of 1 (catch-up, 19–21y)','Dose 1 (catch-up, 19–21y)','The other catch-up labels have no "of 1".'],
+  ['1 dose (ongoing-risk indication)','Dose 1 (boosters while at risk)','"Ongoing-risk indication" is internal shorthand.'],
+  ['Dose 2 of 3 (infant high-risk, 3-dose shortcut)','Dose 2 of 3 (infant high-risk; this dose at 7 months or older)','"Shortcut" suggests a step was skipped.'],
+  ['Dose 2 of 2 (4C)','Dose 2 of 2 (Bexsero)','4C is an antigen name.'],
+  ['Dose 4 of 4 (extra dose: dose 3 given early, 4C)','Dose 4 of 4 (dose 3 was given before the 4-month interval)','"Extra" and "4C" are shorthand.'],
+  ['Booster (dose 3, first booster, 5 years after primary)','First booster (dose 3), 5 years after the series','"Primary" is jargon, and the label now reads in order.'],
+  ['Booster (dose 2, first booster, 3 years after the primary dose)','First booster (dose 2), 3 years after dose 1','Same reason as the row above.'],
+  ['Booster (dose 4, every 5 years)','Booster (dose 4), 5 years after the last booster','It now says from when.'],
+  ['Booster (dose 5, every 2–3 years)','Booster (dose 5), 2–3 years after the last booster','It now says from when.'],
+  ['Not yet age-eligible','Not yet due (from age 10 years)','It now says when.']]],
+ ['Booster line under the brands',[
+  ['Boosters: 1 more - at age 16','Booster: at age 16 years.','The spaced hyphen and "1 more" read as informal.'],
+  ['Boosters: 1 more - at age 16–18','Booster: at age 16–18 years.','Same reason as the row above.'],
+  ['Boosters: first in 3 years, then every 5 years while at risk','Boosters: the first 3 years after the series, then every 5 years while at risk.','"First in 3 years" does not say from when.'],
+  ['Boosters: first booster 3 years after the primary series if it completed before age 7, otherwise 5 years. Then every 5 years while at risk','Boosters: the first 3 years after the series if it ends before age 7 years, otherwise 5 years; then every 5 years while at risk.','One sentence, no jargon.'],
+  ['Boosters: every 5 years while at high risk (ongoing)','Boosters: every 5 years while at risk.','"(Ongoing)" repeats "while".'],
+  ['Boosters: every 5 years while travel risk continues (ongoing)','Boosters: every 5 years while travel continues.','Same reason as the row above.'],
+  ['Boosters: every 5 years while occupational exposure continues (ongoing)','Boosters: every 5 years while exposure continues.','Same reason as the row above.'],
+  ['Boosters: first in 1 year, then every 2–3 years while at risk','Boosters: the first 1 year after the series, then every 2–3 years while at risk.','It now says from when.'],
+  ['Booster not yet due - [date]','Booster due [date].','Shorter; no spaced hyphen.']]],
+ ['Card lead sentence',[
+  ['MenB is not routinely indicated yet at this age, without a risk factor.','MenB is not routine at this age. A healthy patient may choose it from 16 years.','It now says what comes next.'],
+  ['MenACWY is due today. MenB is optional today (shared clinical decision). One pentavalent (MenABCWY) dose may replace both.','MenACWY is due today, and MenB may be offered (shared clinical decision-making). One combined MenABCWY injection can replace both.','The terms now match the rest of the app.'],
+  ['A MenACWY dose at age 16 or older satisfies the adolescent schedule.','A MenACWY dose at age 16 years or older completes the adolescent schedule.','Other cards say "completes".'],
+  ['It can be given from [date] if needed (minimum 8 weeks).','The earliest valid date is [date] (minimum interval 8 weeks).','It uses the clinical term.'],
+  ['Not before [date]: 8 weeks after the dose of [date], which did not count.','Not before [date]: 8 weeks after the invalid dose of [date].','"Invalid dose" is the standard term.'],
+  ['Or finish with Trumenba instead: dose 2 due [date] (the Bexsero dose then does not count).','Alternatively, complete the series with Trumenba: dose 2 is due [date], and the Bexsero dose no longer counts.','A full sentence instead of a bracketed aside.']]],
+ ['"Why this" on each card',[
+  ['A single MenACWY dose now. Given at 16 years or older, it needs no booster. Nothing is on record for this patient. ACIP asks for no booster after a first dose given on or after the 16th birthday.','One MenACWY dose now. A first dose at 16 years or older needs no booster.','The same point was made twice, and "Nothing is on record" adds nothing.'],
+  ['Primary series complete. The first booster is due 5 years after it. ACIP puts the first booster 5 years out when the primary series finished at age 7 or older. A series finished before then brings the first booster forward to 3 years.','The series is complete. The first booster is due 5 years after it, because the series ended at age 7 years or older.','The last sentence describes other patients; the rulebook holds the general rule.'],
+  ['Primary series complete. The first booster is due 3 years after it. ACIP puts the first booster 3 years out when the primary series finished before the 7th birthday, rather than the 5 years it allows from age 7.','The series is complete. The first booster is due 3 years after it, because the series ended before age 7 years.','Same reason as the row above.'],
+  ['Booster [date] if outbreak risk continues. For someone at increased risk in a serogroup A, C, W or Y outbreak, ACIP gives a booster once 5 years have passed since the last dose (3 years if the series finished before age 7, otherwise 5). If the patient is no longer at risk, untick the outbreak box.','A booster is due [date], 5 years after the last dose, if the outbreak continues. If the patient is no longer at risk, untick the outbreak box.','The current note says 5 years twice.'],
+  ['A 3-dose MenB series at 0, 1–2 and 6 months, for this high-risk indication. Use one antigen family for every dose. MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.','A three-dose MenB series at 0, 1–2 and 6 months. MenB products are not interchangeable: use Bexsero (or Penmenvy), or Trumenba (or Penbraya), for every dose.','Brand names replace antigen names (your answer to question 2).'],
+  ['Two MenB doses, at least 6 months apart, under shared clinical decision-making. The preferred age is 16 through 18. Past 18, the series may still be given up to the 24th birthday. The 6-month interval applies to both Bexsero and Trumenba. If rapid protection is needed, such as starting college within 6 months, a planned 3-dose series at 0, 1–2 and 6 months may be used instead.','Two MenB doses, 6 months apart, by shared clinical decision-making; the preferred age is 16–18 years. The series can be given until the 24th birthday. For faster protection, for example before college entry within 6 months, give three doses at 0, 1–2 and 6 months.','Five sentences become three.'],
+  ['Two MenACWY doses, at least 8 weeks apart, because of this patient\'s high-risk indication. ACIP recommends the same 2-dose primary series for all four high-risk indications: asplenia, persistent complement deficiency, complement-inhibitor therapy and HIV.','Two MenACWY doses, at least 8 weeks apart, for this high-risk condition.','The second sentence lists conditions this patient may not have.'],
+  ['Start the 4-dose infant MenACWY series — doses at 2, 4, 6 and 12 months, the early ones at least 8 weeks apart. High-risk infants 2–6 months need four doses. The final dose comes at 12 months or older, and at least 12 weeks after the one before it.','Start the four-dose infant series at ages 2, 4, 6 and 12 months. Early doses are at least 8 weeks apart; the final dose is at 12 months or older and at least 12 weeks after the one before.','"Four doses" was said twice.'],
+  ['The second dose of the high-risk primary series, at least 8 weeks after dose 1. The minimum is 8 weeks. A later dose 2 still counts, and the series is not restarted. Two doses complete the primary series, then boosters continue while the risk lasts.','Dose 2, at least 8 weeks after dose 1. A late dose 2 still counts, and the series is not restarted. Boosters follow while the risk lasts.','"8 weeks" was said twice.'],
+  ['Dose 2 is given 1–2 months after dose 1, and no sooner than 4 weeks. Continue in the same antigen family as dose 1 — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable. The series then completes with a third dose about 6 months after dose 1.','Dose 2 is given 1–2 months after dose 1 (minimum interval 4 weeks), with the same MenB product as dose 1. Dose 3 follows about 6 months after dose 1.','Shorter, with clinical terms.'],
+  ['Dose 3 counts. A fourth dose is needed at least 4 months after it. Dose 3 was given less than 4 months after dose 2. CDC credits that dose and completes the high-risk series with one further dose 4 months or more later.','Dose 3 was given less than 4 months after dose 2. It counts, and dose 4 is due at least 4 months after it.','The same point was made twice.'],
+  ['A third dose is needed, at least 4 months after dose 2. Dose 2 was given less than 6 months after dose 1, so the 2-dose schedule is not complete. This further dose finishes the series — dose 2 itself is not repeated.','Dose 2 was given less than 6 months after dose 1, so dose 3 is due at least 4 months after dose 2. Dose 2 still counts.','Cause first, then the action.'],
+  ['A single MenACWY dose for a first-year college student living in a residence hall. A dose already given at age 16 or older would satisfy this requirement on its own. Nothing on record does, so one dose is due.','One MenACWY dose before college entry, because no dose at 16 years or older is on record.','Three sentences become one.'],
+  ['The dose given at 16 or older was more than 5 years ago, so one dose is due before college entry. A dose at 16 or older covers college residence for 5 years. ACIP asks for at least one dose within 5 years before college entry.','The dose at 16 years or older was more than 5 years ago, so one dose is due before college entry.','The last two sentences repeat the first.'],
+  ['…give it only after discussing it with her — it is offered here because she is at increased risk, and the decision is whether the benefit outweighs the potential risk.','…It is offered because the patient is at increased risk; give it after discussing the benefit and the potential risk.','Shorter, no dash.'],
+  ['After Penmenvy, continue MenB with Bexsero or Penmenvy (both MenB-4C). After Penbraya, continue with Trumenba or Penbraya (both MenB-FHbp).','After Penmenvy, continue MenB with Bexsero or Penmenvy. After Penbraya, continue with Trumenba or Penbraya.','The antigen names add nothing here.']]],
+ ['Line under each recorded dose',[
+  ['Given 3 weeks after the previous dose, under the 8-week minimum for the high-risk primary series. / Repeat from [date]. / Do not restart the series.','Minimum interval not met (3 weeks; 8 weeks required). Repeat from [date]; do not restart.','Three lines become one, with the clinical term.'],
+  ['Given as MenB-FHbp, but the series so far is MenB-4C. / Repeat from [date]. / Do not restart the series.','Not interchangeable with the first MenB dose (Bexsero). Repeat with Bexsero from [date]; do not restart.','Brand names, one line.'],
+  ['Given at about 6 weeks — below the 2-month minimum age for this brand. / Repeat from [date].','Minimum age not met (6 weeks; 2 months for an unknown brand). Repeat from [date].','The clinical term, one line.'],
+  ['Booster given about 2.1 years after the previous dose, under the 5-year minimum for military recruits. / Repeat from [date].','Booster given about 2 years after the last dose; 5 years are required. Repeat from [date].','"2.1 years" is false precision.'],
+  ['MenB booster given about 8 months after the previous dose, under the 1-year minimum after the primary series. / Repeat from [date].','Booster given 8 months after the series; 1 year is required. Repeat from [date].','Shorter, one line.'],
+  ['Given about 3 months after dose 1, under the 6-month interval. A third dose is needed, at least 4 months after this one.','Given 3 months after dose 1 (6 months recommended). It counts; dose 3 is due at least 4 months later.','It now says the dose counts.'],
+  ['Given about 2 months after dose 2, under the 4-month minimum for the high-risk schedule. A 4th dose is needed, at least 4 months after this one.','Given 2 months after dose 2 (4 months recommended). It counts; dose 4 is due at least 4 months later.','Same reason as the row above.'],
+  ['Given about 6 weeks after the previous dose, which did not count, under the 8-week minimum for its repeat. / Repeat at 11–12 years, with the routine dose.','Given 6 weeks after an invalid dose; 8 weeks are required. Repeat at 11–12 years with the routine dose.','"Invalid dose", one line.'],
+  ['Given at about [age] — below the 10-year minimum age for Bexsero. MenB is next offered at 16–23 years, by shared clinical decision-making.','Minimum age not met (10 years for Bexsero). MenB is next offered at 16–23 years by shared clinical decision-making.','The clinical term leads.'],
+  ['Given at about [age], before age 10. Whether it counts toward the high-risk series depends on the patient\'s risk on that date.','Given before age 10 years. It counts toward the high-risk series only if the patient was high-risk on that date.','It now says the rule directly.'],
+  ['High risk confirmed at about 8 weeks.','Counted on the high-risk schedule: high-risk at the time (age 8 weeks).','It now says what the answer did.'],
+  ['Only written, dated records count as evidence of vaccination. The recommendation above treats this dose as not given. If a record shows the date, add it, and the dose will be judged on that date.','Only written, dated records count. Add the date to have this dose checked; until then it is treated as not given.','Three sentences become two.'],
+  ['Same date as an earlier row ([date]): most likely one dose entered twice. Two doses of the same vaccine are never given on the same day. Correct its date, or remove this row.','Same date as an earlier dose ([date]), most likely entered twice. Correct the date or remove this row.','The middle sentence is not needed.'],
+  ['"Why this" under a dose: Actual interval: about 2.1 years. Required cadence: 5 years.','Interval given: about 2 years. Required: 5 years.','"Cadence" is jargon.']]],
+ ['Combined shot',[
+  ['Option 2: One combined injection (pentavalent, MenABCWY)','Option 2: One combined injection (MenABCWY)','"Pentavalent" repeats MenABCWY.'],
+  ['Replaces both shots above: do not give both.','Replaces both injections above. Give one option, not both.','A full sentence.'],
+  ['A combined pentavalent shot is not an option today: Penmenvy may only be repeated once 6 months have passed since the last Penmenvy dose.','The combined shot is not an option today: Penmenvy cannot be repeated within 6 months of the last Penmenvy dose.','Shorter.'],
+  ['Brand options: choose one (shown above a single brand)','Brand: Bexsero','"Choose one" with one choice reads as a mistake.']]],
+ ['Disclaimer',[
+  ['Clinical decision support only. MeningoVax is not a substitute for clinical judgment. Verify all recommendations against current ACIP/CDC immunization schedules before administering vaccines. Every recommendation displayed includes a citation link to its source (CDC schedule notes, ACIP MMWR, or immunize.org Ask the Experts). Age eligibility and dose intervals shown here reflect ACIP guidance, which may differ from FDA package insert labeling.','Clinical decision support only; not a substitute for clinical judgment. Check recommendations against current ACIP/CDC schedules before vaccinating. Each recommendation cites its source. Ages and intervals follow ACIP, which can differ from FDA labeling.','Five sentences become four, about half the length.'],
+  ['About risk history: This app tracks the patient\'s current risk status only — it does not record when a risk factor started or ended. For an older dose given before the risk-based age threshold, whether it counted may depend on the patient\'s risk status on that specific date; when that matters, a "Needs input" prompt asks for it directly.','The app records current risk only, not when a risk began or ended. When an earlier dose\'s validity depends on the risk on that date, a "Needs input" question asks.','Shorter. See placement item 7 for where it should sit.']]]
+];
+const PL=[
+ ['A valid dose\'s label sits at the right end of its line. An invalid dose\'s label sits below it, on the left, with the reason beside it.','Put every label at the right end of its dose line, with the reason as one line underneath.','Labels in one place are easier to scan.'],
+ ['The reason under an invalid dose is three stacked lines ("Given as…", "Repeat from…", "Do not restart…").','One line (see the wording above).','Three short lines read as notes.'],
+ ['A dose\'s "Why this" repeats the line above it (for example "not interchangeable" twice).','Show a dose\'s "Why this" only when it adds something: the interval numbers and the source.','Fewer repeats.'],
+ ['The card\'s "Why this" sits directly under the "Or finish with Trumenba" line, so it looks like it explains that line. It explains the dose due.','Put "Why this" right under the dose label, and the alternative line after it.','An explanation belongs next to what it explains.'],
+ ['A repeat dose\'s due date appears only inside the dose history ("Repeat from Nov 19, 2026"); the card\'s dose label has no date.','Show the due date beside the card\'s dose label, as "Next dose due [date]" does on other cards.','The date is what the clinician acts on.'],
+ ['"Why this" often explains the branch that does not apply to this patient (for example, the 3-year rule for a series finished at 10 years).','Explain only this patient. The general rule lives in the Rulebook.','Fewer repeats, shorter cards.'],
+ ['"About risk history" is a tap under the disclaimer at the bottom, but it explains the "Needs input" question in the dose history.','Show it beside the "Needs input" question, only when that question appears.','An explanation belongs next to what it explains.']
+];
+const ER=[
+ ['Healthy patients aged 11–15 years: the MenACWY "Why this" says "If MenB is also being started under shared clinical decision-making, a pentavalent product may be used…"','Healthy MenB by shared decision starts at 16 years, so this never applies under 16 years. To see it, enter a healthy patient born Jun 1, 2012 (age 14 years), with no doses.'],
+ ['Healthy 9-year-old, MenB "Why this": "Between 10 and 15 years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, or microbiologist exposure."','It leaves out a serogroup B outbreak. The app itself gives a 12-year-old in a B outbreak "Dose 1 of 3 (high-risk series)".'],
+ ['A second or later MenB booster: the note says "1 year after the primary series" under the label "every 2–3 years".','To see it, enter a patient with asplenia, born Jun 1, 2006, with a Bexsero series ending Jul 1, 2024 and a booster on Jul 1, 2025.']
+];
+$('pw').innerHTML=review(PW,'P',DONE_P);
+$('pl').innerHTML=review([['Seven placement proposals',PL]],'L',{});
+$('er').innerHTML=ER.map((r,i)=>`<li><span class="built">Fixed, PR #121</span> <b>${r[0]}</b> ${r[1]}</li>`).join('');
+
+/* ---------------- Questions ---------------- */
+const QS=[
+ {t:'1. Two tables, one for MenACWY and one for MenB',rec:'Agreed (2026-11-19).'},
+ {t:'2. Brand names instead of "4C" and "FHbp"',rec:'Agreed: say "Bexsero" and "Trumenba", with no "type" (2026-11-19). Built on the Rulebook screen (PR #123). The card text changes with the Patient screen review (P15, P16, P41, P46, P52, P54).'},
+ {t:'3. High-risk MenB dose 2',rec:'"Dose 2 at 1 month" stays. The full ACIP range, 1–2 months, goes in the Details and "Why this" text (2026-11-19).'},
+ {t:'4. "Wanes within about a year"',rec:'Agreed: "within 1–2 years", matching the source (2026-11-19). Built (PR #123).'},
+ {t:'5. Amber on dose labels',rec:'Agreed: red means repeat; amber on a dose label means not counted, with nothing to give now. "Not counted — do not repeat" moves from red to amber. Check PneumoVax\'s dose labels for the same rule before building (2026-11-19). Not built yet: please check PneumoVax first, as you asked.'}
+];
+/* ---------------- Verdicts (db) ---------------- */
+const V={};let db=null,busy=Promise.resolve();
+const LAB={yes:'Approve',no:'Reject',edit:'Change'};
+document.querySelectorAll('.vd[data-id]').forEach(el=>{const id=el.dataset.id;
+  el.innerHTML=`<span class="id">${id}</span>`+Object.keys(LAB).map(k=>`<button type="button" data-v="${k}" aria-pressed="false">${LAB[k]}</button>`).join('')+`<input type="text" placeholder="What should it say instead?" aria-label="Note for ${id}" hidden>`;});
+const ALL=[...document.querySelectorAll('.vd[data-id]')].map(e=>e.dataset.id);
+function paint(id){const el=document.querySelector(`.vd[data-id="${id}"]`);if(!el)return;const v=V[id]||{};
+  el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v.v)));
+  const inp=el.querySelector('input');inp.hidden=!(v.v==='edit'||v.v==='no'||(v.note||''));inp.placeholder=v.v==='no'?'Why? (optional)':'What should it say instead?';
+  if(document.activeElement!==inp) inp.value=v.note||'';
+  const row=el.closest('.wr');if(row) row.dataset.done=v.v?'1':(row.dataset.done==='1'&&!row.querySelector('.vd[data-id]')?'1':'');}
+function count(){const d=ALL.filter(id=>V[id]&&V[id].v).length;$('cnt').textContent=`${d} of ${ALL.length} decided`;$('mtr').style.width=(ALL.length?100*d/ALL.length:0)+'%';}
+function status(t){$('save').textContent=t;}
+function put(id,body){V[id]=body;paint(id);count();if(!db){status('Not saved (no connection)');return Promise.resolve();}
+  status('Saving…');busy=busy.then(()=>db.collection('verdicts').doc(id).set({...body,at:new Date().toISOString()})).then(()=>status('Saved'),e=>status('Not saved: '+((e&&e.code)||'error')));return busy;}
+document.addEventListener('click',e=>{const b=e.target.closest('.vd[data-id] button');if(b){const id=b.closest('.vd').dataset.id;const cur=V[id]||{};
+  const v=cur.v===b.dataset.v?null:b.dataset.v;put(id,{v:v||'',note:cur.note||''});if(v==='edit'||v==='no'){const i=b.closest('.vd').querySelector('input');i.hidden=false;i.focus();}return;}
+  const a=e.target.closest('button[data-all]');if(a){const ids=[...document.querySelectorAll(`details[data-g="${a.dataset.all}"] .vd[data-id]`)].map(x=>x.dataset.id).filter(id=>!(V[id]&&V[id].v));
+  ids.forEach(id=>put(id,{v:'yes',note:(V[id]&&V[id].note)||''}));}});
+document.addEventListener('change',e=>{const i=e.target.closest('.vd[data-id] input');if(!i)return;const id=i.closest('.vd').dataset.id;const cur=V[id]||{};
+  if((cur.note||'')!==i.value) put(id,{v:cur.v||(i.value?'edit':''),note:i.value});});
+$('only').addEventListener('change',e=>document.body.classList.toggle('only',e.target.checked));
+ALL.forEach(paint);count();
+(async()=>{const t=setTimeout(()=>status('Still connecting…'),10000);
+  try{db=window.claude&&await window.claude.use('db');}catch(_){db=null;}
+  if(!db){clearTimeout(t);$('nodb').hidden=false;status('');return;}
+  db.collection('verdicts').onSnapshot(snap=>{clearTimeout(t);if(!snap.metadata.fromCache)status('');
+    snap.docs.forEach(d=>{const x=d.data();if(!x)return;V[d.id]={v:x.v||'',note:x.note||''};paint(d.id);});count();},
+    err=>{clearTimeout(t);status('Saved answers could not be loaded ('+err.code+')');});
+})();
+
+$('qs').innerHTML=QS.map(q=>`<div class="qq"><h3>${q.t}</h3>${q.issue?`<p><span class="lab">Issue</span><br>${q.issue}</p>`:''}${q.src?`<div><span class="lab">Sources</span>${q.src}</div>`:''}<p><span class="lab">Recommendation</span><br>${q.rec}</p>${q.pts?`<div><span class="lab">Patients</span>${q.pts}</div>`:''}</div>`).join('');
+})();
+</script>
