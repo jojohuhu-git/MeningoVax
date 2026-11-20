@@ -30,7 +30,8 @@ describe('F-2: first MenACWY at 13–15 years reads catch-up', () => {
     const c = card('2012-03-03');
     expect(c.doseLabel).toBe(CATCHUP_LABEL);
     expect(c.note.lead).toBe('A catch-up dose now, then the booster at 16–18 years [c].');
-    expect(c.noteCites.map((x) => x.key)).toEqual(['cdcCatchupAcwyBooster8Weeks']);
+    // E1 (2026-11-19): the "Why this" adds two sources, the healthy MenB ages and the pentavalent rule.
+    expect(c.noteCites.map((x) => x.key)).toEqual(['cdcCatchupAcwyBooster8Weeks', 'menbHealthyPreferredAge1618', 'pentavalentWhenBothIndicated']);
   });
 
   it('nothing but the wording moves: same status, dose, series and booster line', () => {

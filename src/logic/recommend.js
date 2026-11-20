@@ -1491,11 +1491,11 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
           lead: catchup
             ? 'A catch-up dose now, then the booster at 16–18 years [c].'
             : 'The routine adolescent dose, given at 11–12 years.',
-          detail: 'If MenB is also being started under shared clinical decision-making, a pentavalent product may be used when both are given on the same day.',
+          detail: 'Without a MenB risk factor, MenB is offered from 16 through 23 years by shared clinical decision-making [c]. A pentavalent dose may be used only when MenACWY and MenB are due at the same visit [c].',
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
         boosterCites: [cite(catchup ? 'cdcCatchupAcwyBooster8Weeks' : 'acwyRoutine1112and16')],
-        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : [],
+        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks'), cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')] : [cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')],
         refs })];
     }
     // already has dose 1 → booster due at 16y (future)
