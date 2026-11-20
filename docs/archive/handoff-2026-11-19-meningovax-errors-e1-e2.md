@@ -7,7 +7,7 @@ owner is a clinician: plain English, worked patients, ask, don't default. **Supe
 
 **Update, later 2026-11-19:** E1–E3 are on `main` (PR #121, merged, deployed). Work continues on
 branch `port/phase7-wording-slips` (off `origin/main` `0d852e7`, **not pushed**): queue item 3,
-the two wording slips, built as `5bfec53` and **awaiting the owner's OK on the wording**. Suite
+the two wording slips, built as `5bfec53`; **owner approved both sentences as written 2026-11-19**. Suite
 **2,262 passed / 184 files**. Outbreak note, first booster: "ACIP gives a booster 3 years after the
 last dose if the series finished before age 7 years, otherwise 5 years." Later booster (new, not in
 mockup v9): "ACIP gives each later booster 5 years after the last dose." Teen line: "Booster: at age
@@ -58,7 +58,7 @@ wording review. Here they are E1–E3.
    the card's `citations` (e.g. "ACIP 2020 MMWR"), while the numbered marks can point at other papers
    (CDC catch-up page, Penmenvy MMWR) that appear only on hover. True before E1. Take it up in a
    future citations pass; ask the owner.
-3. Wording slips from the v6 handoff: BUILT on `port/phase7-wording-slips`, awaiting owner OK (see top). Were: the A/C/W/Y outbreak note says 5 years twice;
+3. Wording slips from the v6 handoff: BUILT on `port/phase7-wording-slips`, owner approved 2026-11-19 (see top). Were: the A/C/W/Y outbreak note says 5 years twice;
    "Boosters: 1 more - at age 16".
 4. Owner review of mockup v8/v9 (https://claude.ai/artifact/CYSRYKdqNTrrKcbMeydktr): the Rulebook
    screen, its wording review, the Patient screen wording (72 items) and placement (7 items).
