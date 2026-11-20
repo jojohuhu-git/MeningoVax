@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-errors-e1-e2.md` (E1 and E2 fixed; E3 and the other open items carried there). Do not resume from this file.
+
 # MeningoVax — Handoff after Rulebook mockups v6–v9 and the Patient screen wording review (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
