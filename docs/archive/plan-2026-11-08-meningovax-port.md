@@ -598,6 +598,11 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     "todo" count may only go down.
 7.2 **Q11** the in-app Rulebook tab (D1, D2)? Built only on a yes. **Owner, 2026-11-19: "Yes, like
     PneumoVax"** — a Patient | Rulebook switch in the header; built after 7.1 so it shows the quoted rulebook.
+    **BUILT 2026-11-19:** `src/data/rulebookPage.js` (what it says) and `src/components/Rulebook.jsx`
+    (PneumoVax's layout and CSS): transplant stop, vaccines, age and risk group, MenACWY, MenB, the
+    combined shot, doses on the record, 14 named MeningoVax decisions, sources. 69 worked patients,
+    each run through `recommend()`; no typed number in the page text; Source shows only sentences the
+    cards cite. 0 answers moved.
 7.3 MeningoVax `CLAUDE.md`: add the non-negotiables this port created (one rule table; a moved
     answer must be explained; one label list; the rulebook is held to the code).
     **BUILT 2026-11-19** (CLAUDE.md, "What the PneumoVax Port Made Permanent").
