@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-phase7-todo-rules-sourced.md`. #117 merged;
+> 18 of the 20 todo rules sourced; T1–T2 asked. Do not resume from this file.
+
 # MeningoVax port — Handoff after Phase 7.1 (card-rule sources) (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit

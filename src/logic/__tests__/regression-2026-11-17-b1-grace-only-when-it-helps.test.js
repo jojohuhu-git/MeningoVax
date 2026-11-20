@@ -52,9 +52,10 @@ describe('B-1: 7 months — the plan\'s travel baby', () => {
     expect([c.doseNum, c.seriesTotal]).toEqual([2, 2]);
   });
 
-  it('control: 5 days before 7 months — outside the grace, still the 4-dose series', () => {
+  // T1 (owner, 2026-11-19): a child already 7 months or older with one dose gets dose 2 at 7 months or older, so three doses in all (CDSI 4.65). Was 4.
+  it('control: 5 days before 7 months — outside the grace, the 3-or-4-dose series (3, since dose 2 is now at 7 months or older)', () => {
     const c = card(run({ ...base, doses: [{ date: '2026-08-05', brand: MV }] }));
-    expect([c.doseNum, c.seriesTotal]).toEqual([2, 4]);
+    expect([c.doseNum, c.seriesTotal]).toEqual([2, 3]);
   });
 
   it('the record line still prints the real age (the copy read at 7 months never reaches the screen)', () => {
@@ -65,9 +66,11 @@ describe('B-1: 7 months — the plan\'s travel baby', () => {
 
   it('no date of birth: the grace is not applied (the dose cannot be placed to the day)', () => {
     // Same baby entered as 10 months old, no birthday.
+    // Read at its real age: the 3-or-4-dose series, 3 since T1 (2026-11-19);
+    // the graced reading would have given 2.
     const c = card(run({ ageMonths: 10, riskIds: ['travel'], today: '2026-11-17',
       doses: [{ date: '2026-08-08', brand: MV }] }));
-    expect(c.seriesTotal).toBe(4);
+    expect(c.seriesTotal).toBe(3);
   });
 });
 
@@ -160,8 +163,16 @@ describe('B-1: 3 months (owner 2026-11-17: "Yes, grace helps")', () => {
     expect([c.doseNum, c.seriesTotal]).toEqual([3, 3]);
   });
 
-  it('control: 5 days before 3 months — the 4-dose series stays', () => {
+  // T1 (owner, 2026-11-19): a 2-month start whose dose 2 came at 7 months or
+  // older finishes in three as well, so this patient no longer needs the grace
+  // to reach the shortcut. Until T1 this was the control that stayed at 4.
+  it('5 days before 3 months (a 2-month start), dose 2 at 7 months: Dose 3 of 3 since T1', () => {
     const c = card(run({ ...base, doses: [{ date: '2026-04-05', brand: MV }, { date: '2026-08-10', brand: MV }] }));
+    expect([c.doseNum, c.seriesTotal]).toEqual([3, 3]);
+  });
+
+  it('control: 5 days before 3 months, dose 2 on time at 5 months — the 4-dose series stays', () => {
+    const c = card(run({ ...base, today: '2026-06-10', doses: [{ date: '2026-04-05', brand: MV }, { date: '2026-06-05', brand: MV }] }));
     expect([c.doseNum, c.seriesTotal]).toEqual([3, 4]);
   });
 });

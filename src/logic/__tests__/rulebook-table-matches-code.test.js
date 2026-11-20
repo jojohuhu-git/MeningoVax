@@ -146,8 +146,8 @@ describe('Phase 7.1: every card rule in sections 1–3 names its sources', () =>
 
   // The rules still waiting for a sentence. This number may only go down: a new
   // rule must arrive with its source, not as one more "todo".
-  it('no more than 20 rules are still waiting for a sentence', () => {
+  it('no more than 1 rule is still waiting for a sentence', () => {
     const todo = blocks.filter((b) => b.tokens?.includes('todo'));
-    expect(todo.length).toBeLessThanOrEqual(20);
+    expect(todo.length).toBeLessThanOrEqual(1);
   });
 });

@@ -625,6 +625,139 @@ export const CITATIONS = {
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
   },
+
+  // ── Port Phase 7.1, the rulebook's "todo" rules (2026-11-19) ──────────────
+  // Each sentence below was read live on 2026-11-19 in a real browser and
+  // checked as an exact substring of the page text. They are cited by the
+  // rulebook (docs/agent/meningococcal-rules-summary.md, §§1–3) through its
+  // SOURCES tags; none is shown on a card yet.
+
+  // ACIP 2020 MMWR (rr6909a1).
+  acip2020AcwyRiskGroupsFrom2mo: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'ACIP also recommends routine vaccination with MenACWY for persons aged ≥2 months at increased risk for meningococcal disease caused by serogroups A, C, W, or Y, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor (e.g., eculizumab [Soliris] or ravulizumab [Ultomiris]); persons who have anatomic or functional asplenia; persons with human immunodeficiency virus infection; microbiologists routinely exposed to isolates of Neisseria meningitidis; persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y; persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic; unvaccinated or incompletely vaccinated first-year college students living in residence halls; and military recruits',
+    label: 'ACIP 2020 MMWR: who gets MenACWY from 2 months of age (HIV is on this list)',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+  acip2020MenbRiskGroups: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B',
+    label: 'ACIP 2020 MMWR: who gets MenB for risk (HIV is not on this list)',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+  acip2020Table2CatchupOnly1921: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday',
+    label: 'ACIP 2020 MMWR, Table 2: routine MenACWY is for 11–18, catch-up for 19–21',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+  acip2020Table2Booster16: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday',
+    label: 'ACIP 2020 MMWR, Table 2: the 16-year MenACWY dose',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+  // The same words appear in Tables 4–9; this entry cites them for Table 7
+  // (microbiologists), whose only row is "≥10 yrs".
+  acip2020Table7MicrobiologistBooster: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    label: 'ACIP 2020 MMWR, Table 7 (microbiologists, ≥10 yrs only): MenACWY booster every 5 years',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+  acip2020MenbShortProtection: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'the estimated relatively short duration of MenB protection (antibody waning within 1–2 years postcompletion of the primary series)',
+    label: 'ACIP 2020 MMWR: MenB protection wanes within 1–2 years',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-19',
+  },
+
+  // CDC child and adolescent schedule notes.
+  cdcCatchupAcwy1618OneDose: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'Age 16–18 years: 1 dose',
+    label: 'CDC child schedule notes, MenACWY catch-up: one dose at 16–18',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-19',
+  },
+  cdcChildAcwyTravelUnder24m: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    quote: 'Children younger than age 24 months: Menveo* (age 2–23 months)',
+    label: 'CDC child schedule notes, travel: the infant Menveo series',
+    short: 'CDC Child/Adolescent Notes',
+    lastVerified: '2026-11-19',
+  },
+  cdcChildMenbHighRiskD2SixMonthsNoD3: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    quote: 'if dose 2 was administered at least 6 months after dose 1, dose 3 not needed',
+    label: 'CDC child schedule notes, high-risk MenB: no dose 3 after a 6-month gap',
+    short: 'CDC MenB Notes',
+    lastVerified: '2026-11-19',
+  },
+  cdcChildPenbrayaDose2Trumenba: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    quote: 'if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered for dose 2 MenB',
+    label: 'CDC child schedule notes: after Penbraya, MenB continues with Trumenba',
+    short: 'CDC MenB Notes',
+    lastVerified: '2026-11-19',
+  },
+  cdcChildPenbraya6Months: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    quote: 'Penbraya may be used for additional MenACWY and MenB doses (including booster doses) if both would be given on the same clinic day and at least 6 months have elapsed since most recent Penbraya dose',
+    label: 'CDC child schedule notes: another Penbraya only 6 months after the last',
+    short: 'CDC MenB Notes',
+    lastVerified: '2026-11-19',
+  },
+
+  // ACIP 2025 Penmenvy MMWR (mm7501a2), published January 2026.
+  penmenvyIsCrm4C: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'A new pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) protects against N. meningitidis serogroups A, B, C, W, and Y',
+    label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy is MenACWY-CRM/MenB-4C',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
+  penmenvyMenb4COtherDoses: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, when MenACWY-CRM/MenB-4C is used, MenB-4C should be used for the other MenB doses',
+    label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy belongs with Bexsero (MenB-4C)',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
+  penbrayaMenbFhbpOtherDoses: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, persons who receive pentavalent MenACWY-TT/MenB-FHbp should have already received or should next receive MenB-FHbp for other MenB doses',
+    label: 'ACIP 2025 (Penmenvy) MMWR: Penbraya belongs with Trumenba (MenB-FHbp)',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
+  pentavalentWhenBothIndicated: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'ACIP recommended that MenACWY-CRM/MenB-4C may be used when both MenACWY and MenB are indicated at the same visit',
+    label: 'ACIP 2025 (Penmenvy) MMWR: a pentavalent only when both vaccines are due at the same visit',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
+  penmenvySeparateUnder6Months: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'Persons at increased risk for meningococcal disease who receive a dose of MenACWY-CRM/MenB-4C and who are recommended to receive additional doses of MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine should receive separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C, following recommended intervals',
+    label: 'ACIP 2025 (Penmenvy) MMWR: within 6 months of a pentavalent, give the two vaccines separately',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
+  pentavalentValidPerComponent: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'MenACWY-CRM/MenB-4C doses deviating from the licensed 6-month interval can be considered valid for MenACWY or MenB if the timing would otherwise have been valid for that component',
+    label: 'ACIP 2025 (Penmenvy) MMWR: each half of a pentavalent dose is judged on its own',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-19',
+  },
 };
 
 // Build a scroll-to-highlight URL (#:~:text=) from a citation's quote.

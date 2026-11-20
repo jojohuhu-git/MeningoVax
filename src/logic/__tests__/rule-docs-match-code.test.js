@@ -75,18 +75,23 @@ describe('L2-4: the rule documents state the dose counts the code uses', () => {
       .toMatch(/4-dose/);
   });
 
-  it('the 3-dose shortcut band is documented as 3-6 months, not 2-6', () => {
-    // The code's actual band: a 2-month start never shortcuts, a 3-month one can.
-    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 8 })).toBe(4);
+  it('the 3-dose shortcut is documented for a 3-6-month start, and for a 2-month start since T1', () => {
+    // The code's band: any dose 1 before 7 months, with dose 2 at 7 months or
+    // later. A 2-month start joined it on T1 (owner, 2026-11-19, as CDSI has it);
+    // on time, a 2-month start keeps four.
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 8 })).toBe(3);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 4 })).toBe(4);
     expect(menacwyInfantHighRiskTotal({ d1AgeM: 3, d2AgeM: 8 })).toBe(3);
     expect(menacwyInfantHighRiskTotal({ d1AgeM: 6, d2AgeM: 8 })).toBe(3);
     for (const [path, doc] of [[SUMMARY_PATH, summary], [CLINICAL_PATH, clinical]]) {
-      expect(doc, why(path, 'P1-3 moved the 3-dose shortcut to a dose 1 given at 3-6 months. A dose 1 at 2 months gets the flat 4-dose series.'))
-        .not.toMatch(/shortcut[^.]{0,120}2-6 ?m/i);
       expect(
         // The agent-facing doc abbreviates ("3-6m"), the owner-facing one spells it out.
         statedNear(doc, 'shortcut', '3-6 month') || statedNear(doc, 'shortcut', '3-6m'),
-        why(path, 'the 3-dose shortcut needs dose 1 at 3-6 months and dose 2 at 7 months or later. The document must state that band alongside the shortcut.')
+        why(path, 'the 3-dose shortcut needs dose 2 at 7 months or later. The document must state the 3-6-month band alongside the shortcut.')
+      ).toBe(true);
+      expect(
+        statedNear(doc, 'shortcut', 'T1'),
+        why(path, 'since T1 (2026-11-19) a 2-month start whose dose 2 came at 7 months or later takes the shortcut too. The document must say so beside the shortcut.')
       ).toBe(true);
     }
   });

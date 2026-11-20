@@ -21,6 +21,7 @@ import { analyzeHistory } from '../../logic/validate.js';
 import { TEST_TODAY } from '../../test-today.js';
 import { readFileSync } from 'node:fs';
 import { noteText } from '../../test-note-text.js';
+import { cardRuleBlocks } from '../rulebook.js';
 
 // Entries deliberately kept in refs.js although nothing cites them today.
 // Anything NOT on this list that goes unreferenced is drift — either a rule lost
@@ -30,14 +31,9 @@ const KNOWN_UNCITED = {
     'Kept as the CDC schedule-note landing page. Dropped from the MenACWY recs '
     + '2026-07-24 because it just restates the ACIP 2020 MMWR rule (owner decision '
     + '2026-07-23: do not cite two sources for one rule).',
-  // Read live 2026-11-15 for STOP C (port plan, decision packet 1, N1). Held
-  // here until the owner answers whether a pentavalent at 26 or older counts.
-  pentavalentHighRiskNoUpperAge:
-    'Held for STOP C N1: the ACIP sentence with no upper age for the high-risk group.',
-  pentavalentLicensed10to25:
-    'Held for STOP C N1: the licensed ages (10–25 years), where CDSI\'s 26 comes from.',
-  cdcAdultPenbrayaSameDay:
-    'Held for STOP C N1: CDC\'s adult notes, "Adults may receive" Penbraya, with no upper age.',
+  // pentavalentHighRiskNoUpperAge, pentavalentLicensed10to25 and
+  // cdcAdultPenbrayaSameDay were held here for STOP C N1; since 2026-11-19 the
+  // rulebook's SOURCES tags cite them, so they left this list.
 };
 
 const SOURCE_FILES = [
@@ -48,6 +44,16 @@ const SOURCE_FILES = [
   'src/components/RecCard.jsx',
   'src/components/Results.jsx',
 ];
+
+// Port Phase 7.1 (2026-11-19): the rulebook's SOURCES tags cite refs.js entries
+// too. Those tags are held to refs.js by rulebook-table-matches-code.test.js, so
+// an entry named in one is in use, not orphaned.
+const RULEBOOK_KEYS = new Set(
+  cardRuleBlocks(readFileSync(new URL('../../../docs/agent/meningococcal-rules-summary.md', import.meta.url), 'utf8'))
+    .flatMap((b) => b.tokens || []),
+);
+const citedIn = (src) => (key) =>
+  src.includes(`'${key}'`) || src.includes(`"${key}"`) || RULEBOOK_KEYS.has(key);
 
 const AGES = [1, 2, 4, 7, 12, 23, 24, 60, 84, 119, 120, 132, 180, 192, 200, 216, 264, 276, 288, 600];
 const RISKS = [
@@ -142,7 +148,7 @@ describe('L2-3: no source sits in refs.js unused', () => {
   it('every citation is either cited somewhere or documented as deliberately uncited', () => {
     const src = SOURCE_FILES.map((f) => readFileSync(new URL(`../../../${f}`, import.meta.url), 'utf8')).join('\n');
     // Match the quoted key, so acip2020 is not counted as a hit for acip2020Table2.
-    const isCited = (key) => src.includes(`'${key}'`) || src.includes(`"${key}"`);
+    const isCited = citedIn(src);
     const unexplained = Object.keys(CITATIONS)
       .filter((key) => !isCited(key) && !(key in KNOWN_UNCITED));
 
@@ -158,11 +164,10 @@ describe('L2-3: no source sits in refs.js unused', () => {
 
   it('the deliberately-uncited list has not gone stale itself', () => {
     const src = SOURCE_FILES.map((f) => readFileSync(new URL(`../../../${f}`, import.meta.url), 'utf8')).join('\n');
-    const nowCited = Object.keys(KNOWN_UNCITED)
-      .filter((key) => src.includes(`'${key}'`) || src.includes(`"${key}"`));
+    const nowCited = Object.keys(KNOWN_UNCITED).filter(citedIn(src));
     expect(
       nowCited,
-      `These are now cited by the app, so remove them from KNOWN_UNCITED: ${nowCited.join(', ')}.`
+      `These are now cited by the app or the rulebook, so remove them from KNOWN_UNCITED: ${nowCited.join(', ')}.`
     ).toEqual([]);
     const gone = Object.keys(KNOWN_UNCITED).filter((key) => !(key in CITATIONS));
     expect(

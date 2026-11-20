@@ -89,9 +89,10 @@ describe('P0-3: an UNfinished infant outbreak series is not called complete', ()
     expect(rec.status).not.toBe('complete');
   });
 
-  it('it asks for dose 2 of 4', () => {
+  // T1 (owner, 2026-11-19): a child already 7 months or older with one dose gets dose 2 at 7 months or older, so three doses in all (CDSI 4.65). Was 4.
+  it('it asks for dose 2 of 3', () => {
     expect(rec.doseNum).toBe(2);
-    expect(rec.seriesTotal).toBe(4);
+    expect(rec.seriesTotal).toBe(3);
   });
 });
 

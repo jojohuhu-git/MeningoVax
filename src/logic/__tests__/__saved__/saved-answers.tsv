@@ -18248,7 +18248,7 @@ a7|r:military|A:MenQuadfi@40|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=Men
 a7|r:military|A:Menveo 2-vial@160,Menveo 2-vial@104,Menveo 2-vial@48|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n2,valid:-:0:1:0:0:0:-:-:n1,valid:-:0:1:0:0:0:-:-:n1 dB= ageNote=1
 a7|r:military|A:Penmenvy@150|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n3 dB=invalid:-:1:0:0:0:0:-:-:n1 ageNote=1
 a7|r:military|A:|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA= dB= ageNote=1
-a7|r:outbreak_acwy|A:MenQuadfi@40|B:	A=MenACWY/risk-based/0/2026-10-01/2/4/4/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=valid:1:0:0:0:0:0:-:-:n0 dB= ageNote=0
+a7|r:outbreak_acwy|A:MenQuadfi@40|B:	A=MenACWY/risk-based/0/2026-10-01/2/3/3/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=valid:1:0:0:0:0:0:-:-:n0 dB= ageNote=0
 a7|r:outbreak_acwy|A:Menveo 2-vial@160,Menveo 2-vial@104,Menveo 2-vial@48|B:	A=MenACWY/risk-based/0/2026-09-23/3/4/4/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n2,valid:1:0:0:0:0:0:-:-:n1,valid:2:0:0:0:0:0:-:-:n1 dB= ageNote=0
 a7|r:outbreak_acwy|A:Penmenvy@150|B:	A=MenACWY/risk-based/1/-/1/2/2/84/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n3 dB=invalid:-:1:0:0:0:0:-:-:n1 ageNote=0
 a7|r:outbreak_acwy|A:|B:	A=MenACWY/risk-based/1/-/1/2/2/84/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA= dB= ageNote=0
@@ -18260,7 +18260,7 @@ a7|r:pregnancy|A:MenQuadfi@40|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=Me
 a7|r:pregnancy|A:Menveo 2-vial@160,Menveo 2-vial@104,Menveo 2-vial@48|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n2,valid:-:0:1:0:0:0:-:-:n1,valid:-:0:1:0:0:0:-:-:n1 dB= ageNote=1
 a7|r:pregnancy|A:Penmenvy@150|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n3 dB=invalid:-:1:0:0:0:0:-:-:n1 ageNote=1
 a7|r:pregnancy|A:|B:	A=MenACWY/not-indicated/0/-/-/-/-/-/-/-/0/ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA= dB= ageNote=1
-a7|r:travel|A:MenQuadfi@40|B:	A=MenACWY/risk-based/0/2026-10-01/2/4/4/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=valid:1:0:0:0:0:0:-:-:n0 dB= ageNote=0
+a7|r:travel|A:MenQuadfi@40|B:	A=MenACWY/risk-based/0/2026-10-01/2/3/3/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=valid:1:0:0:0:0:0:-:-:n0 dB= ageNote=0
 a7|r:travel|A:Menveo 2-vial@160,Menveo 2-vial@104,Menveo 2-vial@48|B:	A=MenACWY/risk-based/0/2026-09-23/3/4/4/56/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n2,valid:1:0:0:0:0:0:-:-:n1,valid:2:0:0:0:0:0:-:-:n1 dB= ageNote=0
 a7|r:travel|A:Penmenvy@150|B:	A=MenACWY/risk-based/1/-/1/2/2/84/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA=invalid:-:1:0:0:0:0:-:-:n3 dB=invalid:-:1:0:0:0:0:-:-:n1 ageNote=0
 a7|r:travel|A:|B:	A=MenACWY/risk-based/1/-/1/2/2/84/-/-/0/MV2/MQ B=MenB/not-indicated/0/-/-/-/-/-/-/-/0/ P=0/ dA= dB= ageNote=0

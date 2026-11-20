@@ -31,6 +31,12 @@
 //     line in its own PR (cross-repo; vaccine-parity skill) — the two apps
 //     diverge until that lands, knowingly.
 //
+//     REVERSED IN PART by T1 (owner, 2026-11-19, "All of them"): a 2-month
+//     start whose dose 2 came at 7 months or older takes the shortcut too, as
+//     CDC's scheduling rules (CDSI 4.65) have it. A 2-month start vaccinated on
+//     time (dose 2 under 7 months) keeps four. See
+//     regression-2026-11-19-t1-two-month-start-falls-behind.test.js.
+//
 // The shortcut's own condition is now ENFORCED, not merely promised: that final
 // dose must be ≥12 weeks after dose 2 AND after age 12 months. Before this, the
 // validator applied only the 4-week baseline to it, so a third dose given at 10
@@ -64,9 +70,9 @@ describe('P1-3: the series total agrees with itself from start to finish', () =>
     expect(menacwyInfantHighRiskTotal({ d1AgeM: 4, d2AgeM: 6 })).toBe(4);
   });
 
-  it('a 2-MONTH start is a flat 4-dose series, shortcut or not (CDC)', () => {
-    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 8 })).toBe(4);
+  it('a 2-month start: 4 doses on time, 3 once dose 2 came at 7 months or older (T1)', () => {
     expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 4 })).toBe(4);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 8 })).toBe(3);
   });
 
   it('a 7-23mo start is unchanged at 2 doses', () => {
@@ -110,18 +116,25 @@ describe('P1-3: the card that promises three doses is followed by a card that ag
   });
 });
 
-describe('P1-3: a 2-month start keeps its full four doses', () => {
+describe('P1-3 / T1: a 2-month start whose dose 2 came at 8 months finishes in three', () => {
   // DOB 2025-06-15, D1 at 2 months (2025-08-15), D2 at 8 months (2026-02-15).
-  it('the card asks for dose 3 of 4, not dose 3 of 3', () => {
+  // Until T1 (owner, 2026-11-19) this patient was asked for dose 3 of 4.
+  it('the card asks for dose 3 of 3', () => {
     const r = acwy('2026-04-15', 10, ['2025-08-15', '2026-02-15']);
-    expect(r.seriesTotal).toBe(4);
-    expect(r.doseLabel).not.toMatch(/shortcut/i);
+    expect(r.seriesTotal).toBe(3);
+    expect(r.doseLabel).toMatch(/shortcut/i);
   });
 
-  it('and a fourth dose is still owed after the third', () => {
+  it('and no fourth primary dose is owed after the third', () => {
     const r = acwy('2026-12-15', 18, ['2025-08-15', '2026-02-15', '2026-06-15']);
+    expect(r.seriesTotal).toBe(3);
+    expect(r.doseLabel).toMatch(/first booster/i);
+  });
+
+  it('control: on time at 2 and 4 months, the card still asks for dose 3 of 4', () => {
+    const r = acwy('2025-10-15', 4, ['2025-08-15', '2025-10-15']);
     expect(r.seriesTotal).toBe(4);
-    expect(r.doseNum).toBe(4);
+    expect(r.doseLabel).not.toMatch(/shortcut/i);
   });
 });
 
