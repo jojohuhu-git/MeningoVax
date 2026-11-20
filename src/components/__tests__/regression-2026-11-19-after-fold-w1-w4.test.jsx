@@ -59,7 +59,7 @@ describe('W3: the 13–15 catch-up card says the booster is at 16–18', () => {
   const c = recommend(healthy('2012-11-19')).menacwy[0];
   it('worked patient: the in-view booster line and "Why this" give the same ages', () => {
     expect(c.doseLabel).toBe('Dose 1 (catch-up, 13–15y)');
-    expect(c.boosterSummary).toBe('Boosters: 1 more - at age 16–18 [c]');
+    expect(c.boosterSummary).toBe('Booster: at age 16–18 years [c]');
     expect(c.note.detail).toMatch(/then the booster at 16–18 years/);
   });
   it('its source mark points at CDC\'s 13–15 sentence, which says 16–18', () => {
@@ -68,7 +68,7 @@ describe('W3: the 13–15 catch-up card says the booster is at 16–18', () => {
   });
   it('control: the 11-year-old keeps "at age 16" and ACIP\'s 11–12 sentence', () => {
     const r = recommend(healthy('2015-11-19')).menacwy[0];
-    expect(r.boosterSummary).toBe('Boosters: 1 more - at age 16 [c]');
+    expect(r.boosterSummary).toBe('Booster: at age 16 years [c]');
     expect(r.boosterCites.map((x) => x.key)).toEqual(['acwyRoutine1112and16']);
   });
 });

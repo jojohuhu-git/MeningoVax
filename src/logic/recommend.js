@@ -894,7 +894,11 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           lead: boosterNow
             ? `A booster now: ${yearsLabel(boosterYears)} or more since the last MenACWY dose [c].`
             : `Booster ${fmtDate(boosterOn)} if outbreak risk continues [c].`,
-          detail: `For someone at increased risk in a serogroup A, C, W or Y outbreak, ACIP gives a booster once ${yearsLabel(boosterYears)} have passed since the last dose (3 years if the series finished before age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)}, otherwise 5). If the patient is no longer at risk, untick the outbreak box.`,
+          // Wording slip (2026-11-19): this said 5 years twice, and named the
+          // 3-year case on later boosters, which always wait 5 (C10).
+          detail: `For someone at increased risk in a serogroup A, C, W or Y outbreak, ${given === primaryTotal
+            ? `ACIP gives a booster ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)} after the last dose if the series finished before age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} years, otherwise ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}.`
+            : `ACIP gives each later booster ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last dose.`} If the patient is no longer at risk, untick the outbreak box.`,
         },
         noteCites: [cite('acip2020Table8')],
         refs: refsExposure(),
@@ -1450,7 +1454,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
   // not "not yet due" (that contradicted the Recorded panel's "Counts" chip).
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS && given >= 1) {
     return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: ROUTINE_16Y_BOOSTER_LABEL, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
-      boosterSummary: 'Boosters: 1 more - at age 16 [c]',
+      boosterSummary: 'Booster: at age 16 years [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
       ...routineBoosterDueDate(dob, am, today, lastDate),
@@ -1485,7 +1489,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
         // W3 (owner, 2026-11-19): the 13–15 card's booster line gives CDC's
         // ages, "booster at age 16–18 years", as its "Why this" does; its
         // source mark points at that sentence. 11–12 keeps ACIP's "age 16".
-        boosterSummary: catchup ? 'Boosters: 1 more - at age 16–18 [c]' : 'Boosters: 1 more - at age 16 [c]', dueToday: true,
+        boosterSummary: catchup ? 'Booster: at age 16–18 years [c]' : 'Booster: at age 16 years [c]', dueToday: true,
         brands: menacwyBrands(am),
         note: {
           lead: catchup
@@ -1512,7 +1516,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       : '';
     const waitCites = waitsAfterLastDose ? [cite('acwyBooster8WeeksAfterDose1')] : [];
     return [rec({ vaccine: 'MenACWY', status: 'due', dueToday: false, doseLabel: ROUTINE_16Y_BOOSTER_LABEL, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, brands: menacwyBrands(am),
-      boosterSummary: 'Boosters: 1 more - at age 16 [c]',
+      boosterSummary: 'Booster: at age 16 years [c]',
       boosterCites: [cite('acwyRoutine1112and16')],
       earliestNextDate: null,
       ...boosterTiming,
