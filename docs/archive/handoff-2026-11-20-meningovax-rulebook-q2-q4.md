@@ -6,9 +6,10 @@ owner is a clinician: plain English, worked patients, ask, don't default. **Supe
 `handoff-2026-11-19-meningovax-errors-e1-e2.md` (its open items are carried below).
 
 Branch: `port/phase7-rulebook-q1-q4`, off `origin/main` `64e8894` (PR #122, the wording slips,
-**merged** 2026-11-20). **NOT pushed yet: the live check in the running app is still to do** (see
-Resuming). Suite **2,267 passed / 186 files**, all green, after rebasing onto #122. Commits:
-`b04534a` Q4, `acb8437` Q2, `371f494` test-count table, plus this handoff.
+**merged** 2026-11-20). **Pushed; PR #123 open against `main`, waiting for the owner to merge**
+(https://github.com/jojohuhu-git/MeningoVax/pull/123). Suite **2,267 passed / 186 files**, all
+green. Commits: `b04534a` Q4, `acb8437` Q2, `371f494` test-count table, `4b43452` column width,
+plus handoffs. Both items live-checked in the running app 2026-11-20 (no console errors).
 
 Q1–Q5 are the owner's answers in `docs/archive/decisions-2026-11-19-rulebook-mockup-q1-q5.md`.
 
@@ -32,7 +33,8 @@ Q1–Q5 are the owner's answers in `docs/archive/decisions-2026-11-19-rulebook-m
    note; combined-shot line "The product must match the earlier MenB doses: Penmenvy after
    Bexsero, Penbraya after Trumenba." CDC's quoted sentences and paper titles keep "MenB-4C".
    Brand names come from `brands.js`. Files: `src/data/rulebookPage.js`,
-   `src/components/Rulebook.jsx`. Patient cards unchanged (prose 0 of 24,600). Test:
+   `src/components/Rulebook.jsx`. The live check at phone width found "Trumenba" overflowing the
+   12% "Counts as" column; widened to 18% (`4b43452`), rechecked: no overflow, no page scroll. Patient cards unchanged (prose 0 of 24,600). Test:
    `regression-2026-11-20-q2-rulebook-brand-names-not-4c-fhbp.test.jsx`.
 3. **Q3, patient-card half: already true before this session.** The high-risk MenB dose 2 "Why
    this" already reads "Dose 2 is given 1–2 months after dose 1…" (`recommend.js`, high-risk
@@ -40,11 +42,9 @@ Q1–Q5 are the owner's answers in `docs/archive/decisions-2026-11-19-rulebook-m
 
 ## What's NOT done — the remaining queue
 
-1. **Live check of Q2 and Q4 in the running app, then push and open a PR** against `main`. Blocked
-   on 2026-11-20: 5 dev servers for this folder belonged to other chats (the limit), so
-   `preview_start` failed. Check: the Rulebook screen's vaccine table and the box below it (the
-   dropped box labels can change the layout) at desktop and phone width; a healthy patient born
-   2015-03-01 with Bexsero 2025-06-01: open the dose's "Why this" and read "within 1–2 years".
+1. **Owner merges PR #123.** Done otherwise. (Dev-server tip: when all 5 slots belong to other
+   chats, those servers serve this same folder, so `preview_start {url: "http://localhost:<port>/
+   MeningoVax/"}` on one of them shows the current branch; `lsof -nP -iTCP -sTCP:LISTEN` lists them.)
 2. **Deferred to the mockup v9 redesign (owner, 2026-11-20, "Q2 on today's screen")**: Q1 (two
    Quick look tables) and Q3's Rulebook half (the "1–2 months" in a Details panel). Both exist only
    in the unbuilt redesign (https://claude.ai/artifact/CYSRYKdqNTrrKcbMeydktr).
@@ -74,9 +74,7 @@ the unbuilt redesign.
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git checkout port/phase7-rulebook-q1-q4`
 2. `npm test` — confirm **2,267 passed / 186 files**. `preview_start {name: "MeningoVax dev
    server"}`; if the 5-server limit blocks it, ask the owner to stop one from another chat.
-3. Do queue item 1 (live check), then push and open the PR (ship skill: branch → PR against `main`
-   → owner merges). PR body: the E4 four questions, the prose counts (Q4: 2,618/2,429 real; Q2: 0),
-   "0 answers moved", and the Q4 source sentence with its URL.
+3. Check PR #123 is merged (`gh pr view 123`); if so, branch the next work off fresh `origin/main`.
 4. Ask, don't default: which of items 2–7 next. Remind about PneumoVax before any Q5 work.
 5. Per item (fix-queue skill): reproduce → failing test → fix → full suite → `npm run prose --
    dump` before/after and `diff` → live check → commit by ID. New test files change the counts in
