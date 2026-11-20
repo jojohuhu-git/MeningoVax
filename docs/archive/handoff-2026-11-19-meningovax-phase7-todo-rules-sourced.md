@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-19)** by [handoff-2026-11-19-meningovax-rulebook-screen.md](handoff-2026-11-19-meningovax-rulebook-screen.md). T1 and T2 are merged (#118, #119) and the Rulebook screen is built (PR #120). Do not resume from this file.
+
 # MeningoVax port — Handoff after the rulebook's "todo" rules were read (2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
