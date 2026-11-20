@@ -168,7 +168,8 @@ function Vaccines() {
       <p className="rb-lead">MenACWY and MenB are separate vaccines with separate schedules. The combined shot gives one dose of each at the same visit.</p>
       <div className="rb-card"><div className="rb-scroll">
         <table className="rb-table rb-fixed rb-freeze">
-          <colgroup><col className="rb-w18" /><col className="rb-w12" /><col className="rb-w12" /><col /></colgroup>
+          {/* Q2: "Counts as" holds a brand name ("Trumenba"), wider than the old "FHbp". */}
+          <colgroup><col className="rb-w18" /><col className="rb-w12" /><col className="rb-w18" /><col /></colgroup>
           <thead><tr><th className="rb-freeze-col">Vaccine</th><th>Minimum age</th><th>Counts as</th><th>Use</th></tr></thead>
           <tbody>
             {VACCINE_ROWS.map((g) => (
