@@ -366,7 +366,7 @@ export function unknownResult(reasons) {
 export const MENB_LICENSED_FROM_10_WHY =
   'MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years.';
 export const MENB_WANES_BEFORE_16_WHY =
-  'MenB antibody protection wanes within about a year, so a dose before 16 does not count without a high-risk indication.';
+  'MenB antibody protection wanes within 1–2 years, so a dose before 16 does not count without a high-risk indication.';
 const MENB_NOT_INTERCHANGEABLE_WHY =
   'MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.';
 const MENB_HR_BOOSTER_CADENCE_WHY = 'High-risk MenB boosters are given every 2–3 years.';

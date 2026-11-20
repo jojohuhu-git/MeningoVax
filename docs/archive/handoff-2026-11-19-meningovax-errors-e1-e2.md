@@ -1,4 +1,6 @@
-# MeningoVax — Handoff after card errors E1–E3 (2026-11-19, latest)
+> **SUPERSEDED 2026-11-20** by `handoff-2026-11-20-meningovax-rulebook-q2-q4.md` (E1–E3 and the wording slips are merged, #121 and #122; Q2 and Q4 built; open items carried there). Do not resume from this file.
+
+# MeningoVax — Handoff after card errors E1–E3 (2026-11-19)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
 that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys from `main`). The
