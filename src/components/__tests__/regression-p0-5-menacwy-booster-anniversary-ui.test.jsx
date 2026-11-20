@@ -45,7 +45,7 @@ describe('P0-5 (UI): a booster on its three-year anniversary is not sent back', 
     const { rec, container } = show(ON_TIME);
     expect(rec.dueToday).toBeFalsy();
     // G1-a: the too-soon line now reads "under the N-year minimum".
-    expect(container.textContent).not.toMatch(/under the \d-year minimum/i);
+    expect(container.textContent).not.toMatch(/Booster .* \d+ (years )?required/i);
     expect(container.textContent).not.toMatch(/Not counted/i);
   });
 
@@ -57,6 +57,6 @@ describe('P0-5 (UI): a booster on its three-year anniversary is not sent back', 
   // control moved to five days — the first genuinely too-soon value.
   it('control: a booster five days early is still sent back', () => {
     const { container } = show(['2020-11-15', '2021-01-15', '2024-01-10']);
-    expect(container.textContent).toMatch(/under the \d-year minimum/i);
+    expect(container.textContent).toMatch(/Booster .* \d+ (years )?required/i);
   });
 });

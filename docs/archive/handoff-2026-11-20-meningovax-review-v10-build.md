@@ -7,7 +7,7 @@ owner is a clinician: plain English, ask, don't default. **Supersedes**
 
 Branch: `port/review-v10-wording`, off `origin/main` `8b51c38` (PR #123 merged). **Pushed; PR #124
 open against `main`** (https://github.com/jojohuhu-git/MeningoVax/pull/124), waiting for the owner.
-Suite **2,289 passed / 189 files**, all green (run 2026-11-20 after Batch 2b; baseline was 2,267 / 186).
+Suite **2,302 passed / 190 files**, all green (run 2026-11-20 after Batch 2c; baseline was 2,267 / 186).
 Working tree clean.
 
 ## The source of truth for this queue
@@ -39,8 +39,6 @@ Working tree clean.
 
 ## What's NOT done — the remaining queue (all approved; build in this order)
 
-- **2c**: lines under recorded dose rows, **P53–P66**: mostly `doseRules.js` reasons/whys.
-  Changing a `DOSE_RULES` row's text means `npm run rulebook` and committing the diff.
 - **2d**: combined shot and disclaimer, **P67–P72**. P72 pairs with L7.
 - **3**: dose labels **P12–P21**. These are chip labels on the closed list (`doseChipLabel.js`,
   `docs/agent/clinical-rules.md` "One Label Per Dose", sweep property 13). Update the list and the
@@ -66,6 +64,16 @@ Working tree clean.
    Suite then **2,289 / 189 files**. Not changed on purpose: the exposure first-booster notes
    ("…after the primary dose", "ACIP puts the first booster…"), which P38/P39 did not name.
 
+5. **Batch 2c, P53–P66**: the line under each recorded dose (`doseRules.js` templates; the
+   repeat line in `recommend.js` names the first product for a wrong-product dose). Label-first
+   lines ("Minimum interval not met (3 weeks, 8 required).", "Minimum age not met (…)"), "Do not
+   restart.", "Interval: … Required: …", whole years with G1-a-F1's exact gap at a minimum. The
+   pieces still render as separate lines: joining them is L2 (Batch 4). Siblings got the same
+   pattern (every too-soon and too-young template). `npm run rulebook`: no change. Prose: 12,862
+   changed (10,758 real); 0 answers moved. Suite **2,302 / 190**. Live-checked P54.
+   Left: the DoseEditor's "Family locked: MenB-4C" line (not in the review; ask with Q2's card
+   follow-up), and the pre-existing "Minimum: 10 years (120 months)" in dose "Why this" text.
+
 ## Why this is a good stopping point
 
 Batches 1 and 2a are complete and pushed: test first, fix, full suite, wording count, live check.
@@ -75,7 +83,7 @@ What's left is independent, and Batch 5 needs one owner answer before it starts.
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git checkout port/review-v10-wording && git pull`
    (or branch from `origin/main` if #124 is merged).
-2. `npm test`: confirm **2,289 passed / 189 files**. `preview_start {name: "MeningoVax dev server"}`.
+2. `npm test`: confirm **2,302 passed / 190 files**. `preview_start {name: "MeningoVax dev server"}`.
 3. Per batch (fix-queue skill): `npm run prose -- dump <scratch>/before.txt` → failing test quoting
    the approved wording → fix (no semicolons) → update old tests that pin the old wording (a
    `not.toMatch` on retired text needs an `// extinct:` comment) → `npm test` → prose dump after

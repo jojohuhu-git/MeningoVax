@@ -34,7 +34,7 @@ describe('C10: a travel booster is checked like a high-risk one', () => {
   it('packet patient: Menveo 2022-01-01, then 2022-02-12 (6 weeks) — the second is not the 5-year booster', () => {
     const r = run({ ...T, menacwyDoses: [MV('2022-01-01'), MV('2022-02-12')] });
     expect(verdicts(r)).toEqual(['dose 1', 'invalid']);
-    expect(reasons(r, 1)).toMatch(/5-year minimum/);
+    expect(reasons(r, 1)).toMatch(/5 years required/);
   });
 
   it('a booster 4 years on does not count either; one at 5 years less 3 days does', () => {
@@ -67,7 +67,7 @@ describe('C11: 8 weeks between any two MenACWY doses', () => {
   it('healthy 18-year-old: MenQuadfi 2026-06-01, then 2026-07-10 (5½ weeks) — the second does not count', () => {
     const r = run({ ...H, menacwyDoses: [MQ('2026-06-01'), MQ('2026-07-10')] });
     expect(verdicts(r)).toEqual(['dose 1', 'invalid']);
-    expect(reasons(r, 1)).toMatch(/8-week minimum/);
+    expect(reasons(r, 1)).toMatch(/8 weeks? required|8 required/);
   });
 
   it('8 weeks less 3 days is inside the grace (an extra dose, not invalid)', () => {
@@ -107,7 +107,7 @@ describe('C13: an unknown-brand MenACWY counts only from 2 months', () => {
   it('packet patient: brand unknown, 2026-04-15 (6 weeks 3 days) — does not count', () => {
     const r = run({ ...base, menacwyDoses: [{ date: '2026-04-15', brand: '' }] });
     expect(verdicts(r)).toEqual(['invalid']);
-    expect(reasons(r, 0)).toMatch(/2-month/);
+    expect(reasons(r, 0)).toMatch(/2 months for/);
     expect(reasons(r, 0)).not.toMatch(/\b2 days\b/);
   });
 
@@ -126,14 +126,14 @@ describe('fix-queue: a product\'s minimum age is printed in its own unit, not as
   it('Penbraya below 10 years says "10 years", not "120 days"', () => {
     const r = run({ dob: '2018-01-01', today: '2026-11-16', riskIds: [], menbDoses: [{ date: '2026-06-01', brand: 'Penbraya (MenABCWY)' }] });
     const text = r.history.MenB.perDose[0].reasons.join(' ');
-    expect(text).toMatch(/10-year/);
+    expect(text).toMatch(/10 years for/);
     // extinct: "120 days" was the bug's wording, gone from src/ with the fmtMinAge fix, 2026-11-16.
     expect(text).not.toMatch(/120 days/);
   });
 
   it('Menveo below 2 months says "2 months", not "2 days"', () => {
     const r = run({ dob: '2026-03-01', today: '2026-06-01', riskIds: ['asplenia'], menacwyDoses: [MV('2026-04-15')], riskAtDoseAnswers: { MenACWY: { 0: 'yes' } } });
-    expect(reasons(r, 0)).toMatch(/2-month/);
+    expect(reasons(r, 0)).toMatch(/2 months for/);
     expect(reasons(r, 0)).not.toMatch(/\b2 days\b/);
   });
 });

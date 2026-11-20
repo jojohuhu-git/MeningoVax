@@ -51,7 +51,7 @@ describe('Task 1 — Penbraya at 6 months → invalid, references 10 years / 120
     const results = validate('MenB', [{ date: monthsAgo(234), brand: 'Penbraya (MenABCWY)' }], 240);
     expect(results[0].status).toBe('invalid');
     // Must reference "10 years" (not "2 months" — the old hardcoded MenACWY fallback)
-    expect(results[0].reasons[0]).toMatch(/10-year/i);
+    expect(results[0].reasons[0]).toMatch(/10 years for/i);
     expect(results[0].detail).toMatch(/10 years \(120 months\)/i);
     // Must reference the brand name
     expect(results[0].reasons[0]).toMatch(/Penbraya/i);
@@ -60,7 +60,7 @@ describe('Task 1 — Penbraya at 6 months → invalid, references 10 years / 120
   it('6-month-old with Penmenvy (MenABCWY) → invalid, message says 10 years / 120 months', () => {
     const results = validate('MenB', [{ date: monthsAgo(234), brand: 'Penmenvy (MenABCWY)' }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/10-year/i);
+    expect(results[0].reasons[0]).toMatch(/10 years for/i);
     expect(results[0].detail).toMatch(/10 years \(120 months\)/i);
   });
 
@@ -77,7 +77,7 @@ describe('Task 1 — Penbraya at 6 months → invalid, references 10 years / 120
     expect(results[0].status).toBe('invalid');
     // Critically: must NOT say "2 months" as the minimum
     expect(results[0].reasons[0]).not.toMatch(/2 months/i);
-    expect(results[0].reasons[0]).toMatch(/10-year/i);
+    expect(results[0].reasons[0]).toMatch(/10 years for/i);
   });
 
   it('Unknown MenB brand at 6 months → still invalid (permissive fallback is 120 months for MenB)', () => {
@@ -85,7 +85,7 @@ describe('Task 1 — Penbraya at 6 months → invalid, references 10 years / 120
     // for MenB is 120 months, not 2 months.
     const results = validate('MenB', [{ date: monthsAgo(234) }], 240);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/10-year/i);
+    expect(results[0].reasons[0]).toMatch(/10 years for/i);
   });
 
   it('Unknown MenACWY brand at 6 months → valid (permissive fallback is 2 months, which 6mo satisfies)', () => {
@@ -112,7 +112,7 @@ describe('Task 2a — MenACWY high-risk booster given too soon → invalid', () 
     expect(results[0].status).toBe('valid');   // D1 valid
     expect(results[1].status).toBe('valid');   // D2 valid (≥8 weeks after D1)
     expect(results[2].status).toBe('invalid'); // D3 too soon (only 2y, needs 5y)
-    expect(results[2].reasons[0]).toMatch(/5-year minimum/i);
+    expect(results[2].reasons[0]).toMatch(/5 (years )?required/i);
   });
 
   it('High-risk adult: booster given 6 years after D2 → valid', () => {
@@ -143,7 +143,7 @@ describe('Task 2a — MenACWY high-risk booster given too soon → invalid', () 
       { date: d3, brand: 'Menveo (MenACWY)' },
     ], 120, ['asplenia'], { 0: 'yes', 1: 'yes', 2: 'yes' });
     expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons[0]).toMatch(/3-year minimum/i);
+    expect(results[2].reasons[0]).toMatch(/3 (years )?required/i);
   });
 });
 
@@ -166,7 +166,7 @@ describe('Task 2b — MenB high-risk booster given too soon → invalid', () => 
     expect(results[1].status).toBe('valid');
     expect(results[2].status).toBe('valid');
     expect(results[3].status).toBe('invalid');
-    expect(results[3].reasons[0]).toMatch(/1-year minimum/i);
+    expect(results[3].reasons[0]).toMatch(/1 year required/i);
   });
 
   it('First MenB booster given 14 months after D3 → valid', () => {
@@ -197,7 +197,7 @@ describe('Task 2b — MenB high-risk booster given too soon → invalid', () => 
       { date: d5, brand: 'Bexsero (MenB)' },
     ], 360, ['asplenia']);
     expect(results[4].status).toBe('invalid');
-    expect(results[4].reasons[0]).toMatch(/2-year minimum/i);
+    expect(results[4].reasons[0]).toMatch(/2 (years )?required/i);
   });
 
   it('Late/overdue MenB booster (3 years after D3) → valid (late is acceptable catch-up)', () => {
@@ -230,7 +230,7 @@ describe('Task 3 — Baseline ≥8wk minimum interval between any two MenACWY do
     ], 192, []); // 16-year-old, no risk factors
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/8-week minimum/i);
+    expect(results[1].reasons[0]).toMatch(/8 (weeks )?required/i);
   });
 
   it('Two MenACWY doses 3 days apart (obvious duplicate) → second invalid', () => {
@@ -238,7 +238,7 @@ describe('Task 3 — Baseline ≥8wk minimum interval between any two MenACWY do
     const d2 = daysAgo(7); // 3 days after D1
     const results = validate('MenACWY', [{ date: d1 }, { date: d2 }], 168, []);
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/8-week minimum between MenACWY doses/i);
+    expect(results[1].reasons[0]).toMatch(/^Minimum interval not met \(3 days, 8 weeks required\)/i);
   });
 
   it('Two MenACWY doses exactly 56 days apart → second valid (meets minimum)', () => {
@@ -259,7 +259,7 @@ describe('Task 3 — Baseline ≥8wk minimum interval between any two MenACWY do
     ], 360, ['asplenia']);
     // High-risk D2 still requires 8 weeks — the stricter rule wins.
     expect(results[1].status).toBe('invalid');
-    expect(results[1].reasons[0]).toMatch(/8-week minimum/i);
+    expect(results[1].reasons[0]).toMatch(/8 (weeks )?required/i);
   });
 
   it('Healthy adult: two doses 6 weeks apart → the second does not count (C11: 8 weeks)', () => {
@@ -298,8 +298,8 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
     expect(results[1].status).toBe('valid');     // D2: Bexsero, fine
     expect(results[2].status).toBe('invalid');  // D3: family mismatch
     expect(results[2].whys.join(' ')).toMatch(/not interchangeable/i);
-    expect(results[2].reasons[0]).toMatch(/4C/);
-    expect(results[2].reasons[0]).toMatch(/FHbp/);
+    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/)   // P54 (review v10);
+    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/)   // P54 (review v10);
   });
 
   it('[unknown] → Trumenba → Bexsero: Bexsero is invalid (Trumenba established the FHbp lock)', () => {
@@ -312,7 +312,7 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
       { date: d3, brand: 'Bexsero (MenB)' },
     ], 240);
     expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons[0]).toMatch(/FHbp/);
+    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/)   // P54 (review v10);
   });
 
   it('[known] → [unknown] → mismatch: known D1 sets lock, D3 mismatch is still caught', () => {
@@ -329,7 +329,7 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
     ], 240);
     expect(results[1].status).not.toBe('invalid'); // D2 unknown brand is fine
     expect(results[2].status).toBe('invalid');     // D3 mismatch caught
-    expect(results[2].reasons[0]).toMatch(/4C/);
+    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/)   // P54 (review v10);
   });
 
   it('All three doses unknown brand → no family-mismatch error (cannot infer family)', () => {
@@ -493,7 +493,7 @@ describe('Regression — existing valid behaviors unchanged', () => {
       { date: d2, brand: 'Bexsero (MenB)' },
     ], 240, []);
     expect(results[1].status).toBe('valid');
-    expect(results[1].reasons[0]).toMatch(/A third dose is needed/i);
+    expect(results[1].reasons[0]).toMatch(/Dose 3 is due/i);
   });
 
   it('MenB D1 Bexsero, D2 Trumenba → still invalid (family mismatch)', () => {
@@ -550,7 +550,7 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('valid');
     expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons[0]).toMatch(/3-year minimum/i);
+    expect(results[2].reasons[0]).toMatch(/3 (years )?required/i);
   });
 
   it('Case A-ok: primary <7y — first booster (D3) at 4 years after D2 → valid', () => {
@@ -587,7 +587,7 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     expect(results[1].status).toBe('valid');
     expect(results[2].status).toBe('valid'); // first booster: 4y ≥ 3y → valid
     expect(results[3].status).toBe('invalid'); // subsequent: 3y < 5y → invalid
-    expect(results[3].reasons[0]).toMatch(/5-year minimum/i);
+    expect(results[3].reasons[0]).toMatch(/5 (years )?required/i);
   });
 
   it('Case B: primary ≥7y — first booster (D3) at 3 years after D2 → invalid (needs 5y)', () => {
@@ -606,7 +606,7 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
       { date: d3, brand: 'Menveo (MenACWY)' },
     ], 240, ['asplenia'], { 0: 'yes' });
     expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons[0]).toMatch(/5-year minimum/i);
+    expect(results[2].reasons[0]).toMatch(/5 (years )?required/i);
   });
 
   it('Case B-subsequent: primary ≥7y — second booster (D4) at 3 years after D3 → invalid (needs 5y)', () => {
@@ -623,7 +623,7 @@ describe('MenACWY high-risk booster cadence — first vs subsequent regression',
     ], 360, ['asplenia']);
     expect(results[2].status).toBe('valid'); // first booster: 5y ≥ 5y → valid
     expect(results[3].status).toBe('invalid'); // subsequent: 3y < 5y → invalid
-    expect(results[3].reasons[0]).toMatch(/5-year minimum/i);
+    expect(results[3].reasons[0]).toMatch(/5 (years )?required/i);
   });
 });
 

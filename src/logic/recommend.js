@@ -2405,7 +2405,7 @@ const REPEAT_LATER_ACWY_ROUTINE = {
   dropRepeat: false,
 };
 const REPEAT_LATER_MENB_HEALTHY = {
-  line: `MenB is next offered at ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)}–${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years, by shared clinical decision-making.`,
+  line: `MenB is next offered at ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)}–${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years (shared clinical decision-making).`,   // P61 (review v10)
   dropRepeat: true,
 };
 // G1-a-F3 (owner, 2026-11-19): a too-soon booster's line has no repeat
@@ -2451,7 +2451,9 @@ function datedRepeatLines(history, cards, today) {
             : [...d.reasons, said],
         };
       }
-      const when = cardDate ? `Repeat from ${fmtDate(cardDate)}.` : later?.line;
+      // P54 (review v10): a dose of the other MenB product repeats with the first one.
+      const sameProduct = d.wrongFamily && MENB_PRODUCT_BY_FAMILY[d.establishedFamily];
+      const when = cardDate ? `Repeat ${sameProduct ? `with ${sameProduct} ` : ''}from ${fmtDate(cardDate)}.` : later?.line;
       if (!when) return d;
       return { ...d, reasons: withWhen(d.reasons, when) };
     }),

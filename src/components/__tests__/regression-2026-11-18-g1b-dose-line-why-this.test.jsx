@@ -51,7 +51,7 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
     const [line] = doseLines(c);
     // Shut (the app's default).
     // G1-a (owner, STOP G1, packet L3): the line's words.
-    expect(line.textContent).toContain('Given at about 9 years — below the 10-year minimum age for Bexsero.');
+    expect(line.textContent).toContain('Minimum age not met (10 years for Bexsero).')   // P61 (review v10);
     expect(line.textContent).not.toContain(MENB_LICENSED_FROM_10_WHY);
     expect(line.textContent).not.toContain('Age at administration');
     const number = line.querySelector('.note-cite').textContent;
