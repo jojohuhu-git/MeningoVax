@@ -206,7 +206,7 @@ export const MENACWY_BOOSTER_AGE_SPLIT_MONTHS = years(7);
 // Owner decision 2026-07-23 (Option 1): a MenB dose given to a patient with no
 // risk factor BEFORE this age is validly administered — it clears the 10-year
 // product floor — but does not COUNT toward the healthy series, because MenB
-// antibody wanes within about a year and an early dose is not protective at 16.
+// antibody wanes within 1–2 years and an early dose is not protective at 16.
 // This mirrors MenACWY's pre-age-10 exclusion above.
 
 /** The healthy MenB series starts at 16 years, and counts from there. */

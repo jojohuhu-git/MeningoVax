@@ -473,7 +473,7 @@ MenB vaccines (Bexsero, Trumenba, and the pentavalents Penmenvy/Penbraya) are
 Mirrors the MenACWY pre-age-10 rule above: a MenB dose given before 16 to a
 patient with **no current MenB risk factor** is validly given (it met the
 age-10 product floor) but does **not** count toward the healthy 2-dose
-series. Reason: MenB antibody protection wanes within about a year, so a dose
+series. Reason: MenB antibody protection wanes within 1–2 years, so a dose
 given at, say, 10 provides no protection by 16. (Shipped 2026-07-23, P0-1 —
 previously this silently under-counted and could tell a healthy 16-year-old
 with an old dose "you're done" when they weren't.)
