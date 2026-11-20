@@ -413,7 +413,10 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
   // prints as an approximate "~3 years". Comparing 1096 days rejected a booster
   // given on its exact three-year anniversary whenever no 29 February fell in
   // the window, and dated the next one a day early.
-  const firstBoosterYears = menacwyFirstBoosterYears(primaryCompletionAge);
+  // T2 (2026-11-19): a `firstBoosterYears` was computed here for every patient
+  // and never read, so the unknown-age fallback ran for patients mid-series
+  // whose booster nothing on screen depended on. Removed; boostYearsCount below
+  // is the one that is used.
   const boostYearsCount = menacwyBoosterYears({
     isFirstBooster, primaryCompletionAgeMonths: primaryCompletionAge,
   });

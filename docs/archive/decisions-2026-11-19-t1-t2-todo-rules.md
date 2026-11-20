@@ -38,4 +38,15 @@ so this fallback never changes a card. Keep it as a safety net, or remove it?
 the 3-year/5-year MenACWY booster schedule: asplenia, complement deficiency or inhibitor, HIV,
 and since C10 also travel and A/C/W/Y outbreak (microbiologists too, but always 10 or older).
 
-**Not yet decided.** The rulebook line stays "todo" until the owner picks.
+**Owner answer:** "Keep as safety net".
+
+**Built.** The rulebook line says no patient reaches it since C1 and is tagged `owner:T2`. The
+dose checker (`doseRules.js`, ACWY booster rows) now asks the same `menacwyFirstBoosterYears()`
+as the card, so the fallback lives in one place. A sweep test
+(`regression-2026-11-19-t2-unknown-completion-age-unreachable.test.js`, about 840 patients with
+undated and "details unknown" doses) shows no first booster is timed from an unknown age.
+
+Found while building it: `recommend.js` computed a first-booster figure for every patient and
+never used it, so the fallback did run for patients still mid-series, with no effect on any
+card. That unused line was removed. So "no card ever changes" held; "it never runs" was not
+quite true until now.

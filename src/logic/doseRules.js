@@ -115,9 +115,9 @@ import { ageAtDoseMonths } from './patientAge.js';
 // shared with recommend.js, so the engine cannot recommend a dose the validator
 // then rejects (or accept one the engine's own card called too soon).
 import {
-  menacwyInfantNextDoseGate, ageMeetsMinimum, ageMeetsMinimumDays, intervalMeetsMinimum,
+  menacwyInfantNextDoseGate, menacwyFirstBoosterYears, ageMeetsMinimum, ageMeetsMinimumDays, intervalMeetsMinimum,
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
-  MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_BOOSTER_CADENCE_YEARS,
+  MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2,
@@ -126,7 +126,7 @@ import {
 // P2-3 (2026-09-17): the age thresholds, from one module.
 import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
-  MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, MENACWY_BOOSTER_AGE_SPLIT_MONTHS,
+  MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENB_HEALTHY_MIN_AGE_MONTHS,
 } from './ages.js';
 import { fmtAgeMonths, fmtDate, stripAntigen } from './format.js';
@@ -200,7 +200,6 @@ const MENACWY_HR_ADULT_MIN_INTERVAL    = MENACWY_HIGHRISK_PRIMARY_GAP;
 // display only. P2-1 group 2: the year counts come from intervals.js, the
 // module the engine reads.
 const MENACWY_BOOSTER_5Y_YEARS         = MENACWY_BOOSTER_CADENCE_YEARS;
-const MENACWY_BOOSTER_3Y_YEARS         = MENACWY_FIRST_BOOSTER_YEARS_UNDER_7;
 // MenB high-risk: D2 ≥4 weeks after D1
 const MENB_HR_D2_MIN_INTERVAL          = MENB_HIGHRISK_D2_GAP;
 // MenB: 4 weeks after a dose that did not count, and healthy D2 (Ruling D, C12)
@@ -221,8 +220,6 @@ const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(MENB_HIGHRISK_BOOSTER_CADENC
 const MENB_RESCUE_D3_MIN_MONTHS_FROM_D2 = MENB_HEALTHY_RESCUE_MONTHS;
 const MENB_RESCUE_D3_MIN_FROM_D2       = DAYS.months(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2); // display only
 
-// Age band for the infant-booster cadence (7 years in months)
-const AGE_7Y_MONTHS = MENACWY_BOOSTER_AGE_SPLIT_MONTHS;
 // Routine MenACWY booster age floor (16 years in months)
 const AGE_16Y_MONTHS = MENACWY_ROUTINE_BOOSTER_AGE_MONTHS;
 // The age a routine MenACWY dose starts counting (10 years in months)
@@ -573,9 +570,11 @@ function acwyBoosterTooSoon(ctx, who) {
     const kd = keptDated(ctx);
     const lastPrimary = kd[primaryTotal - 1] || kd[kd.length - 1] || null;
     const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ctx.ageMonths, ctx.today, ctx.dob);
-    const threeYears = (lastPrimaryAge == null || lastPrimaryAge < AGE_7Y_MONTHS);
-    cadenceYears = threeYears ? MENACWY_BOOSTER_3Y_YEARS : MENACWY_BOOSTER_5Y_YEARS;
-    cadenceLabel = threeYears ? '3 years' : '5 years';
+    // T2 (owner, 2026-11-19, "Keep as safety net"): one function for the 3-vs-5
+    // answer, shared with recommend.js, so its unknown-age fallback ("before 7")
+    // lives in one place and one test can show no patient reaches it.
+    cadenceYears = menacwyFirstBoosterYears(lastPrimaryAge);
+    cadenceLabel = `${cadenceYears} years`;
   } else {
     cadenceYears = MENACWY_BOOSTER_5Y_YEARS;
     cadenceLabel = '5 years';
