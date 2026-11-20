@@ -333,6 +333,14 @@ export const MENACWY_ANY_TWO_DOSES_MIN_GAP = WEEKS(8);
  */
 export const MENACWY_COLLEGE_COVER_YEARS = 5;
 
+/**
+ * Months before the same combined shot (Penbraya, Penmenvy) may be given again
+ * (CDC notes for Penbraya; ACIP mm7501a2 for Penmenvy; owner 2026-11-15).
+ * Moved here from recommend.js unchanged (Rulebook screen, 2026-11-19) so the
+ * screen reads the same number the engine does.
+ */
+export const PENTAVALENT_REPEAT_MONTHS = 6;
+
 /** "4 months" / "6 months" — for interpolating a floor into card text. */
 export function monthsLabel(months) {
   return `${months} month${months === 1 ? '' : 's'}`;

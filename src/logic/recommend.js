@@ -94,7 +94,7 @@ import {
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine,
 } from './intervals.js';
-import { MENACWY_COLLEGE_COVER_YEARS, menacwyGraceLine } from './intervals.js';
+import { MENACWY_COLLEGE_COVER_YEARS, PENTAVALENT_REPEAT_MONTHS, menacwyGraceLine } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS } from './ages.js';
 
 // ── brand option builders ─────────────────────────────────────────────────
@@ -2580,7 +2580,6 @@ function recommendOneReading(input) {
   // counts (G1) — the injection is the same one whichever list it was typed on.
   // Each brand is checked against its own last dose; the MenB antigen-family
   // lock below already rules out switching from one pentavalent to the other.
-  const PENTAVALENT_REPEAT_MONTHS = 6;
   const pentavalentTooRecent = (name) => [...rawMenacwyDoses, ...rawMenbDoses]
     .filter((d) => d?.date && new RegExp(name, 'i').test(d.brand || ''))
     .some((d) => !calendarIntervalElapsed(d.date, PENTAVALENT_REPEAT_MONTHS, today));
