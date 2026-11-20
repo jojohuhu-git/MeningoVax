@@ -341,3 +341,11 @@ Answer column says "Built".
 | L5 | A repeat dose's due date appears only inside the dose history ("Repeat from Nov 19, 2026"); the card's dose label has no date. | Show the due date beside the card's dose label, as "Next dose due [date]" does on other cards. | Approved |
 | L6 | "Why this" often explains the branch that does not apply to this patient (for example, the 3-year rule for a series finished at 10 years). | Explain only this patient. The general rule lives in the Rulebook. | Approved |
 | L7 | "About risk history" is a tap under the disclaimer at the bottom, but it explains the "Needs input" question in the dose history. | Show it beside the "Needs input" question, only when that question appears. | Approved |
+
+## Later the same day: semicolons (owner, in chat)
+
+35 approved sentences (R1, R12, R16, R24, R27, R46, R57, R62, R65, R67, R74, R88, R93, R96, P1, P8,
+P25, P32, P42, P44, P45, P47, P48, P51, P53–P60, P64, P65, P68) contain a semicolon, which the
+owner's style rule 4 (STOP G1, 2026-11-18) forbids. Asked; answer: **"Keep rule 4"**. Each
+semicolon becomes a period or a comma, and the words otherwise stay as approved (for example P25
+"…otherwise 5, then every 5 years while at risk"; P53 "Repeat from [date]. Do not restart.").

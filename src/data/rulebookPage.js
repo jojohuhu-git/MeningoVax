@@ -131,7 +131,7 @@ const P = {
   hiv14: ex('14-year-old with HIV, no doses', { dob: '2012-06-01', riskIds: ['hiv'] }, { acwy: [/^Dose 1 of 2 \(high-risk primary series\)$/], menb: [/^Not routinely indicated$/] }),
   complement12: ex('12-year-old on eculizumab, no doses', { dob: '2014-06-01', riskIds: ['complement'] },
     { acwy: [/^Dose 1 of 2 \(high-risk primary series\)$/], menb: [/^Dose 1 of 3 \(high-risk series\)$/],
-      booster: [['MenACWY', /first booster 3 years after the primary series if it completed before age 7.*otherwise 5 years.*Then every 5 years/], ['MenB', /first in 1 year, then every 2–3 years/]] }),
+      booster: [['MenACWY', /3 years after the series if it ends before 7 years.*otherwise 5.*then every 5 years/], ['MenB', /1 year after the series, then every 2–3 years/]] }),
   fellBehind: ex('6-year-old with asplenia, one Menveo at 2 months', { dob: '2020-11-19', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2021-01-19'), riskAtDoseAnswers: { MenACWY: yes(1) } },
     { acwy: [/^Dose 2 of 3 \(infant high-risk, 3-dose shortcut\)$/], chip: ['MenACWY', 0, 'Dose 1 of 3'] }),
   aspDoneBefore7: ex('5-year-old with asplenia, primary series finished at 2', { dob: '2021-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2023-06-10', '2023-08-15'), riskAtDoseAnswers: { MenACWY: yes(2) } },
@@ -142,7 +142,7 @@ const P = {
 
   // MenACWY, other indications
   travel5: ex('5-year-old traveller, no doses', { dob: '2021-06-01', riskIds: ['travel'] },
-    { acwy: [/^1 dose \(ongoing-risk indication\)$/], booster: [['MenACWY', /every 5 years while travel risk continues/]] }),
+    { acwy: [/^1 dose \(ongoing-risk indication\)$/], booster: [['MenACWY', /every 5 years while travel continues/]] }),
   travel5had: ex('5-year-old traveller, one dose at 4', { dob: '2021-06-01', riskIds: ['travel'], menacwyDoses: doses(MV, '2025-06-01') },
     { acwy: [/^Booster \(dose 2, first booster, 3 years after the primary dose\)$/], due: ['MenACWY', '2028-06-01'] }),
   travel15: ex('15-year-old traveller, one dose at 14', { dob: '2011-06-01', riskIds: ['travel'], menacwyDoses: doses(MV, '2025-07-01') },
@@ -150,7 +150,7 @@ const P = {
   travelCollege18: ex('18-year-old traveller in a residence hall, no doses', { dob: '2008-06-01', riskIds: ['travel', 'college_dorm'] }, { acwy: [/^1 dose \(ongoing-risk indication\)$/] }),
   micro30: ex('30-year-old microbiologist, no doses', { dob: '1996-06-01', riskIds: ['microbiologist'] },
     { acwy: [/^1 dose \(ongoing-risk indication\)$/], menb: [/^Dose 1 of 3 \(high-risk series\)$/],
-      booster: [['MenACWY', /every 5 years while occupational exposure continues/], ['MenB', /first in 1 year, then every 2–3 years/]] }),
+      booster: [['MenACWY', /every 5 years while exposure continues/], ['MenB', /1 year after the series, then every 2–3 years/]] }),
   outbreakA20: ex('20-year-old in a serogroup C outbreak, no doses', { dob: '2006-06-01', riskIds: ['outbreak_acwy'] }, { acwy: [/^1 dose$/] }),
   outbreakA20had: ex('20-year-old in a serogroup C outbreak, one dose at 18', { dob: '2006-06-01', riskIds: ['outbreak_acwy'], menacwyDoses: doses(MV, '2024-07-01') },
     { acwy: [/^Booster \(dose 2\) if outbreak risk continues$/], due: ['MenACWY', '2029-07-01'] }),

@@ -27,7 +27,7 @@ export default function StepRisks({ riskIds, onChange }) {
     <div className="step-card">
       <div className="step-title">Risk Factors</div>
       <div className="step-sub">
-        Select all that apply; they set which doses and boosters are due.
+        Select all that apply. They set which doses and boosters are due.
       </div>
 
       <div className="risk-list" role="group" aria-label="Risk factors">

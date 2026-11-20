@@ -79,7 +79,7 @@ describe('Bug A - the 7-11-month starting card', () => {
   it('the card puts the first booster 3 years after the series', () => {
     // U2 (2026-09-17): stated on the booster line, which owns the cadence; the
     // note used to repeat it a few lines below.
-    expect(r().boosterSummary).toMatch(/first in 3 years/);
+    expect(r().boosterSummary).toMatch(/3 years after the series/);
     expect(noteText(r())).not.toMatch(/3 years/);
   });
 
@@ -133,11 +133,11 @@ describe('what must NOT change', () => {
     expect(noteText(c)).toMatch(/2, 4, 6 and 12 months/);
   });
 
-  it('the booster summary still says first in 3 years, then every 5', () => {
-    expect(acwy(9).boosterSummary).toMatch(/first in 3 years, then every 5 years/i);
+  it('the booster summary still says 3 years after the series, then every 5', () => {
+    expect(acwy(9).boosterSummary).toMatch(/3 years after the series, then every 5 years/i);
   });
 
   it('an outbreak infant gets the same booster countdown (B-2, owner 2026-11-15)', () => {
-    expect(acwy(9, ['outbreak_acwy']).boosterSummary).toMatch(/first in 3 years, then every 5 years/i);
+    expect(acwy(9, ['outbreak_acwy']).boosterSummary).toMatch(/3 years after the series, then every 5 years/i);
   });
 });

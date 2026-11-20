@@ -51,8 +51,8 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
   // booster countdown as travel and medical risk, and the card says so.
   it('the outbreak card shows the standing booster schedule (B-2)', () => {
     const { container } = show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
-    expect(container.textContent).toMatch(/future boosters needed/i);
+    expect(container.textContent).toMatch(/Boosters: 3 years after the series/);
+    expect(container.textContent).toMatch(/boosters to follow/i);
     // extinct: the "no standing booster schedule" sentence, retired by B-2 (2026-11-16).
     expect(container.textContent).not.toMatch(/no standing booster schedule/i);
   });
@@ -68,7 +68,7 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
 
   it('control: a travel infant DOES keep its standing booster schedule', () => {
     const { container } = show(acwyRec(4, ['travel'], []));
-    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
+    expect(container.textContent).toMatch(/Boosters: 3 years after the series/);
   });
 
   it('control: a 4-month-old with asplenia still sees the high-risk wording', () => {

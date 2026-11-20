@@ -4,7 +4,7 @@
 // docs/archive/decisions-2026-11-20-review-v10.md): the words on the entry
 // screen, and the two app sentences that said "tick".
 //
-//   P1  Risk factors sub-heading: "Select all that apply; they set which doses
+//   P1  Risk factors sub-heading: "Select all that apply. They set which doses
 //       and boosters are due." (was "…these drive vaccine class and booster
 //       schedule": jargon)
 //   P2  Dose date label: "Date" (was "Date (optional)": a dose with no date is
@@ -39,7 +39,8 @@ describe('Review v10 Batch 1: entry-screen wording, and no "tick"', () => {
   it('P1: the risk-factor sub-heading says what the boxes set, without jargon', () => {
     const { container } = render(<StepRisks riskIds={[]} onChange={() => {}} />);
     const sub = container.querySelector('.step-sub').textContent;
-    expect(sub).toBe('Select all that apply; they set which doses and boosters are due.');
+    // Rule 4 (no semicolons) kept, owner 2026-11-20: the approved ";" became a period.
+    expect(sub).toBe('Select all that apply. They set which doses and boosters are due.');
     // extinct: the v9-era sub-heading, retired by P1.
     expect(sub).not.toMatch(/drive vaccine class/);
   });

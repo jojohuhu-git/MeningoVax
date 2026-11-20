@@ -51,12 +51,12 @@ export function statusPillLabel(rec, pending) {
   // input", and two identical labels at two levels leaves the clinician asking
   // which input is meant. This one names the card's state; the chips name the
   // individual doses that are waiting.
-  if (pending) return 'Answers needed';
+  if (pending) return 'Answer needed below';
   const { status, dueToday, doseNum, seriesTotal, boosterDueDate, boosterSummary } = rec;
 
   if (status === 'deferred') return 'Deferred in pregnancy';
   if (status === 'not-indicated') return 'Not needed';
-  if (status === 'complete') return boosterDueDate ? 'Future booster needed' : 'Up to date';
+  if (status === 'complete') return boosterDueDate ? 'Booster due later' : 'Up to date';
   if (status === 'catchup') return 'Catch-up dose due today';
   // F-3 (owner, STOP G1, 2026-11-18): "Up to date" only when nothing is left.
   // A card not due today that still prints "Next dose due <date>"
@@ -75,16 +75,16 @@ export function statusPillLabel(rec, pending) {
   const isBooster = doseNum != null && pastPrimary != null && doseNum > pastPrimary;
   const comingIsBooster = isBooster;
   const datedNext = !dueToday && !!rec.earliestNextDate;
-  const comingLabel = comingIsBooster ? 'Future booster needed' : 'Next dose not yet due';
+  const comingLabel = comingIsBooster ? 'Booster due later' : 'Next dose not yet due';
   if (status === 'shared-decision') {
-    if (dueToday) return 'Optional today - shared decision';
+    if (dueToday) return 'Shared decision today';
     return datedNext ? comingLabel : 'Up to date';
   }
 
   // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
   // The routine "Booster (16y)" card (status 'due' since STOP B: never
   // "complete" while a booster is coming) keeps the pill it had.
-  if (!dueToday && boosterDueDate) return 'Future booster needed';
+  if (!dueToday && boosterDueDate) return 'Booster due later';
   // Gap badge (owner, 2026-11-18): not due yet, but its minimum has passed and a
   // dose given today counts (high-risk MenB dose 2, STOP F1 Q9a). Never "due" —
   // the date line beside it still says "Next dose due <date>".
@@ -92,7 +92,7 @@ export function statusPillLabel(rec, pending) {
   if (datedNext) return comingLabel;
   if (!dueToday) return 'Up to date';
   if (isBooster) return 'Booster due today';
-  return boosterSummary ? 'Dose due today, future boosters needed' : 'Dose due today';
+  return boosterSummary ? 'Due today, boosters to follow' : 'Dose due today';
 }
 
 // One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
@@ -561,7 +561,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                 With a date of birth this IS the patient's 16th birthday; with
                 years/months the app does not know their birthday and says so.
                 G1-a (style rule 8): "about", never "~". */}
-            Booster not yet due - {boosterDueDateExact ? '' : 'about '}{fmtDate(boosterDueDate)}
+            Booster due {boosterDueDateExact ? '' : 'about '}{fmtDate(boosterDueDate)}.
           </div>
         )}
 

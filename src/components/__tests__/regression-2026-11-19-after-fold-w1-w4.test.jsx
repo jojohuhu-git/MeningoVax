@@ -33,10 +33,10 @@ describe('W1: the routine 16-year booster card says "Booster due today"', () => 
     expect(screen.getByText('Booster due today')).toBeTruthy();
     expect(screen.queryByText('Dose due today')).toBeNull();
   });
-  it('control: an 11-year-old\'s first dose still says "Dose due today, future boosters needed"', () => {
+  it('control: an 11-year-old\'s first dose still says "Due today, boosters to follow"', () => {
     const c = recommend(healthy('2015-11-19')).menacwy[0];
     expect(c.doseLabel).toBe('Dose 1 (routine, 11–12y)');
-    expect(statusPillLabel(c, false)).toBe('Dose due today, future boosters needed');
+    expect(statusPillLabel(c, false)).toBe('Due today, boosters to follow');
   });
 });
 

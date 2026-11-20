@@ -25,7 +25,7 @@ describe('F2a (screen): combined shot in the gap', () => {
     const c = show('2026-12-01');
     expect(c.querySelector('[data-testid="option-separate-label"]')).toBeTruthy();
     expect(c.textContent).toContain('One pentavalent (MenABCWY) dose may replace both.');
-    expect(c.textContent).toContain('Due today: MenACWY. MenB dose 2 can also be given today (its minimum interval has passed), as two separate shots or one combined pentavalent shot.');
+    expect(c.textContent).toContain('Due today: MenACWY. MenB dose 2 can also be given today (its minimum interval has passed), as two injections or one MenABCWY injection.');
     expect(c.textContent).not.toContain('Due today: MenACWY and MenB');
   });
 
@@ -37,6 +37,6 @@ describe('F2a (screen): combined shot in the gap', () => {
 
   it('Dec 3: both due, unchanged', () => {
     const c = show('2026-12-03');
-    expect(c.textContent).toContain('Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.');
+    expect(c.textContent).toContain('Due today: MenACWY and MenB, as two injections or one MenABCWY injection.');
   });
 });

@@ -22,8 +22,8 @@ const baseRec = {
 // terse STATUS_LABELS map that needed a legend (removed in C1) to decode.
 describe('RecCard status pill (C3 self-describing vocabulary)', () => {
   it('primary dose due today with future boosters', () => {
-    render(<RecCard rec={{ ...baseRec, status: 'due', dueToday: true, doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)' }} />);
-    expect(screen.getByText('Dose due today, future boosters needed')).toBeTruthy();
+    render(<RecCard rec={{ ...baseRec, status: 'due', dueToday: true, doseNum: 1, seriesTotal: 2, boosterSummary: 'Boosters: every 5 years while at risk' }} />);
+    expect(screen.getByText('Due today, boosters to follow')).toBeTruthy();
   });
 
   it('primary dose due today with no boosters', () => {
@@ -41,9 +41,9 @@ describe('RecCard status pill (C3 self-describing vocabulary)', () => {
     expect(screen.getByText('Booster due today')).toBeTruthy();
   });
 
-  it('complete with a booster due later reads "Future booster needed"', () => {
+  it('complete with a booster due later reads "Booster due later"', () => {
     render(<RecCard rec={{ ...baseRec, status: 'complete', dueToday: false, boosterDueDate: '2028-08-01' }} />);
-    expect(screen.getByText('Future booster needed')).toBeTruthy();
+    expect(screen.getByText('Booster due later')).toBeTruthy();
   });
 
   it('complete with nothing further reads "Up to date"', () => {
@@ -61,9 +61,9 @@ describe('RecCard status pill (C3 self-describing vocabulary)', () => {
     expect(screen.getByText('Deferred in pregnancy')).toBeTruthy();
   });
 
-  it('shared-decision due today reads "Optional today - shared decision"', () => {
+  it('shared-decision due today reads "Shared decision today"', () => {
     render(<RecCard rec={{ ...baseRec, vaccine: 'MenB', status: 'shared-decision', dueToday: true, doseNum: 1, seriesTotal: 2 }} />);
-    expect(screen.getByText('Optional today - shared decision')).toBeTruthy();
+    expect(screen.getByText('Shared decision today')).toBeTruthy();
   });
 });
 
@@ -248,11 +248,11 @@ describe('RecCard "Boosters:" summary line (C4)', () => {
   it('renders the boosterSummary line when the rec carries one', () => {
     render(
       <RecCard
-        rec={{ ...baseRec, boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)' }}
+        rec={{ ...baseRec, boosterSummary: 'Boosters: every 5 years while at risk' }}
       />
     );
     const line = screen.getByTestId('booster-summary-line');
-    expect(line.textContent).toBe('Boosters: every 5 years while at high risk (ongoing)');
+    expect(line.textContent).toBe('Boosters: every 5 years while at risk');
   });
 
   it('renders nothing when the rec has no boosterSummary', () => {

@@ -38,7 +38,7 @@ const dueRec = {
   doseNum: 1,
   seriesTotal: 3,
   brands: ['Bexsero (MenB)'],
-  boosterSummary: 'Boosters: every 5 years while at high risk (ongoing)',
+  boosterSummary: 'Boosters: every 5 years while at risk',
 };
 
 describe('U5 (UI): a card body follows `collapsible`, never stale expand state', () => {

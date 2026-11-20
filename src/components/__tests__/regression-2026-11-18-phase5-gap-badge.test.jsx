@@ -53,7 +53,7 @@ describe('gap badge: high-risk MenB dose 2 between its 4-week minimum and its 1-
     expect(menbBadge('2026-11-16').badge).toBe('Next dose not yet due');
   });
 
-  it('control, Nov 20 (due): "Dose due today, future boosters needed", unchanged', () => {
-    expect(menbBadge('2026-11-20').badge).toBe('Dose due today, future boosters needed');
+  it('control, Nov 20 (due): "Due today, boosters to follow", unchanged', () => {
+    expect(menbBadge('2026-11-20').badge).toBe('Due today, boosters to follow');
   });
 });
