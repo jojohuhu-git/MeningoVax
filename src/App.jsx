@@ -4,6 +4,7 @@ import StepAge from './components/StepAge.jsx';
 import StepRisks from './components/StepRisks.jsx';
 import StepHistory from './components/StepHistory.jsx';
 import Results from './components/Results.jsx';
+import Rulebook from './components/Rulebook.jsx';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from './data/brands.js';
 import { hasExclusion } from './data/riskFactors.js';
 import { creditPentavalents } from './logic/pentavalentCredit.js';
@@ -11,6 +12,10 @@ import { todayISO } from './logic/dateUtils.js';
 import { dropBlankDoseRows } from './logic/doseIdentity.js';
 
 const STEPS = ['Age', 'Risks', 'MenACWY', 'MenB', 'Results'];
+
+/** `?rules` opens straight on the Rulebook, for a saved link (as PneumoVax). */
+const RULES_VIEW = typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).has('rules');
 
 const MENACWY_HISTORY_BRANDS = [
   ...MENACWY_BRANDS,
@@ -56,6 +61,17 @@ export default function App() {
   const today = todayISO();
   const mainRef = useRef(null);
 
+  // The Rulebook (port Phase 7.2; owner Q11, 2026-11-19: "Yes, like
+  // PneumoVax"). A "Patient | Rulebook" switch in the header, as PneumoVax's
+  // and PediVax's. The patient part stays mounted but hidden, so a
+  // half-entered patient is still there on the way back.
+  const [view, setView] = useState(RULES_VIEW ? 'rulebook' : 'patient');
+  const rulebookOpen = view === 'rulebook';
+  function showView(next) {
+    setView(next);
+    if (typeof window !== 'undefined') window.scrollTo?.(0, 0);
+  }
+
   // K4 (2026-09-26): after Next/Back, nothing was focused, so a keyboard user
   // had to press Tab once before they could type -- that one stray keystroke
   // is what makes people reach for the mouse. Owner decision: always focus
@@ -65,6 +81,7 @@ export default function App() {
   // change -- not pre-empting it here.
   useEffect(() => {
     if (state.step >= 4) return; // Results is read, not filled in -- don't steal focus.
+    if (rulebookOpen) return;     // nor is the Rulebook.
     const main = mainRef.current;
     if (!main) return;
     const target =
@@ -72,7 +89,7 @@ export default function App() {
       state.step === 1 ? main.querySelector('input[type="checkbox"]') :
       main.querySelector('.history-toggle-btn'); // steps 2/3: "No previous doses"
     target?.focus();
-  }, [state.step]);
+  }, [state.step, rulebookOpen]);
 
   function update(patch) {
     setState(prev => ({ ...prev, ...patch }));
@@ -151,10 +168,25 @@ export default function App() {
               <div className="app-logo-sub">Meningococcal Vaccine Advisor</div>
             </div>
           </div>
-          <Stepper steps={STEPS} current={state.step} />
+          {!rulebookOpen && <Stepper steps={STEPS} current={state.step} />}
+          <nav className="viewnav" aria-label="View">
+            <button type="button" className={rulebookOpen ? '' : 'active'} aria-pressed={!rulebookOpen} onClick={() => showView('patient')}>
+              Patient
+            </button>
+            <button type="button" className={rulebookOpen ? 'active' : ''} aria-pressed={rulebookOpen} onClick={() => showView('rulebook')}>
+              Rulebook
+            </button>
+          </nav>
         </div>
       </header>
 
+      {rulebookOpen && (
+        <main className="app-main-rulebook">
+          <Rulebook />
+        </main>
+      )}
+
+      <div className="app-patient" hidden={rulebookOpen}>
       {state.step < 4 ? (
         // K2 (2026-09-25): a real <form> is what makes Enter work like the
         // rest of the web, with no JavaScript key-listening at all. Pressing
@@ -233,6 +265,7 @@ export default function App() {
             onBack={goBack} today={today} />
         </main>
       )}
+      </div>
     </div>
   );
 }

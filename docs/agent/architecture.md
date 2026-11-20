@@ -34,6 +34,9 @@ src/
                          brand options; source buttons inside "Why this", Q10).
     Disclaimer.jsx       Clinical disclaimer footer; risk-history half behind
                          "About risk history" (Q10).
+    Rulebook.jsx         The Rulebook view (Phase 7.2, Q11), switched from the header
+                         ("Patient | Rulebook", `?rules`). Renders rulebookPage.js;
+                         decides nothing.
   logic/
     recommend.js         THE engine. recommend(input) → { menacwy[], menb[], pentavalent, meta }.
                          recommend() = foldResult(recommendBeforeFold(input)).
@@ -52,6 +55,10 @@ src/
                          menbBrandsInFamily(). Menveo split: 2-vial (≥2m) and 1-vial (≥10y).
     riskFactors.js       RISK_FACTORS catalog + menacwyRiskClass/hasMenbRisk/shouldDeferMenB.
     refs.js              REFS citation map + resolveRefs().
+    rulebookPage.js      What the Rulebook screen says, for clinicians, in the app's
+                         decision order. Every number from an engine constant; every
+                         claim paired with a worked patient that a guard runs through
+                         recommend(); Source = the sentences the card itself cites.
     rulebook.js          Writes the rulebook's rule table (meningococcal-rules-summary.md §5) from DOSE_RULES + CITATIONS, and the quote/link/date under every card rule in §§1–3 from its SOURCES tag (OWNER_ANSWERS names where each owner answer is recorded); `npm run rulebook`. Not imported by the app.
   components/__tests__/App.test.jsx   Wizard render/flow tests.
 ```

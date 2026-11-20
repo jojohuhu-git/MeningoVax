@@ -21,11 +21,11 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 179 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| Test files, total | 180 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
 | — in `src/logic/__tests__/` (engine, `node` env) | 121 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
-| — in `src/components/__tests__/` (screen) | 54 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 55 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
-| — of the components ones, opted into `happy-dom` | 53 (the 54th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 54 (the 55th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
 
 **Not guarded by a test** — re-run the command if you need a current number,
 rather than trusting this document:
@@ -79,6 +79,7 @@ for finding the right one:
 | [`citation-freshness.test.js`](../../src/data/__tests__/citation-freshness.test.js) | A source's `lastVerified` date in `refs.js` going stale (>12 months old by default) with nothing noticing. |
 | [`citation-integrity.test.js`](../../src/data/__tests__/citation-integrity.test.js) | A citation that's broken, orphaned, or attached to a recommendation it doesn't actually support. |
 | [`rulebook-table-matches-code.test.js`](../../src/logic/__tests__/rulebook-table-matches-code.test.js) | The rulebook's rule table (`meningococcal-rules-summary.md` §5, written by `npm run rulebook` from `src/data/rulebook.js`) differing from `DOSE_RULES` in any cell, any rule, or the order; the numbered app decisions and the quoted sentences differing from the code. Also every rule in §§1–3 (the card rules): no SOURCES tag under it, a source with no quote or read date, an owner answer whose file is gone, a quote that differs from `refs.js`, or more than 20 rules still marked "todo". Port Phase 7.1, 2026-11-19. |
+| [`regression-2026-11-19-rulebook-screen-matches-the-engine.test.jsx`](../../src/components/__tests__/regression-2026-11-19-rulebook-screen-matches-the-engine.test.jsx) | The in-app Rulebook screen (`src/data/rulebookPage.js`, `src/components/Rulebook.jsx`) saying something the app does not do: every worked patient (more than 50) is run through `recommend()` and must get the card, status, due date, combined-shot answer and dose label the page states; a row with no worked patient; a label in the key that is not its patient's real chip; a number typed into the page text or the component instead of read from the engine's constants; a risk condition or product the app offers missing from the page; the header switch losing the patient. PneumoVax's C14 guard, brought here. Port Phase 7.2 (Q11), 2026-11-19. |
 | [`rule-docs-match-code.test.js`](../../src/logic/__tests__/rule-docs-match-code.test.js) | `clinical-rules.md` / `meningococcal-rules-summary.md` describing a rule the code no longer implements — reads the real value out of the code and requires the doc to state it. |
 | [`regression-p2-1-intervals-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-1-intervals-in-one-place.test.js) | An interval (dose spacing) value hand-typed a second time somewhere instead of imported from `intervals.js`. |
 | [`regression-p2-3-ages-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-3-ages-in-one-place.test.js) | Same, for age thresholds — imported from the age-threshold source instead of retyped. |

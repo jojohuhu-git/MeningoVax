@@ -15,7 +15,7 @@ folder — they go where the table at the bottom says.**
 | Folder / file | What it is |
 |---|---|
 | `src/` | The app's working parts. This is where the actual program lives. |
-| `src/components/` | The screens, cards, and buttons you see on screen. |
+| `src/components/` | The screens, cards, and buttons you see on screen, including the Rulebook (the header's "Patient \| Rulebook" switch). |
 | `src/logic/` | The "brain" — `recommend.js` decides what's due; `validate.js` checks recorded doses, using the rule table in `doseRules.js` (one row per rule). `noteFold.js` decides which card sentences show before a click and which wait behind "Why this". |
 | `src/data/` | The facts the brain uses: brands, risk factors, schedules. |
 | `src/test-grid.js` | A list of made-up patients (every age, risk tick and vaccination history worth testing). Used only by the tests, never shipped. |
