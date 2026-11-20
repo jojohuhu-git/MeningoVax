@@ -232,6 +232,7 @@ export const OWNER_ANSWERS = {
   W1: { date: '2026-11-19', where: FOLD },
   W3: { date: '2026-11-19', where: FOLD },
   T1: { date: '2026-11-19', where: TODO_Q },
+  T2: { date: '2026-11-19', where: TODO_Q },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */
