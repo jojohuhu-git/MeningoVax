@@ -116,8 +116,9 @@ describe('too few doses · a dose 2 a day short of seven months', () => {
 
 describe('what must NOT change', () => {
   it('a years/months patient is answered exactly as before', () => {
+    // T1 (owner, 2026-11-19): a child already 7 months or older with one dose gets dose 2 at 7 months or older, so three doses in all (CDSI 4.65). Was 4.
     const c = card({ today: '2026-09-15', ageMonths: 25, dates: ['2025-02-28'] });
-    expect(c.seriesTotal).toBe(4);
+    expect(c.seriesTotal).toBe(3);
     expect(c.doseLabel).toMatch(/Dose 2/);
   });
 

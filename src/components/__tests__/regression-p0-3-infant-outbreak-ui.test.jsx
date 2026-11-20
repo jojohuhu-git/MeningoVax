@@ -62,8 +62,9 @@ describe('P0-3 (UI): the infant outbreak series reads as four doses of four', ()
   });
 
   it('a child with only the 2-month dose is asked for dose 2, not told they are done', () => {
+    // T1 (owner, 2026-11-19): a child already 7 months or older with one dose gets dose 2 at 7 months or older, so three doses in all (CDSI 4.65). Was 4.
     const { rec, rendered } = chips(36, ['2023-11-15']);
-    expect(rendered).toEqual(['Dose 1 of 4']);
+    expect(rendered).toEqual(['Dose 1 of 3']);
     expect(rec.status).not.toBe('complete');
   });
 });

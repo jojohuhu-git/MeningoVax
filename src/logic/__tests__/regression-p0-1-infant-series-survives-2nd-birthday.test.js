@@ -68,9 +68,10 @@ describe('P0-1: an infant series stays an infant series after the 2nd birthday',
     expect(r.doseLabel).not.toMatch(/booster/i);
   });
 
-  it('one dose at 2 months still owes doses 2-4 of a 4-dose series at age 3', () => {
+  // Still the INFANT series (not the 2-dose ≥2y one). T1 (owner, 2026-11-19): a child already 7 months or older with one dose gets dose 2 at 7 months or older, so three doses in all (CDSI 4.65). Was 4.
+  it('one dose at 2 months still owes doses 2-3 of the infant series at age 3', () => {
     const r = run(36, [{ date: '2023-08-03' }]);
-    expect(r.seriesTotal).toBe(4);
+    expect(r.seriesTotal).toBe(3);
     expect(r.doseNum).toBe(2);
   });
 

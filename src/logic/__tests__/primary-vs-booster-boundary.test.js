@@ -79,10 +79,12 @@ describe('MenACWY — where the primary series ends', () => {
   it('infant start at 2 months: all FOUR doses are primary, not 3 + a booster', () => {
     // The 12-month dose closing a 2/4/6/12-month schedule is a primary dose —
     // CDC calls the whole thing "A 2-4-dose primary series".
+    // Dose 2 on time at 4 months; T1 (2026-11-19) makes a child with one dose
+    // who is already 7 months or older a 3-dose series instead.
     const info = menacwySeriesInfo({
       riskClass: 'primary2',
       am: 13,
-      doses: [{ date: '2025-11-15' }], // dose 1 at ~2 months
+      doses: [{ date: '2025-11-15' }, { date: '2026-01-15' }], // ~3 and ~5 months, both under 7
       today: TODAY,
     });
     expect(info.total).toBe(4);

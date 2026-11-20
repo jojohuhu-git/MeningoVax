@@ -69,7 +69,7 @@ const EMPTY_HISTORY = Object.freeze({
   MenB: { perDose: [], effective: [], sortedDoses: [] },
 });
 import {
-  menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut,
+  menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut, menacwyInfantD2AgeForSeries,
   menbHealthyDose2Early, MENB_HIGHRISK_RESCUE_TOTAL,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
@@ -1181,7 +1181,11 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // (3 doses total, no 4th dose needed). Otherwise the standard 4-dose path applies.
   // When D1/D2 ages are unknown, fall back conservatively to the standard 4-dose series.
   const d1AgeM = given >= 1 ? ageAtDose(doses[0], am, today, dob) : null;
-  const d2AgeM = given >= 2 ? ageAtDose(doses[1], am, today, dob) : null;
+  // T1 (owner, 2026-11-19): while dose 2 is still owed, today's age stands in
+  // for it, so a child already 7 months or older is on the shortcut now.
+  const d2AgeM = menacwyInfantD2AgeForSeries({
+    given, d2AgeM: given >= 2 ? ageAtDose(doses[1], am, today, dob) : null, ageNowM: am,
+  });
   // P1-3 (2026-09-15): was `d1AgeM >= 2`. CDC gives a dose 1 at 2 months a flat
   // 4-dose series and reserves the "3- or 4- dose series" wording for 3-6
   // months, so a baby who started on time at 2 months was being offered a
@@ -1200,6 +1204,30 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   const d1WasInfant7to11 = d1AgeM != null
     && d1AgeM >= MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS
     && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
+
+  // T1 (owner, 2026-11-19): one dose on record and the child already 7 months
+  // or older. Dose 2 is given now, at 7 months or older, so one final dose
+  // follows (CDSI 4.65 skips doses 2 and 3 of its infant series once the child
+  // is 7 months old). This used to read "Dose 2 (infant high-risk series)" with
+  // "doses at 2, 4, 6 and 12 months", even to a 6-year-old.
+  if (on3DosePath && given === 1) {
+    const gate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
+    const elapsed = intervalElapsed(lastDate, gate.minIntervalDays, today);
+    return rec({ vaccine: 'MenACWY', status: 'risk-based',
+      doseLabel: `Dose 2 of 3 (${why}, 3-dose shortcut)`,
+      doseNum: 2, seriesTotal: 3, boosterSummary: boosterSummaryText,
+      dueToday: elapsed,
+      earliestNextDate: elapsed ? null : earliestGatedDate(lastDate, gate, today, am),
+      minIntervalDays: gate.minIntervalDays,
+      brands: MENACWY_INFANT_SERIES_BRANDS,
+      note: {
+        lead: `Dose 2 is due at least ${weeksLabel(gate.minIntervalDays)} after dose 1 [c].`,
+        detail: `Given at 7 months or older, it leaves one final dose, at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} later and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age. No fourth dose is needed.`,
+      },
+      noteCites: [cite('cdcChildAcwyInfantSeries')],
+      boosterCites: infantBoosterCites,
+      refs });
+  }
 
   // D6: if on the 3-dose shortcut path and 2 doses given, next is the completing dose (D3).
   if (on3DosePath && given === 2) {
@@ -1241,15 +1269,19 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   const infantSeriesTotal = menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM });
   const seriesComplete = given >= infantSeriesTotal;
   if (seriesComplete) {
-    // Cadence: first booster (effectiveIdx 2) — D2 age <7y → 3y; subsequent → 5y.
-    // Since these are infants, D2 age is always <7y → first booster is 3y, then 5y thereafter.
+    // Cadence: the first booster keys off the age at the LAST primary dose
+    // (CLAUDE.md, "Booster Cadence"; the validator's ACWY-HIGHRISK-BOOSTER-GAP
+    // row does the same): under 7 → 3 years, 7 or older → 5; later boosters 5.
+    // T1 (2026-11-19): this read dose 2's age, which was harmless while every
+    // infant series finished before 7. A child who fell behind can now finish
+    // at 7 or older, and ACIP gives them the 5-year first booster.
     const isFirstInfantBooster = given === infantSeriesTotal;
-    // An infant series always completes before age 7, so the first-booster
-    // branch is the under-7 one by construction; pass the age anyway rather
-    // than assert it, so this reads the same as every other booster site.
+    const infantCompletionAgeM = ageAtDose(doses[infantSeriesTotal - 1], am, today, dob);
     const infantBoostYears = menacwyBoosterYears({
-      isFirstBooster: isFirstInfantBooster, primaryCompletionAgeMonths: d2AgeM,
+      isFirstBooster: isFirstInfantBooster, primaryCompletionAgeMonths: infantCompletionAgeM,
     });
+    const infantFirstBoost3 = menacwyFirstBoosterYears(infantCompletionAgeM) === 3;
+    const infantBoosterCite = infantFirstBoost3 ? cite('boosterBeforeAge7') : cite('boosterAtOrAfterAge7');
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',
@@ -1267,12 +1299,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       note: isFirstInfantBooster
         ? {
           lead: `${whyTitle} primary series complete. The first booster is due ${yearsLabel(infantBoostYears)} after it [c].`,
-          detail: 'ACIP puts the first booster 3 years out when the primary series finished before the 7th birthday, rather than the 5 years it allows from age 7.',
+          detail: infantFirstBoost3
+            ? 'ACIP puts the first booster 3 years out when the primary series finished before the 7th birthday, rather than the 5 years it allows from age 7.'
+            : 'ACIP puts the first booster 5 years out when the primary series finished at age 7 or older. A series finished before then brings the first booster forward to 3 years.',
         }
         : null,
-      noteCites: isFirstInfantBooster ? [cite('boosterBeforeAge7')] : [],
+      noteCites: isFirstInfantBooster ? [infantBoosterCite] : [],
       // U2: see the ≥2y booster card -- a later booster's note is now null.
-      boosterCites: [cite('boosterBeforeAge7')],
+      boosterCites: [infantBoosterCite],
       refs });
   }
 

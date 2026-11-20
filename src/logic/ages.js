@@ -107,11 +107,13 @@ export const MENACWY_SCHEDULE_MIN_AGE_MONTHS = 2;
 export const MENACWY_INFANT_SERIES_MAX_AGE_MONTHS = years(2);
 
 /**
- * The floor of CDC's "dose 1 at age 3-6 months" band — the start that can
- * finish in three doses instead of four, if a dose lands at 7 months or later.
+ * The floor of CDC's "dose 1 at age 3-6 months" band. Below it the routine
+ * ages of the 2-month row apply ("Dose 1 at age 2 months: 4-dose series
+ * (additional 3 doses at age 4, 6, and 12 months)").
  *
- * Below this age the row above governs and is unconditional: "Dose 1 at age 2
- * months: 4-dose series (additional 3 doses at age 4, 6, and 12 months)".
+ * Since T1 (owner, 2026-11-19) this line no longer decides the 3-dose
+ * shortcut: a 2-month start whose dose 2 came at 7 months or later takes it
+ * too (menacwyOn3DoseShortcut in seriesTotals.js).
  */
 export const MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS = 3;
 

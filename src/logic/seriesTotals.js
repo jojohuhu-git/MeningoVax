@@ -41,7 +41,6 @@ import {
 // `AGE_16Y_MONTHS = 192` and hand-typed the second birthday in four places.
 import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS,
-  MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
 } from './ages.js';
 
@@ -72,9 +71,21 @@ export const MENACWY_ROUTINE_PRIMARY_TOTAL = 1;
  * Is this patient on CDC's "3- or 4- dose" shortcut — the one that finishes the
  * series in three doses rather than four?
  *
- * It has to be earned, not assumed: dose 1 must fall inside the 3-6-month band
- * AND a dose must actually have been given at 7 months or older. An unknown age
+ * It has to be earned, not assumed: dose 1 must have been given before 7 months
+ * AND dose 2 must actually have been given at 7 months or older. An unknown age
  * answers no, which is the conservative direction — a fourth dose is offered.
+ *
+ * T1 (owner, 2026-11-19, "All of them"): this includes a dose 1 at 2 months
+ * (or a MenQuadfi dose 1 from 6 weeks). Until then the shortcut began at 3
+ * months, because CDC's note reads "Dose 1 at age 2 months: 4-dose series"
+ * (owner, 2026-09-15). That note does not say what happens to a baby who falls
+ * behind; CDC's scheduling rules do. CDSI 4.65, series "Meningococcal ACWY risk
+ * 2-23 month", one checklist for every infant start: doses 2 and 3 are "not
+ * required if patient is currently 7 months of age or older", and dose 4 is
+ * "not required if more than 2 doses have been administered between 2 and 7
+ * months OR at least 1 dose on or after 7 months". So a 2-month start with
+ * dose 2 at 7 months or older needs three doses in all. A baby vaccinated on
+ * time (2, 4, 6 months) still needs four: their dose 2 is under 7 months.
  *
  * B1 (2026-09-17): this question used to be written out twice, here and in
  * recommend.js, both times as `d1AgeM >= 3 && d1AgeM <= 6`. Both copies put the
@@ -91,11 +102,30 @@ export const MENACWY_ROUTINE_PRIMARY_TOTAL = 1;
  */
 export function menacwyOn3DoseShortcut({ d1AgeM, d2AgeM }) {
   const d1WasEarly = d1AgeM != null
-    && d1AgeM >= MENACWY_INFANT_EARLY_START_MIN_AGE_MONTHS
     && d1AgeM < MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS;
   const d2WasLateEnough = d2AgeM != null
     && d2AgeM >= MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS;
   return d1WasEarly && d2WasLateEnough;
+}
+
+/**
+ * The dose-2 age that decides the infant series length (T1, owner 2026-11-19).
+ *
+ * Once dose 2 is given, its own age. While it is still owed (one dose on
+ * record), today's age: dose 2 cannot now be given any younger, so a child who
+ * is already 7 months or older will get it at 7 months or older and is on the
+ * 3-dose shortcut. CDSI 4.65 says the same thing from the other side: doses 2
+ * and 3 of its "risk 2-23 month" series are "not required if patient is
+ * currently 7 months of age or older". Without this, a 6-year-old with one
+ * dose at 2 months was shown "Dose 1 of 4" while CDSI owes them 2 more doses.
+ *
+ * @param {{given: number, d2AgeM: ?number, ageNowM: ?number}} p
+ * @returns {?number}
+ */
+export function menacwyInfantD2AgeForSeries({ given, d2AgeM, ageNowM }) {
+  if (given >= 2) return d2AgeM;
+  if (given === 1) return ageNowM ?? null;
+  return null;
 }
 
 // MenACWY infant/early-childhood high-risk primary total — mirrors
@@ -147,8 +177,9 @@ export function menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM = null }) {
   //    and 12 months)"
   // recommend.js used to open the shortcut at d1AgeM >= 2, so a baby who
   // started on time at 2 months was offered a three-dose series CDC does not
-  // describe. Owner decision 2026-09-15: follow CDC. vaxapp has the same
-  // 2-month behaviour and is to be brought into line in its own PR.
+  // describe. Owner decision 2026-09-15: follow CDC. Partly reversed by T1
+  // (owner, 2026-11-19): a 2-month start whose dose 2 came at 7 months or
+  // older now finishes in three, as CDSI has it (see menacwyOn3DoseShortcut).
   //
   // An unknown dose-2 age falls back to 4, the conservative answer: the
   // shortcut has to be earned by a dose actually given at >=7 months.
@@ -183,7 +214,11 @@ export function menacwySeriesInfo({ riskClass, am, doses, today, dob = null, inf
   // module exists to make impossible. A series BEGUN under 2 years old keeps its
   // infant length for life (CDC: "Dose 1 at age 2 months: 4-dose series").
   const d1AgeM = doses[0] ? ageAtDose(doses[0], am, today, dob) : null;
-  const d2AgeM = doses[1] ? ageAtDose(doses[1], am, today, dob) : null;
+  const d2AgeM = menacwyInfantD2AgeForSeries({
+    given: doses.length,
+    d2AgeM: doses[1] ? ageAtDose(doses[1], am, today, dob) : null,
+    ageNowM: am,
+  });
   const startedAsInfant = d1AgeM != null && d1AgeM < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS;
   if ((am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS || startedAsInfant) && (riskClass === 'primary2' || infantSeries)) {
     // P1-3: d2AgeM decides the 3-vs-4-dose answer for a 3-6-month start.

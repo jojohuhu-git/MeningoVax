@@ -292,7 +292,11 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
 Series length is keyed to the age at **D1** and is fixed for life (P0-1) — a patient who
 started under 2y stays on the infant pathway however old they are now. Totals come from
 `seriesTotals.js` → `menacwyInfantHighRiskTotal()`; never hand-type them.
-- D1 at 2m: 4-dose primary (2/4/6/12m). Unconditional — no shortcut (P1-3).
+- D1 at 2m: 4-dose primary (2/4/6/12m) when D2 comes before 7m. If D2 landed at ≥7m, the
+  "3-dose shortcut" applies here too and D3 completes the series (T1, owner 2026-11-19,
+  following CDSI 4.65's "risk 2-23 month" series; this reverses P1-3's "no shortcut for a
+  2-month start" for these patients only). A lapsed child, e.g. one dose at 2m and seen at 6y,
+  is owed 2 more.
 - D1 at 3–6m: 3- **or** 4-dose. "3-dose shortcut": if D2 landed at ≥7m, D3 completes the
   series. Unknown D2 age falls back to 4.
 - D1 at 7–23m: 2-dose primary, D2 ≥12 weeks after D1 AND at ≥12 months of age (M5 — this

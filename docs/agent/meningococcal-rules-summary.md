@@ -177,10 +177,15 @@ purposes. This only applies to healthy patients; a high-risk infant series
   >
   > "4 doses at 2, 4, 6, and 12 mos" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
   <!-- /SOURCES -->
-  - Dose 1 at 2 months: 4-dose infant MenACWY series (2, 4, 6, 12 months). No shortcut.
-    Menveo and MenQuadfi are both offered — see the licensed-age note just below.
-    <!-- SOURCES: acwyInfantHighRisk2to6mo -->
+  - Dose 1 at 2 months: 4-dose infant MenACWY series (2, 4, 6, 12 months) when dose 2
+    comes on time, before 7 months. If dose 2 came at 7 months or later, the series
+    finishes in 3 doses, the same 3-dose shortcut as a 3–6-month start (your T1 answer,
+    2026-11-19, as CDC's scheduling software, CDSI, has it). Menveo and MenQuadfi are
+    both offered — see the licensed-age note just below.
+    <!-- SOURCES: acwyInfantHighRisk2to6mo, owner:T1 -->
     > "4 doses at 2, 4, 6, and 12 mos" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-07-24.
+    >
+    > Owner decision T1, 2026-11-19 ([decisions-2026-11-19-t1-t2-todo-rules.md](../archive/decisions-2026-11-19-t1-t2-todo-rules.md)).
     <!-- /SOURCES -->
   - **MenQuadfi is licensed from 6 weeks, younger than the app's own 2-month
     schedule floor (2026-09-23, AAP-aligned per WA DOH).** The app still never
@@ -215,10 +220,16 @@ purposes. This only applies to healthy patients; a high-risk infant series
     <!-- SOURCES: acwyInfantHighRisk7to23mo -->
     > "2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
     <!-- /SOURCES -->
-  - The length is fixed by the age at dose 1 and never changes afterwards — a child who
-    started at 4 months is still on a 4-dose series at age 6.
-    <!-- SOURCES: todo -->
-    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+  - The series is chosen by the age at dose 1: a child who started under 2 years stays on
+    the infant series however old they are now. What age changes is which doses are still
+    needed. Once a child is 7 months or older the early infant doses are no longer given, so
+    a child who fell behind needs one dose now and a final dose at least 12 weeks later and
+    after the first birthday (your T1 answer, 2026-11-19, as CDSI has it). Example:
+    asplenia, one dose at 2 months, seen at 6 years: 2 more doses, 3 in all.
+    <!-- SOURCES: cdcChildAcwyInfantSeries, owner:T1 -->
+    > "dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
+    >
+    > Owner decision T1, 2026-11-19 ([decisions-2026-11-19-t1-t2-todo-rules.md](../archive/decisions-2026-11-19-t1-t2-todo-rules.md)).
     <!-- /SOURCES -->
   - **How far apart (corrected 2026-09-17).** Two numbers cover every infant series:
     <!-- SOURCES: explains -->

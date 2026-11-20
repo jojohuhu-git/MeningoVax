@@ -199,6 +199,7 @@ const PLAN = '../archive/plan-2026-11-08-meningovax-port.md';
 const OPEN_Q = '../archive/decisions-2026-11-17-open-questions.md';
 const G1 = '../archive/stop-g1-packet-2026-11-18.md';
 const FOLD = '../archive/decisions-2026-11-19-after-the-fold.md';
+const TODO_Q = '../archive/decisions-2026-11-19-t1-t2-todo-rules.md';
 const RULES = 'clinical-rules.md';
 export const OWNER_ANSWERS = {
   'P0-1': { date: '2026-09-17', where: RULES },
@@ -230,6 +231,7 @@ export const OWNER_ANSWERS = {
   'F-3': { date: '2026-11-18', where: G1 },
   W1: { date: '2026-11-19', where: FOLD },
   W3: { date: '2026-11-19', where: FOLD },
+  T1: { date: '2026-11-19', where: TODO_Q },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */

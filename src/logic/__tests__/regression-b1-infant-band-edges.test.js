@@ -113,8 +113,11 @@ describe('symptom 2 · the 3-or-4-dose shortcut at the top of its band', () => {
   });
 
   it('leaves the bands either side of it alone', () => {
-    // Below the band: a 2-month start is a flat 4-dose series (P1-3, 2026-09-15).
-    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: D2_AGE })).toBe(4);
+    // Below the band: a 2-month start was a flat 4-dose series (P1-3,
+    // 2026-09-15). Since T1 (owner, 2026-11-19) it shortcuts too once dose 2
+    // came at 7 months or older, and keeps four when dose 2 was on time.
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: D2_AGE })).toBe(3);
+    expect(menacwyInfantHighRiskTotal({ d1AgeM: 2, d2AgeM: 4 })).toBe(4);
     // At and above 7 months: a 2-dose series (M5, 2026-09-15).
     expect(menacwyInfantHighRiskTotal({
       d1AgeM: MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS, d2AgeM: D2_AGE,
