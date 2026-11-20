@@ -11,8 +11,8 @@ owner is a clinician: plain English, worked patients, ask, don't default. Plan:
 - `main` at `f72c546` (#117, card-rule sources, MERGED).
 - Branch `port/phase7-todo-rule-sources`, off `main`, pushed, PR open against `main` (this
   handoff is in it). MeningoVax has no CI; the owner merges.
-- **2,226 passed, 0 failing, 177 files** (same count as `main`: no test added, the todo ceiling
-  in `rulebook-table-matches-code.test.js` went from 20 to 2).
+- **2,231 passed, 0 failing, 178 files** after T1 (2,226 / 177 before it). The todo ceiling in
+  `rulebook-table-matches-code.test.js` went from 20 to 1.
 - Dev server: `preview_start {name}` refuses (other chats hold the 5-per-folder limit);
   `preview_start {url: "http://localhost:5175/MeningoVax/"}` works. This PR changes no screen:
   none of the 17 new `refs.js` entries is cited by a card, only by the rulebook.
@@ -47,8 +47,8 @@ changes afterwards").** No source settles it. Measured in the engine today:
 - CDC note: "Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6, and 12
   months)"; ACIP's catch-up footnote covers dose 1 at 3–6 months only. Neither names a child who
   lapsed. **Recommendation:** follow CDSI (2 more for the 2-month starter, as for a 3–6-month
-  starter). Cross-repo: vaxapp has the same 2-month behaviour (P1-3 note in
-  `fix-2026-09-15-dose-counter-audit.md`), so a change needs the owner's go-ahead for both.
+  starter). (I first told the owner vaxapp would need the same change. That was wrong:
+  meningococcal logic lives only in MeningoVax, and vaxapp sync was dropped in Phase 7.1.)
 
 **T2 — "Completion age unknown: treated conservatively as 'before 7'" (rulebook §2).** Since C1
 (an undated dose does not count), the last primary dose always has a date, so this fallback never
@@ -57,7 +57,19 @@ owed again; the 3-year fallback never runs. **Recommendation:** keep the code's 
 safety net, retag the rulebook line `explains` and add "no patient reaches this since C1",
 with a sweep test that proves it.
 
-**Owner's replies so far (2026-11-19), not yet decisions:**
+**T1 ANSWERED AND BUILT (2026-11-19, commit `2e7f3e9`).** Owner: "CDSI: 2 more", then "All of
+them" (every 2-month starter whose dose 2 comes at 7 months or older; reverses the 2026-09-15
+"no shortcut for a 2-month start" for those patients only). Recorded in
+`decisions-2026-11-19-t1-t2-todo-rules.md`. Built: `menacwyOn3DoseShortcut` has no lower start
+age; `menacwyInfantD2AgeForSeries` reads today's age while dose 2 is owed; a "Dose 2 of 3 (…,
+3-dose shortcut)" card; the infant first booster keys off the LAST primary dose (was dose 2).
+Moved: 2 of 18,780 real patients, 6 of 5,820 impossible entries (all a 7-month-old, travel or
+outbreak, one MenQuadfi at ~6 weeks: total 4 → 3, same date). Wording: the same 8 patients.
+Live-checked: asplenia, born 2020-11-19, one Menveo at 2 months → "Dose 2 of 3 (infant
+high-risk, 3-dose shortcut)", chip "Dose 1 of 3". Suite **2,231 passed, 178 files**.
+Not done: vaxapp is NOT touched (meningococcal logic lives only here; vaxapp sync dropped).
+
+**Owner's earlier replies (kept for the record):**
 - T1: "shouldn't it be 1 more dose not including boosters: Dose #1 at age 24 months or older:
   2-dose series at least 8 weeks apart". This is a third reading (current age decides; the
   2-month dose counts as dose 1 of the ≥24-month series). Put back to her with all three
@@ -90,9 +102,8 @@ Q11, the Rulebook screen (plan §D1, D2; PneumoVax's `src/components/Rulebook.js
 ## Resuming
 
 1. `git fetch && gh pr list --state all --limit 3`. If this PR merged: `git checkout main && git pull
-   --ff-only`; `npm test` should give **2,226 passed, 177 files**. If not merged, ask; don't stack.
-2. Look for the owner's T1/T2 answers (chat, or a decisions file). Build each the usual way:
+   --ff-only`; `npm test` should give **2,231 passed, 178 files**. If not merged, ask; don't stack.
+2. Look for the owner's T2 answer (chat, or the decisions file). Build it the usual way:
    failing test → fix → `npm run sweep:update` with the moved-answer count explained →
-   `npm run rulebook` → full suite → live check → PR with the E4 checklist. T1 needs the
-   `vaccine-parity` skill (vaxapp).
+   `npm run rulebook` → full suite → live check → PR with the E4 checklist.
 3. Then the Rulebook screen.
