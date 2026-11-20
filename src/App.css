@@ -1667,6 +1667,18 @@ body {
 /* The MenB families: name, then the products joined by "or". */
 .rb-path.rb-family { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 .rb-path.rb-family .rb-path-name { min-width: 56px; }
+/* A timeline with ages under the boxes: one grid, boxes and arrows on the
+   first row, ages on the second, so everything lines up (owner 2026-11-19). */
+.rb-pattern-doses.rb-timed { display: inline-grid; align-items: center; justify-items: center; justify-content: start; align-self: flex-start; column-gap: var(--sp-8); row-gap: 6px; }
+/* Age lines: one vertical timeline, youngest at the top (owner 2026-11-19:
+   the three-across grid did not say which way to read). */
+.rb-agetrack { list-style: none; margin: 0; padding: 0; }
+.rb-agestop { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: var(--sp-16); }
+.rb-agestop-age { font-size: var(--fs-md); color: var(--gy); text-align: right; padding: 2px 0 var(--sp-12); }
+.rb-agestop-text { font-size: var(--fs-sm); color: var(--gy2); line-height: 1.5; border-left: 2px solid var(--cmd); padding: 3px 0 var(--sp-12) var(--sp-16); position: relative; }
+.rb-agestop-text::before { content: ''; position: absolute; left: -2px; top: 10px; width: 10px; height: 2px; background: var(--c2); }
+.rb-agestop:last-child .rb-agestop-text { padding-bottom: 0; }
+@media (max-width: 480px) { .rb-agestop { grid-template-columns: 76px minmax(0, 1fr); column-gap: var(--sp-12); } }
 .rb-lanes { display: flex; flex-direction: column; }
 .rb-lane { display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12) 0; border-top: 1px solid var(--gy6); }
 .rb-lane:first-child { border-top: none; }

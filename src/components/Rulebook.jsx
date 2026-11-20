@@ -117,19 +117,28 @@ function DoseBox({ children, done }) {
   return <span className={cls}>{children}</span>;
 }
 const Arrow = () => <span className="rb-arrow" aria-hidden="true">&rarr;</span>;
-/** Dose boxes joined by arrows, ending in Complete unless told otherwise. */
+/**
+ * Dose boxes joined by arrows, ending in Complete unless told otherwise.
+ * When the doses carry ages, the ages sit on a second row of the same grid,
+ * each under its own box, so every box and arrow stays on one line (owner,
+ * 2026-11-19: the Complete box was misaligned).
+ */
 function Series({ doses, end = 'Complete' }) {
+  const items = [];
+  doses.forEach((d, i) => {
+    if (i > 0) items.push({ arrow: true });
+    items.push(typeof d === 'string' ? { text: d } : d);
+  });
+  if (end) items.push({ arrow: true }, { text: end, done: true });
+  const timed = doses.some((d) => typeof d !== 'string');
+  const top = items.map((it, i) => (it.arrow
+    ? <Arrow key={`a${i}`} />
+    : <DoseBox key={`d${i}`} done={it.done}>{it.text}</DoseBox>));
+  if (!timed) return <div className="rb-pattern-doses">{top}</div>;
   return (
-    <div className="rb-pattern-doses">
-      {doses.map((d, i) => (
-        <React.Fragment key={`${i}${typeof d === 'string' ? d : d.text}`}>
-          {i > 0 && <Arrow />}
-          {typeof d === 'string'
-            ? <DoseBox>{d}</DoseBox>
-            : <span className="rb-tick-col"><DoseBox>{d.text}</DoseBox><span className="rb-tick-age">{d.age}</span></span>}
-        </React.Fragment>
-      ))}
-      {end && (<><Arrow /><DoseBox done>{end}</DoseBox></>)}
+    <div className="rb-pattern-doses rb-timed" style={{ gridTemplateColumns: `repeat(${items.length}, auto)` }}>
+      {top}
+      {items.map((it, i) => <span key={`t${i}`} className="rb-tick-age">{it.age ?? ''}</span>)}
     </div>
   );
 }
@@ -195,12 +204,21 @@ function Vaccines() {
 }
 
 // ── 2. Age and risk group ────────────────────────────────────────────────
+/** What to give, then (if any) when boosters are due, on its own line. */
+function GiveCell({ cell }) {
+  return (
+    <>
+      <span className={cell.boosters === null && /^As for/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
+      {cell.boosters && <span className="rb-cell-text"><strong>Boosters:</strong> {cell.boosters}</span>}
+    </>
+  );
+}
 function RiskRow({ r }) {
   return (
     <tr>
       <td className="rb-freeze-col rb-strong-wrap" data-label="Condition">{r.name}</td>
-      <td data-label="MenACWY">{r.acwy || <span className="rb-any">None</span>}</td>
-      <td data-label="MenB">{r.menb || <span className="rb-any">Healthy schedule</span>}<Source row={r} /></td>
+      <td data-label="MenACWY"><GiveCell cell={r.acwy} /></td>
+      <td data-label="MenB"><GiveCell cell={r.menb} /><Source row={r} /></td>
     </tr>
   );
 }
@@ -208,22 +226,22 @@ function RiskRow({ r }) {
 function Who() {
   return (
     <>
-      <Card id="rb-ages" title="Age lines">
-        <div className="rb-agelines">
+      <Card id="rb-ages" title="Age lines, youngest first">
+        <ol className="rb-agetrack">
           {AGE_LINES.map((a) => (
-            <div key={a.age} className="rb-ageline">
-              <strong>{a.age}</strong>
-              <span className="rb-small">{a.text}</span>
-            </div>
+            <li key={a.age} className="rb-agestop">
+              <strong className="rb-agestop-age">{a.age}</strong>
+              <span className="rb-agestop-text">{a.text}</span>
+            </li>
           ))}
-        </div>
+        </ol>
       </Card>
 
       <Card id="rb-groups" title="Risk groups">
-        <p className="rb-small">Each condition the app asks about, and what it gives. The schedules are in the parts that follow.</p>
+        <p className="rb-small">Each condition the app asks about: what to give, and when boosters are due.</p>
         <div className="rb-scroll">
           <table className="rb-table rb-freeze">
-            <thead><tr><th className="rb-w30 rb-freeze-col">Condition</th><th>MenACWY</th><th>MenB</th></tr></thead>
+            <thead><tr><th className="rb-w24 rb-freeze-col">Condition</th><th>MenACWY</th><th>MenB</th></tr></thead>
             <tbody>{RISK_ROWS.map((r) => <RiskRow key={r.id} r={r} />)}</tbody>
           </table>
         </div>
@@ -231,11 +249,19 @@ function Who() {
 
       <Card id="rb-multi" title="When a patient has more than one condition">
         <p className="rb-small">{RISK_RANKING.lead}</p>
-        <ol className="rb-rank">
-          {RISK_RANKING.steps.map((s) => (
-            <li key={s.name}><strong>{s.name}</strong> <span className="rb-small">{s.text}</span><Source row={s} /></li>
-          ))}
-        </ol>
+        <div className="rb-scroll">
+          <table className="rb-table">
+            <thead><tr><th className="rb-w40">If the patient has</th><th>Give</th></tr></thead>
+            <tbody>
+              {RISK_RANKING.steps.map((s) => (
+                <tr key={s.name}>
+                  <td className="rb-strong-wrap" data-label="If the patient has">{s.name}</td>
+                  <td data-label="Give">{s.text}<Decisions row={s} /><Source row={s} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </>
   );

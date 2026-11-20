@@ -63,6 +63,10 @@ function check(key, e) {
     const got = c?.dueToday ? 'today' : c?.earliestNextDate;
     if (got !== want) fails.push(`${v} due ${got}, page says ${want}`);
   }
+  for (const [v, re] of x.booster ?? []) {
+    const line = card(v)?.boosterSummary ?? '';
+    if (!re.test(line)) fails.push(`${v} booster line "${line}" is not ${re}`);
+  }
   if (x.penta != null && Boolean(out.pentavalent?.eligible) !== x.penta) fails.push(`combined shot offered: ${out.pentavalent?.eligible}`);
   if (x.pentaWhy && !x.pentaWhy.test(out.pentavalent?.unavailableReason ?? '')) fails.push(`no reason ${x.pentaWhy}`);
   if (x.pentaBrands && JSON.stringify(out.pentavalent?.brands) !== JSON.stringify(x.pentaBrands)) fails.push(`combined brands ${out.pentavalent?.brands}`);
