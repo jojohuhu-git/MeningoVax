@@ -361,7 +361,9 @@ series begun at ≥2y. Derived from `seriesTotals.js` → `menacwyPrimaryTotal()
 `recommend.js` and `validate.js`, so the two cannot drift.
 - Primary completed <7y (84m): **first booster 3y**, then **every 5y**
 - Primary completed ≥7y: **first booster 5y**, then every 5y
-- Unknown completion age: conservative 3y for the first booster only
+- Unknown completion age: conservative 3y for the first booster only. Unreachable since C1;
+  kept as a safety net (T2, owner 2026-11-19), guarded by
+  `regression-2026-11-19-t2-unknown-completion-age-unreachable.test.js`
 - Compared on the calendar, not in days (P0-5) — `DAYS.years(3)` = 1096 rejected a booster
   given on its exact three-year anniversary whenever no 29 February fell in the window.
 

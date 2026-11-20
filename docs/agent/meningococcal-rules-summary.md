@@ -294,8 +294,11 @@ purposes. This only applies to healthy patients; a high-risk infant series
     > "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
     <!-- /SOURCES -->
   - Completion age unknown: treated conservatively as "before 7" (3-year first booster).
-    <!-- SOURCES: todo -->
-    > *No sentence linked yet for this rule, or part of it: still to be read live (port Phase 7.1).*
+    No patient reaches this since your C1 answer (an undated dose does not count, so the
+    last primary dose always has a date); it stays as a safety net (your T2 answer,
+    2026-11-19), and a test checks that no patient reaches it.
+    <!-- SOURCES: owner:T2 -->
+    > Owner decision T2, 2026-11-19 ([decisions-2026-11-19-t1-t2-todo-rules.md](../archive/decisions-2026-11-19-t1-t2-todo-rules.md)).
     <!-- /SOURCES -->
   - Only the *first* booster varies. Every booster after it is 5 years.
     <!-- SOURCES: boosterBeforeAge7, boosterAtOrAfterAge7 -->
