@@ -73,7 +73,7 @@ describe('imp P1-2 UI: the note a clinician actually sees', () => {
   it('says plainly that nothing has changed', () => {
     show(['military'], DOB_3_YEARS);
     expect(note().textContent).toContain('Nothing has been withheld and no recommendation has changed');
-    expect(note().textContent).toContain('Check that the age and the tick-boxes are both right');
+    expect(note().textContent).toContain('Check that the age and the checkboxes are right');
   });
 
   it('links the ACIP table the note rests on', () => {

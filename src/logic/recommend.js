@@ -898,7 +898,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           // 3-year case on later boosters, which always wait 5 (C10).
           detail: `For someone at increased risk in a serogroup A, C, W or Y outbreak, ${given === primaryTotal
             ? `ACIP gives a booster ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)} after the last dose if the series finished before age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} years, otherwise ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}.`
-            : `ACIP gives each later booster ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last dose.`} If the patient is no longer at risk, untick the outbreak box.`,
+            : `ACIP gives each later booster ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last dose.`} If the patient is no longer at risk, uncheck the outbreak box.`,
         },
         noteCites: [cite('acip2020Table8')],
         refs: refsExposure(),
@@ -2104,7 +2104,7 @@ function riskAgeCheck(riskIds, am) {
       // caught that — the first version printed "this patient is Birth."
       footer: `This patient's age is recorded as ${fmtAgeMonths(am)}. `
         + 'Nothing has been withheld and no recommendation has changed. '
-        + 'Check that the age and the tick-boxes are both right.',
+        + 'Check that the age and the checkboxes are right.',
     },
     cites,
   };
