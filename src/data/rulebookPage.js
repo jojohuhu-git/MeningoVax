@@ -200,7 +200,7 @@ const P = {
 
   // The combined shot
   pentaRecent: ex('17-year-old with asplenia, Penmenvy 11 weeks ago', { dob: '2009-06-01', riskIds: ['asplenia'], menbDoses: doses(PMV, '2026-09-01') },
-    { acwy: [/^Dose 2 of 2/], menb: [/^Dose 2 of 3/], penta: false, pentaWhy: /6 months have passed since the last Penmenvy/ }),
+    { acwy: [/^Dose 2 of 2/], menb: [/^Dose 2 of 3/], penta: false, pentaWhy: /within 6 months of the last Penmenvy dose/ }),
   pentaFamily: ex('14-year-old with asplenia, Bexsero dose 1 in October, MenACWY dose 2 due', { dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2024-06-10'), menbDoses: doses(BX, '2026-10-01'), riskAtDoseAnswers: { MenB: yes(1) } },
     { penta: true, pentaBrands: [PMV] }),
   pentaWaits: ex('13-year-old with asplenia, one MenACWY at 8 not yet answered', { dob: '2013-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2021-07-01') },

@@ -447,10 +447,10 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
         <>
           <div className="penta-card" data-testid="penta-card">
             <div className="penta-header" data-testid="option-penta-label">
-              Option 2: One combined injection (pentavalent, MenABCWY)
+              Option 2: One combined injection (MenABCWY)
             </div>
             <div className="penta-body">
-              <div className="penta-replaces">Replaces both shots above: do not give both.</div>
+              <div className="penta-replaces">Replaces both injections above. Give one option, not both.</div>
               <RecNote note={pentavalent.note} citations={pentavalent.citations} className="penta-note" />
               <div className="penta-brands">
                 {(pentavalent.brands || []).map((b, i) => (

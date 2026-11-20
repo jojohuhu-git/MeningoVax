@@ -2653,7 +2653,7 @@ function recommendOneReading(input) {
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
         unavailableReason: (!answersPending && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday && (penbrayaTooRecent || penmenvyTooRecent))
-          ? `A combined pentavalent shot is not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} may only be repeated once 6 months have passed since the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`
+          ? `Not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} cannot be repeated within 6 months of the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`   // P69 (review v10)
           : null,
       };
 

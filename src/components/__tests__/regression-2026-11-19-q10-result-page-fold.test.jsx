@@ -132,10 +132,10 @@ describe('Q10 on the screen: sources inside "Why this", disclaimer paragraph beh
 
   it('the disclaimer keeps its first half in view; the risk-history paragraph opens on "About risk history"', () => {
     draw();
-    expect(screen.getByText(/Clinical decision support only\./)).toBeTruthy();
-    expect(screen.queryByText(/tracks the patient's/)).toBeNull();
+    expect(screen.getByText(/not a substitute for clinical judgment/)).toBeTruthy();   // P71 (review v10)
+    expect(screen.queryByText(/records current risk only/)).toBeNull();
     fireEvent.click(screen.getByTestId('disclaimer-toggle'));
-    expect(screen.getByTestId('disclaimer-more').textContent).toMatch(/This app tracks the patient's current risk\s+status only/);
+    expect(screen.getByTestId('disclaimer-more').textContent).toMatch(/The app records current risk only\./);   // P72 (review v10)
   });
 
   it('a card with sources and no explanation titles its toggle "Sources" (PneumoVax, 2026-11-07)', () => {

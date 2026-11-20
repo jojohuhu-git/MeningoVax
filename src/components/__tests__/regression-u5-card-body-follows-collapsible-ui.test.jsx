@@ -57,7 +57,7 @@ describe('U5 (UI): a card body follows `collapsible`, never stale expand state',
     expect(body).toBeTruthy();
     expect(container.querySelector('.rec-dose-label').textContent)
       .toBe('Dose 1 of 3 (high-risk primary series)');
-    expect(screen.getByText('Bexsero')).toBeTruthy();
+    expect(screen.getByText('Brand: Bexsero')).toBeTruthy();   // P70 (review v10)
     expect(screen.getByTestId('booster-summary-line')).toBeTruthy();
     // A due card is not a collapsed card.
     expect(container.querySelector('.rec-card-collapsed')).toBeNull();

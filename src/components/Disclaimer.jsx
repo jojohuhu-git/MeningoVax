@@ -11,15 +11,13 @@ export default function Disclaimer() {
   const [open, setOpen] = useState(openAll);
   return (
     <div className="disclaimer" role="note" aria-label="Clinical disclaimer">
-      <strong>Clinical decision support only.</strong> MeningoVax is not a substitute for clinical judgment.
-      Verify all recommendations against current{' '}
+      {/* P71 (review v10, owner 2026-11-20): about half the length. */}
+      <strong>Clinical decision support</strong>, not a substitute for clinical judgment.
+      Check recommendations against current{' '}
       <a href="https://www.cdc.gov/vaccines/hcp/imz-schedules/index.html" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>
-        ACIP/CDC immunization schedules
-      </a>{' '}
-      before administering vaccines. Every recommendation displayed includes a citation link
-      to its source (CDC schedule notes, ACIP MMWR, or immunize.org Ask the Experts).
-      Age eligibility and dose intervals shown here reflect ACIP guidance, which may differ
-      from FDA package insert labeling.{' '}
+        ACIP/CDC schedules
+      </a>. Each recommendation cites its source. Ages and intervals follow ACIP, which can
+      differ from FDA labeling.{' '}
       <button
         type="button"
         className="rec-note-toggle disclaimer-toggle"
@@ -31,11 +29,8 @@ export default function Disclaimer() {
       </button>
       {open && (
         <span className="disclaimer-more" data-testid="disclaimer-more">
-          {' '}This app tracks the patient's <em>current</em> risk
-          status only — it does not record when a risk factor started or ended. For an older dose
-          given before the risk-based age threshold, whether it counted may depend on the
-          patient's risk status on that specific date; when that matters, a "Needs input" prompt
-          asks for it directly.
+          {' '}The app records <em>current</em> risk only. When an earlier dose depends on the
+          risk on its date, a "Needs input" question asks.
         </span>
       )}
     </div>

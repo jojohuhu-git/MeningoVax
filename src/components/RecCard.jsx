@@ -540,8 +540,9 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
 
         {brands && brands.length > 0 && !isNeutral && !pending && (
           <div className="rec-brands">
-            <div className="rec-brands-title">Brand options: choose one</div>
-            {brands.map((b, i) => (
+            {/* P70 (review v10): one brand is a statement, not a choice. */}
+            <div className="rec-brands-title">{brands.length === 1 ? `Brand: ${stripAntigen(brands[0])}` : 'Brand options: choose one'}</div>
+            {brands.length > 1 && brands.map((b, i) => (
               <div key={i} className="rec-brand-item">
                 <span className="rec-brand-dot" />
                 {stripAntigen(b)}
