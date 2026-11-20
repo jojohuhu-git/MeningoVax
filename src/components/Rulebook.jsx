@@ -169,7 +169,7 @@ function Vaccines() {
       <div className="rb-card"><div className="rb-scroll">
         <table className="rb-table rb-fixed rb-freeze">
           <colgroup><col className="rb-w18" /><col className="rb-w12" /><col className="rb-w12" /><col /></colgroup>
-          <thead><tr><th className="rb-freeze-col">Vaccine</th><th>Minimum age</th><th>MenB family</th><th>Use</th></tr></thead>
+          <thead><tr><th className="rb-freeze-col">Vaccine</th><th>Minimum age</th><th>Counts as</th><th>Use</th></tr></thead>
           <tbody>
             {VACCINE_ROWS.map((g) => (
               <React.Fragment key={g.name}>
@@ -178,7 +178,7 @@ function Vaccines() {
                   <tr key={p.key}>
                     <td className="rb-freeze-col rb-strong" data-label="Vaccine">{p.name}</td>
                     <td data-label="Minimum age">{p.minAge}</td>
-                    <td data-label="MenB family">{p.family}</td>
+                    <td data-label="Counts as">{p.countsAs}</td>
                     <td data-label="Use">{p.use}<Decisions row={p} /></td>
                   </tr>
                 ))}
@@ -188,10 +188,9 @@ function Vaccines() {
         </table>
       </div></div>
 
-      <Card id="rb-families" title="The two MenB families">
+      <Card id="rb-families" title={FAMILIES.title}>
         {FAMILIES.rows.map((f) => (
           <div key={f.family} className="rb-path rb-family">
-            <span className="rb-path-name">{f.family}</span>
             {f.brands.map((b, i) => (
               <React.Fragment key={b}>{i > 0 && <span className="rb-or">or</span>}<DoseBox>{b}</DoseBox></React.Fragment>
             ))}

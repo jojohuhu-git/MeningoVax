@@ -300,6 +300,13 @@ const INFANT_AGES = [
 const FAMILY_4C = MENB_BRANDS.find((b) => b.key === 'Bexsero').family;
 const FAMILY_FHBP = MENB_BRANDS.find((b) => b.key === 'Trumenba').family;
 const inFamily = (fam) => [...MENB_BRANDS, ...PENTAVALENT_BRANDS].filter((b) => b.family === fam).map((b) => b.key);
+// Q2 (owner, 2026-11-19): the screen names MenB products by brand, never by
+// antigen family ("4C", "FHbp"). The family codes stay as internal keys only.
+const brandIn = (list, fam) => list.find((b) => b.family === fam).key;
+const BEXSERO = brandIn(MENB_BRANDS, FAMILY_4C);
+const TRUMENBA = brandIn(MENB_BRANDS, FAMILY_FHBP);
+const PENMENVY = brandIn(PENTAVALENT_BRANDS, FAMILY_4C);
+const PENBRAYA = brandIn(PENTAVALENT_BRANDS, FAMILY_FHBP);
 
 /** The parts of the page, in the order the app decides. */
 export const HEADINGS = {
@@ -447,14 +454,17 @@ const USE = {
   'Menveo 2-vial': `Infant series and every later dose.`,
   'Menveo 1-vial': `Any dose from ${age(MENACWY_BRANDS.find((b) => b.key === 'Menveo 1-vial').minAgeM)}.`,
   MenQuadfi: 'Infant series and every later dose.',
-  Bexsero: `Every MenB dose. Stay in the ${FAMILY_4C} family.`,
-  Trumenba: `Every MenB dose. Stay in the ${FAMILY_FHBP} family.`,
-  Penmenvy: `Replaces a MenACWY and a ${FAMILY_4C} MenB dose given at the same visit.`,
-  Penbraya: `Replaces a MenACWY and an ${FAMILY_FHBP} MenB dose given at the same visit.`,
+  // Q2 S2–S5 (owner approved as written, 2026-11-20).
+  Bexsero: `Use for every MenB dose. Not interchangeable with ${TRUMENBA} or ${PENBRAYA}.`,
+  Trumenba: `Use for every MenB dose. Not interchangeable with ${BEXSERO} or ${PENMENVY}.`,
+  Penmenvy: `Gives one MenACWY dose and one ${BEXSERO} dose in a single injection.`,
+  Penbraya: `Gives one MenACWY dose and one ${TRUMENBA} dose in a single injection.`,
   Menactra: 'History only. Counts as a MenACWY dose.',
 };
 const brandMinAge = (b) => (b.minAgeDays != null ? wk(b.minAgeDays) : age(b.minAgeM));
-const vaccineRow = (type) => (b) => ({ key: b.key, name: b.key, type, minAge: brandMinAge(b), family: b.family ?? '', use: USE[b.key],
+const vaccineRow = (type) => (b) => ({ key: b.key, name: b.key, type, minAge: brandMinAge(b),
+  // Q2 S1: the MenB brand a dose counts as (Penmenvy counts as Bexsero), not its family code.
+  countsAs: b.family ? brandIn(MENB_BRANDS, b.family) : '', use: USE[b.key],
   decision: b.key === 'MenQuadfi' ? 'menquadfi6Weeks' : undefined });
 export const VACCINE_ROWS = [
   { name: 'MenACWY', rows: MENACWY_BRANDS.filter((b) => b.active).map(vaccineRow('MenACWY')) },
@@ -463,10 +473,12 @@ export const VACCINE_ROWS = [
   { name: 'No longer used: history only', rows: MENACWY_BRANDS.filter((b) => b.key === 'Menactra').map(vaccineRow('MenACWY')) },
 ];
 
-/** The two MenB families, drawn as boxes (owner: visuals over text). */
+/** The two MenB families, drawn as boxes (owner: visuals over text). Q2 S6:
+ *  named by brand; the family code is the row's key only, never shown. */
 export const FAMILIES = {
+  title: 'MenB products are not interchangeable',
   rows: [FAMILY_4C, FAMILY_FHBP].map((fam) => ({ family: fam, brands: inFamily(fam) })),
-  note: `Every MenB dose stays in the family of the first. A dose from the other family does not count; the next dose of the right family waits ≥${W4} after it.`,
+  note: `Every MenB dose must match the first. A dose of the other product does not count, and the matching product is given ≥${W4} after it.`,
   ex: [P.wrongFamily],
 };
 
@@ -658,7 +670,7 @@ export const MENB_PREGNANCY = { text: 'Deferred during pregnancy, unless a MenB 
 // ── 5. The combined shot ─────────────────────────────────────────────────
 export const PENTA_ROWS = [
   { text: `Offered when MenACWY is due today, MenB is due or can be given today, and the patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.healthy16, P.menbAsp9] },
-  { text: `Only the product in the patient's MenB family: Penmenvy for ${FAMILY_4C}, Penbraya for ${FAMILY_FHBP}.`, ex: [P.pentaFamily] },
+  { text: `The product must match the earlier MenB doses: ${PENMENVY} after ${BEXSERO}, ${PENBRAYA} after ${TRUMENBA}.`, ex: [P.pentaFamily] },
   { text: `Not within ${mo(PENTAVALENT_REPEAT_MONTHS)} of the last dose of the same product: give the two vaccines separately.`, ex: [P.pentaRecent] },
   { text: 'Not offered while a dose on the record reads Needs input.', ex: [P.pentaWaits] },
   { text: 'A combined shot on the record counts as a MenACWY dose and a MenB dose, whichever list it is entered in.', ex: [P.pentaInRecord] },
