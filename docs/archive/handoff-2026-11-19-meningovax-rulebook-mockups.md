@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-19** by `handoff-2026-11-19-meningovax-rulebook-mockup-v6.md` (mockup v6, the full wording review, owner questions Q1–Q5). Its focus points are done in v6. Do not resume from this file.
+
 # MeningoVax — Handoff after the Rulebook screen mockups (brainstorm, 2026-11-19, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
