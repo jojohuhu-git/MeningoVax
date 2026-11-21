@@ -11,23 +11,24 @@ import { render, fireEvent, screen } from '@testing-library/react';
 
 import Rulebook from '../Rulebook.jsx';
 import {
-  AGE_LINES, RISK_ROWS, RISK_RANKING, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HIGHRISK_LANES,
-  ACWY_HIGHRISK_NOTES, ACWY_OTHER, MENB_HEALTHY, MENB_HIGHRISK, MENB_PREGNANCY, CHIP_LEGEND, GRACE,
-  INTERVALS, NOT_COUNTED, DECISION, VACCINE_ROWS,
+  RISK_RANKING, ACWY_BY_AGE, ACWY_HIGHRISK_TABLES, ACWY_HIGHRISK_NOTES, ACWY_GROUPS, MENB_GROUPS,
+  MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER, MENB_PREGNANCY, CHIP_LEGEND, GRACE,
+  INTERVALS, SOONER_ADDS, NOT_COUNTED, FAMILIES, DECISION, VACCINE_ROWS,
 } from '../../data/rulebookPage.js';
 import { RISK_FACTORS } from '../../data/riskFactors.js';
 
-const risk = (id) => RISK_ROWS.find((r) => r.id === id);
-const cell = (c) => [c?.give, c?.boosters].filter(Boolean).join(' ');
-const line = (age) => AGE_LINES.find((a) => a.age === age)?.text;
 const chip = (c) => CHIP_LEGEND.find((x) => x.chip === c)?.text;
 const interval = (d) => INTERVALS.find((x) => x.doses === d);
 const vaccine = (k) => VACCINE_ROWS.flatMap((g) => g.rows).find((r) => r.key === k);
+const group = (t, key) => t.rows.find((r) => r.key === key);
 
+/** The Rulebook reorganization (2026-11-20) put every part in a fold: open them all. */
+function openAll() {
+  for (const b of document.querySelectorAll('.rb-part > h2 > button[aria-expanded="false"]')) fireEvent.click(b);
+}
 function pageText() {
   render(<Rulebook />);
-  const open = screen.queryByRole('button', { name: /Full rulebook/ });
-  if (open) fireEvent.click(open);
+  openAll();
   return document.body.textContent;
 }
 
@@ -43,40 +44,17 @@ describe('Review v10 Batch 5a — Rulebook opening and part 1', () => {
   });
 });
 
-describe('Review v10 Batch 5a — part 2, the age lines (R10–R19)', () => {
-  it('each age line says what changes, in the approved words', () => {
-    expect(line('6 weeks')).toBe('MenQuadfi is licensed from 6 weeks, and a MenQuadfi dose at that age counts. The app recommends the first dose at 2 months.');
-    expect(line('2 months')).toBe('The infant MenACWY series can start for asplenia, complement deficiency, HIV, travel or an A/C/W/Y outbreak.');
-    expect(line('2 years')).toBe('From 2 years, there is no infant series: two doses for asplenia, complement deficiency or HIV, one for travel or an outbreak.');
-    expect(line('7 years')).toBe('The first booster is 3 years after a series that ends before 7 years, otherwise 5 years.');
-    expect(line('10 years')).toBe('MenB, Menveo 1-vial and the combined shot can be given. A routine MenACWY dose before this age does not count.');
-    expect(line('16 years')).toBe('The MenACWY booster is due. A first dose at 16 years or older needs none. MenB may be offered to a healthy patient.');
-    expect(line('19–21 years')).toBe('One catch-up dose is given if none was given at 16 years or older.');
-    expect(line('22 years')).toBe('MenACWY is not routine for a healthy adult.');
-    expect(line('24 years')).toBe('MenB is no longer offered to a healthy adult.');
-  });
-});
-
-describe('Review v10 Batch 5a — part 2, the risk table (R20–R32)', () => {
-  it('R20: the table\'s lead', () => {
-    expect(pageText()).toContain('This table gives the doses and boosters for each condition.');
-  });
-  it('R21–R24: asplenia, complement deficiency and HIV', () => {
-    expect(cell(risk('asplenia').acwy)).toBe('Under 2 years, the infant series has two to four doses, set by the age at dose 1. From 2 years, give two doses at least 8 weeks apart. The first booster is 3 years after the series if it ended before 7 years, otherwise 5 years. Each later booster is 5 years after the last.');
-    expect(cell(risk('asplenia').menb)).toBe('From 10 years: three doses, dose 2 at 1 month and dose 3 at 6 months. The first booster is 1 year after the series, later ones every 2–3 years (the app dates each at 2 years).');
-  });
-  it('R25: "Same as healthy."', () => {
-    expect(risk('hiv').menb.give).toBe('Same as healthy.');
-    expect(risk('pregnancy').acwy.give).toBe('Same as healthy.');
-  });
-  it('R26–R32: the other conditions', () => {
-    expect(cell(risk('microbiologist').acwy)).toBe('Give one dose, then a booster every 5 years from the last dose while exposed.');
-    expect(risk('travel').acwy.boosters).toBe('The first booster is 3 years after the dose if given before 7 years, otherwise 5 years, then every 5 years while travel continues.');
-    expect(risk('military').acwy.boosters).toBe('A booster is given 5 years after the last dose, if the assignment requires it.');
-    expect(cell(risk('college_dorm').acwy)).toBe('Give one dose at 16 years or older, unless one was given at that age within 5 years. No booster follows.');
-    expect(risk('outbreak_acwy').acwy.boosters).toBe('While the outbreak continues, give a booster 3 years after the dose if given before 7 years, otherwise 5 years, then every 5 years.');
-    expect(risk('outbreak_b').menb.boosters).toBe('Give one booster 1 year after the series if the outbreak continues, and no more.');
-    expect(risk('pregnancy').menb.give).toBe('Wait until after pregnancy. Give the series now if a MenB high-risk condition is present.');
+// R10–R32 (the age lines and the risk-group table) are extinct: the Rulebook
+// reorganization removed both (owner, 2026-11-20, item 1: "say each thing
+// once"). Their facts live in the MenACWY and MenB group tables and Details
+// panels, checked in regression-2026-11-20-rulebook-reorganization.test.jsx.
+describe('Review v10 Batch 5a — part 2 (R10–R32), removed by the reorganization', () => {
+  it('the age lines and the risk table are gone; their Details sentences remain', () => {
+    const text = pageText();
+    expect(text).not.toContain('Age lines, youngest first');   // extinct: removed by the Rulebook reorganization, owner 2026-11-20
+    expect(text).not.toContain('This table gives the doses and boosters for each condition.');   // extinct: removed by the Rulebook reorganization, owner 2026-11-20
+    expect(group(ACWY_GROUPS, 'travel').details).toContain('Further boosters follow every 5 years while travel continues.');
+    expect(group(MENB_GROUPS, 'bout').details).toContain('One booster is given 1 year after the last series dose, if the outbreak is still going on. No further boosters follow.');
   });
 });
 
@@ -92,45 +70,52 @@ describe('Review v10 Batch 5a — part 2, more than one condition (R33–R37)', 
 
 describe('Review v10 Batch 5a — part 3, MenACWY (R40–R54)', () => {
   it('R40, R42', () => {
-    expect(ACWY_ROUTINE.note).toBe('The booster is given at 16 years, at least 8 weeks after the first dose.');
+    // R40's sentence now lives in the healthy group's Details (the routine
+    // schedule became a table: reorganization item 6).
+    expect(group(ACWY_GROUPS, 'healthy').details).toContain('A booster is given at 16 years, at least 8 weeks after the first dose.');
     expect(ACWY_BY_AGE.find((r) => r.age === '16–18 years').next).toBe('One dose. No booster is needed.');
   });
   it('R46: the high-risk lead', () => {
-    expect(pageText()).toContain('The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.');
+    expect(ACWY_HIGHRISK_NOTES.lead).toBe('The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.');
+    expect(pageText()).toContain(ACWY_HIGHRISK_NOTES.lead);
   });
-  it('R48: the final infant step says what each number is', () => {
-    const finals = ACWY_HIGHRISK_LANES.map((l) => l.doses.at(-1));
-    expect(finals.filter((f) => f === '≥12 weeks after the last dose, at age ≥12 months')).toHaveLength(2);
+  it('R48: the final infant dose says what each number is', () => {
+    // Reorganization item 6: each lane is now a table; its final row's minimum.
+    const finals = ACWY_HIGHRISK_TABLES.slice(0, 3).map((s) => s.rows.at(-1).min);
+    expect(finals).toEqual(['12 weeks after dose 3, at 12 months or older', '12 weeks after the last dose, at 12 months or older', '12 weeks after dose 1, at 12 months or older']);
   });
   it('R51–R54', () => {
     expect(ACWY_HIGHRISK_NOTES.boosters).toBe('The first booster is 3 years after the series if it ended before 7 years, otherwise 5 years. Each later booster is 5 years after the last, while at risk.');
-    const other = (id) => ACWY_OTHER.find((r) => r.name === RISK_FACTORS.find((f) => f.id === id).label).boosters;
-    expect(other('travel')).toMatch(/then every 5 years while travel continues\.$/);
-    expect(other('microbiologist')).toBe('Give a booster every 5 years from the last dose while exposed.');
-    expect(other('college_dorm')).toBe('No booster. A dose at 16 years or older covers college entry for 5 years.');
+    // R52–R54's "Other indications" table is extinct (it repeated the group
+    // table, reorganization item 1); the group rows hold the same facts.
+    expect(group(ACWY_GROUPS, 'travel').boosters).toBe('3 or 5 years after the dose, then every 5 years');
+    expect(group(ACWY_GROUPS, 'lab').boosters).toBe('5 years after the dose, then every 5 years');
+    expect(group(ACWY_GROUPS, 'college').boosters).toBe('None');
   });
 });
 
 describe('Review v10 Batch 5a — part 4, MenB (R56–R68)', () => {
   it('the healthy series', () => {
-    expect(MENB_HEALTHY.lead).toBe('Healthy patients aged 16–23 years may be offered MenB by shared clinical decision-making, preferably at 16–18 years.');
-    expect(MENB_HEALTHY.rows[0].text).toBe('Dose 2 given <6 months after dose 1 counts. Give dose 3 ≥4 months after dose 2.');
+    // The lead became the table's first row (reorganization item 6).
+    expect(MENB_HEALTHY.rows[0].routine).toBe('16–23 years, preferably 16–18 years');
+    expect(MENB_HEALTHY.note.text).toBe('Dose 2 given <6 months after dose 1 counts. Give dose 3 ≥4 months after dose 2.');
   });
   it('the high-risk series', () => {
-    expect(MENB_HIGHRISK.lead).toBe('Asplenia (including sickle cell disease), complement deficiency or a complement inhibitor, lab work with meningococcus, or a serogroup B outbreak. From 10 years, with no upper age limit.');
-    expect(MENB_HIGHRISK.doses[1]).toBe('1 month after dose 1 (at least 4 weeks)');
-    const texts = MENB_HIGHRISK.rows.map((r) => r.text);
-    expect(texts).toContain('No dose 3 is needed if dose 2 was ≥6 months after dose 1.');
-    // M1 (owner, 2026-11-20): an early dose 3 is repeated, no dose 4.
-    expect(texts).toContain('Dose 3 given <4 months after dose 2 and <6 months after dose 1 does not count. Repeat it ≥4 months after that dose.');
-    expect(texts).toContain('Dose 3 given <4 months after dose 2 counts if it was ≥6 months after dose 1.');
-    expect(texts).toContain('The first booster is 1 year after the series, later ones every 2–3 years while at risk (the app dates each at 2 years). A booster given sooner does not count.');
-    expect(texts).toContain('HIV alone does not change MenB. Follow the healthy schedule.');
+    // R59's lead is extinct: the group table names the conditions
+    // (reorganization item 4). R60's dose 2 is now a table row (item 6).
+    expect(MENB_HIGHRISK).not.toHaveProperty('lead');
+    expect(MENB_HIGHRISK.rows[1]).toMatchObject({ routine: '1 month after dose 1', min: '4 weeks after dose 1' });
+    expect(MENB_HIGHRISK.note.text).toBe('No dose 3 is needed if dose 2 was ≥6 months after dose 1.');
+    // M1 (owner, 2026-11-20): an early dose 3 is repeated, no dose 4. Now one table (item 7).
+    expect(MENB_DOSE3_EARLY.rows[0].result).toBe('Not counted. Repeat it ≥4 months after that dose.');
+    expect(MENB_OTHER.map((r) => r.text)).toContain('HIV alone does not change MenB. Follow the healthy schedule.');
     expect(MENB_PREGNANCY.text).toBe('Wait until after pregnancy, unless a MenB high-risk condition is present.');
   });
-  it('R59 names exactly the app\'s MenB high-risk conditions', () => {
-    // The lead is written in the owner's words, not built from the labels, so
-    // hold it to the app's own list: a fifth MenB condition must change it.
+  it('R59: the MenB group table names exactly the app\'s MenB high-risk conditions', () => {
+    // The group names are written in the owner's words, not built from the
+    // labels, so hold them to the app's own list: a fifth MenB condition must change them.
+    expect([...group(MENB_GROUPS, 'bhr').ids, ...group(MENB_GROUPS, 'bout').ids].sort())
+      .toEqual(['asplenia', 'complement', 'microbiologist', 'outbreak_b']);
     expect(RISK_FACTORS.filter((r) => r.menbClass === 'highrisk').map((r) => r.id).sort())
       .toEqual(['asplenia', 'complement', 'microbiologist', 'outbreak_b']);
   });
@@ -158,33 +143,37 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
     expect(interval('MenACWY booster').gap).toBe('3 years after a series ending before 7 years, otherwise 5, then 5 years after the last booster');
     expect(interval('High-risk MenB booster').gap).toBe('1 year after the series, then 2 years after the last booster');
   });
-  it('R90 and the dose 3 line under it: periods, not semicolons (owner, 2026-11-20)', () => {
-    expect(interval('Healthy MenB dose 2').text).toBe('Sooner still counts. Dose 3 is added.');
-    // M1 (owner, 2026-11-20): was "Sooner still counts. Dose 4 is added."
-    expect(interval('High-risk MenB dose 3').text).toBe('Sooner does not count. Repeat it.');
+  it('R90: periods, not semicolons; the rows moved by the reorganization (item 9)', () => {
+    // extinct: the "Sooner still counts" line in the table. Healthy MenB dose 2
+    // is now in its own list; high-risk dose 3 needs no line, since the table's
+    // heading says a dose given sooner does not count.
+    expect(interval('Healthy MenB dose 2')).toBeUndefined();
+    expect(SOONER_ADDS.rows[0].text).toBe('Healthy MenB dose 2 <6 months after dose 1 counts. Dose 3 is added.');
+    expect(interval('High-risk MenB dose 3').text).toBeUndefined();
   });
   it('R91–R93: a dose that does not count', () => {
-    const texts = NOT_COUNTED.map((r) => r.text);
+    const texts = [...NOT_COUNTED.general, ...NOT_COUNTED.special].map((r) => r.text);
     // R91, owner 2026-11-20 after it was built: "yes, add 'at least'". The
     // repeat can fall later than the minimum when the schedule says so: a
     // healthy MenB dose 2 given 3 weeks early is repeated 6 months after dose 1.
     expect(texts).toContain('The repeat is given at least the minimum interval after the invalid dose.');
     expect(texts).not.toContain('The repeat is given at the minimum interval after the invalid dose.');   // extinct: R91 as first built
-    const r91 = NOT_COUNTED.find((r) => r.text.startsWith('The repeat is given at least'));
+    const r91 = NOT_COUNTED.general.find((r) => r.text.startsWith('The repeat is given at least'));
     expect(r91.ex.map((e) => e.who)).toContain('Healthy 18-year-old, Bexsero 3 weeks apart');
     expect(texts).toContain('A routine MenACWY dose before 10 years does not count, but the next dose still waits 8 weeks after it.');
-    expect(texts).toContain('Finish with the first MenB product. The card also offers finishing with the other.');
+    // Item 5: moved under "MenB products are not interchangeable".
+    expect(FAMILIES.finish).toBe('Finish with the first MenB product. The card also offers finishing with the other.');
   });
 });
 
 describe('Style rule 4 on the whole Rulebook screen (owner, 2026-11-20: R50 and "Applies in" too)', () => {
-  it('R50 uses a comma', () => {
-    expect(ACWY_HIGHRISK_NOTES.spacing).toBe('Infant series: early doses ≥8 weeks apart, the final dose ≥12 weeks after the one before and at 12 months or older.');
+  it('R50: extinct, the spacing line repeated the new schedule tables (reorganization item 6)', () => {
+    expect(ACWY_HIGHRISK_NOTES).not.toHaveProperty('spacing');
   });
   it('no semicolon anywhere in the app\'s own words on the screen (CDC\'s quoted sentences keep theirs)', () => {
     render(<Rulebook />);
-    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
-    for (const b of screen.getAllByRole('button', { name: /^(Show|Details|MeningoVax decision: .*)$/ })) fireEvent.click(b);
+    openAll();
+    for (const b of screen.getAllByRole('button', { name: /^(Show|MeningoVax decision: .*)$/ })) fireEvent.click(b);
     const copy = document.body.cloneNode(true);
     copy.querySelectorAll('.rb-src-panel, .rb-doc').forEach((e) => e.remove());
     expect(copy.textContent).toContain('Applies in:');   // not vacuous: part 7 is open
