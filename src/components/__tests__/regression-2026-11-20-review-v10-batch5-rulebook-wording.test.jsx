@@ -131,7 +131,11 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
     expect(chip('Not counted — repeat')).toBe('Minimum age or minimum interval not met, or the MenB product is not interchangeable with the first. The line below gives the repeat date.');
     expect(chip('Not counted — do not repeat')).toBe('Invalid dose, but no further dose is owed.');
     expect(chip('Not counted — given before age 10')).toBe('Routine MenACWY before 10 years. The teen series starts at 11–12 years.');
-    expect(chip('Not counted — given before age 16')).toBe('Healthy MenB before 16 years. The series starts at 16 years or older.');
+    // Owner 2026-11-21: this label has two key rows, MenACWY then MenB.
+    expect(CHIP_LEGEND.filter((x) => x.chip === 'Not counted — given before age 16').map((x) => x.text)).toEqual([
+      'Routine MenACWY booster before 16 years. The booster is given at 16 years or older.',
+      'Healthy MenB before 16 years. The series starts at 16 years or older.',
+    ]);
     expect(chip('No date recorded — not counted')).toBe('Only dated records count. Add the date to have the dose checked.');
     expect(chip('Needs input')).toBe('Was the patient high-risk on that date? Answer beside the dose.');
   });

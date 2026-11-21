@@ -181,3 +181,20 @@ Aug 1; Jan 1, Jun 25 → due Oct 25; no earlier date on any. Pinned by the contr
 - **Minimum interval column. Owner: "Light grey shading".** In every Dose | Routine | Minimum
   interval table, the Minimum interval cells get a faint grey background. Blue (shared decision)
   and amber (wait) stay the only colored tints (item 4).
+
+## Label key: "Not counted — given before age 16" (asked and answered 2026-11-21)
+
+- **Finding (handoff 2026-11-20):** the app gives this label to two doses: a healthy patient's
+  MenB dose before 16, and a routine MenACWY booster before 16 (worked patient `boosterAt15`:
+  MenACWY at 11 and 15). The key explained only the MenB one.
+- **Owner asked:** why not one chip, "given before the minimum age", for both age lines? Answer
+  given: "minimum age" already means too young for the vaccine itself ("Not counted — repeat");
+  these doses are past the vaccine's minimum age but before the routine schedule's age, and are
+  set aside, not repeated. Merging would also reverse Q6 (2026-11-17).
+- **Owner: "Keep two, fix key".** The two labels stay (Q6). The key gets one row per vaccine,
+  the way "before age 10" has its own MenACWY row: "Routine MenACWY booster before 16 years. The
+  booster is given at 16 years or older." (MenACWY row, first), then the MenB row unchanged.
+  The row's Source (its worked patient's card) quotes ACIP: "a booster dose administered at age
+  16 years". "Or older" follows the engine, checked 2026-11-21: the booster is due from the 16th
+  birthday (at 16 and 18, "Booster (16y)"); at 21 the card offers a catch-up dose. Guard:
+  `regression-2026-11-21-label-key-before-16-both-vaccines.test.jsx`.
