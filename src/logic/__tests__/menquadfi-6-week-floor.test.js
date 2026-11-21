@@ -110,13 +110,17 @@ describe('M1 — MenQuadfi‘s 42-day floor is exact for every birth month', () 
 // ── M2 · licence floor vs. schedule floor ─────────────────────────────────
 
 describe('M2 — the licence floor and the schedule floor are allowed to differ', () => {
-  it('a 7-week-old with asplenia: nothing is due yet (schedule floor is 2 months)', () => {
+  // Owner, 2026-11-21: from 6 weeks MenQuadfi CAN be given (AAP 2026), but
+  // dose 1 is still DUE at the 2-month schedule floor. The two floors still
+  // differ; the card now says both. Was: not-indicated, nothing offered.
+  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months), but MenQuadfi can be given today', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks = 49 days old
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     expect(r.menacwy[0].dueToday).toBe(false);
-    expect(r.menacwy[0].status).toBe('not-indicated');
+    expect(r.menacwy[0].canGiveToday).toBe(true);
+    expect(r.menacwy[0].brands).toEqual([MENQUADFI]);
   });
 
   it('...but a MenQuadfi dose actually GIVEN at 7 weeks counts (licence floor is 6 weeks)', () => {
@@ -157,14 +161,16 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
 // ── M3 · card copy stops naming a single brand when two are offered ──────
 
 describe('M3 — no card names one brand while offering two chips', () => {
-  it('a 7-week-old with NO doses yet: still told to track and start at 2 months, with no false "only Menveo" claim', () => {
+  // Owner, 2026-11-21: the 7-week-old now reads "Dose 1 of 4", MenQuadfi only,
+  // "may be given from 6 weeks" (was "Not yet due ... track them and start it").
+  it('a 7-week-old with NO doses yet: offered MenQuadfi only, series starting at 2 months, with no false "only Menveo" claim', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks old, given === 0
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     const card = r.menacwy[0];
-    expect(card.doseLabel).toBe('Not yet due (from 2 months)');
-    expect(noteText(card)).toMatch(/track them and start it/);
+    expect(card.doseLabel).toBe('Dose 1 of 4 (infant high-risk)');
+    expect(noteText(card)).toMatch(/starts at 2 months; MenQuadfi may be given from 6 weeks/);
     // MenQuadfi's own floor (6 weeks) is younger than the 2-month schedule
     // floor this card is describing, so "only Menveo is licensed that young"
     // was never true — nothing should claim it.

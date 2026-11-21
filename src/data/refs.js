@@ -232,6 +232,17 @@ export const CITATIONS = {
     short: 'WA DOH',
     lastVerified: '2026-09-22',
   },
+  // AAP's own sentence, read 2026-11-21 from the owner's copy of the AAP 2026
+  // schedule PDF (AAP's site blocks automated reading). It appears twice in the
+  // MenACWY notes: under the high-risk group and under travel. The owner applied
+  // it to outbreak infants too (2026-11-21, "Yes, outbreak too").
+  aap2026MenQuadfiFrom6Weeks: {
+    url: 'https://downloads.aap.org/AAP/PDF/AAP-Immunization-Schedule.pdf',
+    quote: 'Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6, and 12 months). The first dose of MenQuadfi may be given as early as 6 weeks.',
+    label: 'AAP 2026 schedule: the infant series starts at 2 months; MenQuadfi may be given from 6 weeks',
+    short: 'AAP 2026 schedule',
+    lastVerified: '2026-11-21',
+  },
   // M16 (2026-09-15): the "preferred age 16-18 yrs" claim, restored with the
   // citation it should always have carried. C1/2026-07-24 dropped it after
   // correctly finding it absent from mm7349a3 (the Oct 2024 Bexsero dosing

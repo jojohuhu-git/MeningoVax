@@ -188,9 +188,13 @@ purposes. This only applies to healthy patients; a high-risk infant series
     > Owner decision T1, 2026-11-19 ([decisions-2026-11-19-t1-t2-todo-rules.md](../archive/decisions-2026-11-19-t1-t2-todo-rules.md)).
     <!-- /SOURCES -->
   - **MenQuadfi is licensed from 6 weeks, younger than the app's own 2-month
-    schedule floor (2026-09-23, AAP-aligned per WA DOH).** The app still never
-    *asks* for a dose before 2 months — CDC's earliest schedule row is 2 months
-    regardless of which product a family chooses — but a MenQuadfi dose actually
+    schedule floor (2026-09-23, AAP-aligned per WA DOH).** Dose 1 is still *due*
+    at 2 months. Since 2026-11-21 (your MQ6 answer, AAP 2026: "The first dose of
+    MenQuadfi may be given as early as 6 weeks"), a high-risk, travelling or
+    outbreak baby from 6 weeks to under 2 months with no MenACWY yet gets the card
+    **"Can be given today"**, MenQuadfi only, "Dose 1 of 4", next dose due at 2
+    months. This needs a date of birth: from whole months alone a 5-week-old and
+    a 7-week-old look the same. A MenQuadfi dose actually
     given at 6 or 7 weeks is licensed and **counts**: the card for a patient in
     that gap says so and states the schedule that follows ("6 weeks, then 4, 6
     and 12 months") instead of pretending nothing happened. Menveo's own floor
@@ -201,14 +205,18 @@ purposes. This only applies to healthy patients; a high-risk infant series
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
-    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, cdcChildAcwyMinAge, owner:C13 -->
+    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, aap2026MenQuadfiFrom6Weeks, cdcChildAcwyMinAge, owner:C13, owner:MQ6 -->
     > "MenQuadfi is approved for use in individuals 6 weeks of age and older." — [MenQuadfi Package Insert](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7), read 2026-09-23.
     >
     > "Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation." — [WA DOH](https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines), read 2026-09-22.
     >
+    > "Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6, and 12 months). The first dose of MenQuadfi may be given as early as 6 weeks." — [AAP 2026 schedule](https://downloads.aap.org/AAP/PDF/AAP-Immunization-Schedule.pdf), read 2026-11-21.
+    >
     > "minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]" — [CDC Child/Adolescent Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-15.
     >
     > Owner decision C13, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    >
+    > Owner decision MQ6, 2026-11-21 ([decisions-2026-11-21-menquadfi-from-6-weeks.md](../archive/decisions-2026-11-21-menquadfi-from-6-weeks.md)).
     <!-- /SOURCES -->
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
     at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or
