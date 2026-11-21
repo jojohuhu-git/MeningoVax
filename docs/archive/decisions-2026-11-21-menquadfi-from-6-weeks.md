@@ -27,6 +27,7 @@ series starts at 2 months, so nothing is due yet."
 |---|---|---|
 | MQ6 | What should the 7-week card do? | **"Can be given (Rec.)"**: badge "Can be given today", MenQuadfi only; dose 1 still due at 2 months. Lead: "The infant series starts at 2 months; MenQuadfi may be given from 6 weeks." |
 | MQ6-b | AAP's 6-week line appears only under high-risk and travel. Does the offer apply to an outbreak baby too? (I recommended no: AAP points outbreaks to ACIP 2020, which has no 6-week option.) | **"Yes, outbreak too."** |
+| MQ6-c | The summary line above the cards said "No MenACWY or MenB doses due today." over the "Can be given today" card. Should it also say MenQuadfi can be given today? | **"Yes, add it."** Built: "No MenACWY or MenB doses due today. MenQuadfi can be given today." |
 
 ## Built (2026-11-21)
 
