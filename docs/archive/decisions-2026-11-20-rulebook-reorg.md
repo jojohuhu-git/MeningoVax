@@ -222,5 +222,8 @@ Aug 1; Jan 1, Jun 25 → due Oct 25; no earlier date on any. Pinned by the contr
   "Hide all". "Applies in" now names steps. Card headings moved one level down (h4; their
   sub-headings h5) so the page reads heading > step > card. No clinical rule, worked patient or
   rulebook cell changed. Guard: `regression-2026-11-21-rulebook-steps-hold-their-sections.test.jsx`.
-- **Kept on purpose:** the R74 lead (approved wording) stays at the top of step 2, though its
-  first sentence repeats the step's one-line summary. Removing it would be a wording change to ask.
+- **R74 lead dropped (owner, 2026-11-21, "Drop it"):** asked whether to remove the R74 lead at
+  the top of step 2 ("Each recorded dose is checked for minimum age and minimum interval, and
+  gets one label. The card shows the routine date. The earliest valid date may be sooner."),
+  since step 2's bar already says "Each recorded dose is checked and given one label." and step
+  5's says the routine and earliest valid date. Removed; the R74 test now checks it stays gone.

@@ -18,7 +18,8 @@ clean at `cc2cdd4` (plus this handoff's commit).
   `docs/archive/decisions-2026-11-20-rulebook-reorg.md`, last section). "How MeningoVax decides"
   holds six steps, each its own fold with its section inside:
   - Stop check;
-  - Read the record: R74 lead, The vaccines, MenB products, label key, "does not count";
+  - Read the record: The vaccines, MenB products, label key, "does not count" (the R74 lead was
+    dropped, owner "Drop it", 2026-11-21: it repeated the step's summary);
   - MenACWY schedule, with the MenACWY rows of "More than one condition";
   - MenB schedule, with pregnancy and the MenB rows;
   - Set the dates: minimum intervals and grace;
@@ -39,19 +40,17 @@ clean at `cc2cdd4` (plus this handoff's commit).
 
 1. **Owner reviews and merges PR #128, then #129** (in that order). Check `origin/main` before
    calling either merged.
-2. **R74 lead repeats step 2's summary** ("Each recorded dose is checked…"). It was kept because
-   it is approved wording. Ask the owner whether to drop it; don't default.
-3. **Q5** (amber "Not counted — do not repeat"). It is approved, but the owner wants to look at
+2. **Q5** (amber "Not counted — do not repeat"). It is approved, but the owner wants to look at
    PneumoVax's labels herself first. Wait for her.
-4. **STOP H**: the owner reviews `docs/agent/meningococcal-rules-summary.md`.
-5. **Not yet asked:**
+3. **STOP H**: the owner reviews `docs/agent/meningococcal-rules-summary.md`.
+4. **Not yet asked:**
    - PneumoVax `DoseEditor.jsx` "Tick this…".
    - MenQuadfi before 2 months (read AAP live first).
    - PneumoVax design parity (L1–L4/L7, P71).
    - DoseEditor "Family locked: MenB-4C" (Q2).
    - Whether PneumoVax's Rules screen should follow this Rulebook layout, including the
      nested steps and Show all (`design-review` skill: record, don't drop).
-6. **Seen, not raised:** `npm run build` prints two CSS minify warnings (`App.css`). They were on
+5. **Seen, not raised:** `npm run build` prints two CSS minify warnings (`App.css`). They were on
    `main` before; the build still succeeds.
 
 ## Why this is a good stopping point

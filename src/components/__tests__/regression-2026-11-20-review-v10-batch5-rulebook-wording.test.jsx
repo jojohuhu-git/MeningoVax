@@ -123,8 +123,9 @@ describe('Review v10 Batch 5a — part 4, MenB (R56–R68)', () => {
 });
 
 describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () => {
-  it('R74: the lead', () => {
-    expect(pageText()).toContain('Each recorded dose is checked for minimum age and minimum interval, and gets one label. The card shows the routine date. The earliest valid date may be sooner.');
+  it('R74: the lead (dropped 2026-11-21: it repeated step 2\'s own summary)', () => {
+    // extinct: owner 2026-11-21, "Drop it" (the step bar already says "Each recorded dose is checked and given one label.").
+    expect(pageText()).not.toContain('Each recorded dose is checked for minimum age and minimum interval');
   });
   it('R75–R85: what each label means', () => {
     expect(chip('Dose 2 of 2')).toBe('Valid dose, with its place in the series. Just "Dose 1" when nothing more is owed.');

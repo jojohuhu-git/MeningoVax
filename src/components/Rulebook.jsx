@@ -373,8 +373,7 @@ const Chip = ({ tone, children }) => <span className={`dose-val-chip ${CHIP_CLAS
 function Record() {
   return (
     <>
-      {/* R74 (review v10, approved 2026-11-20). */}
-      <p className="rb-lead">Each recorded dose is checked for minimum age and minimum interval, and gets one label. The card shows the routine date. The earliest valid date may be sooner.</p>
+      {/* R74's lead was dropped (owner, 2026-11-21: it repeated step 2's summary). */}
       <Vaccines />
 
       <Card id="rb-labels" title="What the label on a dose means">
