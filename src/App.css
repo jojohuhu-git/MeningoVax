@@ -1642,12 +1642,6 @@ body {
 .cite-pop-link { color: var(--c2); text-decoration: underline; }
 
 
-/* ── "How this was worked out" — the per-patient route (C14, 2026-10-25) ── */
-  width: 100%; display: flex; align-items: center; gap: var(--sp-8);
-  background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; text-align: left;
-  font-size: var(--fs-sm); font-weight: 600; color: var(--c2);
-}
-
 /* 2026-11-01 owner review: risk-table column titles, at-risk sub-rows, the
    merged chip key, and the invalid-dose example. */
 .rb-who { display: block; font-size: var(--fs-xs); font-weight: 700; color: var(--gy2); }
