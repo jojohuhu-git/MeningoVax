@@ -54,10 +54,29 @@ describe('a 7-week-old with asplenia', () => {
     expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
   });
 
+  // Owner, 2026-11-21 ("Yes, add it"): the summary line above the cards names
+  // the offer too, so a clinician skimming it does not miss the card.
+  it('the summary line says nothing is due, and that MenQuadfi can be given today', () => {
+    show('2026-08-04');
+    expect(screen.getByTestId('results-summary-line').textContent)
+      .toBe('No MenACWY or MenB doses due today. MenQuadfi can be given today.');
+  });
+
   it('offers MenQuadfi only ("Brand: MenQuadfi") — Menveo is licensed from 2 months', () => {
     show('2026-08-04');
     expect(screen.getByText('Brand: MenQuadfi')).toBeDefined();
     expect(screen.queryByText('Menveo 2-vial')).toBeNull();
+  });
+});
+
+describe('controls for the summary line', () => {
+  it('a 5-week-old with asplenia (under 6 weeks): no offer, summary unchanged', () => {
+    show('2026-08-18'); // 35 days before TODAY
+    expect(screen.getByTestId('results-summary-line').textContent).toBe('No MenACWY or MenB doses due today.');
+  });
+  it('a 2-month-old with asplenia: dose 1 is due, summary unchanged', () => {
+    show('2026-07-22');
+    expect(screen.getByTestId('results-summary-line').textContent).toBe('Due today: MenACWY.');
   });
 });
 

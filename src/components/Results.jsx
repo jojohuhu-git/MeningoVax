@@ -173,6 +173,12 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
     summaryLine = `No ${notDue} dose is due today. ${optionalDue[0]} may be offered today by shared clinical decision-making.`;
   } else {
     summaryLine = 'No MenACWY or MenB doses due today.';
+    // MQ6 (owner, 2026-11-21, "Yes, add it"): a baby from 6 weeks whose
+    // MenACWY card says "Can be given today" (MenQuadfi only). The line names
+    // the offer, so a clinician skimming it does not miss the card. The brand
+    // comes from the card; nothing is decided here.
+    const acwyGivable = menacwy.find(r => r.canGiveToday && r.brands?.length === 1);
+    if (acwyGivable) summaryLine += ` ${stripAntigen(acwyGivable.brands[0])} can be given today.`;
   }
 
   // P1-4 (2026-09-15, owner decision): while any recorded dose is still waiting
