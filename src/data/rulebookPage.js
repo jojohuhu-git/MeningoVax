@@ -808,6 +808,9 @@ export const CHIP_LEGEND = [
   { chip: 'Not counted — repeat', tone: 'invalid', text: 'Minimum age or minimum interval not met, or the MenB product is not interchangeable with the first. The line below gives the repeat date.', ex: [P.acwyTooSoon] },
   { chip: 'Not counted — do not repeat', tone: 'invalid', text: 'Invalid dose, but no further dose is owed.', ex: [P.doNotRepeat] },
   { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Routine MenACWY before ${AT10}. The teen series starts at ${ROUTINE_D1}.`, ex: [P.healthy13pre10] },
+  // Owner 2026-11-21 ("Keep two, fix key"): the same label also marks a routine
+  // MenACWY booster before 16, so each vaccine has its own row.
+  { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS)}`, tone: 'extra', text: `Routine MenACWY booster before ${AT16}. The booster is given at ${AT16} or older.`, ex: [P.boosterAt15] },
   { chip: `Not counted — given before age ${y(MENB_HEALTHY_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Healthy MenB before ${AT16}. The series starts at ${AT16} or older.`, decision: 'healthyMenbBefore16', ex: [P.menbPre16] },
   { chip: 'Not counted — Extra. Do not repeat.', tone: 'extra', text: 'Given when no dose was recommended.', decision: 'extraDose', ex: [P.extraAcwy] },
   { chip: 'No date recorded — not counted', tone: 'unknown', text: 'Only dated records count. Add the date to have the dose checked.', ex: [P.undated] },

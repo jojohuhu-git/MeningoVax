@@ -364,7 +364,7 @@ function Record() {
       <Card id="rb-labels" title="What the label on a dose means">
         <div className="rb-legend">
           {CHIP_LEGEND.map((c) => (
-            <div key={c.chip} className="rb-legend-item">
+            <div key={`${c.chip}|${c.text}`} className="rb-legend-item">
               <span className="rb-chips"><Chip tone={c.tone}>{c.chip}</Chip></span>
               <span className="rb-small">{c.text}<Decisions row={c} /><Source row={c} /></span>
             </div>
