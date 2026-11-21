@@ -159,7 +159,13 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
   });
   it('R91–R93: a dose that does not count', () => {
     const texts = NOT_COUNTED.map((r) => r.text);
-    expect(texts).toContain('The repeat is given at the minimum interval after the invalid dose.');
+    // R91, owner 2026-11-20 after it was built: "yes, add 'at least'". The
+    // repeat can fall later than the minimum when the schedule says so: a
+    // healthy MenB dose 2 given 3 weeks early is repeated 6 months after dose 1.
+    expect(texts).toContain('The repeat is given at least the minimum interval after the invalid dose.');
+    expect(texts).not.toContain('The repeat is given at the minimum interval after the invalid dose.');   // extinct: R91 as first built
+    const r91 = NOT_COUNTED.find((r) => r.text.startsWith('The repeat is given at least'));
+    expect(r91.ex.map((e) => e.who)).toContain('Healthy 18-year-old, Bexsero 3 weeks apart');
     expect(texts).toContain('A routine MenACWY dose before 10 years does not count, but the next dose still waits 8 weeks after it.');
     expect(texts).toContain('Finish with the first MenB product. The card also offers finishing with the other.');
   });

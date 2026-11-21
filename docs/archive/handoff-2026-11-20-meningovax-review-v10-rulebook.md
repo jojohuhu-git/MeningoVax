@@ -8,7 +8,7 @@ owner is a clinician: plain English, ask, don't default. **Supersedes**
 Branch: `port/review-v10-rulebook`, off `origin/main` `37ef2fd` (PR #124, Batches 1–4, merged).
 **Pushed; PR #125 open against `main`** (https://github.com/jojohuhu-git/MeningoVax/pull/125),
 waiting for the owner to merge. Baseline was 2,322 / 193; now **2,356 passed (195 files)**, all
-green (`npm test`, 2026-11-20). Commits `6c72c1a` (5a) and `e061354` (D1), then this handoff.
+green (`npm test`, 2026-11-20). Commits `6c72c1a` (5a), `e061354` (D1), the R91 change and this handoff.
 
 ## The source of truth
 
@@ -32,17 +32,17 @@ sentence** "Recommendations are based on age, risk conditions and dated vaccine 
    `recommend()` by the 2026-11-19 guard. Test `regression-2026-11-20-review-v10-d1-rulebook-redesign.test.jsx`.
    Old unused `.rb-steps/.rb-step` CSS removed. Live-checked desktop and phone (no page sideways
    scroll; group column pinned).
-   **Changed from the mockup so it is true of the app** (in PR #125): military Details ("the doses
+3. **R91 "at least"** (owner, after it was built): "The repeat is given at least the minimum interval
+   after the invalid dose." (a healthy MenB dose 2 given 3 weeks early is repeated 6 months after
+   dose 1; worked patient `menbHealthy3wk` now on that row). R102 keeps "at the minimum interval":
+   it covers only a too-young first dose, where that is exact.
+   **D1 was changed from the mockup so it is true of the app** (in PR #125): military Details ("the doses
    follow the routine schedule"); "After an invalid dose … at least the minimum interval"; label
    colours stay the app's own (Q5 not built), and the "Red labels mean… amber…" sentence is left out.
 
 ## What's NOT done
 
 - **Owner: review and merge PR #125.** Point out the "changed from the approved words" table there.
-- **Finding for the owner (not fixed):** R91 says "The repeat is given at the minimum interval after
-  the invalid dose", which is not what the app does for a healthy MenB dose 2 given too soon. The
-  app dates that repeat 6 months after dose 1, not 4 weeks after the invalid dose (worked patient
-  `menbHealthy3wk`). Built as approved. Ask whether to add "at least", as D1's step 5 now says.
 - **Q5** (amber "Not counted — do not repeat"): approved, but **remind the owner to check PneumoVax's
   labels first**. Building it also means adding back the step 2 colour sentence.
 - **STOP H**: owner reviews the rulebook (`docs/agent/meningococcal-rules-summary.md`), per the plan.

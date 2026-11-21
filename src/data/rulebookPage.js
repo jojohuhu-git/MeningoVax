@@ -759,7 +759,8 @@ export const INTERVALS = [
 
 export const NOT_COUNTED = [
   { text: 'Repeat that dose only. Do not restart the series.', ex: [P.acwyTooSoon] },
-  { text: 'The repeat is given at the minimum interval after the invalid dose.', ex: [P.acwyTooSoon] },
+  // R91 (owner, 2026-11-20): "at least". menbHealthy3wk's repeat is due 6 months after dose 1.
+  { text: 'The repeat is given at least the minimum interval after the invalid dose.', ex: [P.acwyTooSoon, P.menbHealthy3wk] },
   { text: `A too-young first dose: the repeat waits ${W8} (MenACWY) or ${W4} (MenB) after it.`, decision: 'repeatAfterTooYoung', ex: [P.unknown6wk] },
   { text: `A routine MenACWY dose before ${AT10} does not count, but the next dose still waits ${W8} after it.`, decision: 'setAsideClock', ex: [P.setAside] },
   { text: 'Finish with the first MenB product. The card also offers finishing with the other.', ex: [P.wrongFamily] },

@@ -23,6 +23,12 @@ Answer column says "Built".
   - **R1 (owner's own text):** "Recommendations are based on age, risk conditions and dated vaccine
     history." That sentence alone opens the screen.
 
+  - **R91, after it was built: "yes, add 'at least'".** The approved sentence ("The repeat is given
+    at the minimum interval after the invalid dose") was not true of a healthy MenB dose 2 given
+    3 weeks after dose 1: the app dates the repeat 6 months after dose 1, not 4 weeks after the
+    invalid dose. It now reads "The repeat is given at least the minimum interval after the invalid
+    dose.", matching step 5 of the redesigned screen.
+
 ## Still gated
 
 - **R1**: answered (above).
