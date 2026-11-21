@@ -1113,20 +1113,12 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         refs });
     }
-    // M4 (2026-09-23): this card makes a LICENCE claim ("a product licensed
-    // that young") the schedule citation (acwyInfantHighRisk2to6mo) doesn't
-    // support -- that MMWR states dose counts and intervals, not which
-    // product may be given when. The package insert is the right source for
-    // that; the WA DOH chip carries the "why" (AAP alignment) a clinician
-    // reading this unusual card would otherwise have to take on faith.
-    return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Dose 1 given; next dose not yet due',
-      dueToday: false,
-      note: {
-        lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young [c]; it counts toward the ${why} series.`,
-        detail: `${whyTitle} series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months [c]. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
-      },
-      noteCites: [cite('menQuadfiPackageInsert'), cite('acwyInfantHighRisk2to6mo')],
-      refs: [...refs, 'waDohMenQuadfiAapAlignment'] });
+    // MQ6-e (owner, 2026-11-21, "Same as at 2 months"): a dose already given
+    // before 2 months (MenQuadfi from 6 weeks) falls through to the series
+    // continuation below, the card the same baby gets from 2 months: dose 2
+    // due at 4 months, the 8-week minimum beside it (AAP 2026 catch-up table,
+    // MenACWY dose 1 to dose 2: "8 weeks"; owner Q9b). This used to return
+    // "Not needed" / "Dose 1 given; next dose not yet due", with no date.
   }
   if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     // start series; Menveo and MenQuadfi both licensed by this age (M3, 2026-09-23).

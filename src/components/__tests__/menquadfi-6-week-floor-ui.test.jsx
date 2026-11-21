@@ -108,6 +108,10 @@ describe('a 7-week-old with a MenQuadfi dose already given at 6 weeks', () => {
     // only the MenACWY card, which has the MenQuadfi dose, should have moved on.
     expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
     expect(screen.queryByText('Not yet due (from 2 months)')).toBeNull();
-    expect(screen.getByText(/6 weeks, then 4, 6 and 12 months/)).toBeDefined();
+    // MQ6-e (owner, 2026-11-21, "Same as at 2 months"): dose 2, due at 4 months.
+    expect(screen.getByText('Dose 2 (infant high-risk series)')).toBeDefined();
+    expect(screen.getByText('Next dose due Dec 4, 2026')).toBeDefined();
+    // Only the MenB card (10-year floor) still reads "Not needed".
+    expect(screen.getAllByText('Not needed')).toHaveLength(1);
   });
 });
