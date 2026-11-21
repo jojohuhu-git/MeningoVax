@@ -71,14 +71,25 @@ describe('Item 3: recorded-dose audit list stays aligned when entered out of ord
 // had drifted -- only StepHistory showed the MenB family-lock guidance.
 // Both now render the shared DoseEditor, so both must show it.
 describe('Item 5: MenB family-lock guidance appears in the Results editor too', () => {
-  it('shows "Family locked: MenB-4C" after picking Bexsero as dose 1 in the Results panel', () => {
+  // Q2 follow-on (owner, 2026-11-21, "Match the first"): brand names only,
+  // the Rulebook's own words; never "Family locked" or "4C"/"FHbp".
+  it('says "Every MenB dose must match the first: Bexsero or Penmenvy." after picking Bexsero as dose 1 in the Results panel', () => {
     render(<Harness initial={baseState({ menbDoses: [{ date: '', brand: '' }] })} />);
     const panel = openRecordedDoses();
 
     const brandSelect = panel.querySelector('select');
     fireEvent.change(brandSelect, { target: { value: 'Bexsero' } });
 
-    expect(panel.textContent).toMatch(/Family locked: MenB-4C/i);
+    expect(panel.textContent).toContain('Every MenB dose must match the first: Bexsero or Penmenvy.');
+    expect(panel.textContent).not.toMatch(/Family locked|MenB-4C|MenB-FHbp/);
+  });
+
+  it('says "Every MenB dose must match the first: Trumenba or Penbraya." after picking Trumenba as dose 1', () => {
+    render(<Harness initial={baseState({ menbDoses: [{ date: '', brand: '' }] })} />);
+    const panel = openRecordedDoses();
+    fireEvent.change(panel.querySelector('select'), { target: { value: 'Trumenba' } });
+    expect(panel.textContent).toContain('Every MenB dose must match the first: Trumenba or Penbraya.');
+    expect(panel.textContent).not.toMatch(/Family locked|MenB-4C|MenB-FHbp/);
   });
 
   it('shows the "brand unknown, both families open" note for an unbranded first MenB dose', () => {

@@ -122,10 +122,14 @@ export default function DoseEditor({
   const otherVaccine = vaccine === 'MenB' ? 'MenACWY' : 'MenB';
   const pentavalentHere = doses.some((d) => isPentavalentBrand(d?.brand));
   const creditedHere = creditedDoses.filter((d) => isPentavalentBrand(d?.brand));
+  // Q2 follow-on (owner, 2026-11-21, "Match the first"): brand names only, in
+  // the Rulebook's own words; the family codes ("4C", "FHbp") are never shown.
+  // ACIP 2020: "the same vaccine product must be used for all doses";
+  // Penmenvy MMWR 2026: Penmenvy goes with Bexsero, Penbraya with Trumenba.
   const familyLabel = lockedFamily === '4C'
-    ? 'Family locked: MenB-4C (continue with Bexsero or Penmenvy)'
+    ? 'Every MenB dose must match the first: Bexsero or Penmenvy.'
     : lockedFamily === 'FHbp'
-    ? 'Family locked: MenB-FHbp (continue with Trumenba or Penbraya)'
+    ? 'Every MenB dose must match the first: Trumenba or Penbraya.'
     : null;
 
   return (
