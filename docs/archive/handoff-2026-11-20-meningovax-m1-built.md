@@ -43,9 +43,8 @@ owner merges). Baseline was 2,359 passing (195 files); now **2,368 passing (196 
    does show one: due Aug 1, earliest valid Jul 1. Pinned in the M1 test.
 2. **Wording:** the earliest-date line uses the app's existing review-v10 wording ("Earliest valid
    date: …"), not the preview's "It can be given from … if needed".
-3. **Possible owner question (consequence of M1b, not asked):** an ordinary first dose-3 card
-   (no early dose 3) still shows no earliest-valid date, though a dose at 4 months after dose 2
-   counts (C5). Only the repeat card shows it. Ask whether the first dose-3 card should too.
+3. **Answered (M1d, 2026-11-20): "keep as is".** The first dose-3 card shows no earliest valid
+   date; only the repeat card does. Recorded in the decisions file.
 4. The dose line under the not-counted dose says "Repeat from <the card's due date>" (e.g. Feb 1),
    while the card shows an earlier valid date (Jan 15). Same pattern as other repeat lines.
 
@@ -76,7 +75,7 @@ answers and drawings first.
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git fetch && git log --oneline origin/main -3`:
    is #126 merged? If yes, `git checkout main && git pull` and branch for the Rulebook work.
 2. `npm test`: confirm **2,368 passed / 196 files**. `preview_start {name: "MeningoVax dev server"}`.
-3. Raise the four "Tell the owner" points. Ask the two Rulebook layout questions; draw before/after.
+3. Points 1, 2 and 4 under "Tell the owner" were raised in chat 2026-11-20; point 3 is M1d. Ask the two Rulebook layout questions; draw before/after.
 4. Per item: failing test → change → `npm test` → `npm run sweep:update` if answers move (explain
    the count) → `npm run rulebook` → live check → commit named by ID. E4 checklist in the PR body.
 5. Ship: branch → PR against `main`; the owner merges.

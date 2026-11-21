@@ -163,3 +163,12 @@ Scope note (build): the 4-month line is measured from a dose 3 that was not coun
 (the early dose 3). A dose not counted for another reason (the other MenB product, too soon after
 dose 1) keeps its 4-week repeat gap (ACIP mm7349a3 interchangeability: "≥4 weeks after the most
 recent dose (from either manufacturer)"; owner C2, E1/E2).
+
+**M1d — does the FIRST dose-3 card (no early dose 3 given) show an earliest valid date? Owner
+(2026-11-20): "keep as is".** The card shows only the routine date (the later of 6 months after
+dose 1 and 4 months after dose 2). Only the repeat after a not-counted dose 3 shows "Earliest valid
+date" (M1b). Why asked: a dose 3 ≥4 months after dose 2 counts (C5), or ≥6 months after dose 1
+(ACIP "unless", M1a), so the true minimum can fall days after dose 2 (Jan 1, Jun 25 → Jul 1), and
+no source advises giving it then. Engine 2026-11-20: Jan 1, Feb 1 → due Jul 1; Jan 1, Apr 1 → due
+Aug 1; Jan 1, Jun 25 → due Oct 25; no earlier date on any. Pinned by the control in
+`regression-2026-11-20-m1-menb-highrisk-dose3-follows-cdsi.test.js`.
