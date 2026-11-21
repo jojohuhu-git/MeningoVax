@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-21):** PR #127 merged and the label-key finding was fixed (PR #128). Resume from `handoff-2026-11-21-meningovax-label-key-before-16.md`, not this file.
+
 # MeningoVax — Handoff after the Rulebook reorganization was built (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
