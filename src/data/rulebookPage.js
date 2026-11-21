@@ -752,8 +752,8 @@ export const INTERVALS = [
   { doses: 'MenACWY infant series, final dose', gap: INFANT_FINAL_STEP, ex: [P.asp9m] },
   { doses: 'MenACWY booster', gap: `${B3} after a series ending before ${AT7}, otherwise ${MENACWY_FIRST_BOOSTER_YEARS_FROM_7}, then ${EVERY5} after the last booster`, decision: 'boosterMinimum', ex: [P.aspBoosterEarly, P.military19] },
   { doses: 'Any two MenB doses', gap: W4, ex: [P.menbHealthy3wk] },
-  { doses: 'Healthy MenB dose 2', gap: mo(MENB_HEALTHY_D2_MONTHS), text: `Sooner still counts; dose 3 is added.`, ex: [P.menbHealthyEarly] },
-  { doses: 'High-risk MenB dose 3', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2`, text: 'Sooner still counts; dose 4 is added.', ex: [P.menbD3early] },
+  { doses: 'Healthy MenB dose 2', gap: mo(MENB_HEALTHY_D2_MONTHS), text: 'Sooner still counts. Dose 3 is added.', ex: [P.menbHealthyEarly] },
+  { doses: 'High-risk MenB dose 3', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2`, text: 'Sooner still counts. Dose 4 is added.', ex: [P.menbD3early] },
   { doses: 'High-risk MenB booster', gap: `${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)} after the last booster`, decision: 'boosterMinimum', ex: [P.menbBoosterEarly] },
 ];
 

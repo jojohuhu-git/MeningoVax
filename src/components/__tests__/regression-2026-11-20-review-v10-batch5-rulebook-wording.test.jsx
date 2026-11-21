@@ -157,6 +157,10 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
     expect(interval('MenACWY booster').gap).toBe('3 years after a series ending before 7 years, otherwise 5, then 5 years after the last booster');
     expect(interval('High-risk MenB booster').gap).toBe('1 year after the series, then 2 years after the last booster');
   });
+  it('R90 and the dose 3 line under it: periods, not semicolons (owner, 2026-11-20)', () => {
+    expect(interval('Healthy MenB dose 2').text).toBe('Sooner still counts. Dose 3 is added.');
+    expect(interval('High-risk MenB dose 3').text).toBe('Sooner still counts. Dose 4 is added.');
+  });
   it('R91–R93: a dose that does not count', () => {
     const texts = NOT_COUNTED.map((r) => r.text);
     // R91, owner 2026-11-20 after it was built: "yes, add 'at least'". The

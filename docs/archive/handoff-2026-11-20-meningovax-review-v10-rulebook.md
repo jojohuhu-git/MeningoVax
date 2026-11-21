@@ -36,6 +36,8 @@ sentence** "Recommendations are based on age, risk conditions and dated vaccine 
    after the invalid dose." (a healthy MenB dose 2 given 3 weeks early is repeated 6 months after
    dose 1; worked patient `menbHealthy3wk` now on that row). R102 keeps "at the minimum interval":
    it covers only a too-young first dose, where that is exact.
+4. **Two "No change" lines, semicolons to periods** (owner): "Sooner still counts. Dose 3 is added." and
+   "…Dose 4 is added." in part 6's intervals table. Suite then **2,357 / 195**.
    **D1 was changed from the mockup so it is true of the app** (in PR #125): military Details ("the doses
    follow the routine schedule"); "After an invalid dose … at least the minimum interval"; label
    colours stay the app's own (Q5 not built), and the "Red labels mean… amber…" sentence is left out.
@@ -43,6 +45,9 @@ sentence** "Recommendations are based on age, risk conditions and dated vaccine 
 ## What's NOT done
 
 - **Owner: review and merge PR #125.** Point out the "changed from the approved words" table there.
+- **Two semicolons left on the Rulebook screen, owner not yet asked:** R50 ("Infant series: early
+  doses ≥8 weeks apart; the final dose…", `ACWY_HIGHRISK_NOTES.spacing`) and the "Applies in:" list
+  under each MeningoVax decision ("MenB; Doses on the record", joined in `Rulebook.jsx`).
 - **Q5** (amber "Not counted — do not repeat"): approved, but **remind the owner to check PneumoVax's
   labels first**. Building it also means adding back the step 2 colour sentence.
 - **STOP H**: owner reviews the rulebook (`docs/agent/meningococcal-rules-summary.md`), per the plan.
