@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-20** by [handoff-2026-11-20-meningovax-m1-built.md](handoff-2026-11-20-meningovax-m1-built.md). M1 is built (PR #126); do not resume from this file.
+
 # MeningoVax — Handoff: two owner-approved builds, M1 (MenB dose 3) then the Rulebook reorganization (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
