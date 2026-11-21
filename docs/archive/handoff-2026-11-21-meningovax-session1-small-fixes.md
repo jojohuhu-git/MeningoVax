@@ -39,25 +39,21 @@ passing (200 files)**, all green (`npm test`, 2026-11-21).
 
 ## What's NOT done — the remaining queue
 
-1. **MenQuadfi from 6 weeks: answered, NOT built.**
-   - Owner's answer: "Can be given today", MenQuadfi only; dose 1 still due at 2 months.
-   - Lead: "The infant series starts at 2 months; MenQuadfi may be given from 6 weeks."
-   - Source: AAP 2026 schedule, the owner's PDF at `~/Downloads/AAP-Immunization-Schedule.pdf`.
-     AAP's site blocks automated reading, so read the PDF with macOS PDFKit (`osascript -l
-     JavaScript`); there is no pdftotext here. The quotes are in the decisions file.
-   - **Ask first:** the app also gives the infant series to `outbreak_acwy`
-     (`menacwyInfantSeriesIndicated`), but AAP's 6-week line sits only under the high-risk group
-     and travel. Does the offer apply to an outbreak baby?
-   - Build:
-     - add the AAP quote to `refs.js`;
-     - make the change in `recommend.js` (the existing `canGiveToday` badge; brands MenQuadfi only);
-     - write a failing test first;
-     - run the sweep (`npm run sweep:update`, explain the count) and `npm run rulebook`;
-     - update the Rulebook text that says the series starts at 2 months;
-     - check the change against the `vaccine-parity` skill.
+1. **MenQuadfi from 6 weeks (MQ6): BUILT, PR https://github.com/jojohuhu-git/MeningoVax/pull/131,
+   not merged.**
+   - Owner: "Can be given (Rec.)" and "Yes, outbreak too".
+   - Branch `port/menquadfi-from-6-weeks`, off `main` at `46cc24d`, 2,396 passing / 199 files.
+   - Decisions: `docs/archive/decisions-2026-11-21-menquadfi-from-6-weeks.md`.
+   - Two choices were applied unasked and are asked in the PR body:
+     - no date of birth → no offer;
+     - the AAP sentence folds behind "Why this" (not on the owner's stay-in-view list).
+   - **Open:** the results summary line still reads "No MenACWY or MenB doses due today." above
+     the "Can be given today" card. It is true, but a clinician may skim it. Not raised yet; ask.
    - Seen while measuring, not raised: a 7-week-old whose MenQuadfi was given at 6 weeks shows
-     "Dose 1 given; next dose not yet due" with **no date**. At 9 weeks the same baby shows
-     3 Feb 2027. Measure it again after the build; it may change.
+     "Dose 1 given; next dose not yet due" with **no date** (at 9 weeks: 3 Feb 2027). Ask.
+   - **Merge note:** #130 and #131 both raise the counts in `docs/agent/testing.md` (lines 24–26,
+     and a new row each). Whichever merges second will conflict there. Keep both rows; the totals
+     become 201 files (132 engine, 65 screen, 64 happy-dom). Then `npm test` must pass.
 2. **Owner merges PR #130.** Check `origin/main` before calling it merged. Then ask whether to
    close #70 (superseded).
 3. **Q5** (amber "Not counted — do not repeat"): the owner has **not yet** looked at PneumoVax's
@@ -80,7 +76,7 @@ clinical rule change with one open follow-on question, so it belongs in its own 
    Is #130 merged? If yes, `git checkout main && git pull`; the suite should then show **2,394 /
    200 files**.
 2. `preview_start {name: "MeningoVax dev server"}`.
-3. Ask the outbreak question above, then build MenQuadfi from 6 weeks test-first (`fix-queue`
-   loop). Put the E4 checklist in the PR body. A new test file means updating
+3. Check whether #130 and #131 are merged (see the merge note above). Ask the open questions.
+   Then STOP H / Phase 8 per the owner's order. Put the E4 checklist in the PR body. A new test file means updating
    `docs/agent/testing.md`'s counts.
 4. Ship: branch, then a PR against `main`; the owner merges.
