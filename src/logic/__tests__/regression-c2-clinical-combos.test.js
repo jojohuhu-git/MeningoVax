@@ -106,13 +106,13 @@ describe('C2-5 — a pregnant microbiologist occupationally exposed to N. mening
   it('MenACWY is the ordinary microbiologist exposure dose — pregnancy does not touch it', () => {
     const r = run(['microbiologist', 'pregnancy']);
     expect(r.menacwy[0].status).toBe('exposure');
-    expect(r.menacwy[0].doseLabel).toMatch(/1 dose \(ongoing-risk indication\)/);
+    expect(r.menacwy[0].doseLabel).toMatch(/Dose 1 \(boosters while at risk\)/);
   });
   it('MenB is offered (microbiologist overrides the pregnancy deferral), and the card says so is a benefit-vs-risk call', () => {
     const r = run(['microbiologist', 'pregnancy']);
     expect(r.menb[0].status).toBe('risk-based');
-    expect(r.menb[0].note.detail).toMatch(/only after discussing it with her/i);
-    expect(r.menb[0].note.detail).toMatch(/outweighs the potential risk/i);
+    expect(r.menb[0].note.detail).toMatch(/Discuss the benefit and potential risk before giving it/i);
+    expect(r.menb[0].note.detail).toMatch(/benefit and potential risk/i);   // P51 (review v10)
   });
   it('at a plausible adult age, neither tick-box is questioned (microbiologist floor 10y, pregnancy floor 9y, patient is 25)', () => {
     const r = run(['microbiologist', 'pregnancy']);
@@ -134,7 +134,7 @@ describe('C2-7 — complement-inhibitor therapy + first-year college dorm reside
   it('an infant with complement deficiency (and implausibly college_dorm) is tracked for MenB, not denied it outright — MenB\'s 10y licensed-age floor applies regardless of risk', () => {
     const r = run(['complement', 'college_dorm'], 6);
     expect(r.menb[0].status).toBe('not-indicated');
-    expect(r.menb[0].doseLabel).toBe('Not yet age-eligible');
+    expect(r.menb[0].doseLabel).toBe('Not yet due (from 10 years)');
     expect(r.menb[0].note.detail).toMatch(/high-risk MenB series/i);
   });
 });

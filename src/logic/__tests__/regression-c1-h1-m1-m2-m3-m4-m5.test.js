@@ -181,7 +181,7 @@ describe('M4: MenACWY validator uses menacwyRiskClass()', () => {
     const results = analyzeHistory('MenACWY',
       [{ date: '2026-01-01' }, { date: '2026-01-22' }], 240, ['asplenia'], TODAY);
     expect(results.perDose[1].status).toBe('invalid');
-    expect(results.perDose[1].reasons[0]).toMatch(/8-week|56/i);
+    expect(results.perDose[1].reasons[0]).toMatch(/8 required|8 weeks/i);
   });
   // STOP C C11 (owner, 2026-11-15): 8 weeks now separate ANY two MenACWY
   // doses, so a dose 5 weeks after another no longer counts on any schedule

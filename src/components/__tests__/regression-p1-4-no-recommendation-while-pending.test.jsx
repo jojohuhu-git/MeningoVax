@@ -4,7 +4,7 @@
 // Reproduced live: the P1-2 patient (DOB 2018-09-15, asplenia, five MenACWY
 // doses on record) BEFORE answering any of the five risk-timing prompts.
 //   headline     "Due today: MenACWY."
-//   status pill  "Dose due today, future boosters needed"
+//   status pill  "Due today, boosters to follow"
 //   card         "Dose 1 of 2 (high-risk primary series)"
 // — for a child with five doses on record. The five "Needs input" prompts sat
 // further down the page. A clinician acting on the headline vaccinates an
@@ -76,7 +76,7 @@ describe('P1-4: the card makes no recommendation while answers are outstanding',
 
   it('the status pill says answers are needed', () => {
     expect(showUnanswered().container.querySelector('.status-badge').textContent)
-      .toBe('Answers needed');
+      .toBe('Answer needed below');
   });
 
   it('it does not offer brands to give today', () => {

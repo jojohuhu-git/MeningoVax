@@ -11,7 +11,7 @@
 // age 200 months (16y8m), Bexsero on 2025-01-15 and 2025-08-15 (7 months
 // apart):
 //
-//   card:       "Dose 3 of 3 (high-risk, 4C)"
+//   card:       "Dose 3 of 3 (high-risk, Bexsero)"
 //   seriesInfo: { total: 3, primaryTotal: 3, hasBoosterPhase: true }
 //
 // Dose 2 at exactly 6 months and dose 2 at 5 months produced the SAME output —

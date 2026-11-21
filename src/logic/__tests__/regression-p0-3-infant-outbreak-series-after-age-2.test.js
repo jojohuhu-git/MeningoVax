@@ -65,7 +65,7 @@ describe('P0-3: a completed infant outbreak series is four counted doses', () =>
     // outbreak box is ticked, an outbreak series has the same booster countdown as
     // the other indications (3 years if finished before 7, then every 5).
     expect(rec.status).not.toBe('complete');
-    expect(rec.doseLabel).toMatch(/Booster \(dose 5, first booster, 3 years after primary\)/);
+    expect(rec.doseLabel).toMatch(/First booster \(dose 5\), 3 years after the series/);
   });
 
   it('reading the same record at 18 months gives the same four counted doses', () => {

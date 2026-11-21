@@ -27,7 +27,7 @@ describe('C2-1 — asplenia + college dorm, rendered', () => {
   it('shows the high-risk primary MenACWY dose and offers the pentavalent', () => {
     renderResults(['asplenia', 'college_dorm']);
     expect(screen.getByText(/Dose 1 of 2 \(high-risk primary series\)/)).toBeTruthy();
-    expect(screen.getByText(/pentavalent \(MenABCWY\) dose may replace/i)).toBeTruthy();
+    expect(screen.getByText(/MenABCWY injection can replace/i)).toBeTruthy();
   });
 });
 
@@ -44,7 +44,7 @@ describe('C2-5 — a pregnant microbiologist, rendered', () => {
   it('the MenB card visibly carries the benefit-vs-risk pregnancy caveat, not just in the engine data', () => {
     renderResults(['microbiologist', 'pregnancy']);
     openWhyThis();
-    expect(screen.getByText(/only after discussing it with her/i)).toBeTruthy();
+    expect(screen.getByText(/Discuss the benefit and potential risk before giving it/i)).toBeTruthy();
   });
 });
 

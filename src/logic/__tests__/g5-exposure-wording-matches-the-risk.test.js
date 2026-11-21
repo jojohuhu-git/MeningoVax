@@ -36,7 +36,7 @@ describe('G5: exposure wording names the exposure the patient has', () => {
 
     it('says nothing about travel on the booster', () => {
       const said = acwyText(['microbiologist'], [{ date: '2015-01-10', brand: '' }]);
-      expect(said).toMatch(/occupational/i);
+      expect(said).toMatch(/exposure/i);   // P28 (review v10): "while exposure continues"
       expect(said).not.toMatch(/travel/i);
     });
 

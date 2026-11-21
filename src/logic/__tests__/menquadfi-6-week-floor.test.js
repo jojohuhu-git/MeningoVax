@@ -63,7 +63,7 @@ describe('M1 — MenQuadfi‘s 42-day floor is exact for every birth month', () 
     const dob = '2026-01-01';
     const results = validate('MenACWY', [{ date: addDays(dob, 37), brand: MENQUADFI }], 24, [], dob);
     expect(results[0].status).toBe('invalid');
-    expect(results[0].reasons[0]).toMatch(/below the 6-week minimum age/);
+    expect(results[0].reasons[0]).toMatch(/^Minimum age not met \(about 5 weeks, 6 weeks for MenQuadfi/);
   });
 
   it('a dose at 38 days (4 days early — CDC\'s grace) is valid', () => {
@@ -79,7 +79,7 @@ describe('M1 — MenQuadfi‘s 42-day floor is exact for every birth month', () 
   it('fmtMinAge prints "6 weeks" for the 42-day floor, never a fractional month', () => {
     const dob = '2026-01-01';
     const results = validate('MenACWY', [{ date: addDays(dob, 37), brand: MENQUADFI }], 24, [], dob);
-    expect(results[0].reasons[0]).toMatch(/6-week/);
+    expect(results[0].reasons[0]).toMatch(/6 weeks for/);
     expect(results[0].detail).toMatch(/6 weeks/);
     expect(results[0].reasons[0]).not.toMatch(/1\.4/);
   });
@@ -163,7 +163,7 @@ describe('M3 — no card names one brand while offering two chips', () => {
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     const card = r.menacwy[0];
-    expect(card.doseLabel).toBe('Not yet age-eligible');
+    expect(card.doseLabel).toBe('Not yet due (from 2 months)');
     expect(noteText(card)).toMatch(/track them and start it/);
     // MenQuadfi's own floor (6 weeks) is younger than the 2-month schedule
     // floor this card is describing, so "only Menveo is licensed that young"
@@ -210,7 +210,7 @@ describe('M3 — no card names one brand while offering two chips', () => {
     // the 2-month schedule floor -- but the card must stop pretending dose 1
     // never happened.
     expect(card.dueToday).toBe(false);
-    expect(card.doseLabel).not.toBe('Not yet age-eligible');
+    expect(card.doseLabel).not.toBe('Not yet due (from 2 months)');
     expect(noteText(card)).not.toMatch(/track them and start it/);
     expect(noteText(card)).toMatch(/6 weeks, then 4, 6 and 12 months/);
     expect(noteText(card)).not.toMatch(/Menveo/);

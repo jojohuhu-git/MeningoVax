@@ -153,22 +153,24 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   let summaryLine;
   if (requiredDue.length === 2) {
     summaryLine = pentavalent.eligible
-      ? 'Due today: MenACWY and MenB, as two separate shots or one combined pentavalent shot.'
+      ? 'Due today: MenACWY and MenB, as two injections or one MenABCWY injection.'
       : 'Due today: MenACWY and MenB.';
   } else if (requiredDue.length === 1 && pentavalent.eligible && !bDueToday) {
     // F2a (owner, 2026-11-18): MenB dose 2 is not due yet but its minimum has
     // passed (the card's "It can be given today if needed"), and the combined
     // shot is offered. Never "Due today: … MenB" on those days.
-    summaryLine = `Due today: ${requiredDue[0]}. MenB dose ${menb.find(r => r.canGiveToday).doseNum} can also be given today (its minimum interval has passed), as two separate shots or one combined pentavalent shot.`;
+    summaryLine = `Due today: ${requiredDue[0]}. MenB dose ${menb.find(r => r.canGiveToday).doseNum} can also be given today (its minimum interval has passed), as two injections or one MenABCWY injection.`;
   } else if (requiredDue.length === 1) {
     summaryLine = `Due today: ${requiredDue[0]}.`;
     if (optionalDue.length === 1) {
-      summaryLine += ` ${optionalDue[0]} is optional (shared clinical decision).`;
+      summaryLine += ` ${optionalDue[0]} may also be offered (shared clinical decision-making).`;
     }
   } else if (optionalDue.length === 2) {
-    summaryLine = 'MenACWY and MenB are optional today (shared clinical decision).';
+    summaryLine = 'MenACWY and MenB may be offered today (shared clinical decision-making).';
   } else if (optionalDue.length === 1) {
-    summaryLine = `${optionalDue[0]} is optional today (shared clinical decision). No other MenACWY or MenB doses due today.`;
+    // P5 (review v10): lead with what is due, use the full term.
+    const notDue = optionalDue[0] === 'MenB' ? 'MenACWY' : 'MenB';
+    summaryLine = `No ${notDue} dose is due today. ${optionalDue[0]} may be offered today by shared clinical decision-making.`;
   } else {
     summaryLine = 'No MenACWY or MenB doses due today.';
   }
@@ -386,7 +388,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
             These are two separate vaccines.{' '}
             {bRequiredToday
               ? 'Both are due today.'
-              : 'MenACWY is due today. MenB is optional (shared clinical decision).'}{' '}
+              : 'MenACWY is due today. MenB may also be offered (shared clinical decision-making).'}{' '}
             Within each, choose one brand.
             {/* P1-4: say WHY the combined shot is missing when the 6-month
                 Penbraya rule is what removed it, rather than dropping the
@@ -445,10 +447,10 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
         <>
           <div className="penta-card" data-testid="penta-card">
             <div className="penta-header" data-testid="option-penta-label">
-              Option 2: One combined injection (pentavalent, MenABCWY)
+              Option 2: One combined injection (MenABCWY)
             </div>
             <div className="penta-body">
-              <div className="penta-replaces">Replaces both shots above: do not give both.</div>
+              <div className="penta-replaces">Replaces both injections above. Give one option, not both.</div>
               <RecNote note={pentavalent.note} citations={pentavalent.citations} className="penta-note" />
               <div className="penta-brands">
                 {(pentavalent.brands || []).map((b, i) => (

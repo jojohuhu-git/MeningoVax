@@ -25,7 +25,7 @@ describe('D3: dose 3 within 4 days of 6 months after dose 1 needs no 4th dose', 
     const r = run(doses);
     expect(r.history.MenB.perDose.map((p) => p.status)).toEqual(['valid', 'valid', 'valid']);
     const c = r.menb[0];
-    expect(c.doseLabel).toMatch(/^Booster/);
+    expect(c.doseLabel).toMatch(/^(First booster|Booster)/);
     expect(c.earliestNextDate).toBe('2027-03-29');
   });
 
@@ -40,7 +40,7 @@ describe('D4: dose 2 within 4 days of 6 months after dose 1 needs no dose 3', ()
   it('dose 2 two days short of 6 months: series complete, booster 1 year later', () => {
     expect(menbSeriesInfo({ highRisk: true, doses: [B('2025-10-01'), B('2026-03-29')] }).total).toBe(2);
     const c = run([B('2025-10-01'), B('2026-03-29')]).menb[0];
-    expect(c.doseLabel).toMatch(/^Booster/);
+    expect(c.doseLabel).toMatch(/^(First booster|Booster)/);
     expect(c.earliestNextDate).toBe('2027-03-29');
   });
 

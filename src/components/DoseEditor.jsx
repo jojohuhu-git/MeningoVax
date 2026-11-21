@@ -142,7 +142,9 @@ export default function DoseEditor({
             onKeyDown={e => handleRowKeyDown(e, idx)}
           >
             <div className="dose-field">
-              <label>Date (optional)</label>
+              {/* P2 (review v10, owner 2026-11-20): not "optional" — a dose
+                  with no date is not counted (owner C1). */}
+              <label>Date</label>
               <input
                 type="date"
                 value={dose.date || ''}
@@ -193,10 +195,10 @@ export default function DoseEditor({
                   onChange={e => updateDose(idx, 'detailsUnknown', e.target.checked)}
                 />
                 <span>
-                  A dose was given, but the date and brand are unknown.
+                  Check this if a dose was given but its date and brand are unknown.
                   <span className="dose-row-unknown-hint">
-                    Tick this to keep the dose on the record. An empty row is
-                    removed when you continue.
+                    It stays on the record, not counted. Empty rows are removed
+                    when you continue.
                   </span>
                 </span>
               </label>

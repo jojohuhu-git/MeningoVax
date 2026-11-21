@@ -29,7 +29,7 @@
 // age 200 months, Bexsero on 2026-02-15, 2026-04-15 and 2026-06-15 (dose 3 only
 // two months after dose 2):
 //
-//   card:   "Dose 3 of 3 (high-risk, 4C)", dueToday: true
+//   card:   "Dose 3 of 3 (high-risk, Bexsero)", dueToday: true
 //   dose 3: invalid -- "Given only ~2 months after dose 2. High-risk D3
 //           requires >=4 months from D2." / "This dose does not count toward
 //           the series: repeat this dose only (do not restart the series)."
@@ -83,8 +83,8 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
 
   it('the clinician is told why a fourth dose is now owed', () => {
     const v = verdicts(EARLY_D3);
-    expect(v[2].reasons.join(' ')).toMatch(/4th dose|fourth dose/i);
-    expect(v[2].reasons.join(' ')).toMatch(/at least 4 months after this one/i);
+    expect(v[2].reasons.join(' ')).toMatch(/Dose 4 is due/i);   // P59 (review v10)
+    expect(v[2].reasons.join(' ')).toMatch(/Dose 4 is due ≥4 months later/i);
   });
 
   it('the series total becomes 4, not 3', () => {
@@ -110,7 +110,7 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
 
   it('once the 4th dose is given, the booster clock starts from it', () => {
     const c = card(RESCUE_COMPLETE);
-    expect(c.doseLabel).toMatch(/Booster \(dose 5, 1 year after primary\)/);
+    expect(c.doseLabel).toMatch(/First booster \(dose 5\), 1 year after the series/);
     expect(c.seriesTotal).toBe(4);
     // One year after the 4th dose, not one year after the third.
     expect(c.earliestNextDate).toBe('2027-02-15');
@@ -121,13 +121,13 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
     // Same patient, 4th dose only two months after dose 3.
     const tooSoon = [...RESCUE_COMPLETE.slice(0, 3), '2025-12-15'];
     expect(verdicts(tooSoon)[3].status).toBe('invalid');
-    expect(verdicts(tooSoon)[3].reasons.join(' ')).toMatch(/under the 4-month minimum for the extra dose/i);
+    expect(verdicts(tooSoon)[3].reasons.join(' ')).toMatch(/^Minimum interval not met \(about 2 months, 4 required\)/i);
   });
 
   it('an ON-TIME dose 3 is untouched: series of 3, straight to the booster', () => {
     expect(menbSeriesInfo({ highRisk: true, doses: dosesOf(ON_TIME_D3) }).total).toBe(3);
     const c = card(ON_TIME_D3);
-    expect(c.doseLabel).toMatch(/Booster \(dose 4, 1 year after primary\)/);
+    expect(c.doseLabel).toMatch(/First booster \(dose 4\), 1 year after the series/);
     expect(verdicts(ON_TIME_D3)[2].status).toBe('valid');
   });
 

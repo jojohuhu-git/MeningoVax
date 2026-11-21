@@ -4,10 +4,10 @@
 // Before: a card with a dose still to come, but not due today, wore the badge
 // "Up to date" — 4,158 cards with a dated booster and 474 with a dated
 // non-booster dose, on the saved-answer grid (measured 2026-11-18). The routine
-// 16-year booster card, same situation, already said "Future booster needed",
+// 16-year booster card, same situation, already said "Booster due later",
 // so the same situation read two ways.
 //
-// Owner: a dated booster → "Future booster needed"; a dated dose that is not a
+// Owner: a dated booster → "Booster due later"; a dated dose that is not a
 // booster → "Next dose not yet due"; "Up to date" only when nothing is left.
 // Badge words only: no date, dose label or verdict changes.
 //
@@ -31,14 +31,14 @@ const card = (s, vaccine) => {
 };
 
 describe('F-3: the badge names what is left, never "Up to date" while a dose is still to come', () => {
-  it('dated booster (microbiologist, 30 y, MenQuadfi Aug 6, 2026): "Future booster needed"', () => {
+  it('dated booster (microbiologist, 30 y, MenQuadfi Aug 6, 2026): "Booster due later"', () => {
     const { badge, text } = card({
       dob: '1996-01-01', riskIds: ['microbiologist'],
       menacwyDoses: [{ date: '2026-08-06', brand: 'MenQuadfi (MenACWY)' }],
     }, 'MenACWY');
-    expect(badge).toBe('Future booster needed');
+    expect(badge).toBe('Booster due later');
     // unchanged around it
-    expect(text).toContain('Booster (dose 2, first booster, 5 years after the primary dose)');
+    expect(text).toContain('First booster (dose 2), 5 years after dose 1');
     expect(text).toContain('Next dose due Aug 6, 2031');
   });
 

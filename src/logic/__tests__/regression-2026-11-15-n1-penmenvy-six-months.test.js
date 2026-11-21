@@ -45,7 +45,7 @@ describe('N1: Penmenvy may not be repeated within 6 months', () => {
 
   it('and the card says why, naming Penmenvy', () => {
     expect(run(recent).pentavalent.unavailableReason).toBe(
-      'A combined pentavalent shot is not an option today: Penmenvy may only be repeated once 6 months have passed since the last Penmenvy dose.',
+      'Not an option today: Penmenvy cannot be repeated within 6 months of the last Penmenvy dose.',   // P69 (review v10)
     );
   });
 
@@ -69,7 +69,7 @@ describe('N1: Penmenvy may not be repeated within 6 months', () => {
   it('control: Penbraya keeps its own wording, unchanged', () => {
     const r = run({ menbDoses: [{ date: '2026-07-15', brand: 'Penbraya (MenABCWY)' }] });
     expect(r.pentavalent.unavailableReason).toBe(
-      'A combined pentavalent shot is not an option today: Penbraya may only be repeated once 6 months have passed since the last Penbraya dose.',
+      'Not an option today: Penbraya cannot be repeated within 6 months of the last Penbraya dose.',   // P69 (review v10)
     );
   });
 });

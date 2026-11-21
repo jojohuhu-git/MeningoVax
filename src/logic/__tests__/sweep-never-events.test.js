@@ -349,7 +349,7 @@ function checkProperties1to5(where, am, dob, riskIds, menacwyDoses, menbDoses) {
       if (badge === 'Up to date' && (dated || r.dueToday)) {
         p16.push(`${where} ${r.vaccine}: "Up to date" with ${r.dueToday ? 'a dose due today' : `a date (${r.earliestNextDate ?? r.boosterDueDate})`} — ${r.doseLabel}`);
       }
-      if (dated && !r.canGiveToday && !['Future booster needed', 'Next dose not yet due'].includes(badge)
+      if (dated && !r.canGiveToday && !['Booster due later', 'Next dose not yet due'].includes(badge)
         && !['complete', 'deferred', 'not-indicated'].includes(r.status)) {
         p16.push(`${where} ${r.vaccine}: dated card reads "${badge}" — ${r.doseLabel}`);
       }

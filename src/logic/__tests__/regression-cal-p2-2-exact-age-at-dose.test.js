@@ -110,7 +110,7 @@ describe('too few doses · a dose 2 a day short of seven months', () => {
   it('earns the 3-dose shortcut through the 4-day grace at 7 months (B-1)', () => {
     const c = card(patient);
     expect(c.seriesTotal).toBe(3);
-    expect(c.doseLabel).toMatch(/shortcut/);
+    expect(c.doseLabel).toMatch(/dose 2 at ≥7 months/);
   });
 });
 

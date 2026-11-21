@@ -33,7 +33,7 @@ import { TEST_TODAY } from '../../test-today.js';
 
 // G1-a (owner, STOP G1, 2026-11-18, style rule 6): "repeat" is the label's
 // word, so the line's own sentence is now only this. Its "when" comes first.
-const REPEAT_SENTENCE = 'Do not restart the series.';
+const REPEAT_SENTENCE = 'Do not restart.';   // P53 (review v10)
 // Phase 6.2 R-A / R-B (owner, STOP G1, 2026-11-18): exact sentences from
 // docs/archive/stop-g1-packet-2026-11-18.md, Answers table.
 const REPEAT_LATER_R_A = 'Repeat at 10 years or older, when the high-risk MenB series starts.';
@@ -218,7 +218,7 @@ describe('3 · what a row says happens is what happens, to every dose it decided
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
       && (v.tooSoonBooster
         ? !v.reasons.includes(REPEAT_SENTENCE)
-          && (v.reasons.length === 1 || /^Repeat(ed on| from) [A-Z][a-z]{2} \d{1,2}, \d{4}\./.test(v.reasons.at(-1)))
+          && (v.reasons.length === 1 || /^Repeat( with \S+)? today\.$|^Repeat(ed on| from| with \S+ from) [A-Z][a-z]{2} \d{1,2}, \d{4}\./.test(v.reasons.at(-1)))
         : v.notRepeated
         ? !v.reasons.includes(REPEAT_SENTENCE)
         : v.repeatedOn
@@ -226,7 +226,7 @@ describe('3 · what a row says happens is what happens, to every dose it decided
           // G1-a: the "when" now sits BEFORE the repeat sentence (answer first).
           : (v.reasons.at(-1) === REPEAT_SENTENCE
             && (v.reasons.length === 1
-              || /^Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-2))
+              || /^Repeat (with \S+ )?(today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\.$/.test(v.reasons.at(-2))
               || [REPEAT_LATER_R_A, REPEAT_LATER_R_B].includes(v.reasons.at(-2))
               || !/^Repeat/.test(v.reasons.at(-2))))),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null

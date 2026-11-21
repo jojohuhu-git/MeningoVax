@@ -62,7 +62,7 @@ describe('T1: a 2-month starter whose dose 2 came at 7 months or older', () => {
   it('B, once the third dose is given 12 weeks later: no fourth primary dose', () => {
     const labels = cards({ today: '2027-02-19', dob: '2020-11-19', ageMonths: 75, dates: ['2021-01-19', '2026-11-19', '2027-02-19'] });
     expect(labels.join(' / ')).not.toMatch(/Dose 4/);
-    expect(labels.join(' / ')).toMatch(/Booster/);
+    expect(labels.join(' / ')).toMatch(/[Bb]ooster/);
   });
 
   it('control: on time at 2, 4, 6 months — dose 4 is still owed at 12 months', () => {
@@ -75,7 +75,7 @@ describe('T1: a 2-month starter whose dose 2 came at 7 months or older', () => {
   // months", and the recorded dose's chip read "Dose 1 of 4".
   it('B, seen at 6 years with one dose: the card is dose 2 of 3, due today', () => {
     const c = first({ today: '2026-11-19', dob: '2020-11-19', ageMonths: 72, dates: ['2021-01-19'] });
-    expect(c.doseLabel).toMatch(/^Dose 2 of 3 \(.*3-dose shortcut\)$/);
+    expect(c.doseLabel).toMatch(/^Dose 2 of 3 \(.*dose 2 at ≥7 months\)$/);
     expect(c.seriesTotal).toBe(3);
     expect(c.dueToday).toBe(true);
     expect(JSON.stringify(c.note)).not.toMatch(/2, 4, 6 and 12 months/);
@@ -98,14 +98,14 @@ describe('T1: the first booster after a late-finished infant series', () => {
   it('finished at 9 years: first booster 5 years after the last dose', () => {
     const c = first({ today: '2026-11-19', dob: '2016-11-19', ageMonths: 120,
       dates: ['2017-01-19', '2017-03-19', '2025-11-19', '2026-02-19'] });
-    expect(c.doseLabel).toMatch(/first booster, 5 years after primary/);
+    expect(c.doseLabel).toMatch(/First booster \(dose \d\), 5 years after the series/);
     expect(c.earliestNextDate).toBe('2031-02-19');
   });
 
   it('control: finished at 6 years: first booster 3 years after the last dose', () => {
     const c = first({ today: '2027-03-19', dob: '2020-11-19', ageMonths: 76,
       dates: ['2021-01-19', '2026-11-19', '2027-02-19'] });
-    expect(c.doseLabel).toMatch(/first booster, 3 years after primary/);
+    expect(c.doseLabel).toMatch(/First booster \(dose \d\), 3 years after the series/);
     expect(c.earliestNextDate).toBe('2030-02-19');
   });
 });

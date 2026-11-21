@@ -42,7 +42,7 @@ describe('G6 under C1: an undated row never asserts an extra dose', () => {
       expect(d.recordProblem).toBe('undated');
       expect(d.extraDose).toBeUndefined();
       const said = d.reasons.join(' ');
-      expect(said).toMatch(/written, dated records/i); // G1-a: "No date recorded" is the chip's
+      expect(said).toMatch(/Only dated records count/i); // G1-a: "No date recorded" is the chip's
       expect(said).not.toMatch(/series was complete/i); // G1-a (2026-11-19): the extra-dose line now reads "series was complete"
     }
   });

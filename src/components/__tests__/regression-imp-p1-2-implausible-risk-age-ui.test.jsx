@@ -67,13 +67,13 @@ describe('imp P1-2 UI: the note a clinician actually sees', () => {
     // decision — a quiet note, never a block — is still exactly what this
     // test checks: the plausibility note above still renders (line 57)
     // AND the (now-corrected) recommendation is still shown, not suppressed.
-    expect(screen.getByText('Not yet age-eligible')).toBeTruthy();
+    expect(screen.getByText('Not yet due (from 2 months)')).toBeTruthy();
   });
 
   it('says plainly that nothing has changed', () => {
     show(['military'], DOB_3_YEARS);
     expect(note().textContent).toContain('Nothing has been withheld and no recommendation has changed');
-    expect(note().textContent).toContain('Check that the age and the tick-boxes are both right');
+    expect(note().textContent).toContain('Check that the age and the checkboxes are right');
   });
 
   it('links the ACIP table the note rests on', () => {

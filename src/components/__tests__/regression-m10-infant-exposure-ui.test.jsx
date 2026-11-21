@@ -4,7 +4,7 @@
 // coverage, the verbatim ACIP quotes and the full reproduction).
 //
 // An infant vaccinated because of travel or an A/C/W/Y outbreak must SEE the
-// infant series. Before M10 the card read "1 dose (ongoing-risk indication)" for
+// infant series. Before M10 the card read "Dose 1 (boosters while at risk)" for
 // the traveler and "1 dose" for the outbreak contact — an adult-shaped answer
 // for a 4-month-old, who ACIP puts on a 4-dose Menveo series at 2, 4, 6 and 12
 // months (MMWR 69(RR-9) Table 9 and Table 8, "2–23 mos" row).
@@ -31,14 +31,14 @@ const show = (rec) => {
 describe('M10 (UI): an infant exposure indication shows the infant series', () => {
   it('a 4-month-old traveler sees the 4-dose infant series', () => {
     show(acwyRec(4, ['travel'], []));
-    expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(screen.getByText(/travelling to or living in a country where meningococcal disease/i)).toBeTruthy();
+    // P44 (review v10) dropped the who-phrase from the note; the dose label names the group.
+    expect(screen.getByText(/Dose 1 of 4 \(infant travel\)/)).toBeTruthy();
   });
 
   it('a 4-month-old outbreak contact sees the same series, named as an outbreak', () => {
     show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(screen.getByText(/increased risk during a serogroup A, C, W or Y outbreak/i)).toBeTruthy();
+    // P44 (review v10): the dose label names the outbreak.
+    expect(screen.getByText(/Dose 1 of 4 \(infant outbreak\)/)).toBeTruthy();
   });
 
   it('neither card blames a medical condition the infant does not have', () => {
@@ -51,8 +51,8 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
   // booster countdown as travel and medical risk, and the card says so.
   it('the outbreak card shows the standing booster schedule (B-2)', () => {
     const { container } = show(acwyRec(4, ['outbreak_acwy'], []));
-    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
-    expect(container.textContent).toMatch(/future boosters needed/i);
+    expect(container.textContent).toMatch(/Boosters: 3 years after the series/);
+    expect(container.textContent).toMatch(/boosters to follow/i);
     // extinct: the "no standing booster schedule" sentence, retired by B-2 (2026-11-16).
     expect(container.textContent).not.toMatch(/no standing booster schedule/i);
   });
@@ -63,17 +63,17 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     const rec = acwyRec(14, ['outbreak_acwy'], ['2025-10-15', '2025-12-10', '2026-02-04', '2026-07-20']);
     const { container } = show(rec);
     expect(rec.status).not.toBe('complete');
-    expect(container.textContent).toMatch(/first booster, 3 years after primary/i);
+    expect(container.textContent).toMatch(/First booster \(dose \d\), 3 years after the series/i);
   });
 
   it('control: a travel infant DOES keep its standing booster schedule', () => {
     const { container } = show(acwyRec(4, ['travel'], []));
-    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
+    expect(container.textContent).toMatch(/Boosters: 3 years after the series/);
   });
 
   it('control: a 4-month-old with asplenia still sees the high-risk wording', () => {
     const { container } = show(acwyRec(4, ['asplenia'], []));
     expect(screen.getByText(/Dose 1 of 4/)).toBeTruthy();
-    expect(container.textContent).toMatch(/High-risk infants 2–6 months/);
+    expect(container.textContent).toMatch(/four-dose infant series/)   // P44 (review v10) dropped the who-phrase; the label names the group;
   });
 });

@@ -88,7 +88,7 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
 
   it('asplenia adult, 2 doses, last 6 years ago → booster due (5y cadence)', () => {
     const r = run({ ageMonths: 360, riskIds: ['asplenia'], menacwyDoses: [{ date: '2018-06-03' }, { date: '2020-06-03' }] });
-    expect(acwy(r).doseLabel).toMatch(/Booster/);
+    expect(acwy(r).doseLabel).toMatch(/[Bb]ooster/);
     expect(acwy(r).dueToday).toBe(true);
   });
 
@@ -109,7 +109,7 @@ describe('MenACWY high-risk adult 2-dose primary + boosters', () => {
 describe('MenACWY single-dose indications', () => {
   it('travel adult, no doses → 1 dose with q5y booster framing', () => {
     const r = run({ ageMonths: 300, riskIds: ['travel'] });
-    expect(acwy(r).doseLabel).toMatch(/ongoing-risk/);
+    expect(acwy(r).doseLabel).toMatch(/boosters while at risk/);
     // U2 (2026-09-17): the q5y framing is the booster line's, not the note's --
     // the note used to end with a second copy of it.
     expect(acwy(r).boosterSummary).toMatch(/every 5 years/);
@@ -165,7 +165,7 @@ describe('MenACWY single-dose indications', () => {
     const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
     expect(acwy(r).status).not.toBe('complete');
     expect(acwy(r).dueToday).toBe(true);
-    expect(noteText(acwy(r)) || '').toMatch(/more than 5 years/i);
+    expect(noteText(acwy(r)) || '').toMatch(/over 5 years ago/i);   // P50 (review v10)
   });
 
   it('college dorm with a dose at 16y exactly 5 years ago → complete', () => {
@@ -368,7 +368,7 @@ describe('MenB high-risk 3-dose 0/1-2/6 + antigen family lock', () => {
     const r = run({ ageMonths: 300, riskIds: ['asplenia'], menbDoses: [
       { date: '2024-01-03', brand: 'Bexsero' }, { date: '2024-02-10', brand: 'Bexsero' }, { date: '2024-07-10', brand: 'Bexsero' },
     ] });
-    expect(menb(r).doseLabel).toMatch(/Booster/);
+    expect(menb(r).doseLabel).toMatch(/[Bb]ooster/);
     expect(menb(r).minIntervalDays).toBe(365);
     expect(menb(r).dueToday).toBe(true); // >1y elapsed
   });
@@ -376,7 +376,7 @@ describe('MenB high-risk 3-dose 0/1-2/6 + antigen family lock', () => {
   it('MenB high-risk under age 10 → not yet age-eligible', () => {
     const r = run({ ageMonths: 96, riskIds: ['asplenia'] });
     expect(menb(r).status).toBe('not-indicated');
-    expect(menb(r).doseLabel).toMatch(/age-eligible/);
+    expect(menb(r).doseLabel).toMatch(/Not yet due \(from 10 years\)/);
   });
 });
 
@@ -510,7 +510,7 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseNum).toBe(4);
     expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
-    expect(acwy(r).doseLabel).toMatch(/every 5 year/i);
+    expect(acwy(r).doseLabel).toMatch(/5 years after the last/i);
   });
 
   it('Case B: primary ≥7y — first booster (given===2) → minIntervalDays 1826', () => {
@@ -542,7 +542,7 @@ describe('MenACWY high-risk booster cadence — recommend.js regression', () => 
     expect(acwy(r).status).toBe('risk-based');
     expect(acwy(r).doseNum).toBe(4);
     expect(acwy(r).minIntervalDays).toBe(DAYS.years(5)); // 1826
-    expect(acwy(r).doseLabel).toMatch(/every 5 year/i);
+    expect(acwy(r).doseLabel).toMatch(/5 years after the last/i);
   });
 
   // Cases C and C2 held the booster cadence when the doses had no date ("D2

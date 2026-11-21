@@ -169,6 +169,6 @@ describe('G1: the family lock spans the two lists', () => {
     const perDose = result.history.MenB.perDose;
     expect(perDose).toHaveLength(2);
     expect(perDose[1].status).toBe('invalid');
-    expect(perDose[1].reasons.join(' ')).toMatch(/but the series so far is MenB-/);
+    expect(perDose[1].reasons.join(' ')).toMatch(/Not interchangeable with the first MenB dose/);   // P54 (review v10)
   });
 });

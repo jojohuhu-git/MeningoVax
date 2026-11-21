@@ -50,7 +50,7 @@ describe('M16 — the healthy MenB card states the preferred age, not just the w
     // shared clinical decision-making." was dropped as a repeat of the card's
     // first sentence; the window's far end is now stated by "Past 18, the
     // series may still be given up to the 24th birthday."
-    expect(noteText(menbAt(204))).toMatch(/Past 18, the series may still be given up to the 24th birthday/);
+    expect(noteText(menbAt(204))).toMatch(/given until the 24th birthday/);   // P42 (review v10)
   });
 
   it('a 22-year-old is past the preferred age but still offered the series', () => {

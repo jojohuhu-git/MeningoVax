@@ -29,9 +29,9 @@ describe('Pentavalent MenB min-age (≥10y) enforced on every dose', () => {
 
   it('the Penbraya (D2) and Penmenvy (D1) pentavalents are each flagged for the 10-year minimum', () => {
     expect(results[0].reasons.join(' ')).toMatch(/Penmenvy/);
-    expect(results[0].reasons.join(' ')).toMatch(/10-year|120 months/);
+    expect(results[0].reasons.join(' ')).toMatch(/10 years for/);
     expect(results[1].reasons.join(' ')).toMatch(/Penbraya/);
-    expect(results[1].reasons.join(' ')).toMatch(/10-year|120 months/);
+    expect(results[1].reasons.join(' ')).toMatch(/10 years for/);
   });
 
   it('a MenB dose at ≥10y is NOT flagged for min age', () => {

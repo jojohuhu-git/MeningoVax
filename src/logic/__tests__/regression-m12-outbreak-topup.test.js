@@ -81,10 +81,10 @@ describe('M12 under B-2 — the outbreak booster', () => {
     expect(fiveOn.minIntervalDays).toBe(DAYS.years(5));
   });
 
-  it('the copy names the booster interval and how to stop it (untick the box)', () => {
+  it('the copy names the booster interval and how to stop it (uncheck the box; P73, 2026-11-20)', () => {
     const r = acwy(72, ['outbreak_acwy'], ['2023-09-14']);
     expect(noteText(r)).toMatch(/3 years/);
-    expect(noteText(r)).toMatch(/untick the outbreak box/i);
+    expect(noteText(r)).toMatch(/uncheck the outbreak box/i);
   });
 
   it('an outbreak contact with no doses is unchanged: 1 dose', () => {

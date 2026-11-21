@@ -43,7 +43,7 @@ describe('C1: the STOP C packet patient — 20 y, asplenia, Menveo with no date,
     const r = run({ ...base, menacwyDoses: [undated, dated] });
     const text = r.history.MenACWY.perDose[0].reasons.join(' ');
     expect(text).not.toMatch(/repeat this dose/i);
-    expect(text).toMatch(/written, dated records/);
+    expect(text).toMatch(/Only dated records count/);
   });
 
   it('the card: dose 2 is due today — the same answer as the control without the undated row', () => {

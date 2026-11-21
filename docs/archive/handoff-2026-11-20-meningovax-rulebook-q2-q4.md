@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-20** by `handoff-2026-11-20-meningovax-review-v10-build.md` (PR #123 merged; the review v10 answers recorded; Batches 1–2a built on PR #124; the rest of the queue is listed there). Do not resume from this file.
+
 # MeningoVax — Handoff after Rulebook answers Q2 and Q4 (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early, re-apply an edit
@@ -12,6 +14,17 @@ green. Commits: `b04534a` Q4, `acb8437` Q2, `371f494` test-count table, `4b43452
 plus handoffs. Both items live-checked in the running app 2026-11-20 (no console errors).
 
 Q1–Q5 are the owner's answers in `docs/archive/decisions-2026-11-19-rulebook-mockup-q1-q5.md`.
+
+**Update, later 2026-11-20 (owner chose "Mockup v9 review" as the next item):** the mockup is now a
+review form, v10, at the same link (https://claude.ai/artifact/CYSRYKdqNTrrKcbMeydktr, version 12;
+source `docs/archive/mockup-2026-11-20-rulebook-review-v10.html`, committed locally on this branch,
+not pushed). 150 numbered open items: D1 (build the redesign), R1–R110 Rulebook wording (74 open),
+P1–P75 Patient wording (71 open; P73–P75 added after owner notes: two "tick" sentences, and the false "earliest any MenACWY … 2 months" lead at `recommend.js:564,1080`), L1–L7 placement. Owner notes 2026-11-20 applied: shorter proposals (an `OV` override map in the page), R10 corrected (MenQuadfi 6-week dose counts), no "tick", Quick look bars wrap. 17 items already built are tagged "Built"
+(R3–R7, R9, R70, R107–R110, P22, P23, P40), checked against today's app with `npm run prose -- dump`
+and a render of `Rulebook.jsx`. The owner's answers save to the page's db: read them with
+`ArtifactData list`, collection `verdicts`, one doc per item id `{v: yes|no|edit|'', note, at}`.
+Next: read the verdicts, then build the approved items (fix-queue; prose counts; chip labels are a
+closed owner list). The collection was empty at publish.
 
 ## What's done
 

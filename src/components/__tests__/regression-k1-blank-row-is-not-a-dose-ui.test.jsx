@@ -190,7 +190,7 @@ describe('K1: the "Recorded doses" counter counts doses, not empty rows', () => 
 
 // ── the way the clinician says "a dose was given, I have no details" ──────
 const unknownTicks = () =>
-  screen.getAllByRole('checkbox', { name: /a dose was given, but the date and brand are unknown/i });
+  screen.getAllByRole('checkbox', { name: /if a dose was given but its date and brand are unknown/i });   // P3 wording, 2026-11-20
 const unknownTick = () => unknownTicks()[0];
 
 describe('K1: an empty row can be kept on purpose', () => {

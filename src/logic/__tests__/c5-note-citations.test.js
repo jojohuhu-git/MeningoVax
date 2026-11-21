@@ -114,7 +114,7 @@ describe('C5 note-citation anchors', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
     });
     const rec = acwy(r);
-    expect(rec.doseLabel).toMatch(/first booster/);
+    expect(rec.doseLabel).toMatch(/First booster/);
     expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterBeforeAge7', url: ACIP_ANCHORS.boosterBeforeAge7 });
   });
@@ -129,7 +129,7 @@ describe('C5 note-citation anchors', () => {
       ],
     });
     const rec = acwy(r);
-    expect(rec.doseLabel).toMatch(/first booster/);
+    expect(rec.doseLabel).toMatch(/First booster/);
     expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterAtOrAfterAge7', url: ACIP_ANCHORS.boosterAtOrAfterAge7 });
   });
@@ -162,6 +162,6 @@ describe('L2-3: the exposure first-booster note and its citation stay in step', 
     expect(noteText(rec)).not.toContain('[c]');
     expect(rec.noteCites).toHaveLength(0);
     // The interval itself is unchanged by this fix.
-    expect(rec.doseLabel).toContain('5 years after the primary dose');
+    expect(rec.doseLabel).toContain('5 years after dose 1');
   });
 });

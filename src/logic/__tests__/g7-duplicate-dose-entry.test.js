@@ -84,8 +84,8 @@ describe('G7: one dose recorded on two rows', () => {
     );
     const said = perDose[1].reasons.join(' ');
     // C11 (2026-11-15); G1-a (2026-11-19): the minimum folds into the reason.
-    expect(said).toMatch(/under the 8-week minimum between MenACWY doses/i);
-    expect(said).toMatch(/Do not restart the series/i);
+    expect(said).toMatch(/Minimum interval not met \(1 day, 8 weeks required\)/i);
+    expect(said).toMatch(/Do not restart\./i);
     expect(said).not.toMatch(/same date|twice/i);
   });
 

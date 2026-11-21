@@ -39,7 +39,7 @@ describe('the 9-month-old starting card', () => {
     const { container } = show(startCard(9));
     // U2 (2026-09-17): the same promise, now made once -- on the card's booster
     // line rather than a second time in the note underneath it.
-    expect(container.textContent).toMatch(/Boosters: first in 3 years/);
+    expect(container.textContent).toMatch(/Boosters: 3 years after the series/);
     expect(container.textContent).not.toMatch(/booster at 12–23 months/); // extinct: duplicate note-line wording removed (U2, 2026-09-17)
   });
 
@@ -66,7 +66,7 @@ describe('what must NOT change', () => {
     // U1 (2026-09-17): same claim, re-worded when the note split into a lead and
     // a detail (see the logic twin for the matching change).
     // M3 (2026-09-23): brand-neutral now that MenQuadfi is also offered.
-    expect(container.textContent).toMatch(/4-dose infant MenACWY series/);
+    expect(container.textContent).toMatch(/four-dose infant series/);
     expect(container.textContent).toMatch(/2, 4, 6 and 12 months/);
   });
 });

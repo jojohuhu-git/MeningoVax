@@ -51,12 +51,12 @@ export function statusPillLabel(rec, pending) {
   // input", and two identical labels at two levels leaves the clinician asking
   // which input is meant. This one names the card's state; the chips name the
   // individual doses that are waiting.
-  if (pending) return 'Answers needed';
+  if (pending) return 'Answer needed below';
   const { status, dueToday, doseNum, seriesTotal, boosterDueDate, boosterSummary } = rec;
 
   if (status === 'deferred') return 'Deferred in pregnancy';
   if (status === 'not-indicated') return 'Not needed';
-  if (status === 'complete') return boosterDueDate ? 'Future booster needed' : 'Up to date';
+  if (status === 'complete') return boosterDueDate ? 'Booster due later' : 'Up to date';
   if (status === 'catchup') return 'Catch-up dose due today';
   // F-3 (owner, STOP G1, 2026-11-18): "Up to date" only when nothing is left.
   // A card not due today that still prints "Next dose due <date>"
@@ -75,16 +75,16 @@ export function statusPillLabel(rec, pending) {
   const isBooster = doseNum != null && pastPrimary != null && doseNum > pastPrimary;
   const comingIsBooster = isBooster;
   const datedNext = !dueToday && !!rec.earliestNextDate;
-  const comingLabel = comingIsBooster ? 'Future booster needed' : 'Next dose not yet due';
+  const comingLabel = comingIsBooster ? 'Booster due later' : 'Next dose not yet due';
   if (status === 'shared-decision') {
-    if (dueToday) return 'Optional today - shared decision';
+    if (dueToday) return 'Shared decision today';
     return datedNext ? comingLabel : 'Up to date';
   }
 
   // 'due' / 'risk-based' / 'exposure': a dose is being recommended now.
   // The routine "Booster (16y)" card (status 'due' since STOP B: never
   // "complete" while a booster is coming) keeps the pill it had.
-  if (!dueToday && boosterDueDate) return 'Future booster needed';
+  if (!dueToday && boosterDueDate) return 'Booster due later';
   // Gap badge (owner, 2026-11-18): not due yet, but its minimum has passed and a
   // dose given today counts (high-risk MenB dose 2, STOP F1 Q9a). Never "due" —
   // the date line beside it still says "Next dose due <date>".
@@ -92,7 +92,7 @@ export function statusPillLabel(rec, pending) {
   if (datedNext) return comingLabel;
   if (!dueToday) return 'Up to date';
   if (isBooster) return 'Booster due today';
-  return boosterSummary ? 'Dose due today, future boosters needed' : 'Dose due today';
+  return boosterSummary ? 'Due today, boosters to follow' : 'Dose due today';
 }
 
 // One recorded past dose → "D1 · Jul 3, 2025 · age 11 years 2 months · Bexsero"
@@ -218,6 +218,11 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
             <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('no'); setEditing(false); }}>No</button>
             <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('unsure'); setEditing(false); }}>Not sure</button>
           </div>
+          {/* L7 (review v10, owner 2026-11-20): beside the question it explains,
+              only when the question appears (it was behind "About risk history"). */}
+          <div className="risk-at-dose-note" data-testid="risk-at-dose-note">
+            The app records current risk only. When an earlier dose depends on the risk on its date, this question asks.
+          </div>
         </div>
       </div>
     );
@@ -302,7 +307,10 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
 // `detail` takes the rest. The card's citation numbers are seeded from the
 // whole list by cardCiteNumberer, so a source keeps the same [N] whether the
 // disclosure happens to be open or shut.
-export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note' }) {
+// L4 (review v10, owner 2026-11-20): `whyFirst` puts "Why this" right under the
+// card title, and the lines that stay in view (another product, an earliest
+// date) after it.
+export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note', whyFirst = false }) {
   // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
   const openAll = useContext(OpenAllDisclosures);
   const [open, setOpen] = useState(openAll);
@@ -316,13 +324,14 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
   // "Why this".
   const hasSources = citations && citations.length > 0;
   const toggleLabel = detail ? 'Why this' : 'Sources';
+  const leadBlock = lead && (
+    <div className="rec-note-lead">
+      {renderNoteWithCites(lead, noteCites.slice(0, leadCiteCount), numberFor)}
+    </div>
+  );
   return (
     <div className={className}>
-      {lead && (
-        <div className="rec-note-lead">
-          {renderNoteWithCites(lead, noteCites.slice(0, leadCiteCount), numberFor)}
-        </div>
-      )}
+      {!whyFirst && leadBlock}
       {(detail || hasSources) && (
         <>
           <button
@@ -357,6 +366,7 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
           )}
         </>
       )}
+      {whyFirst && leadBlock}
     </div>
   );
 }
@@ -410,7 +420,7 @@ function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumb
         consumed += markers;
         return (
           <span key={i} className="dose-val-reason">
-            {cites && cites.length ? renderNoteWithCites(r, cites, numberFor) : r}
+            {i > 0 ? ' ' : ''}{cites && cites.length ? renderNoteWithCites(r, cites, numberFor) : r}
           </span>
         );
       })}
@@ -538,10 +548,18 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <div className="rec-dose-label">{doseLabel}</div>
         )}
 
+        {/* L4 (review v10): on a card that is open by default, "Why this" sits
+            right under the title it explains. A card shut by default keeps its
+            note whole at the bottom, as before. */}
+        {!collapsible && !pending && (note || citations?.length > 0) && (
+          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} whyFirst />
+        )}
+
         {brands && brands.length > 0 && !isNeutral && !pending && (
           <div className="rec-brands">
-            <div className="rec-brands-title">Brand options: choose one</div>
-            {brands.map((b, i) => (
+            {/* P70 (review v10): one brand is a statement, not a choice. */}
+            <div className="rec-brands-title">{brands.length === 1 ? `Brand: ${stripAntigen(brands[0])}` : 'Brand options: choose one'}</div>
+            {brands.length > 1 && brands.map((b, i) => (
               <div key={i} className="rec-brand-item">
                 <span className="rec-brand-dot" />
                 {stripAntigen(b)}
@@ -561,7 +579,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
                 With a date of birth this IS the patient's 16th birthday; with
                 years/months the app does not know their birthday and says so.
                 G1-a (style rule 8): "about", never "~". */}
-            Booster not yet due - {boosterDueDateExact ? '' : 'about '}{fmtDate(boosterDueDate)}
+            Booster due {boosterDueDateExact ? '' : 'about '}{fmtDate(boosterDueDate)}.
           </div>
         )}
 
@@ -612,7 +630,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {(note || citations?.length > 0) && (
+        {(collapsible || pending) && (note || citations?.length > 0) && (
           <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} />
         )}
       </div>

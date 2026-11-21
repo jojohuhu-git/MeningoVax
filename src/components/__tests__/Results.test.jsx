@@ -123,7 +123,7 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     const summary = screen.getByTestId('results-summary-line');
     expect(summary.textContent).not.toMatch(/Due today: MenACWY and MenB/);
     expect(summary.textContent).toMatch(/Due today: MenACWY/);
-    expect(summary.textContent).toMatch(/MenB is optional \(shared clinical decision\)/i);
+    expect(summary.textContent).toMatch(/MenB may also be offered \(shared clinical decision-making\)/i);
   });
 
   it('does not render the redundant pentavalent header (status is already stated by the summary line and per-card badges), and the pentavalent option still renders', () => {
@@ -144,12 +144,12 @@ describe('Item 4: required vs optional in "due today" copy', () => {
     render(<Harness initial={acwyRequiredMenbOptionalState()} />);
     const pentaCard = screen.getByTestId('penta-card');
     expect(pentaCard.textContent).not.toMatch(/Both MenACWY and MenB are due today/);
-    expect(pentaCard.textContent).toMatch(/MenB is optional today \(shared clinical decision\)/i);
+    expect(pentaCard.textContent).toMatch(/MenB may be offered \(shared clinical decision-making\)/i);
   });
 
-  it('MenB status badge reads "Optional today - shared decision"', () => {
+  it('MenB status badge reads "Shared decision today"', () => {
     render(<Harness initial={acwyRequiredMenbOptionalState()} />);
-    expect(screen.getByText('Optional today - shared decision')).toBeDefined();
+    expect(screen.getByText('Shared decision today')).toBeDefined();
     expect(screen.queryByText('Shared decision')).toBeNull();
   });
 

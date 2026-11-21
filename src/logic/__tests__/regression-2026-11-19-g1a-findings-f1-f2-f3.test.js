@@ -23,13 +23,13 @@ describe('F1: the exact gap where rounding would print the minimum', () => {
   it('healthy 19 y, Bexsero Aug 11 + Sep 10, 2025, dose 3 Dec 29, 2025 (3 months 19 days after dose 2)', () => {
     const d = run({ ...HEALTHY_19, menbDoses: [B('2025-08-11'), B('2025-09-10'), B('2025-12-29')] }).history.MenB.perDose[2];
     expect(d.status).toBe('invalid');
-    expect(d.reasons[0]).toBe('Given 3 months 19 days after the early dose 2, under the 4-month minimum for the third dose.');
+    expect(d.reasons[0]).toBe('Minimum interval not met (3 months 19 days, 4 months required).')   // P53 sibling (review v10); F1's exact gap kept;
     expect(d.detail).toBe('D2→D3: 3 months 19 days (minimum 4 months).');
   });
 
   it('control: dose 3 on Nov 10, 2025 (2 months after dose 2) keeps "about"', () => {
     const d = run({ ...HEALTHY_19, menbDoses: [B('2025-08-11'), B('2025-09-10'), B('2025-11-10')] }).history.MenB.perDose[2];
-    expect(d.reasons[0]).toBe('Given about 2 months after the early dose 2, under the 4-month minimum for the third dose.');
+    expect(d.reasons[0]).toBe('Minimum interval not met (about 2 months, 4 required).');
   });
 });
 
@@ -56,14 +56,14 @@ describe('F3: a too-soon booster line ends at the date', () => {
   it('adult microbiologist, Menveo Apr 8 then Jun 3, 2026 (8 weeks)', () => {
     const d = run({ dob: '1990-01-01', riskIds: ['microbiologist'], menacwyDoses: [M('2026-04-08'), M('2026-06-03')] }).history.MenACWY.perDose[1];
     expect(d.reasons).toEqual([
-      'Booster given 8 weeks after the previous dose, under the 5-year minimum for travel or laboratory exposure.',
+      'Booster 8 weeks after the last dose, 5 years required.',   // P56 (review v10)
       'Repeat from Jun 3, 2031.',
     ]);
   });
 
-  it('control: asplenia adult, dose 2 three weeks after dose 1 keeps "Do not restart the series."', () => {
+  it('control: asplenia adult, dose 2 three weeks after dose 1 keeps "Do not restart."', () => {
     const d = run({ dob: '1990-01-01', riskIds: ['asplenia'], menacwyDoses: [M('2026-07-01'), M('2026-07-22')] }).history.MenACWY.perDose[1];
-    expect(d.reasons.at(-1)).toBe('Do not restart the series.');
+    expect(d.reasons.at(-1)).toBe('Do not restart.');
     expect(d.reasons.at(-2)).toBe('Repeat from Sep 16, 2026.');
   });
 });
