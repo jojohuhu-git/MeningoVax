@@ -5,12 +5,12 @@ that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys 
 owner is a clinician: plain English, ask, don't default. **Supersedes**
 `handoff-2026-11-21-meningovax-label-key-before-16.md`.
 
-Branch: `port/rulebook-steps-nested`, cut from `port/label-key-before-16` (PR #128, open, not
-merged), so it carries #128's two commits. **Pushed**; PR
-https://github.com/jojohuhu-git/MeningoVax/pull/129 is open against `main`, **not merged** (the
-owner merges; this repo runs no CI checks). `main` is still `9969525`. Baseline was 2,373 passing
+Branch: `port/rulebook-steps-nested`. PR #128 was squash-merged to `main` (`e3b4559`,
+2026-11-21); `main` was then merged into this branch to clear the conflicts (main held nothing the
+branch lacked). **Pushed**; PR https://github.com/jojohuhu-git/MeningoVax/pull/129 is open against
+`main`, **not merged** (the owner merges; this repo runs no CI checks). Baseline was 2,373 passing
 (197 files); now **2,386 passing (198 files)**, all green (`npm test`, 2026-11-21), working tree
-clean at `cc2cdd4` (plus this handoff's commit).
+clean.
 
 ## What's done
 
@@ -38,8 +38,8 @@ clean at `cc2cdd4` (plus this handoff's commit).
 
 ## What's NOT done — the remaining queue
 
-1. **Owner reviews and merges PR #128, then #129** (in that order). Check `origin/main` before
-   calling either merged.
+1. **Owner reviews and merges PR #129** (#128 is merged). Check `origin/main` before calling it
+   merged.
 2. **Q5** (amber "Not counted — do not repeat"). It is approved, but the owner wants to look at
    PneumoVax's labels herself first. Wait for her.
 3. **STOP H**: the owner reviews `docs/agent/meningococcal-rules-summary.md`.
@@ -65,7 +65,7 @@ Everything left needs the owner's answers or her own review.
 ## Resuming
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git fetch && git log --oneline origin/main -3`.
-   Are #128 and #129 merged? If yes, `git checkout main && git pull`.
+   Is #129 merged? If yes, `git checkout main && git pull`.
 2. `npm test`: confirm **2,386 passed / 198 files**. `preview_start {name: "MeningoVax dev server"}`.
 3. Ask the open questions above; don't default. For layout changes, draw a before/after first.
 4. Per item:
