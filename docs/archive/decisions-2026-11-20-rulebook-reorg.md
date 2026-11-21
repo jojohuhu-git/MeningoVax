@@ -136,3 +136,30 @@ the last dose, unless the third dose was administered ≥6 months after the firs
 the sentence read live above). Build notes: the repeat is timed ≥4 months after the not-counted
 dose 3 (the "last dose"); a repeat given ≥6 months after dose 1 also counts (same "unless", CDSI's
 allowable interval); both lines keep the 4-day grace period (C7, D4).
+
+## M1 consequences (asked and answered 2026-11-20, resumed session)
+
+Engine today (run 2026-11-20, asplenia, Bexsero, age 20): Jan 1, Feb 1, Feb 15 2026 → Feb 15
+counts as "Dose 3 of 4", "Dose 4 of 4" due Jun 15, 2026. Jan 1, Jan 29, Mar 1 → "Dose 4 of 4"
+due Jul 1, 2026. Jan 1, Feb 1, Apr 1 → "Dose 4 of 4" due Aug 1, 2026.
+
+**M1b — the routine date of the repeat. Owner: "Jul 1 (Recommended)".** The routine date is the
+latest of: 4 months after the not-counted dose 3, 4 months after dose 2, 6 months after dose 1.
+The earliest date at which the repeat would count shows beside it when sooner ("It can be given
+from <date> if needed", the STOP F1 pattern). Jan 1, Feb 1, Feb 15 → "Dose 3 of 3" due Jul 1,
+2026, "It can be given from Jun 15, 2026 if needed". Control Jan 1, Feb 1, Apr 1 → Aug 1, no
+"from" line.
+
+**M1c — is "≥4 months after the last dose" a floor? Owner: "Not counted (Recommended)".** A
+repeat counts only if it is ≥4 months after the not-counted dose 3, or ≥6 months after dose 1
+(both with the 4-day grace; and ≥4 weeks after any dose that did not count, MENB-REPEAT-GAP).
+Sources: ACIP mm7349a3 "the dose should be repeated ≥4 months after the last dose"; ACIP Best
+Practice "The repeat dose should be spaced after the invalid dose by the recommended minimum
+interval"; CDSI 4.65 dose 3 "4 months - 4 days" from the previous dose. Jan 1, Jan 29, Mar 1,
+Jun 1 → Jun 1 "Not counted — repeat" again. Control: repeat Jul 1 → counts, series complete,
+booster Jul 1, 2027.
+
+Scope note (build): the 4-month line is measured from a dose 3 that was not counted by THIS rule
+(the early dose 3). A dose not counted for another reason (the other MenB product, too soon after
+dose 1) keeps its 4-week repeat gap (ACIP mm7349a3 interchangeability: "≥4 weeks after the most
+recent dose (from either manufacturer)"; owner C2, E1/E2).
