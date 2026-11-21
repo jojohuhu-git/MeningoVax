@@ -40,7 +40,7 @@ function DecisionText({ d }) {
   return (
     <>
       <span className="rb-dec-line"><strong>Problem:</strong> {d.problem}</span>
-      <span className="rb-dec-line"><strong>CDC and ACIP:</strong> {d.cdc}</span>
+      <span className="rb-dec-line"><strong>CDC and ACIP say:</strong> {d.cdc}</span>
       <span className="rb-dec-line"><strong>MeningoVax decision:</strong> {d.does}</span>
     </>
   );
@@ -165,7 +165,7 @@ function Stop() {
 function Vaccines() {
   return (
     <>
-      <p className="rb-lead">MenACWY and MenB are separate vaccines with separate schedules. The combined shot gives one dose of each at the same visit.</p>
+      <p className="rb-lead">MenACWY and MenB have separate schedules. One MenABCWY injection gives a dose of each.</p>
       <div className="rb-card"><div className="rb-scroll">
         <table className="rb-table rb-fixed rb-freeze">
           {/* Q2: "Counts as" holds a brand name ("Trumenba"), wider than the old "FHbp". */}
@@ -208,8 +208,8 @@ function Vaccines() {
 function GiveCell({ cell }) {
   return (
     <>
-      <span className={cell.boosters === null && /^As for/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
-      {cell.boosters && <span className="rb-cell-text"><strong>Boosters:</strong> {cell.boosters}</span>}
+      <span className={cell.boosters === null && /^Same as/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
+      {cell.boosters && <span className="rb-cell-text">{cell.boosters}</span>}
     </>
   );
 }
@@ -238,7 +238,7 @@ function Who() {
       </Card>
 
       <Card id="rb-groups" title="Risk groups">
-        <p className="rb-small">Each condition the app asks about: what to give, and when boosters are due.</p>
+        <p className="rb-small">This table gives the doses and boosters for each condition.</p>
         <div className="rb-scroll">
           <table className="rb-table rb-freeze">
             <thead><tr><th className="rb-w24 rb-freeze-col">Condition</th><th>MenACWY</th><th>MenB</th></tr></thead>
@@ -303,10 +303,10 @@ function MenACWY() {
       </Card>
 
       <Card id="rb-acwy-highrisk" title="High risk: asplenia, complement deficiency, HIV">
-        <p className="rb-small">The series is set by the age at dose 1. Travel and an outbreak give the same infant series.</p>
+        <p className="rb-small">The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.</p>
         <div className="rb-lanes">{ACWY_HIGHRISK_LANES.map((l) => <HighRiskLane key={l.start} lane={l} />)}</div>
         <p className="rb-small">{ACWY_HIGHRISK_NOTES.spacing}</p>
-        <p className="rb-small"><strong>Boosters.</strong> {ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
+        <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
       </Card>
 
       <Card id="rb-acwy-other" title="Other indications">
@@ -375,7 +375,7 @@ const Chip = ({ tone, children }) => <span className={`dose-val-chip ${CHIP_CLAS
 function Record() {
   return (
     <>
-      <p className="rb-lead">Each dose on the record is checked against the patient&rsquo;s age and the dose before it, and gets one label. The card advises the routine date, which can be later than the minimum.</p>
+      <p className="rb-lead">Each recorded dose is checked for minimum age and minimum interval, and gets one label. The card shows the routine date. The earliest valid date may be sooner.</p>
 
       <Card id="rb-labels" title="What the label on a dose means">
         <div className="rb-legend">
@@ -389,7 +389,7 @@ function Record() {
       </Card>
 
       <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
-        <p className="rb-band rb-band-green"><strong>{GRACE.title}</strong> {GRACE.text}<Decisions row={GRACE} /></p>
+        <p className="rb-band rb-band-green">{GRACE.text}<Decisions row={GRACE} /></p>
         <div className="rb-scroll">
           <table className="rb-table">
             <thead><tr><th className="rb-w40">Doses</th><th>Minimum interval</th></tr></thead>
@@ -473,12 +473,8 @@ export default function Rulebook() {
     <div className="rb">
       <div className="rb-top">
         <h1 className="rb-title">Rulebook</h1>
-        <p className="rb-intro">
-          Recommendations are based on age, risk conditions and dated vaccine history. The parts
-          below follow the order the app decides in. Source shows the CDC or ACIP sentence a rule
-          rests on. A MeningoVax decision marks a rule they do not state, and opens to show the
-          problem, what CDC and ACIP say, and what MeningoVax does.
-        </p>
+        {/* R1: the owner's own sentence (2026-11-20). */}
+        <p className="rb-intro">Recommendations are based on age, risk conditions and dated vaccine history.</p>
       </div>
 
       <nav aria-label="On this page" className="rb-nav">

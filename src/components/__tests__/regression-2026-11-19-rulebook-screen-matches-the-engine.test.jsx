@@ -201,7 +201,7 @@ describe('Rulebook screen — what a clinician sees', () => {
     fireEvent.click(chip);
     const panel = chip.parentElement;
     expect(within(panel).getByText('Problem:')).toBeTruthy();
-    expect(within(panel).getByText('CDC and ACIP:')).toBeTruthy();
+    expect(within(panel).getByText('CDC and ACIP say:')).toBeTruthy();   // R94, 2026-11-20
     expect(within(panel).getByText('MeningoVax decision:')).toBeTruthy();
   });
 

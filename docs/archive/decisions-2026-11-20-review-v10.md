@@ -16,9 +16,16 @@ Answer column says "Built".
   check/uncheck/checkbox); shorten the phrases; R10 corrected (a MenQuadfi dose from 6 weeks counts;
   the app recommends the first dose at 2 months); P73–P75 added.
 
+- **Later the same day, in chat (two questions):**
+  - **How D1 fits with sections 1–8: "New top, then 1–8 folded".** The Rulebook screen shows the
+    seven-step path and the two Quick look tables in view. Sections 1–8, with the approved R
+    wording, sit below them behind one "Full rulebook" tap, closed by default.
+  - **R1 (owner's own text):** "Recommendations are based on age, risk conditions and dated vaccine
+    history." That sentence alone opens the screen.
+
 ## Still gated
 
-- **R1**: wait for the owner's text on the page.
+- **R1**: answered (above).
 - **Q5 (amber "Not counted — do not repeat")**: approved 2026-11-19, but the owner asked to check
   PneumoVax's dose labels first. Not part of this approval. Remind her.
 - **P12–P21** are card titles (`doseLabel`), not the closed chip list beside recorded doses
