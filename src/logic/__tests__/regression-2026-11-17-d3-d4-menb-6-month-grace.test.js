@@ -29,10 +29,12 @@ describe('D3: dose 3 within 4 days of 6 months after dose 1 needs no 4th dose', 
     expect(c.earliestNextDate).toBe('2027-03-29');
   });
 
-  it('control: 5 days short of 6 months is outside the grace — the 4th dose stays', () => {
+  // M1 (owner, 2026-11-20): outside the grace the dose is not counted (was: a 4th dose owed).
+  it('control: 5 days short of 6 months is outside the grace — dose 3 is not counted', () => {
     expect(menbHighRiskDose3Early('2025-10-01', '2026-01-15', '2026-03-27')).toBe(true);
-    const c = run([B('2025-10-01'), B('2026-01-15'), B('2026-03-27')]).menb[0];
-    expect(c.doseLabel).toMatch(/^Dose 4 of 4/);
+    const r = run([B('2025-10-01'), B('2026-01-15'), B('2026-03-27')]);
+    expect(r.history.MenB.perDose[2].status).toBe('invalid');
+    expect(r.menb[0].doseLabel).toMatch(/^Dose 3 of 3/);
   });
 });
 

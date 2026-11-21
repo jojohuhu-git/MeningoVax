@@ -65,9 +65,10 @@ describe('Review v10 Batch 2c: the line under each recorded dose', () => {
     expect(line(r, 'MenB', 1)).toBe('Given about 3 months after dose 1 (6 recommended). It counts. Dose 3 is due ≥4 months later.');
   });
 
-  it('P59: high-risk MenB dose 3 early, it counts', () => {
+  // M1 (owner, 2026-11-20): P59's "It counts" line is gone; the dose is not counted.
+  it('P59 (after M1): high-risk MenB dose 3 early is not counted', () => {
     const r = run({ dob: '2006-06-01', riskIds: ['asplenia'], menbDoses: [BX('2026-01-01'), BX('2026-02-01'), BX('2026-04-10')] });
-    expect(line(r, 'MenB', 2)).toBe('Given about 2 months after dose 2 (4 recommended). It counts. Dose 4 is due ≥4 months later.');
+    expect(line(r, 'MenB', 2)).toMatch(/^Minimum interval not met \(about 2 months after dose 2, 4 required\)\. Also under 6 months after dose 1 \(about 3 months\)\. Repeat today\. Do not restart\.$/);
   });
 
   it('P60: a dose after an invalid dose', () => {

@@ -60,9 +60,9 @@ Two deliberate limits:
   2026-11-15, and D3/D4, 2026-11-17: use the grace where it means one dose
   fewer): a healthy MenB dose 2 given 1–4 days before 6 months completes the
   2-dose series (no rescue dose); a high-risk MenB dose 3 given 1–4 days before
-  4 months after dose 2 is not "early" (no 4th dose); a high-risk dose 3 given
-  1–4 days before 6 months after dose 1 needs no 4th dose (D3); a high-risk
-  dose 2 given 1–4 days before 6 months after dose 1 needs no dose 3 (D4).
+  4 months after dose 2 counts (C7); a high-risk dose 3 given 1–4 days before
+  6 months after dose 1 counts (D3); a high-risk dose 2 given 1–4 days before
+  6 months after dose 1 needs no dose 3 (D4).
 - **MenACWY ages 3 months, 7 months, 2 years and 16 years** (your B-1 answer,
   2026-11-15; 3 months and 16 years added 2026-11-17): a dose given 1–4 days
   before one of these birthdays is read as given on it **only if that means
@@ -506,10 +506,8 @@ with an old dose "you're done" when they weren't.)
     **already given** ≥4 months after dose 2 counts, even if it came before 6
     months from dose 1 (your C5 answer, 2026-11-15: no source says not to count
     it, and CDC's software counts it).
-    <!-- SOURCES: menbHighRisk3DoseSchedule, menbHighRiskEarlyD3ExtraDose, owner:C5 -->
+    <!-- SOURCES: menbHighRisk3DoseSchedule, owner:C5 -->
     > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
-    >
-    > "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
     >
     > Owner decision C5, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
     <!-- /SOURCES -->
@@ -527,33 +525,50 @@ with an old dose "you're done" when they weren't.)
     >
     > "if dose 2 was administered at least 6 months after dose 1, dose 3 not needed" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
     <!-- /SOURCES -->
-  - **If dose 3 was given earlier than 4 months after dose 2, that dose still
-    counts — do not repeat it — but a 4th dose is then owed at least 4 months
-    after dose 3** (corrected 2026-09-17). CDC says this in the second half of
-    the same sentence as the rule above. The app used to do the opposite: mark
-    the early dose 3 invalid, tell the clinician to repeat it, and then ask for
-    "dose 3 of 3" again — so it threw away a dose CDC credits and never
-    mentioned the extra dose the patient actually needs. The booster clock then
-    starts from that 4th dose, not from the third. The four months are
-    compared on the calendar, **with the 4-day grace** (your C7 answer): a dose
-    3 given 1–4 days before 4 months is not early.
-    <!-- SOURCES: menbHighRiskEarlyD3ExtraDose, owner:C7 -->
-    > "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+  - **If dose 3 was given under 4 months after dose 2 and under 6 months after
+    dose 1, it is not counted: it is repeated at least 4 months after that dose**
+    (your M1 answer, 2026-11-20: follow CDC's software and ACIP's 2024 MMWR).
+    Dose 2 still counts and keeps its number. The four months are compared on
+    the calendar, **with the 4-day grace** (your C7 answer): a dose 3 given 1–4
+    days before 4 months after dose 2 counts. Until 2026-11-20 the app instead
+    counted that dose and asked for a 4th one, from CDC's schedule notes ("a 4th
+    dose should be administered at least 4 months after dose 3").
+    <!-- SOURCES: menbHighRiskEarlyD3Unless, gbpRepeatSpacedFromInvalidDose, owner:M1, owner:C7 -->
+    > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
+    >
+    > "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP Best Practice](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
+    >
+    > Owner decision M1, 2026-11-20 ([decisions-2026-11-20-rulebook-reorg.md](../archive/decisions-2026-11-20-rulebook-reorg.md)).
     >
     > Owner decision C7, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
     <!-- /SOURCES -->
-  - **Unless dose 3 was 6 months or more after dose 1** — then no 4th dose,
-    even if dose 3 came under 4 months after dose 2 (your C6 answer: follow
-    ACIP's 2024 MMWR, *"…unless the third dose was administered ≥6 months after
-    the first dose"*; CDC's schedule notes leave the "unless" out). **With the
-    4-day grace** (your D3 answer, 2026-11-17): 1–4 days short of 6 months
-    also counts.
+  - **Unless dose 3 was 6 months or more after dose 1** — then it counts and
+    the series is complete, even if dose 3 came under 4 months after dose 2
+    (your C6 answer: follow ACIP's 2024 MMWR, *"…unless the third dose was
+    administered ≥6 months after the first dose"*). **With the 4-day grace**
+    (your D3 answer, 2026-11-17): 1–4 days short of 6 months also counts.
     <!-- SOURCES: menbHighRiskEarlyD3Unless, owner:C6, owner:D3 -->
-    > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+    > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
     >
     > Owner decision C6, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
     >
     > Owner decision D3, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    <!-- /SOURCES -->
+  - **The repeat.** The card's date is the latest of: 4 months after the dose
+    that did not count, 4 months after dose 2, and 6 months after dose 1. When
+    the repeat would count sooner, the earliest valid date is shown beside it
+    (your M1b answer). A repeat counts if it is at least 4 months after the dose
+    that did not count, or at least 6 months after dose 1, both with the 4-day
+    grace (your M1c answer). Example: Bexsero Jan 1, Feb 1, Feb 15 → the Feb 15
+    dose is not counted; dose 3 is due Jul 1, earliest valid Jun 15.
+    <!-- SOURCES: menbHighRiskEarlyD3Unless, gbpRepeatSpacedFromInvalidDose, owner:M1b, owner:M1c -->
+    > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
+    >
+    > "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP Best Practice](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
+    >
+    > Owner decision M1b, 2026-11-20 ([decisions-2026-11-20-rulebook-reorg.md](../archive/decisions-2026-11-20-rulebook-reorg.md)).
+    >
+    > Owner decision M1c, 2026-11-20 ([decisions-2026-11-20-rulebook-reorg.md](../archive/decisions-2026-11-20-rulebook-reorg.md)).
     <!-- /SOURCES -->
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
@@ -851,7 +866,7 @@ row per rule, with the sentences each rests on. It is written from the code
 
 <!-- RULE-TABLE:START — written by `npm run rulebook` from src/data/rulebook.js; do not edit by hand -->
 
-Every rule that can stop a recorded dose counting, or count it with a note: 37 rules,
+Every rule that can stop a recorded dose counting, or count it with a note: 36 rules,
 in the order the app checks them (the first rule that catches a dose decides it).
 Written from the code; a test holds every cell to it.
 
@@ -885,9 +900,8 @@ Written from the code; a test holds every cell to it.
 | MenB | Everyone | A MenB dose from the other antigen family (4C vs FHbp) than the first counted dose with a known brand | first counted branded dose | Not counted | Not counted — repeat | — | A source states it | ACIP 2020 (RR-9); immunize.org | `MENB-WRONG-FAMILY` |
 | MenB | high-risk | High-risk MenB dose 2 under 4 weeks after dose 1 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (MenB, 4 weeks between any 2 doses); MMWR mm7349a3; owner, STOP C C8 (2026-11-15) | `MENB-HIGHRISK-DOSE-2-GAP` |
 | MenB | Everyone | A MenB dose under 4 weeks after a MenB dose that did not count (too soon, too young, or the other antigen family) | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks, acip2020MenbMixedProductsSelectOne); owner STOP C C2 and E1/E2, 2026-11-15 | `MENB-REPEAT-GAP` |
-| MenB | high-risk | High-risk MenB dose 3 under 4 months after dose 2 (and under 6 months from dose 1) — counts, and a 4th dose is owed | dose 2 | Counts, with a note | Dose N of M | Yes | Owner decision | ACIP mm7349a3 (with its "unless"); owner, STOP C C6 and C7 | `MENB-HIGHRISK-EARLY-DOSE-3` |
+| MenB | high-risk | High-risk MenB dose 3 under 4 months after the last dose given (dose 2, or a dose 3 that did not count) and under 6 months after dose 1 — not counted, repeat | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), C7, D3 | `MENB-HIGHRISK-EARLY-DOSE-3` |
 | MenB | high-risk | High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2) | dose 1 | Never flagged | Dose N of M | — | Owner decision | Owner, STOP C C5 (no source voids it) | `MENB-HIGHRISK-DOSE-3-FROM-DOSE-1` |
-| MenB | high-risk | The extra high-risk MenB dose owed after an early dose 3, under 4 months after dose 3 | dose 3 | Not counted | Not counted — repeat | Yes | A source states it | CDC child schedule notes | `MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3` |
 | MenB | high-risk | A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days | last dose given | Not counted | Not counted — repeat | Yes | Owner decision | ACIP 2020; owner, STOP C C9 (2026-11-15) | `MENB-HIGHRISK-BOOSTER-GAP` |
 | MenB | healthy (shared decision) | Healthy MenB dose 2 under 4 weeks after dose 1 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks); CDSI; owner STOP C C12, 2026-11-15 | `MENB-HEALTHY-DOSE-2-GAP` |
 | MenB | healthy (shared decision) | Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed | dose 1 | Counts, with a note | Dose N of M | Yes | Owner decision | CDC notes; immunize.org; owner, STOP C C7 (the 4-day grace) | `MENB-HEALTHY-EARLY-DOSE-2` |
@@ -916,12 +930,11 @@ own words. The note says what the sources say and where the app parts from them.
 14. **App decision 14** (`MENB-HIGHRISK-BEFORE-16-ASK`): MenB before 16, patient high-risk now, risk-at-dose question not answered. The high-risk MenB series starts at 10; the sources do not say what to do with a dose given at 10–15 before the risk began. The owner chose to ask (2026-07-23).
 15. **App decision 15** (`MENB-HIGHRISK-BEFORE-16-NO`): MenB before 16, patient high-risk now, answered "not high-risk then" or "unsure". Answered "not high-risk then" or "unsure": the dose is treated like a healthy patient's dose before 16 and set aside. The owner's design (2026-07-23).
 16. **App decision 16** (`MENB-HIGHRISK-BEFORE-16-YES`): MenB before 16, patient high-risk now, answered "high-risk then" — judged as a high-risk series dose. Answered "high-risk then": the dose is judged on the high-risk schedule. Asking the question at all is the owner's design (2026-07-23).
-17. **App decision 17** (`MENB-HIGHRISK-EARLY-DOSE-3`): High-risk MenB dose 3 under 4 months after dose 2 (and under 6 months from dose 1) — counts, and a 4th dose is owed. A dose 3 under 4 months after dose 2 counts, and a 4th dose is owed (CDC notes; ACIP says "repeated", the same count). Owner, STOP C 2026-11-15: C6 follows ACIP 2024's "unless the third dose was administered ≥6 months after the first dose" (the notes leave it out); C7 gives the 4-month line the 4-day grace (one dose fewer). No grace on the 6-month "unless" line (not asked).
-18. **App decision 18** (`MENB-HIGHRISK-DOSE-3-FROM-DOSE-1`): High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2). ACIP gives dose 3 "at … 6 months" as a schedule; no sentence read states 6 months from dose 1 as a minimum, and CDC's software sets no minimum from dose 1 (0 days). Owner, STOP C C5 (2026-11-15): a dose 3 already given ≥4 months after dose 2 counts, whatever the gap from dose 1. The FORECAST keeps both lines (recommend.js: ≥6 months from dose 1 and ≥4 from dose 2).
-19. **App decision 19** (`MENB-HIGHRISK-BOOSTER-GAP`): A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days. ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC's software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).
-20. **App decision 20** (`MENB-HEALTHY-EARLY-DOSE-2`): Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed. The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. The three differences found at port 2.3 are now owner-decided (STOP C, 2026-11-15): C12 a lower limit (dose 2 under 4 weeks does not count, row MENB-HEALTHY-DOSE-2-GAP); C7 the 4-day grace at the 6-month line, as CDC's software does; C3 a Bexsero 0 + 1 month course given before 24 October 2024 still gets the rescue dose 3 (current schedule for everyone), a deliberate difference from ACIP mm7349a3.
-21. **App decision 21** (`SERIES-CAP-EXTRA-DOSE`): A counted dose past the series total, on a schedule with no booster phase (routine MenACWY, single-dose indications, healthy MenB). The sources give each series' size; calling a dose past it "Extra" is the app's own rule. Owner, STOP C C18 (2026-11-15): keep the rule; its words are Phase 4's question Q8, and all wording is eventually to match PneumoVax.
-22. **App decision 22** (`NOT-ASKED-FOR-EXTRA-DOSE`): A dose given on a day when every card for that vaccine asked for nothing (complete, or not indicated), after an earlier counted dose. No source says when a dose nobody asked for counts. The owner chose PneumoVax's rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; college is left alone, because ACIP times the 5-year cover "since the dose".
+17. **App decision 17** (`MENB-HIGHRISK-DOSE-3-FROM-DOSE-1`): High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2). ACIP gives dose 3 "at … 6 months" as a schedule; no sentence read states 6 months from dose 1 as a minimum, and CDC's software sets no minimum from dose 1 (0 days). Owner, STOP C C5 (2026-11-15): a dose 3 already given ≥4 months after dose 2 counts, whatever the gap from dose 1. The FORECAST keeps both lines (recommend.js: ≥6 months from dose 1 and ≥4 from dose 2).
+18. **App decision 18** (`MENB-HIGHRISK-BOOSTER-GAP`): A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days. ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC's software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).
+19. **App decision 19** (`MENB-HEALTHY-EARLY-DOSE-2`): Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed. The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. The three differences found at port 2.3 are now owner-decided (STOP C, 2026-11-15): C12 a lower limit (dose 2 under 4 weeks does not count, row MENB-HEALTHY-DOSE-2-GAP); C7 the 4-day grace at the 6-month line, as CDC's software does; C3 a Bexsero 0 + 1 month course given before 24 October 2024 still gets the rescue dose 3 (current schedule for everyone), a deliberate difference from ACIP mm7349a3.
+20. **App decision 20** (`SERIES-CAP-EXTRA-DOSE`): A counted dose past the series total, on a schedule with no booster phase (routine MenACWY, single-dose indications, healthy MenB). The sources give each series' size; calling a dose past it "Extra" is the app's own rule. Owner, STOP C C18 (2026-11-15): keep the rule; its words are Phase 4's question Q8, and all wording is eventually to match PneumoVax.
+21. **App decision 21** (`NOT-ASKED-FOR-EXTRA-DOSE`): A dose given on a day when every card for that vaccine asked for nothing (complete, or not indicated), after an earlier counted dose. No source says when a dose nobody asked for counts. The owner chose PneumoVax's rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; college is left alone, because ACIP times the 5-year cover "since the dose".
 
 ### The sentences each rule rests on
 
@@ -969,7 +982,7 @@ sentence is about the record, not the vaccine.
 - `ACWY-ANY-TWO-DOSES-GAP`:
   - "a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained" — [ACIP 2020 MMWR: 8-week minimum between the two MenACWY primary doses](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   - "the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained" — [ACIP 2020 MMWR: at least 8 weeks between dose 1 and the 16-year booster](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
-  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-17.
+  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
   - "If the first dose in a series is given ≥5 days before the recommended minimum age, the dose should be repeated on or after the date when the child reaches at least the minimum age" — [ACIP General Best Practice Guidelines: a too-young first dose is repeated once the minimum age is reached](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-15.
 - `ACWY-ROUTINE-DOSE-2-BEFORE-16`:
   - "ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years" — [ACIP 2020 MMWR: routine 11–12y dose, 16y booster](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
@@ -999,16 +1012,15 @@ sentence is about the record, not the vaccine.
 - `MENB-REPEAT-GAP`:
   - "For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses" — [ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   - "If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid" — [ACIP 2020 MMWR: after two different MenB products, pick one to finish the series](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
-  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-17.
+  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
   - "If the first dose in a series is given ≥5 days before the recommended minimum age, the dose should be repeated on or after the date when the child reaches at least the minimum age" — [ACIP General Best Practice Guidelines: a too-young first dose is repeated once the minimum age is reached](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-15.
 - `MENB-HIGHRISK-EARLY-DOSE-3`:
-  - "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC Child/Adolescent Schedule, MenB special situations: an early dose 3 counts and adds a 4th dose](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
-  - "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated unless it was 6 months after dose 1](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  - "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated ≥4 months after it, unless it was 6 months after dose 1](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
+  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
+  - "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC Child/Adolescent Schedule, MenB special situations: counts an early dose 3 and adds a 4th dose (the app follows ACIP 2024 instead)](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
 - `MENB-HIGHRISK-DOSE-3-FROM-DOSE-1`:
   - "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR: MenB-4C high-risk 3-dose series, 0/1–2/6 months](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
-  - "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated unless it was 6 months after dose 1](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
-- `MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3`:
-  - "if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3" — [CDC Child/Adolescent Schedule, MenB special situations: an early dose 3 counts and adds a 4th dose](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+  - "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated ≥4 months after it, unless it was 6 months after dose 1](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
 - `MENB-HIGHRISK-BOOSTER-GAP`:
   - "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR: high-risk MenB booster schedule](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
 - `MENB-HEALTHY-DOSE-2-GAP`:

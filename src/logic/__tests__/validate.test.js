@@ -281,7 +281,8 @@ describe('MenB — high-risk D3 interval checks', () => {
   // dose 1, which the MMWR's "unless" now exempts from the 4th dose. Dose 1
   // moved to 7 months ago so dose 3 is under 6 months from it; what is under
   // test (an early dose 3 counts and owes a 4th) is unchanged.
-  it('D3 < 4 months after D2 and < 6 months after D1 (high-risk) → valid, and a 4th dose is owed', () => {
+  // M1 (owner, 2026-11-20, "follow CDSI"): reversed — not counted, repeat.
+  it('D3 < 4 months after D2 and < 6 months after D1 (high-risk) → not counted', () => {
     const d1 = monthsAgo(7);
     const d2 = monthsAgo(5);
     const d3 = monthsAgo(3); // 2 months after d2, 4 months after d1
@@ -290,10 +291,9 @@ describe('MenB — high-risk D3 interval checks', () => {
       { date: d2, brand: 'Trumenba (MenB)' },
       { date: d3, brand: 'Trumenba (MenB)' },
     ], HR_AM, ['complement']);
-    expect(results[2].status).toBe('valid');
-    expect(results[2].reasons.some(r => /Dose 4 is due/i.test(r))).toBe(true);
-    // G1-a: the chip ("Dose 3 of 4") says it counts, so the line no longer does.
-    expect(results[2].reasons.some(r => /do not repeat it/i.test(r))).toBe(false); // extinct: the line repeated the label, removed by G1-a, 2026-11-19
+    expect(results[2].status).toBe('invalid');
+    expect(results[2].reasons.some(r => /Dose 4 is due/i.test(r))).toBe(false);
+    expect(results[2].reasons[0]).toMatch(/^Minimum interval not met \(about 2 months after dose 2, 4 required\)\./);
   });
 
   it('D3 ≥6 months after D1 AND ≥4 months after D2 (high-risk) → valid', () => {

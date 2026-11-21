@@ -325,7 +325,10 @@ export const CITATIONS = {
   menbHighRiskEarlyD3ExtraDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3',
-    label: 'CDC Child/Adolescent Schedule, MenB special situations: an early dose 3 counts and adds a 4th dose',
+    // M1 (owner, 2026-11-20): the app no longer follows this wording. It follows
+    // ACIP mm7349a3 and CDSI (the early dose 3 is repeated). Kept as the source
+    // the MENB-HIGHRISK-EARLY-DOSE-3 row names as differing.
+    label: 'CDC Child/Adolescent Schedule, MenB special situations: counts an early dose 3 and adds a 4th dose (the app follows ACIP 2024 instead)',
     short: 'CDC MenB Notes',
     lastVerified: '2026-11-15',
   },
@@ -496,7 +499,7 @@ export const CITATIONS = {
     quote: 'The repeat dose should be spaced after the invalid dose by the recommended minimum interval',
     label: 'ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose',
     short: 'ACIP Best Practice',
-    lastVerified: '2026-11-17',
+    lastVerified: '2026-11-20',
   },
   // The sentence the owner's E1 answer deliberately differs from (2026-11-15):
   // for an inactivated vaccine CDC sets no wait after a too-young first dose.
@@ -621,9 +624,9 @@ export const CITATIONS = {
   menbHighRiskEarlyD3Unless: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose',
-    label: 'ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated unless it was 6 months after dose 1',
+    label: 'ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated ≥4 months after it, unless it was 6 months after dose 1',
     short: 'ACIP Oct 2024 MMWR',
-    lastVerified: '2026-11-15',
+    lastVerified: '2026-11-20',
   },
 
   // ── Port Phase 7.1, the rulebook's "todo" rules (2026-11-19) ──────────────
