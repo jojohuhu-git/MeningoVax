@@ -7,11 +7,14 @@
 // CDC's own quoted sentences and paper titles keep "MenB-4C": their words.
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import Rulebook from '../Rulebook.jsx';
 
 function screenTextWithoutQuotes() {
   const { container } = render(<Rulebook />);
+  // D1 (2026-11-20): the numbered parts are behind "Full rulebook". Open it,
+  // so the whole screen is read, not just the new top.
+  fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
   const copy = container.cloneNode(true);
   // The Sources list gives each CDC paper's own title ("…Bexsero MenB-4C
   // Vaccine…"): their words, not the app's.

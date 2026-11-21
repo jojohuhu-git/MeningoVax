@@ -36,7 +36,9 @@ src/
                          "About risk history" (Q10).
     Rulebook.jsx         The Rulebook view (Phase 7.2, Q11), switched from the header
                          ("Patient | Rulebook", `?rules`). Renders rulebookPage.js;
-                         decides nothing.
+                         decides nothing. In view: the seven decision steps and two
+                         Quick look tables (D1, 2026-11-20); parts 1–8 behind one
+                         "Full rulebook" tap.
   logic/
     recommend.js         THE engine. recommend(input) → { menacwy[], menb[], pentavalent, meta }.
                          recommend() = foldResult(recommendBeforeFold(input)).

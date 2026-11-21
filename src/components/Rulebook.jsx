@@ -21,7 +21,7 @@ import {
   VACCINE_ROWS, FAMILIES, AGE_LINES, RISK_ROWS, RISK_RANKING, ACWY_ROUTINE, ACWY_BY_AGE,
   ACWY_HISTORY_NOTES, ACWY_HIGHRISK_LANES, ACWY_HIGHRISK_NOTES, ACWY_OTHER, ACWY_OTHER_NOTE,
   MENB_HEALTHY, MENB_HIGHRISK, MENB_PREGNANCY, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS,
-  NOT_COUNTED, SOURCE_DOCS,
+  NOT_COUNTED, SOURCE_DOCS, PATH_STEPS, stepExamples, QUICK_LOOK,
 } from '../data/rulebookPage.js';
 
 const SECTIONS = [
@@ -40,7 +40,7 @@ function DecisionText({ d }) {
   return (
     <>
       <span className="rb-dec-line"><strong>Problem:</strong> {d.problem}</span>
-      <span className="rb-dec-line"><strong>CDC and ACIP:</strong> {d.cdc}</span>
+      <span className="rb-dec-line"><strong>CDC and ACIP say:</strong> {d.cdc}</span>
       <span className="rb-dec-line"><strong>MeningoVax decision:</strong> {d.does}</span>
     </>
   );
@@ -165,7 +165,7 @@ function Stop() {
 function Vaccines() {
   return (
     <>
-      <p className="rb-lead">MenACWY and MenB are separate vaccines with separate schedules. The combined shot gives one dose of each at the same visit.</p>
+      <p className="rb-lead">MenACWY and MenB have separate schedules. One MenABCWY injection gives a dose of each.</p>
       <div className="rb-card"><div className="rb-scroll">
         <table className="rb-table rb-fixed rb-freeze">
           {/* Q2: "Counts as" holds a brand name ("Trumenba"), wider than the old "FHbp". */}
@@ -208,8 +208,8 @@ function Vaccines() {
 function GiveCell({ cell }) {
   return (
     <>
-      <span className={cell.boosters === null && /^As for/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
-      {cell.boosters && <span className="rb-cell-text"><strong>Boosters:</strong> {cell.boosters}</span>}
+      <span className={cell.boosters === null && /^Same as/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
+      {cell.boosters && <span className="rb-cell-text">{cell.boosters}</span>}
     </>
   );
 }
@@ -238,7 +238,7 @@ function Who() {
       </Card>
 
       <Card id="rb-groups" title="Risk groups">
-        <p className="rb-small">Each condition the app asks about: what to give, and when boosters are due.</p>
+        <p className="rb-small">This table gives the doses and boosters for each condition.</p>
         <div className="rb-scroll">
           <table className="rb-table rb-freeze">
             <thead><tr><th className="rb-w24 rb-freeze-col">Condition</th><th>MenACWY</th><th>MenB</th></tr></thead>
@@ -303,10 +303,10 @@ function MenACWY() {
       </Card>
 
       <Card id="rb-acwy-highrisk" title="High risk: asplenia, complement deficiency, HIV">
-        <p className="rb-small">The series is set by the age at dose 1. Travel and an outbreak give the same infant series.</p>
+        <p className="rb-small">The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.</p>
         <div className="rb-lanes">{ACWY_HIGHRISK_LANES.map((l) => <HighRiskLane key={l.start} lane={l} />)}</div>
         <p className="rb-small">{ACWY_HIGHRISK_NOTES.spacing}</p>
-        <p className="rb-small"><strong>Boosters.</strong> {ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
+        <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
       </Card>
 
       <Card id="rb-acwy-other" title="Other indications">
@@ -375,7 +375,7 @@ const Chip = ({ tone, children }) => <span className={`dose-val-chip ${CHIP_CLAS
 function Record() {
   return (
     <>
-      <p className="rb-lead">Each dose on the record is checked against the patient&rsquo;s age and the dose before it, and gets one label. The card advises the routine date, which can be later than the minimum.</p>
+      <p className="rb-lead">Each recorded dose is checked for minimum age and minimum interval, and gets one label. The card shows the routine date. The earliest valid date may be sooner.</p>
 
       <Card id="rb-labels" title="What the label on a dose means">
         <div className="rb-legend">
@@ -389,7 +389,7 @@ function Record() {
       </Card>
 
       <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
-        <p className="rb-band rb-band-green"><strong>{GRACE.title}</strong> {GRACE.text}<Decisions row={GRACE} /></p>
+        <p className="rb-band rb-band-green">{GRACE.text}<Decisions row={GRACE} /></p>
         <div className="rb-scroll">
           <table className="rb-table">
             <thead><tr><th className="rb-w40">Doses</th><th>Minimum interval</th></tr></thead>
@@ -426,7 +426,7 @@ function DecisionItem({ d }) {
       <FoldBar name={d.short} open={open} toggle={toggle} />
       <h4 className="rb-h4 rb-fold-title">{d.short}</h4>
       <span className="rb-dec-body"><DecisionText d={d} /></span>
-      <span className="rb-cell-note">Applies in: {DECISION_USES[d.key].join('; ')}</span>
+      <span className="rb-cell-note">Applies in: {DECISION_USES[d.key].join(', ')}</span>
     </li>
   );
 }
@@ -463,39 +463,199 @@ function Sources() {
   );
 }
 
+// ── D1: how MeningoVax decides, in seven steps (owner, 2026-11-20) ──────
+/** "<b>lead</b> rest", the way each row says what to give. */
+const Then = ({ r }) => (
+  <>
+    {r.lead && <strong>{r.lead}</strong>}
+    {r.lead && r.rest ? ' ' : null}
+    {r.rest}
+    <Decisions row={r} />
+  </>
+);
+
+function Step({ s, n }) {
+  const [open, setOpen] = useState(false);
+  const id = `rb-step-${s.key}`;
+  return (
+    <li className="rb-step">
+      <span className="rb-step-num" aria-hidden="true">{n}</span>
+      <div className="rb-step-body">
+        <div className="rb-step-head">
+          <div>
+            <h3 className="rb-h3">{s.title}</h3>
+            <p className="rb-small">{s.sum}</p>
+          </div>
+          <button type="button" className="rb-tap" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)}>
+            {open ? 'Hide' : 'Show'}
+          </button>
+        </div>
+        {open && (
+          <div id={id} className="rb-step-more">
+            {s.ask && <p className="rb-small">{s.ask}</p>}
+            {s.labels ? (
+              <ul className="rb-step-labels">
+                {s.labels.map((l) => (
+                  <li key={`${l.chip}-${l.text}`}><Chip tone={l.tone}>{l.chip}</Chip><span>{l.text}</span></li>
+                ))}
+              </ul>
+            ) : (
+              <div className="rb-step-rows" role="table">
+                {s.head && (
+                  <div className="rb-step-row rb-step-row-head" role="row">
+                    <span role="columnheader">{s.head[0]}</span><span role="columnheader">{s.head[1]}</span>
+                  </div>
+                )}
+                {s.rows.map((r) => (
+                  <div key={r.who} className={`rb-step-row${r.tone ? ` rb-step-row-${r.tone}` : ''}${r.lead || r.rest ? '' : ' rb-step-row-one'}`} role="row">
+                    <span role="cell">{r.who}</span>
+                    {(r.lead || r.rest) && <span role="cell" className="rb-step-then"><Then r={r} /></span>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {s.foot && <p className="rb-small">{s.foot.text}<Decisions row={s.foot} /></p>}
+            {s.next && <p className="rb-step-next">{s.next}</p>}
+            <p className="rb-cell-note">
+              <Decisions row={s} />
+              <Source row={{ ex: stepExamples(s) }} />
+            </p>
+          </div>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function Path() {
+  return (
+    <section className="rb-section" aria-labelledby="rb-path">
+      <h2 id="rb-path" className="rb-h2">How MeningoVax decides</h2>
+      <p className="rb-small">Seven steps, always in this order.</p>
+      <ol className="rb-steps">{PATH_STEPS.map((s, i) => <Step key={s.key} s={s} n={i + 1} />)}</ol>
+    </section>
+  );
+}
+
+// ── D1: Quick look, who gets what by age today ───────────────────────────
+const BAR_CLASS = { give: 'rb-bar', shared: 'rb-bar rb-bar-shared', wait: 'rb-bar rb-bar-wait', quiet: 'rb-quiet', blank: '' };
+function QuickTable({ t }) {
+  const [openKey, setOpenKey] = useState(null);
+  const n = t.cols.length + 3;
+  return (
+    <>
+      <h3 className="rb-h3">{t.name}</h3>
+      <div className="rb-scroll rb-q-wrap">
+        <table className={`rb-q rb-q-${t.cols.length}`}>
+          <thead>
+            <tr>
+              <th className="rb-freeze-col">Group</th>
+              {t.cols.map((c) => <th key={c}>{c}</th>)}
+              <th className="rb-q-bst">Boosters</th>
+              <th><span className="rb-sr">Details</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {t.rows.map((r) => {
+              const open = openKey === r.key;
+              return (
+                <React.Fragment key={r.key}>
+                  <tr className={open ? 'rb-q-on' : undefined}>
+                    <th scope="row" className="rb-freeze-col">{r.group}</th>
+                    {r.cells.map((c, i) => (
+                      <td key={i} colSpan={c.span > 1 ? c.span : undefined}>
+                        {c.text && <span className={BAR_CLASS[c.kind]}>{c.text}</span>}
+                      </td>
+                    ))}
+                    <td className="rb-q-bst">
+                      {r.boosters?.quiet ? <span className="rb-quiet">{r.boosters.quiet}</span> : r.boosters}
+                    </td>
+                    <td className="rb-q-btn">
+                      <button type="button" className="rb-tap" aria-expanded={open} onClick={() => setOpenKey(open ? null : r.key)}>
+                        {open ? 'Close' : 'Details'}
+                      </button>
+                    </td>
+                  </tr>
+                  {open && (
+                    <tr className="rb-q-det">
+                      <td colSpan={n}>
+                        <div className="rb-q-detin">
+                          <ul className="rb-bullets">{r.details.map((d) => <li key={d}>{d}</li>)}</ul>
+                          <p className="rb-cell-note"><Decisions row={r} /><Source row={r} /></p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="rb-small">{t.note.text}</p>
+    </>
+  );
+}
+
+function QuickLook() {
+  return (
+    <section className="rb-section" aria-labelledby="rb-quick">
+      <h2 id="rb-quick" className="rb-h2">Quick look: who gets what</h2>
+      <p className="rb-small">Rows are by age today. Details opens the group&rsquo;s schedule and its booster timing.</p>
+      <QuickTable t={QUICK_LOOK.acwy} />
+      <QuickTable t={QUICK_LOOK.menb} />
+    </section>
+  );
+}
+
 const BODY = {
   'rb-vaccines': Vaccines, 'rb-who': Who, 'rb-acwy': MenACWY, 'rb-menb': MenB,
   'rb-penta': Penta, 'rb-record': Record, 'rb-decisions': DecisionList, 'rb-sources': Sources,
 };
 
 export default function Rulebook() {
+  // D1 placement (owner, 2026-11-20: "New top, then 1–8 folded"): the full
+  // rulebook is one tap below Quick look, closed by default.
+  const [full, setFull] = useState(false);
   return (
     <div className="rb">
       <div className="rb-top">
         <h1 className="rb-title">Rulebook</h1>
-        <p className="rb-intro">
-          Recommendations are based on age, risk conditions and dated vaccine history. The parts
-          below follow the order the app decides in. Source shows the CDC or ACIP sentence a rule
-          rests on. A MeningoVax decision marks a rule they do not state, and opens to show the
-          problem, what CDC and ACIP say, and what MeningoVax does.
-        </p>
+        {/* R1: the owner's own sentence (2026-11-20). */}
+        <p className="rb-intro">Recommendations are based on age, risk conditions and dated vaccine history.</p>
       </div>
 
-      <nav aria-label="On this page" className="rb-nav">
-        {SECTIONS.map(([id, name], i) => <a key={id} href={`#${id}`}>{i + 1}. {name}</a>)}
-      </nav>
+      <Path />
+      <QuickLook />
 
-      <Stop />
+      <section className="rb-full" aria-labelledby="rb-full">
+        <h2 id="rb-full" className="rb-h2">
+          <button type="button" className="rb-full-btn" aria-expanded={full} aria-controls="rb-full-body" onClick={() => setFull((v) => !v)}>
+            <span>Full rulebook</span>
+            <span className="rb-fold-mark">{full ? 'Hide' : 'Show'}</span>
+          </button>
+        </h2>
+        <p className="rb-small">Every rule in detail, the MeningoVax decisions and the sources.</p>
+        {full && (
+          <div id="rb-full-body" className="rb-full-body">
+            <nav aria-label="On this page" className="rb-nav">
+              {SECTIONS.map(([id, name], i) => <a key={id} href={`#${id}`}>{i + 1}. {name}</a>)}
+            </nav>
 
-      {SECTIONS.map(([id, name], i) => {
-        const Body = BODY[id];
-        return (
-          <section key={id} className="rb-section" aria-labelledby={id}>
-            <h2 id={id} className="rb-h2">{i + 1}. {name}</h2>
-            <Body />
-          </section>
-        );
-      })}
+            <Stop />
+
+            {SECTIONS.map(([id, name], i) => {
+              const Body = BODY[id];
+              return (
+                <section key={id} className="rb-section" aria-labelledby={id}>
+                  <h2 id={id} className="rb-h2">{i + 1}. {name}</h2>
+                  <Body />
+                </section>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       <p className="rb-foot">
         This page is a guide to the app&rsquo;s reasoning, not a clinical reference. Where it and a

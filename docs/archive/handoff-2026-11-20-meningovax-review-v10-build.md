@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-20** by `handoff-2026-11-20-meningovax-review-v10-rulebook.md` (PR #124 merged; Batch 5, the Rulebook wording and the D1 redesign, built on PR #125). Do not resume from this file.
+
 # MeningoVax — Handoff after the review v10 answers and Batches 1–2a (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
