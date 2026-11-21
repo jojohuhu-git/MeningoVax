@@ -179,6 +179,11 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
     // comes from the card; nothing is decided here.
     const acwyGivable = menacwy.find(r => r.canGiveToday && r.brands?.length === 1);
     if (acwyGivable) summaryLine += ` ${stripAntigen(acwyGivable.brands[0])} can be given today.`;
+    // Owner, 2026-11-21 ("Yes, add it"): the same for a high-risk MenB dose 2
+    // past its 4-week minimum, before its routine date. Dose 2 only: a dose 3
+    // being repeated can also read "Can be given today", and is not asked yet.
+    const bGivable = menb.find(r => r.canGiveToday && r.doseNum === 2);
+    if (bGivable) summaryLine += ' MenB dose 2 can be given today.';
   }
 
   // P1-4 (2026-09-15, owner decision): while any recorded dose is still waiting
