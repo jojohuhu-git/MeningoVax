@@ -618,7 +618,8 @@ describe('App wizard', () => {
   // now share one DoseEditor component, so the MenB family-lock guidance
   // that used to appear only in StepHistory must also appear in Results.
   describe('Item 5: MenB family-lock guidance stays available after picking a brand in the wizard', () => {
-    it('shows "Family locked: MenB-4C" in StepHistory after selecting Bexsero for dose 1', () => {
+    // Q2 follow-on (owner, 2026-11-21): brand names only, the Rulebook's words.
+    it('says "Every MenB dose must match the first: Bexsero or Penmenvy." in StepHistory after selecting Bexsero for dose 1', () => {
       render(<App />);
       enterAgeYears(20);
       fireEvent.click(getNextBtn());
@@ -632,7 +633,8 @@ describe('App wizard', () => {
       const brandSelect = document.querySelector('select');
       fireEvent.change(brandSelect, { target: { value: 'Bexsero' } });
 
-      expect(screen.getByText(/Family locked: MenB-4C/i)).toBeDefined();
+      expect(screen.getByText('Every MenB dose must match the first: Bexsero or Penmenvy.')).toBeDefined();
+      expect(document.body.textContent).not.toMatch(/Family locked|MenB-4C|MenB-FHbp/);
     });
   });
 

@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-session1-small-fixes.md`. PR #129 is merged; do not resume from this file.
+
 # MeningoVax — Handoff after the Rulebook steps were made to hold their sections (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

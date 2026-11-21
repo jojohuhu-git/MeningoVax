@@ -628,6 +628,21 @@ const acwySeries = (ctx) => once(ctx, '_acwySeries', () => {
 const acwyBefore10 = (ctx) => before(ctx, AGE_10Y_MONTHS);
 const menbBefore16 = (ctx) => before(ctx, MENB_HEALTHY_MIN_AGE_MONTHS);
 
+/**
+ * Is this dose dated after today? The one test, used by the RECORD-FUTURE-DATE
+ * row below and by the dose line on the card (RecCard.jsx `describeDose`), so
+ * the line and the verdict under it cannot disagree about a date.
+ *
+ * False for an undated row, and false for a dose dated TODAY: a dose given this
+ * morning counts. `today` is an ISO date; with none, nothing is in the future.
+ *
+ * Added 2026-11-21 (parity with PneumoVax, owner decision 2026-10-12, PneumoVax
+ * PR #41): a dose dated in the future used to print the age the patient WILL be.
+ */
+export function isFutureDated(dose, today) {
+  return Boolean(dose?.date && today && dose.date > today);
+}
+
 // ── The table ────────────────────────────────────────────────────────────
 
 export const DOSE_RULES = [
@@ -655,7 +670,7 @@ export const DOSE_RULES = [
     // or an appointment typed into the wrong place. Counting it would tell a
     // clinician the patient is covered by a shot that is not in their arm.
     check: ({ dose, today }) => {
-      if (!dose?.date || !today || dose.date <= today) return null;
+      if (!isFutureDated(dose, today)) return null;
       return recordProblemResult(
         'future',
         // G1-a: PneumoVax's words (style rule 7); the label says "not counted".
