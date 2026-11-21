@@ -1666,15 +1666,6 @@ body {
 /* A timeline with ages under the boxes: one grid, boxes and arrows on the
    first row, ages on the second, so everything lines up (owner 2026-11-19). */
 .rb-pattern-doses.rb-timed { display: inline-grid; align-items: center; justify-items: center; justify-content: start; align-self: flex-start; column-gap: var(--sp-8); row-gap: 6px; }
-/* Age lines: one vertical timeline, youngest at the top (owner 2026-11-19:
-   the three-across grid did not say which way to read). */
-.rb-agetrack { list-style: none; margin: 0; padding: 0; }
-.rb-agestop { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: var(--sp-16); }
-.rb-agestop-age { font-size: var(--fs-md); color: var(--gy); text-align: right; padding: 2px 0 var(--sp-12); }
-.rb-agestop-text { font-size: var(--fs-sm); color: var(--gy2); line-height: 1.5; border-left: 2px solid var(--cmd); padding: 3px 0 var(--sp-12) var(--sp-16); position: relative; }
-.rb-agestop-text::before { content: ''; position: absolute; left: -2px; top: 10px; width: 10px; height: 2px; background: var(--c2); }
-.rb-agestop:last-child .rb-agestop-text { padding-bottom: 0; }
-@media (max-width: 480px) { .rb-agestop { grid-template-columns: 76px minmax(0, 1fr); column-gap: var(--sp-12); } }
 .rb-lanes { display: flex; flex-direction: column; }
 .rb-lane { display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12) 0; border-top: 1px solid var(--gy6); }
 .rb-lane:first-child { border-top: none; }
@@ -1702,9 +1693,10 @@ body {
 /* L1 on a narrow screen: a label that wraps under a long dose line stays at the right. */
 .rec-progress-dose-row .dose-val-chip { margin-left: auto; }
 
-/* ── Rulebook D1 (owner, 2026-11-20): the seven steps, Quick look, and the
-   full rulebook behind one tap. Colours keep one meaning each, as on the
-   cards: green give, blue shared decision, amber wait, teal tappable only. */
+/* ── Rulebook: the seven steps and the fold buttons (D1, 2026-11-20; Quick
+   look removed by the reorganization the same day). Colours keep one meaning
+   each, as on the cards: green give, blue shared decision, amber wait, teal
+   tappable only. */
 .rb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .rb-tap {
   font: inherit; font-size: var(--fs-xs); font-weight: 600; color: var(--c); background: var(--wh);
@@ -1722,63 +1714,42 @@ body {
   display: grid; place-items: center; font-weight: 700; font-size: var(--fs-sm); position: relative; z-index: 1;
 }
 .rb-step-body { padding-bottom: var(--sp-16); display: flex; flex-direction: column; gap: var(--sp-8); min-width: 0; }
-.rb-step-head { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
-.rb-step-head .rb-h3 { font-size: var(--fs-md); }
-.rb-step-more { display: flex; flex-direction: column; gap: var(--sp-8); }
-.rb-step-rows { border: 1px solid var(--gy5); border-radius: var(--rads); overflow: hidden; background: var(--wh); }
-.rb-step-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: var(--sp-12); padding: var(--sp-8) 10px; border-top: 1px solid var(--gy6); font-size: var(--fs-sm); line-height: 1.45; }
-.rb-step-row:first-child { border-top: 0; }
-.rb-step-row-one { grid-template-columns: minmax(0, 1fr); }
-.rb-step-row-head { background: var(--gy6); font-size: var(--fs-xs); color: var(--gy2); font-weight: 600; }
-.rb-step-then { color: var(--gy2); }
-.rb-step-then strong { color: var(--gy); }
-.rb-step-row-stop .rb-step-then strong { color: var(--r); }
-.rb-step-next { font-size: var(--fs-sm); border-left: 3px solid var(--gy4); padding: 2px 0 2px 10px; }
-.rb-step-labels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-sm); }
-.rb-step-labels li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; line-height: 1.5; }
-.rb-step-labels li > span:last-child { color: var(--gy2); }
 
-/* position: relative keeps the hidden "Details" heading inside the table's own scroll box. */
-.rb-q-wrap { position: relative; border: 1px solid var(--gy5); border-radius: var(--rads); background: var(--wh); }
-.rb-q { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); table-layout: fixed; }
-.rb-q-5 { min-width: 1000px; }
-.rb-q-4 { min-width: 880px; }
-.rb-q th, .rb-q td { border-bottom: 1px solid var(--gy6); padding: 6px 4px; text-align: left; vertical-align: middle; }
-.rb-q thead th { background: var(--gy6); font-size: var(--fs-xs); color: var(--gy2); font-weight: 600; padding: 6px var(--sp-8); }
-.rb-q thead th:first-child { width: 190px; }
-.rb-q thead th.rb-q-bst { width: 220px; }
-.rb-q thead th:last-child { width: 84px; }
-.rb-q .rb-q-bst { border-left: 2px solid var(--gy5); padding-left: 10px; font-size: var(--fs-xs); line-height: 1.35; }
-.rb-q tbody th { font-weight: 600; padding: var(--sp-8); line-height: 1.3; background: var(--wh); }
-.rb-q tr.rb-q-on th { box-shadow: inset 3px 0 0 var(--c); }
-.rb-q .rb-q-btn { text-align: right; padding-right: var(--sp-8); }
-.rb-bar {
-  display: flex; align-items: center; min-height: 36px; line-height: 1.25; padding: 5px var(--sp-8); border-radius: var(--rads);
-  border: 1px solid var(--gmd); background: var(--glt); color: var(--g); font-weight: 600; font-size: var(--fs-xs);
-}
-.rb-bar-shared { border-color: var(--bmd); background: var(--blt); color: var(--b); }
-.rb-bar-wait { border-color: var(--amd); background: var(--alt); color: var(--a); }
-.rb-quiet { color: var(--gy3); font-size: var(--fs-xs); padding-left: var(--sp-8); }
-.rb-q-det > td { background: var(--bg); padding: 0; border-bottom: 2px solid var(--gy5); }
-.rb-q-detin { position: sticky; left: 0; max-width: min(100vw - 48px, 760px); padding: var(--sp-12) 14px 14px; display: flex; flex-direction: column; gap: var(--sp-8); }
-.rb-q-detin .rb-bullets { margin: 0; color: var(--gy); }
-
-.rb-full { display: flex; flex-direction: column; gap: var(--sp-8); border-top: 1px solid var(--gy5); padding-top: var(--sp-16); }
 .rb-full-btn {
   font: inherit; color: inherit; background: none; border: 1px solid var(--cmd); border-radius: var(--radp); cursor: pointer;
   display: flex; width: 100%; justify-content: space-between; align-items: center; gap: var(--sp-12); padding: var(--sp-12) var(--sp-16); text-align: left;
 }
 .rb-full-btn:hover { background: var(--clt); }
 .rb-full-btn .rb-fold-mark { font-size: var(--fs-sm); font-weight: 600; color: var(--c); }
-.rb-full-body { display: flex; flex-direction: column; gap: var(--sp-24); padding-top: var(--sp-8); }
 
-@media (max-width: 640px) {
-  .rb-step-row { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-  .rb-step-row-head { display: none; }
-  .rb-q thead th:first-child { width: 128px; }
-  .rb-q-5 { min-width: 820px; }
-  .rb-q-4 { min-width: 700px; }
+
+/* ── Rulebook reorganization (owner, 2026-11-20, "Build as shown"): one fold
+   per part, all closed at first; group tables; Dose | Routine | Minimum
+   interval tables with the Minimum interval column in light grey. Colours keep
+   one meaning each: blue shared decision, amber wait, teal tappable. */
+.rb-part { gap: var(--sp-12); }
+.rb-part .rb-h2 { margin: 0; }
+.rb-part-body { display: flex; flex-direction: column; gap: var(--sp-16); }
+.rb-step-body .rb-h3 a { color: var(--c); text-underline-offset: 2px; }
+.rb-w22 { width: 22%; } .rb-w33 { width: 33%; } .rb-w34 { width: 34%; } .rb-w39 { width: 39%; } .rb-w55 { width: 55%; }
+.rb-table .rb-min { background: var(--gy6); }
+.rb-table th.rb-min { background: var(--gy5); }
+.rb-tint-shared { background: var(--blt); color: var(--b); }
+.rb-tint-wait { background: var(--alt); color: var(--a); }
+.rb-table tbody th { text-align: left; font-size: var(--fs-base); color: var(--gy); background: none; border-bottom: 1px solid var(--gy6); padding: 10px; }
+.rb-g-name { font-weight: 600; }
+.rb-g-details {
+  display: block; margin-top: var(--sp-4); background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+  font-size: var(--fs-xs); font-weight: 600; color: var(--c2); text-decoration: underline; text-underline-offset: 2px;
 }
-/* The group name stays pinned whenever a Quick look table scrolls sideways. */
-.rb-q .rb-freeze-col { position: sticky; left: 0; z-index: 1; box-shadow: inset -1px 0 0 var(--gy5); }
-.rb-q thead th.rb-freeze-col { background: var(--gy6); }
+.rb-g-details:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.rb-g-on .rb-g-name { box-shadow: inset 3px 0 0 var(--c); }
+.rb-g-det > td { background: var(--bg); padding: 0; border-bottom: 2px solid var(--gy5); }
+.rb-g-detin { padding: var(--sp-12) 14px 14px; display: flex; flex-direction: column; gap: var(--sp-8); }
+.rb-g-detin .rb-bullets { margin: 0; color: var(--gy); }
+.rb-sched-block { display: flex; flex-direction: column; gap: var(--sp-8); padding-top: var(--sp-8); border-top: 1px solid var(--gy6); }
+.rb-src-group { display: flex; flex-direction: column; gap: var(--sp-8); }
+@media (max-width: 640px) {
+  .rb-table { font-size: var(--fs-sm); }
+  .rb-table tbody th { padding: var(--sp-8); font-size: var(--fs-sm); }
+}
