@@ -250,6 +250,8 @@ export const ROW_MAP = {
     // M1 (owner, 2026-11-20, "follow CDSI"): an early dose 3 no longer counts
     // with a 4th dose owed; it is not counted and repeated, as CDSI has it. Both
     // lines compare with no difference (number, floor, grace — C7 and D3).
+    // M1d (owner, 2026-11-21): the app uses the 6-month line for the FIRST
+    // dose 3 only; see the note on that comparison.
     compare: [
       ...[['R_4C', ''], ['R_FH', SINCE_2017]].map(([s, w]) => ({
         what: `High-risk MenB (${s}) dose 3: gap from the previous dose`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D2)),
@@ -258,6 +260,7 @@ export const ROW_MAP = {
       ...['R_4C', 'R_FH'].map((s) => ({
         what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D1)),
         cdsi: f(s, 3, 'allowable gap from dose 1'),
+        note: 'Same number and grace. One difference in WHEN it applies: CDSI\'s allowable interval also counts a REPEAT (after a dose 3 that did not count) 6 months after dose 1; the app does not. Owner M1d (2026-11-21): ACIP mm7349a3 ties the "unless" to "the third dose", and the repeat goes "≥4 months after the last dose" (decisions-2026-11-21-menb-repeat-dose3.md).',
       })),
     ],
   },

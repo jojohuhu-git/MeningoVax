@@ -98,8 +98,9 @@ the gap from D1 (owner STOP C C5, 2026-11-15).
 A D3 given earlier than 4 months after D2 does NOT count and is repeated ≥4 months after it —
 UNLESS D3 was ≥6 months after D1 (ACIP mm7349a3's "unless", owner C6; CDSI's allowable
 interval). Owner M1 (2026-11-20, "follow CDSI") reversed the old "counts, and a 4th dose is
-owed"; there is no 4-dose high-risk series. The repeat is held to the same two lines, the
-4-month one measured from the dose that did not count (M1c); the card advises the latest of
+owed"; there is no 4-dose high-risk series. The repeat counts only ≥4 months after the dose
+that did not count (M1c); the 6-months-from-D1 "unless" decides only the FIRST D3, never the
+repeat (owner M1d, 2026-11-21, ACIP's sentence over CDSI's allowable interval). The card advises the latest of
 the three lines with the earliest valid date beside it (M1b). The 4-month line takes the
 4-day grace (owner C7), as do the healthy MenB 6-month rescue line (C7) and both high-risk
 6-month lines — the "unless" (D3) and "dose 2 ≥6 months, no dose 3" (D4, 2026-11-17). Both decisions live in ONE

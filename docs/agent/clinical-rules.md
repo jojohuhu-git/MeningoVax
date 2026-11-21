@@ -534,9 +534,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   - **C6 (owner, 2026-11-15) — the MMWR "unless":** a D3 ≥6 months after D1 counts even if
     under 4 months after D2. **With the 4-day grace** (owner D3, 2026-11-17).
   - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace.
-  - **M1c (owner, 2026-11-20) — the repeat is not counted either if it misses both lines:** it
-    counts only ≥4 months after the dose that did not count ("the last dose"), or ≥6 months
-    after D1, both with the grace. `prev` is the last dose GIVEN (Ruling D anchor). ACIP Best
+  - **M1c (owner, 2026-11-20), narrowed by M1d (owner, 2026-11-21) — the repeat:** it
+    counts only ≥4 months after the dose that did not count ("the last dose"), with the grace.
+    The 6-months-after-D1 "unless" decides only whether the FIRST D3 counts; it never makes
+    the repeat count (`isRepeat` in `menbHighRiskDose3Early`). Jan 1, Feb 1, Apr 1 → repeat
+    due Aug 1; a repeat on Jul 10 is "Not counted — repeat" too. CDSI's allowable interval
+    would count it; ACIP's sentence ties the "unless" to the third dose, and ACIP wins
+    (`docs/archive/decisions-2026-11-21-menb-repeat-dose3.md`). `prev` is the last dose GIVEN (Ruling D anchor). ACIP Best
     Practice (read live 2026-11-20): *"The repeat dose should be spaced after the invalid dose
     by the recommended minimum interval"*. A dose not counted for another reason (the other
     MenB product) keeps its 4-week repeat gap (`MENB-REPEAT-GAP`, E2).

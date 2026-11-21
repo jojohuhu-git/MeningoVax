@@ -14,7 +14,8 @@
 //   CDSI 4.65, increased-risk dose 3: "4 months - 4 days" from the previous dose,
 //     allowable "6 months - 4 days" from dose 1.
 // So that dose 3 does NOT count and is repeated; the series stays 3 doses. The
-// repeat counts ≥4 months after the not-counted dose, or ≥6 months after dose 1.
+// repeat counts ≥4 months after the not-counted dose (M1d, 2026-11-21: the 6-months-
+// after-dose-1 "unless" decides only the first dose 3, not the repeat).
 
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
@@ -75,10 +76,13 @@ describe('M1: an early high-risk dose 3 does not count and is repeated', () => {
     expect(c.earliestNextDate).toBe('2026-10-15');
   });
 
-  it('a repeat 6 months after dose 1 would count, so the card says it can be given today', () => {
+  // M1d (owner, 2026-11-21): was "a repeat 6 months after dose 1 would count, so
+  // the card says it can be given today". The 6-month "unless" decides only the
+  // first dose 3, so the repeat waits for Oct 15.
+  it('seen Sep 15 (7 months after dose 1, 3 months after the dose that did not count): not yet', () => {
     const c = card(EARLY_D3);
-    expect(c.canGiveToday).toBe(true);
-    expect(c.note.lead).toMatch(/It can be given today if needed/);
+    expect(c.canGiveToday).toBeFalsy();
+    expect(c.note.lead).not.toMatch(/It can be given today if needed/);
   });
 
   it('once the repeat is given, the booster clock starts from it', () => {
@@ -89,10 +93,12 @@ describe('M1: an early high-risk dose 3 does not count and is repeated', () => {
     expect(c.earliestNextDate).toBe('2027-02-15');
   });
 
-  it('a repeat 6 months after dose 1 counts; one under both lines does not', () => {
-    // 2025-12-15: 2 months after the dose that did not count, but 6 months after dose 1.
+  it('a repeat 6 months after dose 1 but 2 months after the dose that did not count is not counted (M1d)', () => {
+    // 2025-12-15: 2 months after the dose that did not count, 6 months after dose 1.
+    // Was "valid" under M1c; owner M1d (2026-11-21): the 4 months run from the last dose.
     const sixFromD1 = [...RESCUE_COMPLETE.slice(0, 3), '2025-12-15'];
-    expect(verdicts(sixFromD1)[3].status).toBe('valid');
+    expect(verdicts(sixFromD1)[3].status).toBe('invalid');
+    expect(verdicts(sixFromD1)[3].reasons.join(' ')).not.toMatch(/after dose 1/);
     // 2025-11-20: 5 weeks after it and 5 months after dose 1.
     const tooSoon = [...RESCUE_COMPLETE.slice(0, 3), '2025-11-20'];
     expect(verdicts(tooSoon)[3].status).toBe('invalid');
