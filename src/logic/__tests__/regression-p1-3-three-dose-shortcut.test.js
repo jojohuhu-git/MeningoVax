@@ -2,7 +2,7 @@
 // then asked for a fourth.
 //
 // Reproduced: asplenia, dose 1 at 4 months, dose 2 at 8 months.
-//   at 10 months the card read "Dose 3 of 3 (infant high-risk, 3-dose shortcut)"
+//   at 10 months the card read "Dose 3 of 3 (infant high-risk, dose 2 at ≥7 months)"
 //   give that third dose at 12 months, and at 18 months the card read
 //   "Dose 4 (infant high-risk series)", due today, total 4.
 // menacwyPrimaryTotal returned 4 for these patients throughout, so the
@@ -122,7 +122,7 @@ describe('P1-3 / T1: a 2-month start whose dose 2 came at 8 months finishes in t
   it('the card asks for dose 3 of 3', () => {
     const r = acwy('2026-04-15', 10, ['2025-08-15', '2026-02-15']);
     expect(r.seriesTotal).toBe(3);
-    expect(r.doseLabel).toMatch(/shortcut/i);
+    expect(r.doseLabel).toMatch(/dose 2 at ≥7 months/i);
   });
 
   it('and no fourth primary dose is owed after the third', () => {
@@ -134,7 +134,7 @@ describe('P1-3 / T1: a 2-month start whose dose 2 came at 8 months finishes in t
   it('control: on time at 2 and 4 months, the card still asks for dose 3 of 4', () => {
     const r = acwy('2025-10-15', 4, ['2025-08-15', '2025-10-15']);
     expect(r.seriesTotal).toBe(4);
-    expect(r.doseLabel).not.toMatch(/shortcut/i);
+    expect(r.doseLabel).not.toMatch(/dose 2 at ≥7 months/i);
   });
 });
 

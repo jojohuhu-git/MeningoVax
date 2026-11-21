@@ -43,11 +43,13 @@ describe('a newborn\'s Results page does not say MenACWY is due today', () => {
     expect(screen.getByText(/no menacwy or menb doses due today/i)).toBeDefined();
   });
 
-  it('the MenACWY card reads "Not yet age-eligible", collapsed, like MenB\'s', () => {
+  it('the MenACWY card reads "Not yet due (from 2 months)", collapsed, like MenB\'s', () => {
     render(<Harness initial={newborn(['asplenia'])} />);
     // Both are true for a newborn — MenACWY from 2 months, MenB from 10 years —
     // so the phrase is expected on both cards.
-    expect(screen.getAllByText('Not yet age-eligible')).toHaveLength(2);
+    // Review v10 P21: each card names its own age (MenACWY 2 months, MenB 10 years).
+    expect(screen.getAllByText('Not yet due (from 2 months)')).toHaveLength(1);
+    expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
     expect(screen.getAllByText('Not needed')).toHaveLength(2);
   });
 
@@ -60,7 +62,7 @@ describe('a newborn\'s Results page does not say MenACWY is due today', () => {
   it('the same is true for an infant with a travel indication', () => {
     render(<Harness initial={newborn(['travel'])} />);
     expect(screen.queryByText(/due today: menacwy/i)).toBeNull();
-    expect(screen.getAllByText('Not yet age-eligible').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Not yet due (from 2 months)').length).toBeGreaterThanOrEqual(1);
   });
 
   it('a two-month-old with the same risk IS offered the dose', () => {

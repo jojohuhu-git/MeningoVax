@@ -3,7 +3,7 @@
 // schedule, and not five years because the app lost count.
 //
 // Reproduced before the fix: a 3-year-old with asplenia, MenACWY at 2, 4, 6 and
-// 12 months, no booster yet. The app said "Booster (dose 5, every 5 years)" and
+// 12 months, no booster yet. The app said "Booster (dose 5), 5 years after the last" and
 // dated the next dose five years out. It should be the FIRST booster, three
 // years after the 12-month dose that completed the series.
 //

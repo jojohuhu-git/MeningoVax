@@ -38,7 +38,7 @@ describe('F-3: the badge names what is left, never "Up to date" while a dose is 
     }, 'MenACWY');
     expect(badge).toBe('Booster due later');
     // unchanged around it
-    expect(text).toContain('Booster (dose 2, first booster, 5 years after the primary dose)');
+    expect(text).toContain('First booster (dose 2), 5 years after dose 1');
     expect(text).toContain('Next dose due Aug 6, 2031');
   });
 

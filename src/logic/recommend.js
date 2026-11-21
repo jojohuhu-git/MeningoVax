@@ -498,13 +498,14 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     // given >= 2: primary complete → ongoing boosters
     // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
     const boostYears = String(boostYearsCount);
-    const boostLabel = isFirstBooster
-      ? `first booster, ${boostYears} years after primary`
-      : 'every 5 years';
+    // P17/P19 (review v10): the title reads in order and says from when.
+    const boostTitle = isFirstBooster
+      ? `First booster (dose ${given + 1}), ${boostYears} years after the series`
+      : `Booster (dose ${given + 1}), 5 years after the last`;
     const elapsed = calendarIntervalElapsed(lastDate, boostYearsCount * 12, today);
     return [rec({
       vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, ${boostLabel})`,
+      doseLabel: boostTitle,
       doseNum: given + 1, seriesTotal: 2, boosterSummary: `Boosters: every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while at risk [c]`, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boostYearsCount),
       minIntervalDays: boostDays, brands: menacwyBrands(am),
@@ -560,7 +561,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
   // not a re-derived number.
   if ((riskClass === 'single+boost' || riskClass === 'single') && am < MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     return [rec({
-      vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible', dueToday: false,
+      vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: `Not yet due (from ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)})`, dueToday: false,
       note: {
         lead: `MenACWY starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, so nothing is due yet [c].`,
         detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
@@ -608,7 +609,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
 
     if (given === 0) {
       return [rec({
-        vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (ongoing-risk indication)',
+        vaccine: 'MenACWY', status: 'exposure', doseLabel: 'Dose 1 (boosters while at risk)',   // P13 (review v10)
         doseNum: 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: true, brands: menacwyBrands(am),
         note: firstDoseNote,
         // C2/2026-07-24: cites whichever risk factor's own table anchor
@@ -638,9 +639,10 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       ? menacwyFirstBoosterYears(primaryDoseAge)
       : MENACWY_BOOSTER_CADENCE_YEARS;
     const exposureBoostDays = DAYS.years(exposureBoostYears);
-    const exposureBoostLabel = isFirstExposureBooster
-      ? `first booster, ${yearsLabel(exposureBoostYears)} after the primary dose`
-      : `every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}`;
+    // P18/P19 (review v10)
+    const exposureBoostTitle = isFirstExposureBooster
+      ? `First booster (dose ${given + 1}), ${yearsLabel(exposureBoostYears)} after dose 1`
+      : `Booster (dose ${given + 1}), ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last`;
     const elapsed = calendarIntervalElapsed(lastDate, exposureBoostYears * 12, today);
     // Port Phase 5 (owner, 2026-11-18): the routine 16-year booster comes first
     // when it is owed no later than this booster (routineSixteenBoosterOwed).
@@ -655,7 +657,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       })];
     }
     return [rec({
-      vaccine: 'MenACWY', status: 'exposure', doseLabel: `Booster (dose ${given + 1}, ${exposureBoostLabel})`,
+      vaccine: 'MenACWY', status: 'exposure', doseLabel: exposureBoostTitle,
       doseNum: given + 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, exposureBoostYears),
       minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
@@ -1077,7 +1079,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // had never happened, right after a clause claiming only Menveo was
     // licensed that young (false: MenQuadfi's own floor is younger still).
     if (given === 0) {
-      return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
+      return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: `Not yet due (from ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)})`,
         dueToday: false,
         note: {
           // P75 (review v10): the old sentence was false; a MenQuadfi dose from 6 weeks counts.
@@ -1225,7 +1227,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     const gate = menacwyInfantNextDoseGate({ d1AgeM, d2AgeM, given });
     const elapsed = intervalElapsed(lastDate, gate.minIntervalDays, today);
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Dose 2 of 3 (${why}, 3-dose shortcut)`,
+      doseLabel: `Dose 2 of 3 (${why}, dose 2 at ≥${monthsLabel(MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS)})`,   // P14 (review v10)
       doseNum: 2, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed,
       earliestNextDate: elapsed ? null : earliestGatedDate(lastDate, gate, today, am),
@@ -1250,7 +1252,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     const elapsed = intervalElapsed(lastDate, shortcutGate.minIntervalDays, today);
     const ageFloor = am >= shortcutGate.minAgeMonths;
     return rec({ vaccine: 'MenACWY', status: 'risk-based',
-      doseLabel: `Dose 3 of 3 (${why}, 3-dose shortcut)`,
+      doseLabel: `Dose 3 of 3 (${why}, dose 2 at ≥${monthsLabel(MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS)})`,
       doseNum: 3, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed && ageFloor,
       earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am),
@@ -1296,7 +1298,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, ${isFirstInfantBooster ? `first booster, ${yearsLabel(infantBoostYears)} after primary` : `every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}`})`,
+      doseLabel: isFirstInfantBooster ? `First booster (dose ${given + 1}), ${yearsLabel(infantBoostYears)} after the series` : `Booster (dose ${given + 1}), ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last`,   // P17/P19 (review v10)
       // F1 (2026-09-14): was hardcoded 2 for the d1WasInfant7to11 bucket —
       // drifted from the `given >= 3` completion guard just above (should
       // be 3, matching the initial rec's total and menacwyInfantHighRiskTotal()).
@@ -1597,7 +1599,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
         // dose never counts, so "no dose at ≥16y" is always what the
         // counted record shows (G8's "not confirmed" variant was removed).
         doseLabel: given === 0
-          ? 'Dose 1 of 1 (catch-up, 19–21y)'
+          ? 'Dose 1 (catch-up, 19–21y)'   // P12 (review v10)
           : 'Dose (catch-up, no dose at ≥16y)',
         // F1 (2026-09-14): given===0 → this first-ever dose (at ≥19y) needs
         // no booster (1 total). given>=1 → an earlier <16y dose owes this
@@ -1676,7 +1678,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   // MenB is only licensed ≥10y.
   if (am < MENB_MIN_AGE_MONTHS) {
     if (highRisk) {
-      return [rec({ vaccine: 'MenB', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet age-eligible',
+      return [rec({ vaccine: 'MenB', status: 'not-indicated', asksLater: true, doseLabel: `Not yet due (from ${ageYears(MENB_MIN_AGE_MONTHS)} years)`,   // P21 (review v10)
+     
         repeatLater: REPEAT_LATER_MENB_HIGH_RISK,
         note: {
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
@@ -1766,7 +1769,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // accepted, never what is advised (A13).
       const statedMin = repeatFloorDate && repeatFloorDate > minDate ? repeatFloorDate : minDate;
       const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate });
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: due, earliestNextDate: due ? null : advisedDate, minIntervalDays: MENB_HIGHRISK_D2_GAP,
         canGiveToday: !due && statedMin <= today,
         family, brands: menbBrands(family),
@@ -1801,7 +1804,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
         else earliestNextDate = e1 ?? e2;
       }
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${family}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
         family, brands: menbBrands(family),
@@ -1831,7 +1834,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // P0-4: calendar months, not 122 days.
       const elapsed = d3Date ? calendarIntervalElapsed(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS, today) : true;
       return [rec({ vaccine: 'MenB', status: 'risk-based',
-        doseLabel: `Dose 4 of 4 (extra dose: dose 3 given early${family ? `, ${family}` : ''})`,
+        doseLabel: `Dose 4 of 4 (dose 3 <${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2)`,   // P16 (review v10)
         doseNum: 4, seriesTotal: MENB_HIGHRISK_RESCUE_TOTAL,
         boosterSummary: seriesBoosterLine('Boosters: first 1 year after the fourth dose, then every 2–3 years while at risk'),
         dueToday: elapsed,
@@ -1869,7 +1872,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     const intervalDays = DAYS.years(boosterYears);
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
-      doseLabel: `Booster (dose ${given + 1}, ${firstBooster ? `${yearsLabel(boosterYears)} after primary` : `every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL}`})`,
+      doseLabel: firstBooster ? `First booster (dose ${given + 1}), ${yearsLabel(boosterYears)} after the series` : `Booster (dose ${given + 1}), ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the last`,   // P20 (review v10)
       doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: outbreakOnly ? 'Booster: 1 dose for this outbreak, no repeat boosters' : `Boosters: every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
@@ -1929,7 +1932,8 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // P0-4 (2026-09-15): calendar months, not an averaged 183 days -- and the
       // date shown is the real six-month anniversary, not lastDate + 183 days.
       const elapsed = calendarIntervalElapsed(lastCountedDate, MENB_HEALTHY_D2_MONTHS, today);
-      return [rec({ vaccine: 'MenB', status: 'shared-decision', doseLabel: `Dose 2 of 2 (${family || 'same family'})`, doseNum: 2, seriesTotal: 2,
+      return [rec({ vaccine: 'MenB', status: 'shared-decision', // P15 (review v10): the product, not the antigen family.
+        doseLabel: `Dose 2 of 2 (${MENB_PRODUCT_BY_FAMILY[family] || 'same product'})`, doseNum: 2, seriesTotal: 2,
         dueToday: elapsed, earliestNextDate: elapsed ? null : addCalendarMonths(lastCountedDate, MENB_HEALTHY_D2_MONTHS), minIntervalDays: DAYS.months(MENB_HEALTHY_D2_MONTHS),
         family, brands: menbBrands(family),
         note: {
@@ -2218,7 +2222,8 @@ function outbreakWording(cards, applies) {
     // so is the routine 16-year booster (its own ACIP rule, not an outbreak
     // booster; Port Phase 5, owner 2026-11-18).
     const label = c.doseLabel ?? '';
-    if (label.startsWith('Booster') && !/outbreak/.test(label) && label !== ROUTINE_16Y_BOOSTER_LABEL) {
+    // Review v10: "First booster (dose N), …" is a booster title too.
+    if (/^(First booster|Booster)\b/.test(label) && !/outbreak/.test(label) && label !== ROUTINE_16Y_BOOSTER_LABEL) {
       out.doseLabel = `${label} ${c.dueToday ? 'for this outbreak' : 'if outbreak risk continues'}`;
     }
     return out;

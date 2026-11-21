@@ -81,7 +81,7 @@ describe('P1-2: the reported patient', () => {
 
   it('the dose given at age 4 was the first booster, given on time', () => {
     // Series completed 2019-09-15; first booster due three years later.
-    expect(rec.doseLabel).toMatch(/every 5 years/i);
+    expect(rec.doseLabel).toMatch(/5 years after the last/i);
     expect(rec.earliestNextDate).toBe('2027-09-15');
   });
 });

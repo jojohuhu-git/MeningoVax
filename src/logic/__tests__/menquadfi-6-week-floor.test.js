@@ -163,7 +163,7 @@ describe('M3 — no card names one brand while offering two chips', () => {
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     const card = r.menacwy[0];
-    expect(card.doseLabel).toBe('Not yet age-eligible');
+    expect(card.doseLabel).toBe('Not yet due (from 2 months)');
     expect(noteText(card)).toMatch(/track them and start it/);
     // MenQuadfi's own floor (6 weeks) is younger than the 2-month schedule
     // floor this card is describing, so "only Menveo is licensed that young"
@@ -210,7 +210,7 @@ describe('M3 — no card names one brand while offering two chips', () => {
     // the 2-month schedule floor -- but the card must stop pretending dose 1
     // never happened.
     expect(card.dueToday).toBe(false);
-    expect(card.doseLabel).not.toBe('Not yet age-eligible');
+    expect(card.doseLabel).not.toBe('Not yet due (from 2 months)');
     expect(noteText(card)).not.toMatch(/track them and start it/);
     expect(noteText(card)).toMatch(/6 weeks, then 4, 6 and 12 months/);
     expect(noteText(card)).not.toMatch(/Menveo/);

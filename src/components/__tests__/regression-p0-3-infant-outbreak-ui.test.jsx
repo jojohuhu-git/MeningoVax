@@ -58,7 +58,7 @@ describe('P0-3 (UI): the infant outbreak series reads as four doses of four', ()
     const { container } = chips(36, FULL_INFANT_SERIES);
     // extinct: the "NEW outbreak" one-off sentence, retired by B-2 (2026-11-16).
     expect(container.textContent).not.toMatch(/NEW outbreak/i);
-    expect(container.textContent).toMatch(/Booster \(dose 5/);
+    expect(container.textContent).toMatch(/First booster \(dose 5/);
   });
 
   it('a child with only the 2-month dose is asked for dose 2, not told they are done', () => {

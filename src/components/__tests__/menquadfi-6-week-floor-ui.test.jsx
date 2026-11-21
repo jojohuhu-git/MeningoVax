@@ -42,12 +42,14 @@ const show = (dob) => {
 };
 
 describe('a 7-week-old with asplenia', () => {
-  it('the MenACWY card reads "Not yet age-eligible" — not due, despite MenQuadfi\'s 6-week licence', () => {
+  it('the MenACWY card reads "Not yet due (from 2 months)" — not due, despite MenQuadfi\'s 6-week licence', () => {
     show('2026-08-04'); // 7 weeks (49 days) before TODAY
     // Both MenACWY (schedule floor 2 months) and MenB (10-year floor) read
     // this way at 7 weeks — same convention as
     // regression-newborn-menacwy-not-due-yet-ui.test.jsx.
-    expect(screen.getAllByText('Not yet age-eligible')).toHaveLength(2);
+    // Review v10 P21: each card names its own age (MenACWY 2 months, MenB 10 years).
+    expect(screen.getAllByText('Not yet due (from 2 months)')).toHaveLength(1);
+    expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
   });
 
   it('no brand chip is offered', () => {
@@ -70,7 +72,7 @@ describe('a 2-month-old with asplenia', () => {
 // M3 (2026-09-23): a dose already recorded at 6 weeks -- before the app's own
 // 2-month schedule floor -- must not be described as if nothing had happened.
 describe('a 7-week-old with a MenQuadfi dose already given at 6 weeks', () => {
-  it('the card does not say "Not yet age-eligible" and states the schedule it actually started', () => {
+  it('the card does not say "Not yet due (from 2 months)" and states the schedule it actually started', () => {
     const { container } = render(<Harness initial={{
       dob: '2026-08-04', // 7 weeks before TODAY
       riskIds: ['asplenia'],
@@ -82,9 +84,10 @@ describe('a 7-week-old with a MenQuadfi dose already given at 6 weeks', () => {
     // way); the note text only exists in the DOM once expanded.
     openAllCards(container);
     openWhyThis();
-    // MenB (10-year floor) is legitimately still "Not yet age-eligible" here --
+    // MenB (10-year floor) is legitimately still "Not yet due (from 10 years)" here --
     // only the MenACWY card, which has the MenQuadfi dose, should have moved on.
-    expect(screen.getAllByText('Not yet age-eligible')).toHaveLength(1);
+    expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
+    expect(screen.queryByText('Not yet due (from 2 months)')).toBeNull();
     expect(screen.getByText(/6 weeks, then 4, 6 and 12 months/)).toBeDefined();
   });
 });

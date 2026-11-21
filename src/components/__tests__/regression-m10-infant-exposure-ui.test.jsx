@@ -4,7 +4,7 @@
 // coverage, the verbatim ACIP quotes and the full reproduction).
 //
 // An infant vaccinated because of travel or an A/C/W/Y outbreak must SEE the
-// infant series. Before M10 the card read "1 dose (ongoing-risk indication)" for
+// infant series. Before M10 the card read "Dose 1 (boosters while at risk)" for
 // the traveler and "1 dose" for the outbreak contact — an adult-shaped answer
 // for a 4-month-old, who ACIP puts on a 4-dose Menveo series at 2, 4, 6 and 12
 // months (MMWR 69(RR-9) Table 9 and Table 8, "2–23 mos" row).
@@ -63,7 +63,7 @@ describe('M10 (UI): an infant exposure indication shows the infant series', () =
     const rec = acwyRec(14, ['outbreak_acwy'], ['2025-10-15', '2025-12-10', '2026-02-04', '2026-07-20']);
     const { container } = show(rec);
     expect(rec.status).not.toBe('complete');
-    expect(container.textContent).toMatch(/first booster, 3 years after primary/i);
+    expect(container.textContent).toMatch(/First booster \(dose \d\), 3 years after the series/i);
   });
 
   it('control: a travel infant DOES keep its standing booster schedule', () => {

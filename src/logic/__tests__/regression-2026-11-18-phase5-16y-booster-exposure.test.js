@@ -81,7 +81,7 @@ describe('what does not change', () => {
   it('travel booster due now under 16 (dose at 10, now 15): the travel booster is given now', () => {
     const c = card(['travel'], acwy('2021-02-01'), '2026-03-01');
     expect(c.dueToday).toBe(true);
-    expect(c.doseLabel).toMatch(/^Booster \(dose 2/);
+    expect(c.doseLabel).toMatch(/^First booster \(dose 2/);
   });
 });
 
@@ -89,6 +89,6 @@ describe('travel and lab: only while a healthy peer is still owed it (through 21
   it('travel, 24, dose at 11: the travel booster, not "routine booster still owed" (a healthy 24-year-old is owed nothing)', () => {
     const r = recommend({ today: '2026-11-18', dob: '2002-06-01', riskIds: ['travel'], menacwyDoses: acwy('2013-08-01'), menbDoses: [] });
     expect(r.menacwy[0].dueToday).toBe(true);
-    expect(r.menacwy[0].doseLabel).toMatch(/^Booster \(dose 2/);
+    expect(r.menacwy[0].doseLabel).toMatch(/^First booster \(dose 2/);
   });
 });

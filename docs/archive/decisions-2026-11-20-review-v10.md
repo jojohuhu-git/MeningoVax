@@ -21,8 +21,9 @@ Answer column says "Built".
 - **R1**: wait for the owner's text on the page.
 - **Q5 (amber "Not counted — do not repeat")**: approved 2026-11-19, but the owner asked to check
   PneumoVax's dose labels first. Not part of this approval. Remind her.
-- **Chip labels P12–P21**: approving them adds them to the closed label list (`doseChipLabel.js`;
-  `docs/agent/clinical-rules.md`, "One Label Per Dose").
+- **P12–P21** are card titles (`doseLabel`), not the closed chip list beside recorded doses
+  (`src/components/doseChipLabel.js`), which they do not change. (Corrected 2026-11-20; this line
+  first said otherwise.)
 - **P75** fixes a false sentence only; whether the app should *offer* MenQuadfi before 2 months is a
   separate clinical question (read AAP live before asking).
 - Each new clinical clause in a built sentence still needs its source quote (memory

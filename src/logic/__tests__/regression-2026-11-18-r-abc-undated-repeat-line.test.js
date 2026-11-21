@@ -53,7 +53,7 @@ const anyWhen = (reasons) => reasons.some((x) => x === R_A || x === R_B || x ===
 describe('R-A: high-risk child under 10, MenB given too young', () => {
   it('Maya, 2 y, complement deficiency, Bexsero at 12 months -> line ends with R-A', () => {
     const r = run({ dob: '2024-11-01', riskIds: ['complement'], b: [bex('2025-11-01')] });
-    expect(r.menb[0].doseLabel).toBe('Not yet age-eligible');
+    expect(r.menb[0].doseLabel).toBe('Not yet due (from 10 years)');
     const d = r.history.MenB.perDose[0];
     expect(d.status).toBe('invalid');
     expect(d.reasons).toContain(REPEAT_THIS_DOSE);

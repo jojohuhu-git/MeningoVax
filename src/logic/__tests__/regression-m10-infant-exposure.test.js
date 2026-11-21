@@ -21,14 +21,14 @@
 // outbreak to the single branch. Reproduced by running recommend() on
 // 2026-09-15, before the fix:
 //
-//   • 4-month-old traveler, no doses     → "1 dose (ongoing-risk indication)", due today
+//   • 4-month-old traveler, no doses     → "Dose 1 (boosters while at risk)", due today
 //   • 4-month-old outbreak contact       → "1 dose", due today
 //   • 14-month-old traveler, 1 dose at 9 mos
 //                                        → "Booster (dose 2, first booster, 3 years
 //                                           after the primary dose)", dated 2029 —
 //                                           dose 2 of the infant series is due NOW
 //   • 8-month-old traveler, 2 doses from 2 mos
-//                                        → "Booster (dose 3, every 5 years)", dated
+//                                        → "Booster (dose 3), 5 years after the last", dated
 //                                           2031, with doses 3 and 4 still owed
 //
 // Microbiologists are deliberately untouched: ACIP Table 7 covers ages "≥10 yrs"
@@ -48,7 +48,7 @@ describe('M10 — an infant traveler is put on the infant series', () => {
   it('a 4-month-old traveler with no doses starts the 4-dose infant series', () => {
     const r = acwy(run(4, ['travel'], []));
     expect(r.seriesTotal).toBe(4);                   // was: 1
-    expect(r.doseLabel).toMatch(/Dose 1 of 4/);      // was: "1 dose (ongoing-risk indication)"
+    expect(r.doseLabel).toMatch(/Dose 1 of 4/);      // was: "Dose 1 (boosters while at risk)"
     // P0-1 (2026-09-17): was DAYS.weeks(4).
     expect(r.minIntervalDays).toBe(DAYS.weeks(8));
   });
@@ -156,7 +156,7 @@ describe('M10 — controls that must not move', () => {
   it('a traveler aged 2 years or more still has a ONE-dose primary series (M9)', () => {
     const r = acwy(run(30, ['travel'], []));
     expect(r.seriesTotal).toBe(1);
-    expect(r.doseLabel).toMatch(/1 dose/);
+    expect(r.doseLabel).toMatch(/Dose 1/);
   });
 
   it('a microbiologist infant is NOT put on the infant series (ACIP Table 7 is ≥10y)', () => {

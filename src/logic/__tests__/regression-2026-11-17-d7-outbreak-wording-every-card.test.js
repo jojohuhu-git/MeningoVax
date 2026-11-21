@@ -22,14 +22,14 @@ describe('D7: MenACWY outbreak cards for young children', () => {
   it('booster after a toddler series: "if outbreak risk continues", date unchanged (Apr 1, 2027)', () => {
     const c = run({ riskIds: ['outbreak_acwy'], dob: '2018-01-01', a: [M('2019-01-01'), M('2019-04-01'), M('2022-04-01')] }).menacwy[0];
     expect(c.earliestNextDate).toBe('2027-04-01');
-    expect(c.doseLabel).toBe('Booster (dose 4, every 5 years) if outbreak risk continues');
+    expect(c.doseLabel).toBe('Booster (dose 4), 5 years after the last if outbreak risk continues');
     expect(c.boosterSummary).toMatch(/while outbreak risk continues/);
   });
 
   it('first booster after an infant series: the same wording', () => {
     const c = run({ riskIds: ['outbreak_acwy'], dob: '2024-01-01', a: [M('2024-03-01'), M('2024-05-01'), M('2024-07-01'), M('2025-01-15')] }).menacwy[0];
     expect(c.earliestNextDate).toBe('2028-01-15');
-    expect(c.doseLabel).toBe('Booster (dose 5, first booster, 3 years after primary) if outbreak risk continues');
+    expect(c.doseLabel).toBe('First booster (dose 5), 3 years after the series if outbreak risk continues');
   });
 
   it('infant series in progress: the booster line says "while outbreak risk continues"', () => {
@@ -48,7 +48,7 @@ describe('D7: MenB outbreak cards', () => {
   it('booster not yet due: "if outbreak risk continues"', () => {
     const c = run({ riskIds: ['outbreak_b'], dob: '2006-01-01', b: [B('2025-10-01'), B('2026-01-01'), B('2026-08-01')] }).menb[0];
     expect(c.earliestNextDate).toBe('2027-08-01');
-    expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) if outbreak risk continues');
+    expect(c.doseLabel).toBe('First booster (dose 4), 1 year after the series if outbreak risk continues');
     // D10 (owner, 2026-11-17): one outbreak booster, so the line no longer
     // promises repeats "while outbreak risk continues".
     expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak, no repeat boosters');
@@ -57,7 +57,7 @@ describe('D7: MenB outbreak cards', () => {
   it('booster due today: "for this outbreak"', () => {
     const c = run({ riskIds: ['outbreak_b'], dob: '2006-01-01', b: [B('2024-01-01'), B('2024-03-01'), B('2024-07-01')] }).menb[0];
     expect(c.dueToday).toBe(true);
-    expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary) for this outbreak');
+    expect(c.doseLabel).toBe('First booster (dose 4), 1 year after the series for this outbreak');
   });
 
   it('primary series: the booster line says "if outbreak risk continues" (D10: one booster)', () => {

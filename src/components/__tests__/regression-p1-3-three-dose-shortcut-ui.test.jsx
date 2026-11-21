@@ -62,13 +62,13 @@ describe('P1-3 (UI): a shortcut series that says 3 finishes at 3', () => {
 describe('P1-3 / T1 (UI): a 2-month start', () => {
   it('dose 2 at 8 months: the card says 3 and offers the shortcut', () => {
     const { container, chips } = show('2026-04-15', 10, ['2025-08-15', '2026-02-15']);
-    expect(container.textContent).toMatch(/shortcut/i);
+    expect(container.textContent).toMatch(/dose 2 at ≥7 months/i);
     expect(chips).toEqual(['Dose 1 of 3', 'Dose 2 of 3']);
   });
 
   it('control: dose 2 on time at 4 months — the card says 4, no shortcut', () => {
     const { container, chips } = show('2025-10-15', 4, ['2025-08-15', '2025-10-15']);
-    expect(container.textContent).not.toMatch(/shortcut/i);
+    expect(container.textContent).not.toMatch(/dose 2 at ≥7 months/i);
     expect(chips).toEqual(['Dose 1 of 4', 'Dose 2 of 4']);
   });
 });

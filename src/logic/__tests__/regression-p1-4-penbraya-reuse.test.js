@@ -22,7 +22,7 @@
 //
 // The antigen-family lock already answers this: a Penbraya dose sets the family
 // to FHbp, and the MenB card then offers Trumenba and nothing else. Reproduced:
-// healthy patient, Penbraya as MenB dose 1, card reads "Dose 2 of 2 (FHbp)"
+// healthy patient, Penbraya as MenB dose 1, card reads "Dose 2 of 2 (Trumenba)"
 // with brands ["Trumenba (MenB)"] — exactly what CDC asks for.
 //
 // The pentavalent card cannot reintroduce Penbraya for such a patient either,

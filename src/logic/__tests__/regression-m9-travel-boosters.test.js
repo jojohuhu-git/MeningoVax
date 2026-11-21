@@ -24,7 +24,7 @@
 //      validate.js's A3 rule ("doses given before age 10 years should not be
 //      counted" toward the ROUTINE adolescent series) spared only patients whose
 //      risk class is 'primary2'. So a 6y5m traveler vaccinated at 3 was told to
-//      have "1 dose (ongoing-risk indication)" TODAY — the dose they already had
+//      have "Dose 1 (boosters while at risk)" TODAY — the dose they already had
 //      — and a 15-year-old with two doses was offered "dose 2".
 //      ACIP is explicit that this is the wrong schedule for them: "Children who
 //      received MenACWY at age <11 years and for whom booster vaccination is

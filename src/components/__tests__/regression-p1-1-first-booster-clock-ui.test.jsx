@@ -4,7 +4,7 @@
 // coverage and the CDC/ACIP quotes).
 //
 // What a clinician saw: a 3-year-old with asplenia who had completed the full
-// 2/4/6/12-month MenACWY series was shown "Booster (dose 5, every 5 years)"
+// 2/4/6/12-month MenACWY series was shown "Booster (dose 5), 5 years after the last"
 // with the next dose dated 2029. The booster they are actually owed is the
 // FIRST one, due three years after the 12-month dose — 2027.
 import React from 'react';

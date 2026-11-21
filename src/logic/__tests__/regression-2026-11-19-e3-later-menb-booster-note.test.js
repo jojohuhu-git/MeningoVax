@@ -16,7 +16,7 @@ const PRIMARY = [B('2023-07-01'), B('2023-08-01'), B('2024-01-01')];
 describe('E3: a later MenB booster says 2–3 years after the previous booster', () => {
   it('asplenia, Bexsero series ended Jan 1, 2024, booster Jan 1, 2025: dose 5', () => {
     const c = run([...PRIMARY, B('2025-01-01')]);
-    expect(c.doseLabel).toBe('Booster (dose 5, every 2–3 years)');
+    expect(c.doseLabel).toBe('Booster (dose 5), 2–3 years after the last');
     expect(c.note.detail).toContain('A MenB booster, 2–3 years after the previous booster [c].');
     // extinct: a later booster no longer says "1 year after the primary series" (E3, 2026-11-19).
     expect(c.note.detail).not.toMatch(/after the primary series was completed/);
@@ -25,7 +25,7 @@ describe('E3: a later MenB booster says 2–3 years after the previous booster',
 
   it('control: the first booster (dose 4) keeps "1 year after the primary series was completed"', () => {
     const c = run(PRIMARY);
-    expect(c.doseLabel).toBe('Booster (dose 4, 1 year after primary)');
+    expect(c.doseLabel).toBe('First booster (dose 4), 1 year after the series');
     expect(c.note.detail).toContain('A MenB booster, 1 year after the primary series was completed [c].');
   });
 });
