@@ -47,8 +47,13 @@ passing (200 files)**, all green (`npm test`, 2026-11-21).
    - Two choices were applied unasked and are asked in the PR body:
      - no date of birth → no offer;
      - the AAP sentence folds behind "Why this" (not on the owner's stay-in-view list).
-   - **Open:** the results summary line still reads "No MenACWY or MenB doses due today." above
-     the "Can be given today" card. It is true, but a clinician may skim it. Not raised yet; ask.
+   - Summary line: owner "Yes, add it" (MQ6-c), built in #131: "No MenACWY or MenB doses due
+     today. MenQuadfi can be given today." #131 is now 2,399 passing / 199 files.
+   - **Open, not asked:** the same gap for MenB. A 12-year-old with asplenia, MenACWY up to
+     date, Bexsero 29 days ago (seen 2026-11-21) gets a MenB card "Can be given today" (dose 2
+     past its 4-week minimum, before its 1-month routine date) under the summary line "No
+     MenACWY or MenB doses due today." (`Results.jsx`; the MenB line exists only when the
+     combined shot is offered). Ask whether to add "MenB dose 2 can be given today."
    - Seen while measuring, not raised: a 7-week-old whose MenQuadfi was given at 6 weeks shows
      "Dose 1 given; next dose not yet due" with **no date** (at 9 weeks: 3 Feb 2027). Ask.
    - **Merge note:** #130 and #131 both raise the counts in `docs/agent/testing.md` (lines 24–26,
