@@ -202,6 +202,7 @@ const FOLD = '../archive/decisions-2026-11-19-after-the-fold.md';
 const TODO_Q = '../archive/decisions-2026-11-19-t1-t2-todo-rules.md';
 const REORG = '../archive/decisions-2026-11-20-rulebook-reorg.md';
 const RULES = 'clinical-rules.md';
+const MQ6_Q = '../archive/decisions-2026-11-21-menquadfi-from-6-weeks.md';
 export const OWNER_ANSWERS = {
   'P0-1': { date: '2026-09-17', where: RULES },
   'PneumoVax-Complete': { date: '2026-11-01', where: PLAN },
@@ -238,6 +239,8 @@ export const OWNER_ANSWERS = {
   M1b: { date: '2026-11-20', where: REORG },
   M1c: { date: '2026-11-20', where: REORG },
   M1d: { date: '2026-11-21', where: '../archive/decisions-2026-11-21-menb-repeat-dose3.md' },
+  // MenQuadfi can be given from 6 weeks ("Can be given (Rec.)", "Yes, outbreak too").
+  MQ6: { date: '2026-11-21', where: MQ6_Q },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */

@@ -1080,6 +1080,28 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // being told the same "track them and start it" sentence, as if that dose
     // had never happened, right after a clause claiming only Menveo was
     // licensed that young (false: MenQuadfi's own floor is younger still).
+    // Owner, 2026-11-21 ("Can be given (Rec.)", "Yes, outbreak too"): from 6
+    // weeks, MenQuadfi CAN be given today; dose 1 is still due at 2 months.
+    // AAP 2026: "The first dose of MenQuadfi may be given as early as 6 weeks."
+    // Needs a date of birth: from whole months alone a 5-week-old and a
+    // 7-week-old look the same, and the app never guesses an age.
+    const ageDays = dob ? daysBetween(dob, today) : null;
+    if (given === 0 && ageDays != null && ageDays >= MENACWY_LICENCE_MIN_AGE_DAYS) {
+      const startTotal = menacwyInfantHighRiskTotal({ d1AgeM: MENACWY_SCHEDULE_MIN_AGE_MONTHS });
+      const startGate = menacwyInfantNextDoseGate({ d1AgeM: am, d2AgeM: null, given: 1 });
+      return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${startTotal} (${why})`, doseNum: 1, seriesTotal: startTotal, boosterSummary: boosterSummaryText,
+        dueToday: false, canGiveToday: true,
+        earliestNextDate: addCalendarMonths(dob, MENACWY_SCHEDULE_MIN_AGE_MONTHS),
+        brands: MENACWY_INFANT_SERIES_BRANDS.filter((b) => b.startsWith('MenQuadfi')),
+        minIntervalDays: startGate.minIntervalDays,
+        note: {
+          lead: `The infant series starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}; MenQuadfi may be given from ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)} [c].`,
+          detail: 'Start the four-dose infant series at 2, 4, 6 and 12 months [c].',
+        },
+        noteCites: [cite('aap2026MenQuadfiFrom6Weeks'), cite('acwyInfantHighRisk2to6mo')],
+        boosterCites: infantBoosterCites,
+        refs: [...refs, 'aap2026MenQuadfiFrom6Weeks'] });
+    }
     if (given === 0) {
       return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: `Not yet due (from ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)})`,
         dueToday: false,

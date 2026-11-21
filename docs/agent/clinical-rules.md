@@ -309,12 +309,16 @@ above, and the two are deliberately two different constants:**
 `MENACWY_LICENCE_MIN_AGE_DAYS` (`brands.js`, 42 — could a dose of ANY MenACWY product
 have been given at this age) vs `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (`ages.js`, 2 —
 unchanged, does the app ASK for one yet). MenQuadfi is AAP-aligned per WA DOH to 6
-weeks; Menveo's floor stays 2 months. The app never asks for a dose before 2 months —
-nothing in the schedule needs one that young — but a MenQuadfi dose actually given at 6
+weeks; Menveo's floor stays 2 months. Dose 1 is DUE at 2 months. **Since owner MQ6
+(2026-11-21; AAP 2026: "The first dose of MenQuadfi may be given as early as 6 weeks"),
+a high-risk, travel or outbreak baby from day 42 to under 2 months, with a date of birth
+and no MenACWY yet, gets "Can be given today" (`canGiveToday`), MenQuadfi only, "Dose 1
+of 4", next dose due at 2 months.** Without a date of birth there is no offer: whole
+months cannot confirm 6 weeks. A MenQuadfi dose actually given at 6
 or 7 weeks is licensed and counts: `recommend.js`'s `menacwyInfantSeries()` branches on
 `given` at its schedule-floor gate so that case gets a card describing the series that
 was actually started ("6 weeks, then 4, 6 and 12 months"), not the unconditional
-"nothing is due yet, track and start at 2 months" text a `given === 0` patient sees.
+"nothing is due yet, track and start at 2 months" text a `given === 0` patient under 6 weeks (or with no date of birth) sees.
 `MENACWY_INFANT_SERIES_BRANDS` means "licensed anywhere in the infant band" (both
 Menveo and MenQuadfi), not "licensed at the single youngest floor" — the latter would
 silently drop Menveo now that MenQuadfi's floor is younger.
