@@ -24,7 +24,8 @@ const group = (t, key) => t.rows.find((r) => r.key === key);
 
 /** The Rulebook reorganization (2026-11-20) put every part in a fold: open them all. */
 function openAll() {
-  for (const b of document.querySelectorAll('.rb-part > h2 > button[aria-expanded="false"]')) fireEvent.click(b);
+  // "Show all" opens every fold (owner, 2026-11-21: steps hold their sections).
+  fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
 }
 function pageText() {
   render(<Rulebook />);

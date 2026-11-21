@@ -12,9 +12,9 @@ import Rulebook from '../Rulebook.jsx';
 
 function screenTextWithoutQuotes() {
   const { container } = render(<Rulebook />);
-  // Every part is a fold (Rulebook reorganization, 2026-11-20). Open them all,
-  // so the whole screen is read.
-  for (const b of container.querySelectorAll('.rb-part > h2 > button[aria-expanded="false"]')) fireEvent.click(b);
+  // Every part is a fold. "Show all" opens them all (owner, 2026-11-21), so
+  // the whole screen is read.
+  fireEvent.click(container.querySelector('.rb-show-all'));
   const copy = container.cloneNode(true);
   // The Sources list gives each CDC paper's own title ("…Bexsero MenB-4C
   // Vaccine…"): their words, not the app's.

@@ -6,8 +6,9 @@
 // This file replaces the D1 test (review v10, "New top, then 1–8 folded"),
 // whose Quick look and per-step panels the owner removed on purpose. What it
 // checks now:
-//   - one fold for "How MeningoVax decides" and one per part, all closed at
-//     first ("All nine closed"); a step's link opens its part;
+//   - (superseded 2026-11-21, "Steps hold their sections": the nine parts now
+//     sit inside the six steps; the fold checks live in
+//     regression-2026-11-21-rulebook-steps-hold-their-sections.test.jsx);
 //   - each thing said once: no Quick look, no age lines, no risk-group table;
 //   - group tables (Group | Doses | Boosters), plain words, Details per row;
 //   - every schedule is a Dose | Routine | Minimum interval table, the Minimum
@@ -28,53 +29,45 @@ import {
   WORKED_PATIENTS,
 } from '../../data/rulebookPage.js';
 
-const foldButtons = () => [...document.querySelectorAll('.rb-part > h2 > button')];
-const fold = (name) => foldButtons().find((b) => b.textContent.replace(/(Show|Hide)$/, '') === name);
+// Steps hold their sections (owner, 2026-11-21): a part is opened through its step.
+const folds = () => [...document.querySelectorAll('button[aria-controls$="-body"]')];
+const fold = (name) => folds().find((b) => b.querySelector('.rb-fold-label').textContent === name);
+function openStep(title) {
+  fireEvent.click(fold('How MeningoVax decides'));
+  fireEvent.click(fold(title));
+}
 function openAll() {
-  for (const b of foldButtons()) if (b.getAttribute('aria-expanded') === 'false') fireEvent.click(b);
+  fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
 }
 const tableBy = (label) => screen.getByRole('table', { name: label });
 const headers = (table) => within(table).getAllByRole('columnheader').map((h) => h.textContent);
 
-describe('Reorganization items 2–3 and "All nine closed"', () => {
-  it('opens with the owner\'s line, "How MeningoVax decides" and nine parts, every fold closed', () => {
+describe('Reorganization items 2–3', () => {
+  it('opens with the owner\'s line; the fold layout is checked in the 2026-11-21 file', () => {
     render(<Rulebook />);
     expect(document.querySelector('.rb-intro').textContent).toBe('Recommendations are based on age, risk conditions and dated vaccine history.');
-    const names = foldButtons().map((b) => b.textContent.replace(/(Show|Hide)$/, ''));
-    expect(names).toEqual(['How MeningoVax decides', 'Stop check', 'The vaccines', 'MenACWY', 'MenB',
-      'More than one condition', 'The combined shot (MenABCWY)', 'Doses on the record', 'MeningoVax decisions', 'Sources']);
-    expect(Object.values(HEADINGS)).toEqual(names.slice(1));
-    for (const b of foldButtons()) expect(b.getAttribute('aria-expanded'), b.textContent).toBe('false');
-    expect(document.querySelectorAll('.rb-part-body')).toHaveLength(0);
+    // extinct: nine separate part folds and step links (owner 2026-11-21: each part now sits inside its step).
+    expect(document.querySelector('.rb-step a')).toBeNull();
+    expect(PATH_STEPS.every((s) => !('to' in s))).toBe(true);
+    expect(Object.keys(HEADINGS)).not.toContain('vaccines');   // extinct: own fold until 2026-11-21, now under Read the record
   });
 
-  it('a fold opens on Show and closes on Hide', () => {
+  it('a step opens on Show and closes on Hide', () => {
     render(<Rulebook />);
-    const b = fold('MenB');
-    fireEvent.click(b);
+    openStep('MenB schedule');
+    const b = fold('MenB schedule');
     expect(b.getAttribute('aria-expanded')).toBe('true');
     expect(tableBy('MenB groups')).toBeTruthy();
     fireEvent.click(b);
     expect(screen.queryByRole('table', { name: 'MenB groups' })).toBeNull();
   });
 
-  it('"How MeningoVax decides": seven one-sentence steps, each a link that opens its part', () => {
-    render(<Rulebook />);
-    fireEvent.click(fold('How MeningoVax decides'));
-    expect(screen.getByText('Seven steps, always in this order.')).toBeTruthy();
-    expect(PATH_STEPS).toHaveLength(7);
-    const links = PATH_STEPS.map((s) => screen.getByRole('link', { name: s.title }));
-    for (const s of PATH_STEPS) {
-      expect(s.sum.match(/[.!?](\s|$)/g), s.key).toHaveLength(1);   // one sentence
-      expect(Object.keys(HEADINGS)).toContain(s.to);
-    }
+  it('each step is one sentence', () => {
+    for (const s of PATH_STEPS) expect(s.sum.match(/[.!?](\s|$)/g), s.key).toHaveLength(1);
     // extinct: the per-step Show panels (they repeated the parts).
+    render(<Rulebook />);
+    openAll();
     expect(document.querySelector('.rb-step-more, .rb-step-rows')).toBeNull();
-    // The MenB step's link opens the MenB part.
-    expect(fold('MenB').getAttribute('aria-expanded')).toBe('false');
-    fireEvent.click(links[PATH_STEPS.findIndex((s) => s.key === 'menb')]);
-    expect(fold('MenB').getAttribute('aria-expanded')).toBe('true');
-    expect(links[3].getAttribute('href')).toBe('#rb-menb');
   });
 });
 
@@ -110,7 +103,7 @@ describe('Item 4: group tables', () => {
     expect([...ACWY_GROUPS.rows, ...MENB_GROUPS.rows].filter((r) => r.tone).map((r) => [r.key, r.tone]))
       .toEqual([['bhealthy', 'shared'], ['preg', 'wait']]);
     render(<Rulebook />);
-    fireEvent.click(fold('MenB'));
+    openStep('MenB schedule');
     const table = tableBy('MenB groups');
     expect(within(table).getByText('Two doses, by shared clinical decision-making').className).toBe('rb-tint-shared');
     expect(within(table).getByText('Wait until after pregnancy').className).toBe('rb-tint-wait');
@@ -119,7 +112,7 @@ describe('Item 4: group tables', () => {
 
   it('Details opens one row at a time, with its sources; a second tap closes it', () => {
     render(<Rulebook />);
-    fireEvent.click(fold('MenACWY'));
+    openStep('MenACWY schedule');
     const table = tableBy('MenACWY groups');
     const [first, second] = within(table).getAllByRole('button', { name: 'Details' });
     fireEvent.click(first);
@@ -150,8 +143,8 @@ describe('Item 4: group tables', () => {
 describe('Item 5: the vaccines table', () => {
   it('has no "Counts as" column, and the finish line sits under "MenB products are not interchangeable"', () => {
     render(<Rulebook />);
-    fireEvent.click(fold('The vaccines'));
-    const vaccineTable = document.querySelector('.rb-part-body table');
+    openStep('Read the record');
+    const vaccineTable = tableBy('The vaccines');
     expect(headers(vaccineTable)).toEqual(['Vaccine', 'Minimum age', 'Use']);
     for (const r of VACCINE_ROWS.flatMap((g) => g.rows)) expect(r).not.toHaveProperty('countsAs');
     const families = screen.getByRole('region', { name: FAMILIES.title });
@@ -214,7 +207,7 @@ describe('Item 6: every schedule is a Dose | Routine | Minimum interval table', 
 describe('Item 7: MenB "If dose 3 was early" is one three-row table', () => {
   it('Dose 3 was given | Result', () => {
     render(<Rulebook />);
-    fireEvent.click(fold('MenB'));
+    openStep('MenB schedule');
     const table = tableBy('If dose 3 was early');
     expect(headers(table)).toEqual(['Dose 3 was given', 'Result']);
     expect(MENB_DOSE3_EARLY.rows.map((r) => [r.given, r.result])).toEqual([
@@ -229,9 +222,9 @@ describe('Item 7: MenB "If dose 3 was early" is one three-row table', () => {
 describe('Items 8–9: doses on the record', () => {
   it('"A dose that does not count" has General rules and Special cases', () => {
     render(<Rulebook />);
-    fireEvent.click(fold('Doses on the record'));
+    openStep('Read the record');
     const card = screen.getByRole('region', { name: 'A dose that does not count' });
-    expect(within(card).getAllByRole('heading', { level: 4 }).map((h) => h.textContent)).toEqual(['General rules', 'Special cases']);
+    expect(within(card).getAllByRole('heading', { level: 5 }).map((h) => h.textContent)).toEqual(['General rules', 'Special cases']);
     expect(NOT_COUNTED.general.map((r) => r.text)).toEqual([
       'Repeat that dose only. Do not restart the series.',
       'The repeat is given at least the minimum interval after the invalid dose.',
@@ -247,7 +240,7 @@ describe('Items 8–9: doses on the record', () => {
     expect(SOONER_ADDS.title).toBe('Sooner counts, but a dose is added');
     expect(SOONER_ADDS.rows.map((r) => r.text)).toEqual(['Healthy MenB dose 2 <6 months after dose 1 counts. Dose 3 is added.']);
     render(<Rulebook />);
-    fireEvent.click(fold('Doses on the record'));
+    openStep('Set the dates');
     expect(screen.getByRole('heading', { name: 'Sooner counts, but a dose is added' })).toBeTruthy();
   });
 });

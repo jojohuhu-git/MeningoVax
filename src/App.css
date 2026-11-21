@@ -1753,3 +1753,17 @@ body {
   .rb-table { font-size: var(--fs-sm); }
   .rb-table tbody th { padding: var(--sp-8); font-size: var(--fs-sm); }
 }
+
+/* ── Steps hold their sections (owner, 2026-11-21): each of the six steps is
+   its own fold under "How MeningoVax decides"; "Show all" sits beside that
+   bar; "Reference" names the two folds below the steps. */
+.rb-how-head { display: flex; align-items: center; gap: var(--sp-8); }
+.rb-how-head .rb-h2 { flex: 1; min-width: 0; margin: 0; }
+.rb-show-all { align-self: stretch; padding: 0 var(--sp-12); font-size: var(--fs-sm); }
+.rb-fold-words { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rb-step-h { margin: 0; }
+.rb-step-btn { padding: var(--sp-8) var(--sp-12); }
+.rb-step-btn .rb-fold-label { font-size: var(--fs-md); color: var(--c); }
+.rb-step-sum { font-size: var(--fs-sm); font-weight: 400; color: var(--gy2); line-height: 1.45; }
+.rb-step-body > .rb-part-body { padding-top: var(--sp-4); }
+.rb-ref-label { margin: var(--sp-8) 0 calc(-1 * var(--sp-8)); font-size: var(--fs-sm); font-weight: 600; color: var(--gy2); }
