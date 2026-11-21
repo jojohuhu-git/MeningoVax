@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-21)** by `handoff-2026-11-21-meningovax-rulebook-steps-nested.md`. Do not resume from this file.
+
 # MeningoVax — Handoff after the "given before age 16" label key was fixed (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

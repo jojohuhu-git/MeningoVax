@@ -3,12 +3,13 @@
 // "Yes, like PneumoVax").
 //
 // The Rulebook reorganization (owner, 2026-11-20; decisions in
-// docs/archive/decisions-2026-11-20-rulebook-reorg.md, drawn and approved
-// "Build as shown"): "How MeningoVax decides" is one fold of seven one-line
-// steps, each linking to its part. Then nine parts, each its own fold, all
-// closed when the screen opens. Each thing is said once: no Quick look, no
-// age lines, no risk-group table. Every schedule is a Dose | Routine |
-// Minimum interval table, the Minimum interval column shaded light grey.
+// docs/archive/decisions-2026-11-20-rulebook-reorg.md), then "Steps hold their
+// sections" (owner, 2026-11-21): "How MeningoVax decides" is one fold of six
+// steps; each step is its own fold and holds its section of the page. Below
+// them, under "Reference", MeningoVax decisions and Sources. Every fold is
+// closed when the screen opens; "Show all" on the "How MeningoVax decides"
+// bar opens every one, and turns into "Hide all". Every schedule is a
+// Dose | Routine | Minimum interval table, the Minimum interval column grey.
 //
 // It is a view of the same tab, switched from the header ("Patient |
 // Rulebook"); App.jsx keeps the patient part mounted but hidden, so a
@@ -20,18 +21,23 @@
 // (regression-2026-11-19-rulebook-screen-matches-the-engine.test.jsx) runs
 // every one of those patients through recommend().
 // ─────────────────────────────────────────────────────────────────────────
-import React, { useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   HEADINGS, DECISIONS, DECISION, DECISION_USES, decisionsOf, sourcesFor, TRANSPLANT_STOP,
   VACCINE_ROWS, FAMILIES, ACWY_GROUPS, MENB_GROUPS, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES,
   ACWY_HIGHRISK_TABLES, ACWY_HIGHRISK_NOTES, MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER,
   MENB_PREGNANCY, RISK_RANKING, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS, SOONER_ADDS, NOT_COUNTED,
-  SOURCE_GROUPS, PATH_STEPS,
+  SOURCE_GROUPS, PATH_STEPS, riskRankingFor,
 } from '../data/rulebookPage.js';
 
-/** The nine parts, in the order the app decides. */
-const PARTS = Object.keys(HEADINGS);
-const partId = (key) => `rb-${key}`;
+/** Every fold on the page, in order: the path, its six steps, the Reference folds. */
+const ALL_FOLDS = ['path', ...PATH_STEPS.map((s) => s.key), 'decisions', 'sources'];
+
+/**
+ * "Show all" / "Hide all" reaches the folds the page does not hold itself
+ * (the decisions list's own folds): each press bumps n, and says open or not.
+ */
+const ShowAll = createContext({ n: 0, open: false });
 
 /** A decision's three labelled lines, shared by the chip and the decisions part. */
 function DecisionText({ d }) {
@@ -46,7 +52,9 @@ function DecisionText({ d }) {
 
 /** A part that starts closed on a phone (PneumoVax, owner 2026-11-01). */
 function useFold() {
-  const [open, setOpen] = useState(false);
+  const all = useContext(ShowAll);
+  const [open, setOpen] = useState(all.n > 0 && all.open);
+  useEffect(() => { if (all.n > 0) setOpen(all.open); }, [all]);
   return [open ? ' rb-fold rb-open' : ' rb-fold', open, () => setOpen((v) => !v)];
 }
 function FoldBar({ name, open, toggle }) {
@@ -114,7 +122,7 @@ function DoseBox({ children }) {
 function Card({ id, title, children, tone }) {
   return (
     <section className={`rb-card${tone ? ` rb-card-${tone}` : ''}`} aria-labelledby={id}>
-      <h3 id={id} className="rb-h3">{title}</h3>
+      <h4 id={id} className="rb-h3">{title}</h4>
       {children}
     </section>
   );
@@ -204,7 +212,7 @@ function Schedule({ s, title }) {
   const note = s.note && (typeof s.note === 'string' ? { text: s.note, decision: s.decision } : s.note);
   return (
     <div className="rb-sched-block">
-      <h4 className="rb-h4">{title ?? s.title}</h4>
+      <h5 className="rb-h4">{title ?? s.title}</h5>
       <ScheduleTable rows={s.rows} label={title ?? s.title} />
       <TableFoot s={s} note={note} />
     </div>
@@ -223,9 +231,9 @@ function Stop() {
 function Vaccines() {
   return (
     <>
-      <p className="rb-lead">MenACWY and MenB have separate schedules. One MenABCWY injection gives a dose of each.</p>
-      <div className="rb-card">
-        <table className="rb-table rb-fixed">
+      <Card id="rb-vaccines-card" title="The vaccines">
+        <p className="rb-small">MenACWY and MenB have separate schedules. One MenABCWY injection gives a dose of each.</p>
+        <table className="rb-table rb-fixed" aria-label="The vaccines">
           <colgroup><col className="rb-w24" /><col className="rb-w18" /><col /></colgroup>
           <thead><tr><th>Vaccine</th><th>Minimum age</th><th>Use</th></tr></thead>
           <tbody>
@@ -243,7 +251,7 @@ function Vaccines() {
             ))}
           </tbody>
         </table>
-      </div>
+      </Card>
 
       <Card id="rb-families" title={FAMILIES.title}>
         {FAMILIES.rows.map((f) => (
@@ -285,6 +293,8 @@ function MenACWY() {
         ))}
         <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
       </Card>
+
+      <Multi vaccine="MenACWY" />
     </>
   );
 }
@@ -303,7 +313,7 @@ function MenB() {
         <ScheduleTable rows={MENB_HIGHRISK.rows} label={MENB_HIGHRISK.title} />
         <TableFoot s={MENB_HIGHRISK} note={MENB_HIGHRISK.note} />
 
-        <h4 className="rb-h4">{MENB_DOSE3_EARLY.title}</h4>
+        <h5 className="rb-h4">{MENB_DOSE3_EARLY.title}</h5>
         <table className="rb-table rb-fixed" aria-label={MENB_DOSE3_EARLY.title}>
           <colgroup><col className="rb-w55" /><col /></colgroup>
           <thead><tr><th>Dose 3 was given</th><th>Result</th></tr></thead>
@@ -319,19 +329,23 @@ function MenB() {
       <Card id="rb-menb-pregnancy" title="Pregnancy">
         <Line row={MENB_PREGNANCY} />
       </Card>
+
+      <Multi vaccine="MenB" />
     </>
   );
 }
 
-function Multi() {
+/** "More than one condition" for one vaccine (owner, 2026-11-21: split by vaccine). */
+function Multi({ vaccine }) {
+  const label = `More than one condition, ${vaccine}`;
   return (
-    <div className="rb-card">
+    <Card id={`rb-multi-${vaccine.toLowerCase()}`} title="More than one condition">
       <p className="rb-small">{RISK_RANKING.lead}</p>
-      <table className="rb-table rb-fixed">
+      <table className="rb-table rb-fixed" aria-label={label}>
         <colgroup><col className="rb-w40" /><col /></colgroup>
         <thead><tr><th>If the patient has</th><th>Give</th></tr></thead>
         <tbody>
-          {RISK_RANKING.steps.map((s) => (
+          {riskRankingFor(vaccine).map((s) => (
             <tr key={s.name}>
               <td className="rb-strong-wrap">{s.name}</td>
               <td>{s.text}<Decisions row={s} /><Source row={s} /></td>
@@ -339,7 +353,7 @@ function Multi() {
           ))}
         </tbody>
       </table>
-    </div>
+    </Card>
   );
 }
 
@@ -359,7 +373,8 @@ const Chip = ({ tone, children }) => <span className={`dose-val-chip ${CHIP_CLAS
 function Record() {
   return (
     <>
-      <p className="rb-lead">Each recorded dose is checked for minimum age and minimum interval, and gets one label. The card shows the routine date. The earliest valid date may be sooner.</p>
+      {/* R74's lead was dropped (owner, 2026-11-21: it repeated step 2's summary). */}
+      <Vaccines />
 
       <Card id="rb-labels" title="What the label on a dose means">
         <div className="rb-legend">
@@ -372,37 +387,42 @@ function Record() {
         </div>
       </Card>
 
-      <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
-        <p className="rb-band rb-band-green">{GRACE.text}<Decisions row={GRACE} /></p>
-        <table className="rb-table rb-fixed">
-          <colgroup><col className="rb-w40" /><col /></colgroup>
-          <thead><tr><th>Doses</th><th className="rb-min">Minimum interval</th></tr></thead>
-          <tbody>
-            {INTERVALS.map((r) => (
-              <tr key={r.doses}>
-                <td>{r.doses}</td>
-                <td className="rb-min"><strong>{r.gap}</strong><Decisions row={r} /><Source row={r} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <h4 className="rb-h4">{SOONER_ADDS.title}</h4>
-        <ul className="rb-bullets">
-          {SOONER_ADDS.rows.map((r) => <li key={r.text}>{r.text}<Source row={r} /></li>)}
-        </ul>
-      </Card>
-
       <Card id="rb-not-counted" title="A dose that does not count">
-        <h4 className="rb-h4">General rules</h4>
+        <h5 className="rb-h4">General rules</h5>
         <ul className="rb-bullets">
           {NOT_COUNTED.general.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
         </ul>
-        <h4 className="rb-h4">Special cases</h4>
+        <h5 className="rb-h4">Special cases</h5>
         <ul className="rb-bullets">
           {NOT_COUNTED.special.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
         </ul>
       </Card>
     </>
+  );
+}
+
+/** Step 5, Set the dates: minimum intervals and the grace period. */
+function Dates() {
+  return (
+    <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
+      <p className="rb-band rb-band-green">{GRACE.text}<Decisions row={GRACE} /></p>
+      <table className="rb-table rb-fixed">
+        <colgroup><col className="rb-w40" /><col /></colgroup>
+        <thead><tr><th>Doses</th><th className="rb-min">Minimum interval</th></tr></thead>
+        <tbody>
+          {INTERVALS.map((r) => (
+            <tr key={r.doses}>
+              <td>{r.doses}</td>
+              <td className="rb-min"><strong>{r.gap}</strong><Decisions row={r} /><Source row={r} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h5 className="rb-h4">{SOONER_ADDS.title}</h5>
+      <ul className="rb-bullets">
+        {SOONER_ADDS.rows.map((r) => <li key={r.text}>{r.text}<Source row={r} /></li>)}
+      </ul>
+    </Card>
   );
 }
 
@@ -447,73 +467,112 @@ function Sources() {
   );
 }
 
-const BODY = {
-  stop: Stop, vaccines: Vaccines, acwy: MenACWY, menb: MenB, multi: Multi,
-  penta: Penta, record: Record, decisions: DecisionList, sources: Sources,
+/** Each step's section (owner, 2026-11-21: each section sits under its step). */
+const STEP_BODY = {
+  stop: Stop, record: Record, acwy: MenACWY, menb: MenB, dates: Dates, penta: Penta,
 };
 
-/** One fold: a heading that is a button, and the body once it is open. */
+/** The words on a fold's bar: its name, and a summary line for a step. */
+function FoldButton({ id, name, sum, open, toggle, className }) {
+  return (
+    <button type="button" className={className} aria-expanded={open} aria-controls={`${id}-body`} onClick={toggle}>
+      <span className="rb-fold-words">
+        <span className="rb-fold-label">{name}</span>
+        {sum && <span className="rb-step-sum">{sum}</span>}
+      </span>
+      <span className="rb-fold-mark">{open ? 'Hide' : 'Show'}</span>
+    </button>
+  );
+}
+
+/** A Reference fold: a heading that is a button, and the body once it is open. */
 function Fold({ id, name, open, toggle, children }) {
   return (
     <section id={id} className="rb-section rb-part" aria-labelledby={`${id}-h`}>
       <h2 id={`${id}-h`} className="rb-h2">
-        <button type="button" className="rb-full-btn" aria-expanded={open} aria-controls={`${id}-body`} onClick={toggle}>
-          <span>{name}</span>
-          <span className="rb-fold-mark">{open ? 'Hide' : 'Show'}</span>
-        </button>
+        <FoldButton id={id} name={name} open={open} toggle={toggle} className="rb-full-btn" />
       </h2>
       {open && <div id={`${id}-body`} className="rb-part-body">{children}</div>}
     </section>
   );
 }
 
+/** One step: its number, a bar that opens it, and its section. */
+function Step({ n, step, open, toggle }) {
+  const id = `rb-${step.key}`;
+  const Body = STEP_BODY[step.key];
+  return (
+    <li className="rb-step">
+      <span className="rb-step-num" aria-hidden="true">{n}</span>
+      <section id={id} className="rb-step-body" aria-labelledby={`${id}-h`}>
+        <h3 id={`${id}-h`} className="rb-h3 rb-step-h">
+          <FoldButton id={id} name={step.title} sum={step.sum} open={open} toggle={toggle} className="rb-full-btn rb-step-btn" />
+        </h3>
+        {open && <div id={`${id}-body`} className="rb-part-body">{Body && <Body />}</div>}
+      </section>
+    </li>
+  );
+}
+
 export default function Rulebook() {
-  // All folds closed when the screen opens (owner, 2026-11-20: "All nine closed").
+  // Every fold closed when the screen opens (owner, 2026-11-21: "keep
+  // everything collapsed"; as "All nine closed", 2026-11-20).
   const [open, setOpen] = useState(() => new Set());
+  const [all, setAll] = useState({ n: 0, open: false });
   const toggle = (key) => setOpen((s) => {
     const next = new Set(s);
     if (next.has(key)) next.delete(key); else next.add(key);
     return next;
   });
-  /** A step's link opens its part; the browser then jumps to the part's heading. */
-  const openPart = (key) => setOpen((s) => new Set(s).add(key));
+  // "Show all opens everything" (owner, 2026-11-21); once all are open it says "Hide all".
+  const allOpen = ALL_FOLDS.every((k) => open.has(k));
+  const showAll = () => {
+    const next = !allOpen;
+    setOpen(next ? new Set(ALL_FOLDS) : new Set());
+    setAll((a) => ({ n: a.n + 1, open: next }));
+  };
 
   return (
-    <div className="rb">
-      <div className="rb-top">
-        <h1 className="rb-title">Rulebook</h1>
-        {/* R1: the owner's own sentence (2026-11-20). */}
-        <p className="rb-intro">Recommendations are based on age, risk conditions and dated vaccine history.</p>
+    <ShowAll.Provider value={all}>
+      <div className="rb">
+        <div className="rb-top">
+          <h1 className="rb-title">Rulebook</h1>
+          {/* R1: the owner's own sentence (2026-11-20). */}
+          <p className="rb-intro">Recommendations are based on age, risk conditions and dated vaccine history.</p>
+        </div>
+
+        <section id="rb-how" className="rb-section rb-part" aria-labelledby="rb-how-h">
+          <div className="rb-how-head">
+            <h2 id="rb-how-h" className="rb-h2">
+              <FoldButton id="rb-how" name="How MeningoVax decides" open={open.has('path')} toggle={() => toggle('path')} className="rb-full-btn" />
+            </h2>
+            <button type="button" className="rb-tap rb-show-all" onClick={showAll}>{allOpen ? 'Hide all' : 'Show all'}</button>
+          </div>
+          {open.has('path') && (
+            <div id="rb-how-body" className="rb-part-body">
+              <p className="rb-small">Six steps, always in this order.</p>
+              <ol className="rb-steps">
+                {PATH_STEPS.map((s, i) => (
+                  <Step key={s.key} n={i + 1} step={s} open={open.has(s.key)} toggle={() => toggle(s.key)} />
+                ))}
+              </ol>
+            </div>
+          )}
+        </section>
+
+        <p className="rb-ref-label">Reference</p>
+        <Fold id="rb-decisions" name={HEADINGS.decisions} open={open.has('decisions')} toggle={() => toggle('decisions')}>
+          <DecisionList />
+        </Fold>
+        <Fold id="rb-sources" name={HEADINGS.sources} open={open.has('sources')} toggle={() => toggle('sources')}>
+          <Sources />
+        </Fold>
+
+        <p className="rb-foot">
+          This page is a guide to the app&rsquo;s reasoning, not a clinical reference. Where it and a
+          CDC or ACIP document disagree, the document is right and this is a bug. Please report it.
+        </p>
       </div>
-
-      <Fold id="rb-path" name="How MeningoVax decides" open={open.has('path')} toggle={() => toggle('path')}>
-        <p className="rb-small">Seven steps, always in this order.</p>
-        <ol className="rb-steps">
-          {PATH_STEPS.map((s, i) => (
-            <li key={s.key} className="rb-step">
-              <span className="rb-step-num" aria-hidden="true">{i + 1}</span>
-              <div className="rb-step-body">
-                <h3 className="rb-h3"><a href={`#${partId(s.to)}`} onClick={() => openPart(s.to)}>{s.title}</a></h3>
-                <p className="rb-small">{s.sum}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </Fold>
-
-      {PARTS.map((key) => {
-        const Body = BODY[key];
-        return (
-          <Fold key={key} id={partId(key)} name={HEADINGS[key]} open={open.has(key)} toggle={() => toggle(key)}>
-            <Body />
-          </Fold>
-        );
-      })}
-
-      <p className="rb-foot">
-        This page is a guide to the app&rsquo;s reasoning, not a clinical reference. Where it and a
-        CDC or ACIP document disagree, the document is right and this is a bug. Please report it.
-      </p>
-    </div>
+    </ShowAll.Provider>
   );
 }

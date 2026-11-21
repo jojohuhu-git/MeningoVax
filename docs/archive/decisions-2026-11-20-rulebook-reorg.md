@@ -198,3 +198,32 @@ Aug 1; Jan 1, Jun 25 → due Oct 25; no earlier date on any. Pinned by the contr
   16 years". "Or older" follows the engine, checked 2026-11-21: the booster is due from the 16th
   birthday (at 16 and 18, "Booster (16y)"); at 21 the card offers a catch-up dose. Guard:
   `regression-2026-11-21-label-key-before-16-both-vaccines.test.jsx`.
+
+## Steps hold their sections (asked and answered 2026-11-21)
+
+- **Owner asked:** "How the app decides should have a button that allows all sections to expand
+  and be hidden. At baseline everything is collapsed except a couple sections. They should be
+  organized under the appropriate section."
+- A before/after drawing was shown: each part moves inside its step of "How MeningoVax decides";
+  The vaccines, MeningoVax decisions and Sources under "Reference". Owner asked why the vaccines
+  and decisions were in Reference, and what step 7 "The cards" was. Answer given: step 7 had no
+  section of its own (its link opened "Doses on the record", as steps 2 and 5 did); The vaccines
+  could sit under step 2; the decisions list is an index of choices already marked where they apply.
+- **Owner answers:** (1) drop step 7, six steps; (2) The vaccines under step 2, Read the record;
+  (3) MeningoVax decisions and Sources stay in Reference; (4) "keep everything collapsed" (this
+  replaces "except a couple sections"; the 2026-11-20 "All nine closed" default stands);
+  (5) "Show all opens everything", and each section keeps its own button; (6) "More than one
+  condition" split by vaccine; "no need to redraw, just build".
+- **Built (2026-11-21):** step 2 holds the R74 lead, The vaccines, the MenB products card, the
+  label key and "A dose that does not count"; step 3 the MenACWY tables and the MenACWY "More than
+  one condition" rows; step 4 the MenB tables, pregnancy and the MenB rows; step 5 the minimum
+  intervals card and grace period; step 6 the combined shot. "Show all" sits beside the "How
+  MeningoVax decides" bar, opens every fold (the decisions list's phone folds too) and becomes
+  "Hide all". "Applies in" now names steps. Card headings moved one level down (h4; their
+  sub-headings h5) so the page reads heading > step > card. No clinical rule, worked patient or
+  rulebook cell changed. Guard: `regression-2026-11-21-rulebook-steps-hold-their-sections.test.jsx`.
+- **R74 lead dropped (owner, 2026-11-21, "Drop it"):** asked whether to remove the R74 lead at
+  the top of step 2 ("Each recorded dose is checked for minimum age and minimum interval, and
+  gets one label. The card shows the routine date. The earliest valid date may be sooner."),
+  since step 2's bar already says "Each recorded dose is checked and given one label." and step
+  5's says the routine and earliest valid date. Removed; the R74 test now checks it stays gone.

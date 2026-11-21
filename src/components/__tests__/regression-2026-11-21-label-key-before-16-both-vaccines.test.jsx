@@ -44,7 +44,9 @@ describe('label key: "given before age 16" is explained for both vaccines', () =
   it('both rows show on the screen, with no duplicate-key warning', () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
     render(<Rulebook />);
-    fireEvent.click(screen.getByText('Doses on the record'));
+    // The label key sits under step 2, Read the record (owner, 2026-11-21).
+    fireEvent.click(screen.getByText('How MeningoVax decides'));
+    fireEvent.click(screen.getByText('Read the record'));
     expect(screen.getAllByText(LABEL)).toHaveLength(2);
     expect(screen.getByText((_, el) => el?.classList?.contains('rb-small') && el.textContent.startsWith(ACWY_TEXT))).toBeTruthy();
     expect(screen.getByText((_, el) => el?.classList?.contains('rb-small') && el.textContent.startsWith(MENB_TEXT))).toBeTruthy();

@@ -200,16 +200,21 @@ describe('Rulebook screen — every list is the app\'s own list', () => {
 describe('Rulebook screen — what a clinician sees', () => {
   it('shows the parts in the order the app decides', () => {
     render(<Rulebook />);
-    // Reorganization (owner, 2026-11-20): "How MeningoVax decides", then the
-    // nine parts, each its own fold. No numbers.
-    const h2 = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent.replace(/(Show|Hide)$/, ''));
-    expect(h2).toEqual(['How MeningoVax decides', ...Object.values(HEADINGS)]);
+    // Steps hold their sections (owner, 2026-11-21): "How MeningoVax decides"
+    // holds the six steps, in the order the app decides; then the Reference folds.
+    const h2 = screen.getAllByRole('heading', { level: 2 }).map((h) => h.querySelector('.rb-fold-label').textContent);
+    expect(h2).toEqual(['How MeningoVax decides', HEADINGS.decisions, HEADINGS.sources]);
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }));
+    const h3 = [...document.querySelectorAll('.rb-step-h .rb-fold-label')].map((h) => h.textContent);
+    expect(h3).toEqual(PATH_STEPS.map((s) => s.title));
+    expect([...h3, HEADINGS.decisions, HEADINGS.sources]).toEqual(Object.values(HEADINGS));
   });
 
   it('a Source button opens the quoted sentence, and a decision opens its three parts', () => {
     render(<Rulebook />);
     fireEvent.click(screen.getByRole('button', { name: /^MeningoVax decisions/ }));   // a decision's three parts
-    fireEvent.click(screen.getByRole('button', { name: /^MenACWY (Show|Hide)$/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^How MeningoVax decides/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^MenACWY schedule/ }));
     const src = screen.getAllByRole('button', { name: 'Source' })[0];
     fireEvent.click(src);
     expect(src.getAttribute('aria-expanded')).toBe('true');

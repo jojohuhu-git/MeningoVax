@@ -21,18 +21,18 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 197 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| Test files, total | 198 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
 | — in `src/logic/__tests__/` (engine, `node` env) | 130 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
-| — in `src/components/__tests__/` (screen) | 63 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 64 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
-| — of the components ones, opted into `happy-dom` | 62 (the 63rd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 63 (the 64th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
 
 **Not guarded by a test** — re-run the command if you need a current number,
 rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,369 | `npm test`, 2026-11-20, Rulebook reorganization |
+| Individual `it()` tests, total | 2,386 | `npm test`, 2026-11-21, steps hold their sections |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -82,6 +82,7 @@ for finding the right one:
 | [`regression-2026-11-19-rulebook-screen-matches-the-engine.test.jsx`](../../src/components/__tests__/regression-2026-11-19-rulebook-screen-matches-the-engine.test.jsx) | The in-app Rulebook screen (`src/data/rulebookPage.js`, `src/components/Rulebook.jsx`) saying something the app does not do: every worked patient (more than 50) is run through `recommend()` and must get the card, status, due date, combined-shot answer and dose label the page states; a row with no worked patient; a label in the key that is not its patient's real chip; a number typed into the page text or the component instead of read from the engine's constants; a risk condition or product the app offers missing from the page; the header switch losing the patient. PneumoVax's C14 guard, brought here. Port Phase 7.2 (Q11), 2026-11-19. |
 | [`regression-2026-11-20-rulebook-reorganization.test.jsx`](../../src/components/__tests__/regression-2026-11-20-rulebook-reorganization.test.jsx) | The Rulebook reorganization (owner, 2026-11-20) coming undone: a fold open when the screen opens, or a part out of order; a step whose link does not open its part; Quick look, the age lines, the risk-group table or the "Counts as" column coming back; a group table with chips or other tints than blue (shared decision) and amber (wait); a schedule not in Dose \| Routine \| Minimum interval form, or its Minimum interval column not shaded; the MenB "If dose 3 was early" table, the General rules / Special cases split, the "Sooner counts, but a dose is added" list or the grouped Sources (no count, no read date) changing. Replaces the review v10 D1 test (Quick look and the step panels were removed on purpose). |
 | [`regression-2026-11-20-review-v10-batch5-rulebook-wording.test.jsx`](../../src/components/__tests__/regression-2026-11-20-review-v10-batch5-rulebook-wording.test.jsx) | The Rulebook screen drifting from the owner's approved R-item wording (review v10, R1–R104), and the MenB high-risk list in R59 falling out of step with the app's own list. 2026-11-20. |
+| [`regression-2026-11-21-rulebook-steps-hold-their-sections.test.jsx`](../../src/components/__tests__/regression-2026-11-21-rulebook-steps-hold-their-sections.test.jsx) | "Steps hold their sections" (owner, 2026-11-21) coming undone: a fold open when the screen opens; a step 7 "The cards" coming back; a section outside its step (the vaccines, label key and "does not count" under Read the record; minimum intervals under Set the dates); "More than one condition" not split by vaccine; "Applies in" naming an old part; "Show all" not opening every fold (the decisions list's own folds included) or "Hide all" not closing them. |
 | [`rule-docs-match-code.test.js`](../../src/logic/__tests__/rule-docs-match-code.test.js) | `clinical-rules.md` / `meningococcal-rules-summary.md` describing a rule the code no longer implements — reads the real value out of the code and requires the doc to state it. |
 | [`regression-p2-1-intervals-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-1-intervals-in-one-place.test.js) | An interval (dose spacing) value hand-typed a second time somewhere instead of imported from `intervals.js`. |
 | [`regression-p2-3-ages-in-one-place.test.js`](../../src/logic/__tests__/regression-p2-3-ages-in-one-place.test.js) | Same, for age thresholds — imported from the age-threshold source instead of retyped. |

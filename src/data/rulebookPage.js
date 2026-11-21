@@ -359,18 +359,19 @@ const PENMENVY = brandIn(PENTAVALENT_BRANDS, FAMILY_4C);
 const PENBRAYA = brandIn(PENTAVALENT_BRANDS, FAMILY_FHBP);
 
 /**
- * The parts of the page, in the order the app decides. Each is one fold,
- * closed when the screen opens (owner, Rulebook reorganization item 3 and the
- * fold default, 2026-11-20: "All nine closed").
+ * The folds of the page. The six steps of "How MeningoVax decides", in the
+ * order the app decides, each holding its own section; then the Reference
+ * folds. Every fold is closed when the screen opens; "Show all" opens them all
+ * (owner, 2026-11-21, "Steps hold their sections", replacing the nine
+ * separate parts of 2026-11-20). PATH_STEPS takes its titles from here.
  */
 export const HEADINGS = {
   stop: 'Stop check',
-  vaccines: 'The vaccines',
-  acwy: 'MenACWY',
-  menb: 'MenB',
-  multi: 'More than one condition',
-  penta: 'The combined shot (MenABCWY)',
-  record: 'Doses on the record',
+  record: 'Read the record',
+  acwy: 'MenACWY schedule',
+  menb: 'MenB schedule',
+  dates: 'Set the dates',
+  penta: 'Combined shot (MenABCWY)',
   decisions: 'MeningoVax decisions',
   sources: 'Sources',
 };
@@ -791,6 +792,20 @@ export const RISK_RANKING = {
   ],
 };
 
+/**
+ * "More than one condition", split by vaccine (owner, 2026-11-21): the MenACWY
+ * rows sit under the MenACWY step and the MenB rows under the MenB step. The
+ * row's label drops its "MenACWY: " or "MenB: " prefix, since the step names
+ * the vaccine.
+ */
+export function riskRankingFor(vaccine) {
+  const prefix = `${vaccine}: `;
+  return RISK_RANKING.steps.filter((s) => s.name.startsWith(prefix)).map((s) => {
+    const rest = s.name.slice(prefix.length);
+    return { ...s, name: rest.charAt(0).toUpperCase() + rest.slice(1) };
+  });
+}
+
 // ── The combined shot ────────────────────────────────────────────────────
 export const PENTA_ROWS = [
   { text: `Offered when MenACWY is due today, MenB is due or can be given today, and the patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.healthy16, P.menbAsp9] },
@@ -856,17 +871,18 @@ export const NOT_COUNTED = {
   ],
 };
 
-/** Which parts of the page name each decision (for "Applies in"). */
+/** Which steps of the page name each decision (for "Applies in"). */
 export const DECISION_USES = Object.fromEntries(DECISIONS.map((d) => [d.key, [
   [TRANSPLANT_STOP, HEADINGS.stop],
-  ...VACCINE_ROWS.flatMap((g) => g.rows).map((r) => [r, HEADINGS.vaccines]),
+  ...VACCINE_ROWS.flatMap((g) => g.rows).map((r) => [r, HEADINGS.record]),
+  ...CHIP_LEGEND.map((r) => [r, HEADINGS.record]),
+  ...NOT_COUNTED.general.map((r) => [r, HEADINGS.record]), ...NOT_COUNTED.special.map((r) => [r, HEADINGS.record]),
   ...ACWY_GROUPS.rows.map((r) => [r, HEADINGS.acwy]), ...ACWY_HIGHRISK_TABLES.map((r) => [r, HEADINGS.acwy]),
+  ...riskRankingFor('MenACWY').map((r) => [r, HEADINGS.acwy]),
   ...MENB_GROUPS.rows.map((r) => [r, HEADINGS.menb]), ...MENB_HEALTHY.rows.map((r) => [r, HEADINGS.menb]),
   ...MENB_HIGHRISK.rows.map((r) => [r, HEADINGS.menb]), ...MENB_DOSE3_EARLY.rows.map((r) => [r, HEADINGS.menb]),
-  ...RISK_RANKING.steps.map((r) => [r, HEADINGS.multi]),
-  ...CHIP_LEGEND.map((r) => [r, HEADINGS.record]), [GRACE, HEADINGS.record],
-  ...INTERVALS.map((r) => [r, HEADINGS.record]),
-  ...NOT_COUNTED.general.map((r) => [r, HEADINGS.record]), ...NOT_COUNTED.special.map((r) => [r, HEADINGS.record]),
+  ...riskRankingFor('MenB').map((r) => [r, HEADINGS.menb]),
+  [GRACE, HEADINGS.dates], ...INTERVALS.map((r) => [r, HEADINGS.dates]),
 ].filter(([r]) => decisionsOf(r).includes(d.key)).map(([, where]) => where).filter((w, i, a) => a.indexOf(w) === i)]));
 
 // ── Sources (item 10: grouped, no count or read date on screen) ──────────
@@ -899,29 +915,27 @@ for (const d of SOURCE_DOCS) {
   SOURCE_GROUPS[SOURCE_GROUP_RULES.findIndex(([, fits]) => fits(d.url))].docs.push(d);
 }
 
-// ── How MeningoVax decides (item 2): one fold, seven one-sentence steps ──
-// Each step links to its part of the page. The per-step panels are gone (they
-// repeated the parts). Every step still carries worked patients the guard runs.
+// ── How MeningoVax decides: one fold, six one-sentence steps ─────────────
+// Each step is its own fold and holds its section of the page (owner,
+// 2026-11-21). Step 7, "The cards", was dropped: it had no section of its own.
+// Every step still carries worked patients the guard runs.
 export const PATH_STEPS = [
-  { key: 'stop', title: 'Stop check', to: 'stop',
+  { key: 'stop', title: HEADINGS.stop,
     sum: 'A transplant, CAR-T therapy or B-cell therapy stops the app.',
     ex: [P.transplant, P.healthy11] },
-  { key: 'record', title: 'Read the record', to: 'record',
+  { key: 'record', title: HEADINGS.record,
     sum: 'Each recorded dose is checked and given one label.',
     ex: [P.undated, P.future, P.duplicate, P.unknown6wk, P.acwyTooSoon, P.wrongFamily, P.doNotRepeat, P.healthy13pre10, P.menbPre16, P.extraAcwy, P.riskAsk, P.healthy17done, P.boosterChip] },
-  { key: 'acwy', title: 'MenACWY schedule', to: 'acwy',
+  { key: 'acwy', title: HEADINGS.acwy,
     sum: 'The patient\'s risk group determines the doses and the boosters.',
     ex: [P.asp2m, P.asp9m, P.asp3y, P.travel5, P.micro30, P.military25, P.outbreakA20, P.college18, P.healthy11, P.healthy16] },
-  { key: 'menb', title: 'MenB schedule', to: 'menb',
+  { key: 'menb', title: HEADINGS.menb,
     sum: `High-risk patients start MenB at ${AT10}, and healthy patients aged ${MENB_WINDOW} may choose it.`,
     ex: [P.menbAsp9, P.menbAsp12, P.menbHealthy17, P.menbHealthy12, P.healthy25] },
-  { key: 'dates', title: 'Set the dates', to: 'record',
+  { key: 'dates', title: HEADINGS.dates,
     sum: 'The card shows the routine date, and the earliest valid date when it is sooner.',
     ex: [P.earliestInfant, P.earliestMenb, P.acwyTooSoon] },
-  { key: 'penta', title: 'Combined shot (MenABCWY)', to: 'penta',
+  { key: 'penta', title: HEADINGS.penta,
     sum: `${PENMENVY} or ${PENBRAYA} replaces two injections when both vaccines are due.`,
     ex: [P.healthy16, P.pentaFamily, P.menbAsp9, P.pentaRecent, P.pentaWaits] },
-  { key: 'cards', title: 'The cards', to: 'record',
-    sum: 'This is what the Patient screen shows.',
-    ex: [P.healthy11, P.healthy17done, P.healthy16, P.boosterChip] },
 ];
