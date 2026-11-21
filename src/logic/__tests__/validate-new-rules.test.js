@@ -297,9 +297,9 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
     expect(results[0].status).toBe('valid');     // D1: no brand, but has date + age ≥10y → valid
     expect(results[1].status).toBe('valid');     // D2: Bexsero, fine
     expect(results[2].status).toBe('invalid');  // D3: family mismatch
-    expect(results[2].whys.join(' ')).toMatch(/not interchangeable/i);
-    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/)   // P54 (review v10);
-    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/)   // P54 (review v10);
+    expect(results[2].whys ?? []).toEqual([]);   // L3 (review v10)
+    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/);   // P54 (review v10)
+    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/);   // P54 (review v10)
   });
 
   it('[unknown] → Trumenba → Bexsero: Bexsero is invalid (Trumenba established the FHbp lock)', () => {
@@ -312,7 +312,7 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
       { date: d3, brand: 'Bexsero (MenB)' },
     ], 240);
     expect(results[2].status).toBe('invalid');
-    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/)   // P54 (review v10);
+    expect(results[2].reasons[0]).toMatch(/\((Trumenba|Bexsero)\)/);   // P54 (review v10)
   });
 
   it('[known] → [unknown] → mismatch: known D1 sets lock, D3 mismatch is still caught', () => {
@@ -329,7 +329,7 @@ describe('Task 4 — MenB family lock: anchor on first KEPT dose with known bran
     ], 240);
     expect(results[1].status).not.toBe('invalid'); // D2 unknown brand is fine
     expect(results[2].status).toBe('invalid');     // D3 mismatch caught
-    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/)   // P54 (review v10);
+    expect(results[2].reasons[0]).toMatch(/\(Bexsero\)/);   // P54 (review v10)
   });
 
   it('All three doses unknown brand → no family-mismatch error (cannot infer family)', () => {
@@ -502,7 +502,7 @@ describe('Regression — existing valid behaviors unchanged', () => {
       { date: monthsAgo(1), brand: 'Trumenba (MenB)' },
     ], 240);
     expect(results[1].status).toBe('invalid');
-    expect(results[1].whys.join(' ')).toMatch(/not interchangeable/i);
+    expect(results[1].whys ?? []).toEqual([]);   // L3 (review v10)
   });
 
   it('analyzeHistory effective count is still correct with renumbering', () => {

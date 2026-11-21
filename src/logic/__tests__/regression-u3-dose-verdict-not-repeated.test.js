@@ -67,7 +67,7 @@ describe('U3 · a counted dose states only what is true of THAT dose', () => {
     expect(ages[2]).toMatch(/6 months/);
     expect(ages[3]).toMatch(/13 months/);
     // Still says WHY the dose counts, just not at four times the length.
-    for (const a of ages) expect(a).toMatch(/high-risk at the time/i)   // P63 (review v10);
+    for (const a of ages) expect(a).toMatch(/high-risk at the time/i);   // P63 (review v10)
   });
 
   it('the whole recorded-doses block shrinks by more than half', () => {

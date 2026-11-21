@@ -46,7 +46,7 @@ describe('Review v10 Batch 2d: combined shot, brand line, disclaimer', () => {
     const d = c.querySelector('.disclaimer');
     expect(flat(d)).toContain('Clinical decision support, not a substitute for clinical judgment. Check recommendations against current ACIP/CDC schedules. '
       + 'Each recommendation cites its source. Ages and intervals follow ACIP, which can differ from FDA labeling.');
-    fireEvent.click(screen.getByTestId('disclaimer-toggle'));
-    expect(flat(screen.getByTestId('disclaimer-more')).trim()).toBe('The app records current risk only. When an earlier dose depends on the risk on its date, a "Needs input" question asks.');
+    // P72's sentence moved under the "Needs input" question in Batch 4 (L7); see the placement test.
+    expect(screen.queryByTestId('disclaimer-toggle')).toBeNull();
   });
 });

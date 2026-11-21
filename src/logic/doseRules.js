@@ -387,8 +387,6 @@ export const MENB_LICENSED_FROM_10_WHY =
   'MenB vaccines (Bexsero, Trumenba, Penbraya, Penmenvy) are licensed from age 10 years.';
 export const MENB_WANES_BEFORE_16_WHY =
   'MenB antibody protection wanes within 1–2 years, so a dose before 16 does not count without a high-risk indication.';
-const MENB_NOT_INTERCHANGEABLE_WHY =
-  'MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.';
 const MENB_HR_BOOSTER_CADENCE_WHY = 'High-risk MenB boosters are given every 2–3 years.';
 const ACWY_BEFORE_16_SAFE_WHY = 'A MenACWY dose before 16 is safe, but it is not the routine booster.';
 
@@ -979,15 +977,12 @@ export const DOSE_RULES = [
         : tooSoon
           ? `Minimum interval not met (${fmtDays(interval)}, ${required(fmtDays(interval), `${weeks} weeks`)}).`
           : `Minimum age not met (${ageAt}, 12 months required).`;
-      const requirement = gate.isFinalPrimary
-        ? `CDC requires the dose that completes an infant series to be at least ${weeks} weeks after the previous dose and after age 12 months.`
-        : `CDC requires at least ${weeks} weeks between the early doses of an infant series.`;
+      // L3 (review v10): CDC's requirement sentence repeated the line; the numbers stay in the detail.
       return {
         ...invalidResult(
           [line],
           `Interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`
         ),
-        whys: [requirement],
       };
     },
   },
@@ -1228,7 +1223,6 @@ export const DOSE_RULES = [
           `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`,
           [cite('menbLicensedAge1025')]
         ),
-        whys: [MENB_LICENSED_FROM_10_WHY],
       };
     },
   },
@@ -1314,7 +1308,6 @@ export const DOSE_RULES = [
           `Age at administration: ${aboutAgeAt(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
           [cite('menbLicensedAge1025')]
         ),
-        whys: [MENB_LICENSED_FROM_10_WHY],
       };
     },
   },
@@ -1462,9 +1455,8 @@ export const DOSE_RULES = [
         establishedFamily: d1Family,
         ...invalidResult(
           [`Not interchangeable with the first MenB dose (${MENB_BRAND_BY_FAMILY[d1Family] ?? `MenB-${d1Family}`}).`],   // P54 (review v10)
-          `Established family: ${d1Family} (from ${firstKeptWithBrand.brand}). This dose: ${ctx.brand} (family: ${thisFamily}). Give the repeat in the ${d1Family} family.`
         ),
-        whys: [MENB_NOT_INTERCHANGEABLE_WHY],
+        // L3 (review v10, owner 2026-11-20): no "Why this": it only repeated the line.
       });
     },
   },

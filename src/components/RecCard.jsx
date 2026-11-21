@@ -218,6 +218,11 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
             <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('no'); setEditing(false); }}>No</button>
             <button type="button" className="btn btn-outline btn-small" onClick={() => { onAnswer?.('unsure'); setEditing(false); }}>Not sure</button>
           </div>
+          {/* L7 (review v10, owner 2026-11-20): beside the question it explains,
+              only when the question appears (it was behind "About risk history"). */}
+          <div className="risk-at-dose-note" data-testid="risk-at-dose-note">
+            The app records current risk only. When an earlier dose depends on the risk on its date, this question asks.
+          </div>
         </div>
       </div>
     );
@@ -302,7 +307,10 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
 // `detail` takes the rest. The card's citation numbers are seeded from the
 // whole list by cardCiteNumberer, so a source keeps the same [N] whether the
 // disclosure happens to be open or shut.
-export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note' }) {
+// L4 (review v10, owner 2026-11-20): `whyFirst` puts "Why this" right under the
+// card title, and the lines that stay in view (another product, an earliest
+// date) after it.
+export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note', whyFirst = false }) {
   // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
   const openAll = useContext(OpenAllDisclosures);
   const [open, setOpen] = useState(openAll);
@@ -316,13 +324,14 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
   // "Why this".
   const hasSources = citations && citations.length > 0;
   const toggleLabel = detail ? 'Why this' : 'Sources';
+  const leadBlock = lead && (
+    <div className="rec-note-lead">
+      {renderNoteWithCites(lead, noteCites.slice(0, leadCiteCount), numberFor)}
+    </div>
+  );
   return (
     <div className={className}>
-      {lead && (
-        <div className="rec-note-lead">
-          {renderNoteWithCites(lead, noteCites.slice(0, leadCiteCount), numberFor)}
-        </div>
-      )}
+      {!whyFirst && leadBlock}
       {(detail || hasSources) && (
         <>
           <button
@@ -357,6 +366,7 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
           )}
         </>
       )}
+      {whyFirst && leadBlock}
     </div>
   );
 }
@@ -410,7 +420,7 @@ function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumb
         consumed += markers;
         return (
           <span key={i} className="dose-val-reason">
-            {cites && cites.length ? renderNoteWithCites(r, cites, numberFor) : r}
+            {i > 0 ? ' ' : ''}{cites && cites.length ? renderNoteWithCites(r, cites, numberFor) : r}
           </span>
         );
       })}
@@ -538,6 +548,13 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           <div className="rec-dose-label">{doseLabel}</div>
         )}
 
+        {/* L4 (review v10): on a card that is open by default, "Why this" sits
+            right under the title it explains. A card shut by default keeps its
+            note whole at the bottom, as before. */}
+        {!collapsible && !pending && (note || citations?.length > 0) && (
+          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} whyFirst />
+        )}
+
         {brands && brands.length > 0 && !isNeutral && !pending && (
           <div className="rec-brands">
             {/* P70 (review v10): one brand is a statement, not a choice. */}
@@ -613,7 +630,7 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {(note || citations?.length > 0) && (
+        {(collapsible || pending) && (note || citations?.length > 0) && (
           <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} />
         )}
       </div>

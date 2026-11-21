@@ -144,8 +144,8 @@ describe('MenB — dose before age 10', () => {
     const results = validate('MenB', [{ date: monthsAgo(132), brand: 'Bexsero (MenB)' }], 240);
     expect(results[0].status).toBe('invalid');
     expect(results[0].reasons[0]).toMatch(/^Minimum age not met \(10 years for/);
-    // G1-b (2026-11-18): the licensing background sits behind the dose's "Why this".
-    expect(results[0].whys).toEqual([expect.stringMatching(/licensed from age 10 years/)]);
+    // L3 (review v10): the licensing sentence repeated the line, so it is gone; the age numbers stay.
+    expect(results[0].whys ?? []).toEqual([]);
   });
 
   it('MenB dose at 10y 3 months (123 mo) → valid (above minimum)', () => {
@@ -170,9 +170,9 @@ describe('MenB — antigen-family mismatch', () => {
     expect(results[0].status).toBe('valid');
     expect(results[1].status).toBe('invalid');
     // G1-a: answer first; "not interchangeable" is behind "Why this".
-    expect(results[1].reasons[0]).toMatch(/\(Bexsero\)/)   // P54 (review v10);
-    expect(results[1].whys.join(' ')).toMatch(/not interchangeable/i);
-    expect(results[1].reasons[0]).not.toMatch(/MenB-4C|MenB-FHbp/)   // extinct: antigen-family names on the dose line, retired by P54 (review v10), 2026-11-20;
+    expect(results[1].reasons[0]).toMatch(/\(Bexsero\)/);   // P54 (review v10)
+    expect(results[1].whys ?? []).toEqual([]);   // L3 (review v10)
+    expect(results[1].reasons[0]).not.toMatch(/MenB-4C|MenB-FHbp/);   // extinct: antigen-family names on the dose line, retired by P54 (review v10), 2026-11-20
   });
 
   it('D1 Trumenba, D2 Penbraya → both valid (same FHbp family, pentavalent allowed)', () => {

@@ -47,7 +47,7 @@ describe('U3 · the recorded-doses block on a four-dose series', () => {
 
   it('still says, on each row, that high risk was confirmed and when', () => {
     const { container } = showCard();
-    const confirmations = container.textContent.match(/high-risk at the time \(age [^)]+\)/gi)   // P63 (review v10) || [];
+    const confirmations = container.textContent.match(/high-risk at the time \(age [^)]+\)/gi);   // P63 (review v10) || []
     expect(confirmations).toHaveLength(4);
     // The ages are what differ between rows -- and they are all still there.
     expect(new Set(confirmations).size).toBe(4);

@@ -362,3 +362,14 @@ link. A lead that stays in view, or a card shut by default, still needs a detail
 Also in Batch 2b: the Q10 "stay in view" list (`noteFold.js`) matched three sentences by their old
 wording (P34, P35, P36). Its patterns now match the approved wording, so those lines still show on
 the card. This changes no owner decision.
+
+## Later the same day: Batch 4 placement, shown first (owner, in chat)
+
+The owner asked to see Batch 4 before it was built ("show me first"); a before/after drawing of
+L1–L7 was shown in chat. Answers: **L5 option A**, a repeat due today reads "Repeat today." on
+the dose line (no new line on the card); **L1–L4, L6, L7 "Build as shown"**. As drawn: every dose
+label at the right of its row, the reason as one line beneath (L1, L2); a dose's "Why this" only
+when it adds numbers (L3; the wrong-product dose has none); the card's "Why this" right under its
+title, then the other-product line, then brands and the record (L4); a traveller's "Why this"
+explains only this patient (L6); the risk-history sentence under the "Needs input" question,
+reading "…this question asks." (L7), and no "About risk history" link in the disclaimer.

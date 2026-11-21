@@ -122,7 +122,8 @@ describe('MenB family mismatch → invalid, does not count', () => {
     expect(perDose[1].doesNotCount).toBe(true);
     // G1-a: the line names the families; "not interchangeable" is behind "Why this".
     expect(perDose[1].reasons.some(r => /Not interchangeable with the first MenB dose \(Bexsero\)/.test(r))).toBe(true);
-    expect(perDose[1].whys.some(r => /not interchangeable/i.test(r))).toBe(true);
+    // L3 (review v10): no "Why this" on a wrong-product dose: it only repeated the line.
+    expect(perDose[1].whys ?? []).toEqual([]);
     // G1-a: "does not count" is the chip's ("Not counted — repeat"); the line
     // says how to repeat it.
     expect(perDose[1].reasons.some(r => /Do not restart\./.test(r))).toBe(true);
@@ -253,7 +254,7 @@ describe('MenB high-risk: D3 given early', () => {
     expect(perDose[1].status).toBe('valid');
     expect(perDose[2].status).toBe('valid');
     expect(perDose[2].doesNotCount).toBeFalsy();
-    expect(perDose[2].reasons.join(' ')).toMatch(/Dose 4 is due/i)   // P59 (review v10);
+    expect(perDose[2].reasons.join(' ')).toMatch(/Dose 4 is due/i);   // P59 (review v10)
 
     // All three doses count.
     expect(effective).toHaveLength(3);

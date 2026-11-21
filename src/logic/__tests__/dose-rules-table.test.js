@@ -218,7 +218,7 @@ describe('3 · what a row says happens is what happens, to every dose it decided
     floor: (v) => v.status === 'invalid' && v.doesNotCount === true && !v.recordProblem
       && (v.tooSoonBooster
         ? !v.reasons.includes(REPEAT_SENTENCE)
-          && (v.reasons.length === 1 || /^Repeat(ed on| from| with \S+ from) [A-Z][a-z]{2} \d{1,2}, \d{4}\./.test(v.reasons.at(-1)))
+          && (v.reasons.length === 1 || /^Repeat( with \S+)? today\.$|^Repeat(ed on| from| with \S+ from) [A-Z][a-z]{2} \d{1,2}, \d{4}\./.test(v.reasons.at(-1)))
         : v.notRepeated
         ? !v.reasons.includes(REPEAT_SENTENCE)
         : v.repeatedOn
@@ -226,7 +226,7 @@ describe('3 · what a row says happens is what happens, to every dose it decided
           // G1-a: the "when" now sits BEFORE the repeat sentence (answer first).
           : (v.reasons.at(-1) === REPEAT_SENTENCE
             && (v.reasons.length === 1
-              || /^Repeat (with \S+ )?from [A-Z][a-z]{2} \d{1,2}, \d{4}\.$/.test(v.reasons.at(-2))
+              || /^Repeat (with \S+ )?(today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\.$/.test(v.reasons.at(-2))
               || [REPEAT_LATER_R_A, REPEAT_LATER_R_B].includes(v.reasons.at(-2))
               || !/^Repeat/.test(v.reasons.at(-2))))),
     'set-aside': (v) => v.notAdolescentCount === true && v.effectiveDoseNum === null

@@ -7,7 +7,7 @@ owner is a clinician: plain English, ask, don't default. **Supersedes**
 
 Branch: `port/review-v10-wording`, off `origin/main` `8b51c38` (PR #123 merged). **Pushed; PR #124
 open against `main`** (https://github.com/jojohuhu-git/MeningoVax/pull/124), waiting for the owner.
-Suite **2,316 passed / 192 files**, all green (run 2026-11-20 after Batch 3; baseline was 2,267 / 186).
+Suite **2,322 passed / 193 files**, all green (run 2026-11-20 after Batch 4; baseline was 2,267 / 186).
 Working tree clean.
 
 ## The source of truth for this queue
@@ -39,7 +39,6 @@ Working tree clean.
 
 ## What's NOT done — the remaining queue (all approved; build in this order)
 
-- **4**: placement **L1–L7** (`RecCard.jsx`, `Results.jsx`, the dose history).
 - **5**: the Rulebook redesign **D1** plus the Rulebook wording **R items** (`rulebookPage.js`,
   `Rulebook.jsx`). **Ask first:** does the redesigned top (seven steps, two Quick look tables)
   replace today's numbered sections 1–8, or sit above them with the reworded R items? The
@@ -83,6 +82,17 @@ Working tree clean.
    outbreak boosters); it now takes both, with a test. Prose: 9,075 changed (6,627 real), 19 groups;
    0 answers moved. Suite **2,316 / 192**. Live-checked.
 
+8. **Batch 4, L1–L7**: shown to the owner first as a before/after drawing, then "Build as shown";
+   L5 option A. Dose rows: label at the right (also when it wraps on a phone), reason one line
+   (`App.css` `.dose-val { display: contents }`); dose "Why this" drops the three sentences that
+   repeated the line (wrong-product, licensed-from-10, infant 8-week); card "Why this" under the
+   title then the stay-in-view lines (`RecNote whyFirst`); "Repeat today."; traveller notes explain
+   only this patient (microbiologist detail empty, U2); risk-history sentence under the "Needs
+   input" question, gone from the disclaimer. Prose: all pages (the move), 119 groups; 0 answers
+   moved. Suite **2,322 / 193**. Live-checked desktop and phone width.
+   **Design parity follow-up (design-review skill):** PneumoVax's dose rows and card layout were not
+   changed; ask the owner whether to mirror L1–L4/L7 there.
+
 ## Why this is a good stopping point
 
 Batches 1 and 2a are complete and pushed: test first, fix, full suite, wording count, live check.
@@ -92,7 +102,7 @@ What's left is independent, and Batch 5 needs one owner answer before it starts.
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git checkout port/review-v10-wording && git pull`
    (or branch from `origin/main` if #124 is merged).
-2. `npm test`: confirm **2,316 passed / 192 files**. `preview_start {name: "MeningoVax dev server"}`.
+2. `npm test`: confirm **2,322 passed / 193 files**. `preview_start {name: "MeningoVax dev server"}`.
 3. Per batch (fix-queue skill): `npm run prose -- dump <scratch>/before.txt` → failing test quoting
    the approved wording → fix (no semicolons) → update old tests that pin the old wording (a
    `not.toMatch` on retired text needs an `// extinct:` comment) → `npm test` → prose dump after

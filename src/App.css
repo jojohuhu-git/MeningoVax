@@ -1690,3 +1690,18 @@ body {
   /* The Patient | Rulebook switch needs the room: the steps get a line of their own. */
   .app-header-inner .stepper { order: 3; flex-basis: 100%; }
 }
+
+/* L1, L2 (review v10, owner 2026-11-20): every dose label sits at the right end
+   of its row, and the reason is one line underneath. `.dose-val` lets its chip,
+   Edit link and reasons join the row's own flex line. */
+.rec-progress-dose-row .dose-val { display: contents; }
+.rec-progress-dose-row .dose-val-reasons,
+.rec-progress-dose-row .risk-at-dose-prompt { flex-basis: 100%; }
+.rec-progress-dose-row .dose-val-reasons { display: block; }
+.rec-progress-dose-row .dose-val-reasons .dose-val-reason { display: inline; }
+.rec-progress-dose-row .dose-val-toggle { margin-left: var(--sp-8); }
+.rec-progress-dose-row .dose-val-why { display: block; margin-top: var(--sp-4); }
+/* L7: the risk-history sentence under the "Needs input" question. */
+.risk-at-dose-note { font-size: var(--fs-sm); color: var(--gy3); margin-top: var(--sp-4); }
+/* L1 on a narrow screen: a label that wraps under a long dose line stays at the right. */
+.rec-progress-dose-row .dose-val-chip { margin-left: auto; }

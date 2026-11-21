@@ -687,18 +687,20 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       // but the duplicate, so it now carries no note.
       note: exposureBoostYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
         ? {
-          lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)} after the primary dose [c].`,
-          detail: 'ACIP puts the first booster 3 years out when the primary dose was given before the 7th birthday, rather than the 5 years it allows from age 7.',
+          // L6 (review v10): explain only this patient; the general rule is in the Rulebook.
+          lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)} after dose 1 [c].`,
+          detail: 'This is because dose 1 was given before 7 years.',
         }
         : isFirstExposureBooster
           ? (isTravel
             ? {
-              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after the primary dose [c].`,
-              detail: 'ACIP puts the first booster 5 years out when the primary dose was given at age 7 or older. A dose given before then brings the first booster forward to 3 years.',
+              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after dose 1 [c].`,
+              detail: 'This is because dose 1 was given at 7 years or older.',
             }
             : {
-              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after the primary dose.`,
-              detail: 'ACIP gives microbiologists a flat 5-year booster interval with no shorter interval for young children — its table for this indication covers ages 10 years and older.',
+              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after dose 1.`,
+              // U2: the cadence is the booster line's; L6: nothing about other patients.
+              detail: '',
             })
           : null,
       noteCites: (isTravel && isFirstExposureBooster) ? [
@@ -2458,7 +2460,8 @@ function datedRepeatLines(history, cards, today) {
       }
       // P54 (review v10): a dose of the other MenB product repeats with the first one.
       const sameProduct = d.wrongFamily && MENB_PRODUCT_BY_FAMILY[d.establishedFamily];
-      const when = cardDate ? `Repeat ${sameProduct ? `with ${sameProduct} ` : ''}from ${fmtDate(cardDate)}.` : later?.line;
+      // L5 (review v10, owner option A): a repeat due today says "today", as the card's heading does.
+      const when = cardDate ? `Repeat ${sameProduct ? `with ${sameProduct} ` : ''}${cardDate === today ? 'today' : `from ${fmtDate(cardDate)}`}.` : later?.line;
       if (!when) return d;
       return { ...d, reasons: withWhen(d.reasons, when) };
     }),

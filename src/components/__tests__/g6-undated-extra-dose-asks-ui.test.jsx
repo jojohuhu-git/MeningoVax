@@ -49,7 +49,7 @@ describe('G6 (UI) under C1: undated rows say they are not counted, never "extra"
   it('says why, and that adding the date changes it', () => {
     const rows = rowsFor([newDoseRow({ detailsUnknown: true })]);
     expect(rows[0].textContent).toMatch(/Only dated records count/);
-    expect(rows[0].textContent).toMatch(/Add the date to check this dose/)   // P64 (review v10);
+    expect(rows[0].textContent).toMatch(/Add the date to check this dose/);   // P64 (review v10)
     // extinct: the undated 'counted' sentence was removed with STOP C C1, 2026-11-16.
     expect(rows[0].textContent).not.toMatch(/Dose is counted in the series/);
   });

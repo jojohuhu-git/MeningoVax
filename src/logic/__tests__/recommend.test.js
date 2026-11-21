@@ -165,7 +165,7 @@ describe('MenACWY single-dose indications', () => {
     const r = run({ ageMonths: 264, riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-06-03', ageMonths: 192 }] });
     expect(acwy(r).status).not.toBe('complete');
     expect(acwy(r).dueToday).toBe(true);
-    expect(noteText(acwy(r)) || '').toMatch(/over 5 years ago/i)   // P50 (review v10);
+    expect(noteText(acwy(r)) || '').toMatch(/over 5 years ago/i);   // P50 (review v10)
   });
 
   it('college dorm with a dose at 16y exactly 5 years ago → complete', () => {

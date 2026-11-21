@@ -41,10 +41,10 @@ describe('F-4a: the repeat line gives the card\'s date', () => {
     expect(d.reasons.at(-2)).toBe('Repeat from Dec 17, 2026.'); // G1-a: the when comes first
   });
 
-  it('a repeat due today reads today\'s date', () => {
+  it('a repeat due today reads "Repeat today." (L5, review v10)', () => {
     const r = run(q('2026-08-01', '2026-08-22'));
     expect(r.menacwy[0].dueToday).toBe(true);
-    expect(lineOf(r, 1).reasons.at(-2)).toBe('Repeat from Nov 18, 2026.'); // G1-a: the when comes first
+    expect(lineOf(r, 1).reasons.at(-2)).toBe('Repeat today.'); // G1-a: the when comes first; L5 (review v10)
   });
 
   it('a card with no date leaves the line as it was (pregnancy: deferred)', () => {

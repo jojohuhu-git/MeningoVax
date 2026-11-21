@@ -83,7 +83,7 @@ describe('MenB dose-3 rescue: an early high-risk dose 3 counts and adds a 4th do
 
   it('the clinician is told why a fourth dose is now owed', () => {
     const v = verdicts(EARLY_D3);
-    expect(v[2].reasons.join(' ')).toMatch(/Dose 4 is due/i)   // P59 (review v10);
+    expect(v[2].reasons.join(' ')).toMatch(/Dose 4 is due/i);   // P59 (review v10)
     expect(v[2].reasons.join(' ')).toMatch(/Dose 4 is due ≥4 months later/i);
   });
 

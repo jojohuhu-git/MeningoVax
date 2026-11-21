@@ -65,7 +65,7 @@ describe('R-A: high-risk child under 10, MenB given too young', () => {
     const r = run({ dob: '2015-11-01', riskIds: ['complement'], b: [bex('2025-01-01')] });
     const d = r.history.MenB.perDose[0];
     expect(d.status).toBe('invalid');
-    expect(d.reasons.at(-2)).toBe('Repeat from Nov 18, 2026.'); // G1-a: the when comes first
+    expect(d.reasons.at(-2)).toBe('Repeat today.'); // G1-a: the when comes first; L5 (review v10)
     expect(d.reasons).not.toContain(R_A);
   });
 });

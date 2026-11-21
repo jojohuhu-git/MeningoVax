@@ -25,10 +25,10 @@ describe('M9 (UI): the travel booster card names the real interval', () => {
     // Q10 fold (owner, 2026-11-19): the heading above names the 3 years; the
     // sentence that repeats it, and WHY it is 3 years and not 5, are behind
     // "Why this".
-    expect(screen.queryByText(/first booster is due 3 years after the primary dose/)).toBeNull();
+    expect(screen.queryByText(/first booster is due 3 years after dose 1/)).toBeNull();
     openWhyThis();
-    expect(screen.getByText(/first booster is due 3 years after the primary dose/)).toBeTruthy();
-    expect(screen.getByText(/primary dose was given before the 7th birthday/)).toBeTruthy();
+    expect(screen.getByText(/first booster is due 3 years after dose 1/)).toBeTruthy();
+    expect(screen.getByText(/dose 1 was given before 7 years/)).toBeTruthy();
   });
 
   it('a traveler vaccinated at age 8 sees a 5-year first booster instead', () => {

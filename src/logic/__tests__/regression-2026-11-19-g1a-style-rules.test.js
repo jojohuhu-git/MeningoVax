@@ -107,7 +107,7 @@ describe('G1-a — every sentence beside a dose and on a card follows the style 
   // their words are read here and not only swept above (packet L3, L4, L5).
   it('L3: complement deficiency, Bexsero at 9 — the too-young line, as PneumoVax words it', () => {
     const r = recommend({ today: '2026-09-15', dob: '2016-03-01', riskIds: ['complement'], menacwyDoses: [], menbDoses: [{ date: '2025-03-15', brand: 'Bexsero (MenB)' }] });
-    expect(r.history.MenB.perDose[0].reasons[0]).toBe('Minimum age not met (10 years for Bexsero). [c]')   // P61 (review v10);
+    expect(r.history.MenB.perDose[0].reasons[0]).toBe('Minimum age not met (10 years for Bexsero). [c]');   // P61 (review v10)
   });
 
   it('L4: healthy baby, MenQuadfi at 5 months — the adolescent series still starts at 11–12', () => {

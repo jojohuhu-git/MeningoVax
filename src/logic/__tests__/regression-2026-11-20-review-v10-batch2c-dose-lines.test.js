@@ -29,7 +29,7 @@ describe('Review v10 Batch 2c: the line under each recorded dose', () => {
   it('P53: minimum interval not met, repeat, do not restart', () => {
     const r = run({ dob: '2021-06-01', riskIds: ['asplenia'], menacwyDoses: [MV('2026-09-01'), MV('2026-09-22')], riskAtDoseAnswers: { MenACWY: yes(2) } });
     const t = line(r, 'MenACWY', 1);
-    expect(t).toMatch(/^Minimum interval not met \(3 weeks, 8 required\)\. Repeat from [A-Z][a-z]{2} \d{1,2}, \d{4}\. Do not restart\.$/);
+    expect(t).toMatch(/^Minimum interval not met \(3 weeks, 8 required\)\. Repeat (today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\. Do not restart\.$/);
     // extinct: the three-part "under the 8-week minimum … Do not restart the series." wording.
     expect(t).not.toMatch(/under the 8-week minimum|restart the series/);
   });
@@ -37,7 +37,7 @@ describe('Review v10 Batch 2c: the line under each recorded dose', () => {
   it('P54: not interchangeable, repeat with the first product', () => {
     const r = run({ dob: '2009-06-01', menacwyDoses: [MV('2020-07-01'), MV('2025-07-01')], menbDoses: [BX('2026-01-05'), TR('2026-08-01')] });
     const t = line(r, 'MenB', 1);
-    expect(t).toMatch(/^Not interchangeable with the first MenB dose \(Bexsero\)\. Repeat with Bexsero from [A-Z][a-z]{2} \d{1,2}, \d{4}\. Do not restart\.$/);
+    expect(t).toMatch(/^Not interchangeable with the first MenB dose \(Bexsero\)\. Repeat with Bexsero (today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\. Do not restart\.$/);
     // extinct: antigen-family names on the dose line.
     expect(t).not.toMatch(/MenB-4C|MenB-FHbp/);
   });

@@ -29,7 +29,7 @@ describe('M11 — a pregnant patient at increased risk is told it is a judgement
     const r = menb(['pregnancy', 'asplenia']);
     expect(r.status).toBe('risk-based');              // still offered, not deferred
     expect(noteText(r)).toMatch(/Discuss the benefit and potential risk before giving it/i);
-    expect(noteText(r)).toMatch(/benefit and potential risk/i)   // P51 (review v10);
+    expect(noteText(r)).toMatch(/benefit and potential risk/i);   // P51 (review v10)
   });
 
   it('it applies to a later dose in the series too, not just dose 1', () => {

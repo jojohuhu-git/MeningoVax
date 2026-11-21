@@ -34,7 +34,7 @@ describe('Q10 worked patient: a card line that repeats its heading goes behind "
   it('before the fold the engine writes it as the in-view line', () => {
     const c = recommendBeforeFold(input).menacwy[0];
     expect(c.doseLabel).toBe('Dose 2 of 2 (high-risk primary series)');
-    expect(c.note.lead).toBe('Dose 2, at least 8 weeks after dose 1.')   // P45 (review v10);
+    expect(c.note.lead).toBe('Dose 2, at least 8 weeks after dose 1.');   // P45 (review v10)
   });
   it('after the fold nothing is in view under the heading; the line opens first in "Why this"', () => {
     const c = recommend(input).menacwy[0];
@@ -133,9 +133,9 @@ describe('Q10 on the screen: sources inside "Why this", disclaimer paragraph beh
   it('the disclaimer keeps its first half in view; the risk-history paragraph opens on "About risk history"', () => {
     draw();
     expect(screen.getByText(/not a substitute for clinical judgment/)).toBeTruthy();   // P71 (review v10)
+    // L7 (review v10): the risk-history sentence left the disclaimer for the "Needs input" question.
     expect(screen.queryByText(/records current risk only/)).toBeNull();
-    fireEvent.click(screen.getByTestId('disclaimer-toggle'));
-    expect(screen.getByTestId('disclaimer-more').textContent).toMatch(/The app records current risk only\./);   // P72 (review v10)
+    expect(screen.queryByTestId('disclaimer-toggle')).toBeNull();
   });
 
   it('a card with sources and no explanation titles its toggle "Sources" (PneumoVax, 2026-11-07)', () => {

@@ -179,7 +179,7 @@ describe('App wizard', () => {
     const separateLabel = screen.getByTestId('option-separate-label');
     const pentaLabel = screen.getByTestId('option-penta-label');
     expect(separateLabel.textContent).toMatch(/option 1.*two separate injections/i);
-    expect(pentaLabel.textContent).toMatch(/option 2.*MenABCWY/i)   // P67 (review v10);
+    expect(pentaLabel.textContent).toMatch(/option 2.*MenABCWY/i);   // P67 (review v10)
 
     // DOM order: separate-injections option comes before the pentavalent card.
     const position = separateLabel.compareDocumentPosition(pentaLabel);
@@ -232,7 +232,7 @@ describe('App wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
     const banner = screen.getByTestId('booster-due-banner');
-    expect(banner.textContent).toMatch(/Booster due/)   // P30 (review v10): "Booster due [date].";
+    expect(banner.textContent).toMatch(/Booster due/);   // P30 (review v10): "Booster due [date]."
   });
 
   // Item 2: a purely-future date is stated as a date, not a bare "Eligible
