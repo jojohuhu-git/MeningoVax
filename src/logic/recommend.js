@@ -1834,17 +1834,17 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       const e3 = invalidD3Date ? addCalendarMonths(invalidD3Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2) : null;
       const routineDate = [e1, e2, e3].filter(Boolean).sort().pop() ?? null;
       const earliestNextDate = elapsed ? null : routineDate;
-      // M1b/M1c: the earliest date the repeat would count, stated beside the
-      // routine date — 4 months after the invalid dose, or 6 months after
-      // dose 1, whichever is sooner, and never under the 4-week floor after a
-      // dose that did not count (MENB-REPEAT-GAP). The grace decides what is
-      // accepted, never what is advised (A13).
+      // M1b/M1c/M1d: the earliest date the repeat would count, stated beside
+      // the routine date — 4 months after the invalid dose (M1d, 2026-11-21:
+      // the 6-months-after-dose-1 "unless" decides only the first dose 3, so
+      // it never brings the repeat sooner), and never under the 4-week floor
+      // after a dose that did not count (MENB-REPEAT-GAP). The grace decides
+      // what is accepted, never what is advised (A13).
       let repeatClause = '';
       let repeatMin = null;
       if (invalidD3Date) {
-        const byD1 = e1 && e1 < e3;
-        repeatMin = byD1 ? e1 : e3;
-        let minWords = byD1 ? `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1` : `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose`;
+        repeatMin = e3;
+        let minWords = `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose`;
         if (repeatFloorDate && repeatFloorDate > repeatMin) {
           repeatMin = repeatFloorDate;
           minWords = `${weeksLabel(MENB_REPEAT_MIN_INTERVAL)} after the invalid dose`;
@@ -1862,7 +1862,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         ? {
           // M1 (owner, 2026-11-20): the repeat of a dose 3 that did not count.
           lead: `Repeat dose 3 at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose of ${fmtDate(invalidD3Date)}, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 [c].${repeatClause}`,
-          detail: `A repeat given at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 counts even if sooner than ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose.${menbPregnancyCaveat}`,
+          // M1d (owner, 2026-11-21): the old line here ("A repeat given at least
+          // 6 months after dose 1 counts even if sooner than 4 months after the
+          // invalid dose") is no longer true, and is gone.
+          detail: menbPregnancyCaveat.trim(),
         }
         : {
           lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,

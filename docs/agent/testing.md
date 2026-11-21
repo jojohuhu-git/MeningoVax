@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 202 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 132 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 203 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 133 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 66 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 4 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 65 (the 66th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,410 | `npm test`, 2026-11-21, summary line names MenB dose 2 |
+| Individual `it()` tests, total | 2,421 | `npm test`, 2026-11-21, M1d merged with MQ6 |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -90,6 +90,7 @@ for finding the right one:
 | [`regression-chip-label-one-copy.test.js`](../../src/components/__tests__/regression-chip-label-one-copy.test.js) | A second, hand-written copy of the dose-chip wording drifting from `doseChipLabel.js`'s real logic — this happened once already, on 20,167 swept rows. |
 | [`regression-2026-09-19-no-vacuous-negative-assertions.test.js`](../../src/logic/__tests__/regression-2026-09-19-no-vacuous-negative-assertions.test.js) | E4b — a "the app must never say X again" assertion going silently vacuous once nobody produces X for an unrelated reason (a reword, a refactor). Requires every un-annotated negative-assertion literal to still exist somewhere in `src/`; an `// extinct:` comment is the conscious opt-out for a fact that really was removed on purpose. |
 | [`regression-2026-11-21-stylesheet-has-no-broken-block.test.js`](../../src/logic/__tests__/regression-2026-11-21-stylesheet-has-no-broken-block.test.js) | A broken block in `App.css` (style lines with no name in front): the browser then throws away the next rule too, silently. Runs the build's own CSS check (esbuild) and fails on any warning. Found 2026-11-21: `.rb-who` was being dropped. |
+| [`regression-2026-11-21-menb-repeat-dose3-four-months-from-last.test.js`](../../src/logic/__tests__/regression-2026-11-21-menb-repeat-dose3-four-months-from-last.test.js) | A repeat of a high-risk MenB dose 3 that did not count, counted because it was 6 months after dose 1 (owner M1d, 2026-11-21: that "unless" decides only the first dose 3; the repeat counts only 4 months after the dose that did not count, ACIP mm7349a3). Bexsero Jan 1, Feb 1, Apr 1: due Aug 1, no "Can be given today" on Jul 15, a Jul 10 repeat not counted; the 4-day grace; Trumenba. Controls: the first dose 3's exception, and the Feb 15 case, unchanged. |
 | [`regression-2026-11-21-menquadfi-can-be-given-from-6-weeks.test.js`](../../src/logic/__tests__/regression-2026-11-21-menquadfi-can-be-given-from-6-weeks.test.js) | A high-risk, travel or outbreak baby of 6 weeks to under 2 months (date of birth known, no MenACWY yet) not offered MenQuadfi ("Can be given today", MenQuadfi only, dose 1 due at 2 months; owner 2026-11-21, AAP 2026). Edges: day 41 vs 42; a healthy baby, a 2-month-old and an age entered without a birth date unchanged. |
 | [`regression-2026-11-21-summary-line-names-menb-dose-2.test.jsx`](../../src/components/__tests__/regression-2026-11-21-summary-line-names-menb-dose-2.test.jsx) | A high-risk MenB dose 2 past its 4-week minimum, before its routine date ("Can be given today" on the card), under a summary line that said only "No MenACWY or MenB doses due today." It now adds "MenB dose 2 can be given today." (owner 2026-11-21). Controls: before the minimum, and dose 2 due, unchanged. |
 

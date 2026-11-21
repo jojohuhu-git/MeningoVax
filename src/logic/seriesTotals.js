@@ -332,18 +332,24 @@ export function menbHealthyDose2Early(d1Date, d2Date) {
  *
  *   M1 (owner, 2026-11-20): follow CDSI — a dose 3 that meets neither line
  *       does not count and is repeated (was: it counted and a 4th dose was owed).
- *   M1c (owner, 2026-11-20): the repeat is held to the same two lines, the
- *       4-month one measured from the dose that did not count ("the last dose").
- *       So `prevDate` is the last dose GIVEN: dose 2, or a dose 3 that did not count.
+ *   M1c (owner, 2026-11-20): the 4-month line of a repeat is measured from the
+ *       dose that did not count ("the last dose"). So `prevDate` is the last dose
+ *       GIVEN: dose 2, or a dose 3 that did not count.
+ *   M1d (owner, 2026-11-21, narrows M1c): the 6-months-after-dose-1 "unless"
+ *       decides only whether the FIRST dose 3 counts. A repeat (`isRepeat`, the
+ *       dose before it did not count) counts only 4 months after that dose.
+ *       CDSI's allowable interval would also count it 6 months after dose 1;
+ *       ACIP's sentence does not, and ACIP outranks CDSI.
  *   C7 / D3 (owner): the 4-day grace on both lines.
  *
  * The one copy of this test: the dose verdict (doseRules.js
- * MENB-HIGHRISK-EARLY-DOSE-3) and the card (recommend.js) both call it.
+ * MENB-HIGHRISK-EARLY-DOSE-3) calls it; the card (recommend.js) times the repeat
+ * from the same 4-month line.
  */
-export function menbHighRiskDose3Early(d1Date, prevDate, d3Date) {
+export function menbHighRiskDose3Early(d1Date, prevDate, d3Date, { isRepeat = false } = {}) {
   if (!prevDate || !d3Date) return false;
   if (calendarIntervalMeetsMinimum(prevDate, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3Date)) return false;
-  if (d1Date && calendarIntervalMeetsMinimum(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
+  if (!isRepeat && d1Date && calendarIntervalMeetsMinimum(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
   return true;
 }
 

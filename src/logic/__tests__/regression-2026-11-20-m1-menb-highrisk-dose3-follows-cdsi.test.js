@@ -15,8 +15,10 @@
 // M1b: the repeat's ROUTINE date is the latest of 4 months after the not-counted dose,
 //      4 months after dose 2 and 6 months after dose 1; the earliest valid date is
 //      stated beside it when sooner.
-// M1c: a repeat counts only if ≥4 months after the not-counted dose, or ≥6 months
-//      after dose 1 (both with the 4-day grace).
+// M1c: a repeat counts only if ≥4 months after the not-counted dose (with the 4-day
+//      grace). M1d (owner, 2026-11-21) removed "or ≥6 months after dose 1": that
+//      "unless" decides only the first dose 3. See
+//      regression-2026-11-21-menb-repeat-dose3-four-months-from-last.test.js.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
@@ -39,8 +41,9 @@ describe('M1: dose 3 under 4 months after dose 2 and under 6 months after dose 1
     expect(card(r).doseLabel).toMatch(/^Dose 3 of 3/);
     expect(card(r).seriesTotal).toBe(3);
     expect(card(r).earliestNextDate).toBe('2026-08-01');
-    // M1c: a repeat ≥6 months after dose 1 also counts, so Jul 1 is stated beside it.
-    expect(card(r).note.lead).toMatch(/Earliest valid date: Jul 1, 2026/);
+    // M1d (2026-11-21): 6 months after dose 1 no longer makes the repeat count,
+    // so no earlier date is stated beside Aug 1. (Was: "Earliest valid date: Jul 1".)
+    expect(card(r).note.lead).not.toMatch(/Earliest valid date/);
   });
 
   it('there is no 4-dose high-risk series any more', () => {
@@ -73,14 +76,15 @@ describe('M1b: the repeat\'s routine date is the latest of the three lines', () 
   });
 });
 
-describe('M1c: a repeat counts only ≥4 months after the not-counted dose, or ≥6 months after dose 1', () => {
-  it('Jan 1, Jan 29, Mar 1, Jun 1: Jun 1 is not counted either; next due Oct 1, earliest valid Jul 1', () => {
+describe('M1c/M1d: a repeat counts only ≥4 months after the not-counted dose', () => {
+  it('Jan 1, Jan 29, Mar 1, Jun 1: Jun 1 is not counted either; next due Oct 1, no earlier date', () => {
     const r = run([B('2026-01-01'), B('2026-01-29'), B('2026-03-01'), B('2026-06-01')], '2026-06-05');
     expect(r.history.MenB.perDose.map((p) => p.status)).toEqual(['valid', 'valid', 'invalid', 'invalid']);
     expect(chips(r).slice(2)).toEqual(['Not counted — repeat', 'Not counted — repeat']);
     expect(card(r).doseLabel).toMatch(/^Dose 3 of 3/);
     expect(card(r).earliestNextDate).toBe('2026-10-01');
-    expect(card(r).note.lead).toMatch(/Earliest valid date: Jul 1, 2026/);
+    // M1d: was "Earliest valid date: Jul 1" (6 months after dose 1).
+    expect(card(r).note.lead).not.toMatch(/Earliest valid date/);
   });
 
   it('control: the repeat on Jul 1 counts; series complete, first booster Jul 1, 2027', () => {

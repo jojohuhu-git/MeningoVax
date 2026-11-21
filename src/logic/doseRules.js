@@ -1537,34 +1537,37 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-EARLY-DOSE-3',
     inventory: 'B9',
-    what: 'High-risk MenB dose 3 under 4 months after the last dose given (dose 2, or a dose 3 that did not count) and under 6 months after dose 1 — not counted, repeat',
+    what: 'High-risk MenB dose 3 under 4 months after dose 2 and under 6 months after dose 1, or a repeat under 4 months after the dose 3 that did not count — not counted, repeat',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), C7, D3',
+    authorityToday: 'ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), M1d (2026-11-21), C7, D3',
     sourcesSay: {
       verdict: 'stated',
       refs: ['menbHighRiskEarlyD3Unless', 'gbpRepeatSpacedFromInvalidDose', 'menbHighRiskEarlyD3ExtraDose'],
-      note: 'ACIP 2024: a dose 3 given <4 months after dose 2 "should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose". CDC\'s software has the same two lines (4 months less 4 days from the previous dose, or 6 months less 4 days from dose 1). Owner M1 (2026-11-20): follow CDSI, so the dose does not count; CDC\'s schedule notes instead count it and add a 4th dose. Owner M1c: the repeat is held to the same lines, measured from the dose that did not count. Both lines take the 4-day grace (C7, D3).',
+      note: 'ACIP 2024: a dose 3 given <4 months after dose 2 "should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose". CDC\'s software has the same two lines (4 months less 4 days from the previous dose, or 6 months less 4 days from dose 1). Owner M1 (2026-11-20): follow CDSI, so the dose does not count; CDC\'s schedule notes instead count it and add a 4th dose. Owner M1c: the repeat\'s 4-month line is measured from the dose that did not count. Owner M1d (2026-11-21): the 6-month "unless" decides only the first dose 3; a repeat counts only 4 months after the dose that did not count (CDSI\'s allowable interval would also count it 6 months after dose 1; ACIP does not say so). Both lines take the 4-day grace (C7, D3).',
     },
     label: 'Not counted — repeat',
     // M1 (owner, 2026-11-20). The test is menbHighRiskDose3Early()
     // (seriesTotals.js), the same call the card makes. `prevDated` is the last
     // dose GIVEN (Ruling D): dose 2, or a dose 3 that did not count, so a repeat
-    // is held 4 months from that dose (M1c; ACIP "≥4 months after the last dose").
+    // is held 4 months from that dose (M1c; ACIP "≥4 months after the last dose"),
+    // and the 6-month "unless" does not rescue it (M1d, 2026-11-21).
     // Only in a 3-dose series: a dose 2 ≥6 months after dose 1 ends it at two.
     check: (ctx) => {
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 2) return null;
       if (menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total !== MENB_HIGHRISK_TOTAL) return null;
       const prev = prevDated(ctx);
       const d1Date = keptDated(ctx)[0]?.date || null;
-      if (!prev || !menbHighRiskDose3Early(d1Date, prev.dose.date, ctx.dose.date)) return null;
-      const fromWhat = prev.dose === keptDated(ctx)[1] ? 'dose 2' : `the invalid dose (${fmtDate(prev.dose.date)})`;
+      if (!prev) return null;
+      const isRepeat = prev.dose !== keptDated(ctx)[1];
+      if (!menbHighRiskDose3Early(d1Date, prev.dose.date, ctx.dose.date, { isRepeat })) return null;
+      const fromWhat = isRepeat ? `the invalid dose (${fmtDate(prev.dose.date)})` : 'dose 2';
       const gapPrev = gapUnder(prev.dose.date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2);
-      const gapD1 = d1Date ? gapUnder(d1Date, ctx.dose.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
+      const gapD1 = d1Date && !isRepeat ? gapUnder(d1Date, ctx.dose.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
       return invalidResult(
         [
           `Minimum interval not met (${gapPrev.text} after ${fromWhat}, ${required(gapPrev.text, fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2))})${gapD1 ? '' : ' [c]'}.`,

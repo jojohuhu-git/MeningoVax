@@ -238,6 +238,7 @@ export const OWNER_ANSWERS = {
   M1: { date: '2026-11-20', where: REORG },
   M1b: { date: '2026-11-20', where: REORG },
   M1c: { date: '2026-11-20', where: REORG },
+  M1d: { date: '2026-11-21', where: '../archive/decisions-2026-11-21-menb-repeat-dose3.md' },
   // MenQuadfi can be given from 6 weeks ("Can be given (Rec.)", "Yes, outbreak too").
   MQ6: { date: '2026-11-21', where: MQ6_Q },
 };

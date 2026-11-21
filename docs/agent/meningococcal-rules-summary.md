@@ -565,11 +565,13 @@ with an old dose "you're done" when they weren't.)
   - **The repeat.** The card's date is the latest of: 4 months after the dose
     that did not count, 4 months after dose 2, and 6 months after dose 1. When
     the repeat would count sooner, the earliest valid date is shown beside it
-    (your M1b answer). A repeat counts if it is at least 4 months after the dose
-    that did not count, or at least 6 months after dose 1, both with the 4-day
-    grace (your M1c answer). Example: Bexsero Jan 1, Feb 1, Feb 15 → the Feb 15
-    dose is not counted; dose 3 is due Jul 1, earliest valid Jun 15.
-    <!-- SOURCES: menbHighRiskEarlyD3Unless, gbpRepeatSpacedFromInvalidDose, owner:M1b, owner:M1c -->
+    (your M1b answer). A repeat counts only if it is at least 4 months after the
+    dose that did not count, with the 4-day grace (your M1c answer). Being 6
+    months after dose 1 does not make the repeat count: that exception decides
+    only the first dose 3 (your M1d answer, 2026-11-21). Examples: Bexsero
+    Jan 1, Feb 1, Feb 15 → dose 3 is due Jul 1, earliest valid Jun 15. Jan 1,
+    Feb 1, Apr 1 → due Aug 1; a repeat on Jul 10 is not counted either.
+    <!-- SOURCES: menbHighRiskEarlyD3Unless, gbpRepeatSpacedFromInvalidDose, owner:M1b, owner:M1c, owner:M1d -->
     > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
     >
     > "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP Best Practice](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
@@ -577,6 +579,8 @@ with an old dose "you're done" when they weren't.)
     > Owner decision M1b, 2026-11-20 ([decisions-2026-11-20-rulebook-reorg.md](../archive/decisions-2026-11-20-rulebook-reorg.md)).
     >
     > Owner decision M1c, 2026-11-20 ([decisions-2026-11-20-rulebook-reorg.md](../archive/decisions-2026-11-20-rulebook-reorg.md)).
+    >
+    > Owner decision M1d, 2026-11-21 ([decisions-2026-11-21-menb-repeat-dose3.md](../archive/decisions-2026-11-21-menb-repeat-dose3.md)).
     <!-- /SOURCES -->
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2 years while the risk condition persists.
@@ -908,7 +912,7 @@ Written from the code; a test holds every cell to it.
 | MenB | Everyone | A MenB dose from the other antigen family (4C vs FHbp) than the first counted dose with a known brand | first counted branded dose | Not counted | Not counted — repeat | — | A source states it | ACIP 2020 (RR-9); immunize.org | `MENB-WRONG-FAMILY` |
 | MenB | high-risk | High-risk MenB dose 2 under 4 weeks after dose 1 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (MenB, 4 weeks between any 2 doses); MMWR mm7349a3; owner, STOP C C8 (2026-11-15) | `MENB-HIGHRISK-DOSE-2-GAP` |
 | MenB | Everyone | A MenB dose under 4 weeks after a MenB dose that did not count (too soon, too young, or the other antigen family) | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks, acip2020MenbMixedProductsSelectOne); owner STOP C C2 and E1/E2, 2026-11-15 | `MENB-REPEAT-GAP` |
-| MenB | high-risk | High-risk MenB dose 3 under 4 months after the last dose given (dose 2, or a dose 3 that did not count) and under 6 months after dose 1 — not counted, repeat | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), C7, D3 | `MENB-HIGHRISK-EARLY-DOSE-3` |
+| MenB | high-risk | High-risk MenB dose 3 under 4 months after dose 2 and under 6 months after dose 1, or a repeat under 4 months after the dose 3 that did not count — not counted, repeat | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), M1d (2026-11-21), C7, D3 | `MENB-HIGHRISK-EARLY-DOSE-3` |
 | MenB | high-risk | High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2) | dose 1 | Never flagged | Dose N of M | — | Owner decision | Owner, STOP C C5 (no source voids it) | `MENB-HIGHRISK-DOSE-3-FROM-DOSE-1` |
 | MenB | high-risk | A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days | last dose given | Not counted | Not counted — repeat | Yes | Owner decision | ACIP 2020; owner, STOP C C9 (2026-11-15) | `MENB-HIGHRISK-BOOSTER-GAP` |
 | MenB | healthy (shared decision) | Healthy MenB dose 2 under 4 weeks after dose 1 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks); CDSI; owner STOP C C12, 2026-11-15 | `MENB-HEALTHY-DOSE-2-GAP` |
