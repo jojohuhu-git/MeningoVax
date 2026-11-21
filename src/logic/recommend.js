@@ -70,7 +70,7 @@ const EMPTY_HISTORY = Object.freeze({
 });
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut, menacwyInfantD2AgeForSeries,
-  menbHealthyDose2Early, MENB_HIGHRISK_RESCUE_TOTAL,
+  menbHealthyDose2Early,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
@@ -88,7 +88,7 @@ import {
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
   menbHighRiskBoosterYears,
   MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
-  MENB_HIGHRISK_D3_MONTHS_FROM_D2, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
@@ -1793,67 +1793,65 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // Now gate on both; earliestNextDate = later of the two floors.
       const d1Date = doses[0]?.date ?? null;
       const d2Date = doses[1]?.date ?? null;
+      // M1 / M1b (owner, 2026-11-20): after a dose 3 that did not count (the
+      // clock, validate.js's anchor, is then later than dose 2), the repeat's
+      // ROUTINE date is the latest of 4 months after that dose, 4 months after
+      // dose 2 and 6 months after dose 1. ACIP mm7349a3: "the dose should be
+      // repeated ≥4 months after the last dose, unless the third dose was
+      // administered ≥6 months after the first dose".
+      const invalidD3Date = clockDate && d2Date && clockDate > d2Date ? clockDate : null;
       // P0-4 (2026-09-15): calendar months, matching validate.js's gates for
       // the same two rules.
       const fromD1 = d1Date ? calendarIntervalElapsed(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, today) : true;
       const fromD2 = d2Date ? calendarIntervalElapsed(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, today) : true;
-      const elapsed = fromD1 && fromD2;
-      // Compute the later of the two earliest dates (whichever constraint binds).
-      let earliestNextDate = null;
-      if (!elapsed) {
-        const e1 = d1Date ? addCalendarMonths(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
-        const e2 = d2Date ? addCalendarMonths(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2) : null;
-        if (e1 && e2) earliestNextDate = e1 > e2 ? e1 : e2;
-        else earliestNextDate = e1 ?? e2;
+      const fromInvalid = invalidD3Date ? calendarIntervalElapsed(invalidD3Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, today) : true;
+      const elapsed = fromD1 && fromD2 && fromInvalid;
+      // Compute the latest of the earliest dates (whichever constraint binds).
+      const e1 = d1Date ? addCalendarMonths(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
+      const e2 = d2Date ? addCalendarMonths(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2) : null;
+      const e3 = invalidD3Date ? addCalendarMonths(invalidD3Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2) : null;
+      const routineDate = [e1, e2, e3].filter(Boolean).sort().pop() ?? null;
+      const earliestNextDate = elapsed ? null : routineDate;
+      // M1b/M1c: the earliest date the repeat would count, stated beside the
+      // routine date — 4 months after the invalid dose, or 6 months after
+      // dose 1, whichever is sooner, and never under the 4-week floor after a
+      // dose that did not count (MENB-REPEAT-GAP). The grace decides what is
+      // accepted, never what is advised (A13).
+      let repeatClause = '';
+      let repeatMin = null;
+      if (invalidD3Date) {
+        const byD1 = e1 && e1 < e3;
+        repeatMin = byD1 ? e1 : e3;
+        let minWords = byD1 ? `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1` : `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose`;
+        if (repeatFloorDate && repeatFloorDate > repeatMin) {
+          repeatMin = repeatFloorDate;
+          minWords = `${weeksLabel(MENB_REPEAT_MIN_INTERVAL)} after the invalid dose`;
+        }
+        repeatClause = minimumBesideRoutine({ minDate: repeatMin, advisedDate: routineDate, today, minWords, fmt: fmtDate });
       }
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
+        canGiveToday: !elapsed && !!repeatMin && repeatMin <= today,
         family, brands: menbBrands(family),
         // U2: the "boost 1 year later, then every 2-3 years" tail is the booster
       // line's sentence, four lines above it on the same card.
-      note: {
+      note: invalidD3Date
+        ? {
+          // M1 (owner, 2026-11-20): the repeat of a dose 3 that did not count.
+          lead: `Repeat dose 3 at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose of ${fmtDate(invalidD3Date)}, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 [c].${repeatClause}`,
+          detail: `A repeat given at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 counts even if sooner than ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose.${menbPregnancyCaveat}`,
+        }
+        : {
           lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,
           detail: `That is the 0 / 1–2 / 6-month schedule ACIP gives a high-risk MenB series. Both intervals have to be met, so the dose falls on whichever comes later.${menbPregnancyCaveat}`,
         },
-        noteCites: [cite('menbHighRisk3DoseSchedule')],
+        noteCites: [cite(invalidD3Date ? 'menbHighRiskEarlyD3Unless' : 'menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
-    // MenB dose-3 rescue (2026-09-17): dose 3 came earlier than 4 months after
-    // dose 2, so CDC credits it and owes the patient a FOURTH dose at least 4
-    // months after it. The app used to discard dose 3 and re-offer "Dose 3 of
-    // 3", which lost a dose CDC counts and never mentioned the extra one.
-    // CDC child & adolescent schedule notes, MenB special situations (fetched
-    // live 2026-09-17):
-    //   "...if dose 3 is administered earlier than 4 months after dose 2, a 4th
-    //    dose should be administered at least 4 months after dose 3"
-    // The total comes from menbSeriesInfo(), never a literal 4, so this card,
-    // the validator and the booster clock move together.
-    if (given === 3 && hrSeries.total === MENB_HIGHRISK_RESCUE_TOTAL) {
-      // Ruling D: from the last dose given — dose 3, or a 4th dose that
-      // itself came too soon (validate.js MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3).
-      const d3Date = clockDate || (doses[2]?.date ?? null);
-      // P0-4: calendar months, not 122 days.
-      const elapsed = d3Date ? calendarIntervalElapsed(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS, today) : true;
-      return [rec({ vaccine: 'MenB', status: 'risk-based',
-        doseLabel: `Dose 4 of 4 (dose 3 <${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2)`,   // P16 (review v10)
-        doseNum: 4, seriesTotal: MENB_HIGHRISK_RESCUE_TOTAL,
-        boosterSummary: seriesBoosterLine('Boosters: first 1 year after the fourth dose, then every 2–3 years while at risk'),
-        dueToday: elapsed,
-        earliestNextDate: elapsed || !d3Date ? null : addCalendarMonths(d3Date, MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
-        minIntervalDays: DAYS.months(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS),
-        family, brands: menbBrands(family),
-        // U2: "Boosters then start 1 year after this fourth dose" said the same
-        // thing as the booster line. The line was the vaguer of the two, so it
-        // takes on the precise version -- which dose the clock runs from -- and
-        // the note drops the sentence.
-        note: {
-          lead: `Dose 3 was given <${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2.`,
-          detail: `It counts. Dose 4 is due ≥${monthsLabel(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
-        },
-        noteCites: [cite('menbHighRiskEarlyD3ExtraDose')],
-        refs: refs(['mm7349a3']) })];
-    }
+    // M1 (owner, 2026-11-20): there is no "Dose 4 of 4" card any more. An
+    // early dose 3 does not count, so the patient is still at given === 2 and
+    // the card above times the repeat.
     // Primary complete → boosters. P1-2: "complete" is hrSeries.total, not a
     // literal 3, so a patient whose dose 2 came six months on reaches their
     // first booster after two doses instead of being asked for a third.

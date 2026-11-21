@@ -121,8 +121,9 @@ describe('Review v10 Batch 5a — part 4, MenB (R56–R68)', () => {
     expect(MENB_HIGHRISK.doses[1]).toBe('1 month after dose 1 (at least 4 weeks)');
     const texts = MENB_HIGHRISK.rows.map((r) => r.text);
     expect(texts).toContain('No dose 3 is needed if dose 2 was ≥6 months after dose 1.');
-    expect(texts).toContain('Dose 3 given <4 months after dose 2 counts. Give dose 4 ≥4 months after dose 3.');
-    expect(texts).toContain('No dose 4 is needed if dose 3 was ≥6 months after dose 1.');
+    // M1 (owner, 2026-11-20): an early dose 3 is repeated, no dose 4.
+    expect(texts).toContain('Dose 3 given <4 months after dose 2 and <6 months after dose 1 does not count. Repeat it ≥4 months after that dose.');
+    expect(texts).toContain('Dose 3 given <4 months after dose 2 counts if it was ≥6 months after dose 1.');
     expect(texts).toContain('The first booster is 1 year after the series, later ones every 2–3 years while at risk (the app dates each at 2 years). A booster given sooner does not count.');
     expect(texts).toContain('HIV alone does not change MenB. Follow the healthy schedule.');
     expect(MENB_PREGNANCY.text).toBe('Wait until after pregnancy, unless a MenB high-risk condition is present.');
@@ -159,7 +160,8 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
   });
   it('R90 and the dose 3 line under it: periods, not semicolons (owner, 2026-11-20)', () => {
     expect(interval('Healthy MenB dose 2').text).toBe('Sooner still counts. Dose 3 is added.');
-    expect(interval('High-risk MenB dose 3').text).toBe('Sooner still counts. Dose 4 is added.');
+    // M1 (owner, 2026-11-20): was "Sooner still counts. Dose 4 is added."
+    expect(interval('High-risk MenB dose 3').text).toBe('Sooner does not count. Repeat it.');
   });
   it('R91–R93: a dose that does not count', () => {
     const texts = NOT_COUNTED.map((r) => r.text);

@@ -108,7 +108,7 @@ import {
   menbFamily, ALL_BRANDS, brandMinAge, MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS, MENB_MIN_AGE_MONTHS,
 } from '../data/brands.js';
 import {
-  menacwyPrimaryTotal, menbSeriesInfo, menbHealthyDose2Early, menbHighRiskDose3Early,
+  menacwyPrimaryTotal, menbSeriesInfo, menbHealthyDose2Early, menbHighRiskDose3Early, MENB_HIGHRISK_TOTAL,
 } from './seriesTotals.js';
 import { ageAtDoseMonths } from './patientAge.js';
 // P0-1 (2026-09-17): the infant primary intervals come from one module,
@@ -120,7 +120,7 @@ import {
   MENACWY_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
-  MENB_HIGHRISK_D3_MONTHS_FROM_D2,
+  MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
 } from './intervals.js';
 // P2-3 (2026-09-17): the age thresholds, from one module.
@@ -211,7 +211,6 @@ const MENB_REPEAT_MIN                  = MENB_REPEAT_MIN_INTERVAL;
 // time). The *_DAYS twins keep the "(min ~6 months)" text printing the same
 // approximate figure it always did.
 const MENB_HR_D3_MIN_MONTHS_FROM_D2    = MENB_HIGHRISK_D3_MONTHS_FROM_D2;
-const MENB_HR_D3_MIN_FROM_D2           = DAYS.months(MENB_HR_D3_MIN_MONTHS_FROM_D2); // display only
 // MenB high-risk booster: first booster ≥1 year after the primary; later ≥2 years
 const MENB_HR_FIRST_BOOSTER_MIN        = DAYS.years(MENB_HIGHRISK_FIRST_BOOSTER_YEARS);
 const MENB_HR_SUBSEQUENT_BOOSTER_MIN   = DAYS.years(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS);
@@ -1523,37 +1522,42 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-EARLY-DOSE-3',
     inventory: 'B9',
-    what: 'High-risk MenB dose 3 under 4 months after dose 2 (and under 6 months from dose 1) — counts, and a 4th dose is owed',
+    what: 'High-risk MenB dose 3 under 4 months after the last dose given (dose 2, or a dose 3 that did not count) and under 6 months after dose 1 — not counted, repeat',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
-    measuredFrom: 'dose 2',
-    enforcement: 'counts-with-note',
+    measuredFrom: 'last dose given',
+    enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP mm7349a3 (with its "unless"); owner, STOP C C6 and C7',
+    authorityToday: 'ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), C7, D3',
     sourcesSay: {
-      verdict: 'owner-decided',
-      refs: ['menbHighRiskEarlyD3ExtraDose', 'menbHighRiskEarlyD3Unless'],
-      note: 'A dose 3 under 4 months after dose 2 counts, and a 4th dose is owed (CDC notes; ACIP says "repeated", the same count). Owner, STOP C 2026-11-15: C6 follows ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose" (the notes leave it out); C7 gives the 4-month line the 4-day grace (one dose fewer). No grace on the 6-month "unless" line (not asked).',
+      verdict: 'stated',
+      refs: ['menbHighRiskEarlyD3Unless', 'gbpRepeatSpacedFromInvalidDose', 'menbHighRiskEarlyD3ExtraDose'],
+      note: 'ACIP 2024: a dose 3 given <4 months after dose 2 "should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose". CDC\'s software has the same two lines (4 months less 4 days from the previous dose, or 6 months less 4 days from dose 1). Owner M1 (2026-11-20): follow CDSI, so the dose does not count; CDC\'s schedule notes instead count it and add a 4th dose. Owner M1c: the repeat is held to the same lines, measured from the dose that did not count. Both lines take the 4-day grace (C7, D3).',
     },
-    label: 'Dose N of M',
-    // MenB dose-3 rescue (2026-09-17), CDC child notes: "...if dose 3 is
-    // administered earlier than 4 months after dose 2, a 4th dose should be
-    // administered at least 4 months after dose 3". First of the dose-3 rows,
-    // because it is CDC's explicit remedy for exactly this dose. The test is
-    // menbHighRiskDose3Early() (seriesTotals.js) — the same call the series
-    // total makes, so the card and this verdict cannot drift. C6: no 4th dose
-    // when dose 3 is ≥6 months after dose 1; C7: the 4-day grace on the
-    // 4-month line.
+    label: 'Not counted — repeat',
+    // M1 (owner, 2026-11-20). The test is menbHighRiskDose3Early()
+    // (seriesTotals.js), the same call the card makes. `prevDated` is the last
+    // dose GIVEN (Ruling D): dose 2, or a dose 3 that did not count, so a repeat
+    // is held 4 months from that dose (M1c; ACIP "≥4 months after the last dose").
+    // Only in a 3-dose series: a dose 2 ≥6 months after dose 1 ends it at two.
     check: (ctx) => {
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 2) return null;
+      if (menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total !== MENB_HIGHRISK_TOTAL) return null;
+      const prev = prevDated(ctx);
       const d1Date = keptDated(ctx)[0]?.date || null;
-      const d2Date = keptDated(ctx)[1]?.date || null;
-      if (!menbHighRiskDose3Early(d1Date, d2Date, ctx.dose.date)) return null;
-      return validResult([
-        // G1-a: the label ("Dose 3 of 4") says it counts (style rule 6).
-        `Given ${gapUnder(d2Date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2).text} after dose 2 (${MENB_HR_D3_MIN_MONTHS_FROM_D2} recommended). It counts. Dose 4 is due ≥${MENB_HR_D3_MIN_MONTHS_FROM_D2} months later.`   // P59 (review v10)
-      ]);
+      if (!prev || !menbHighRiskDose3Early(d1Date, prev.dose.date, ctx.dose.date)) return null;
+      const fromWhat = prev.dose === keptDated(ctx)[1] ? 'dose 2' : `the invalid dose (${fmtDate(prev.dose.date)})`;
+      const gapPrev = gapUnder(prev.dose.date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2);
+      const gapD1 = d1Date ? gapUnder(d1Date, ctx.dose.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1) : null;
+      return invalidResult(
+        [
+          `Minimum interval not met (${gapPrev.text} after ${fromWhat}, ${required(gapPrev.text, fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2))})${gapD1 ? '' : ' [c]'}.`,
+          ...(gapD1 ? [`Also under ${fmtMonths(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 (${gapD1.text}) [c].`] : []),
+        ],
+        `From ${fromWhat}: ${gapPrev.text} (minimum ${fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2)}).${gapD1 ? ` From dose 1: ${gapD1.text} (minimum ${fmtMonths(MENB_HIGHRISK_D3_MONTHS_FROM_D1)}).` : ''}`,
+        [cite('menbHighRiskEarlyD3Unless')],
+      );
     },
   },
   {
@@ -1576,39 +1580,6 @@ export const DOSE_RULES = [
     // Never voids a dose since C5. Kept as a row so the rule's absence is
     // visible, with the reason, rather than silent (doseRules.js header).
     check: null,
-  },
-  {
-    id: 'MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3',
-    inventory: 'B11',
-    what: 'The extra high-risk MenB dose owed after an early dose 3, under 4 months after dose 3',
-    vaccine: 'MenB',
-    dated: true,
-    schedule: 'high-risk',
-    measuredFrom: 'dose 3',
-    enforcement: 'floor',
-    grace: true,
-    authorityToday: 'CDC child schedule notes',
-    sourcesSay: {
-      verdict: 'stated',
-      refs: ['menbHighRiskEarlyD3ExtraDose'],
-      note: 'CDC states the 4th dose "at least 4 months after dose 3", a minimum in words. The app voids a dose below it.',
-    },
-    label: 'Not counted — repeat',
-    // Where the primary series ends comes from menbSeriesInfo() — the same
-    // function the card reads — so a dose the engine asks for cannot be
-    // rejected here. Grace DOES apply: this is "does this dose count", not
-    // "how long is the series" (P1-1).
-    check: (ctx) => {
-      const prev = prevDated(ctx);
-      if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx < 3 || !prev) return null;
-      if (ctx.effectiveIdx >= menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total) return null;
-      if (calendarIntervalMeetsMinimum(prev.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2, ctx.dose.date)) return null;
-      const gap = gapUnder(prev.dose.date, ctx.dose.date, MENB_HR_D3_MIN_MONTHS_FROM_D2);
-      return invalidResult(
-        [`Minimum interval not met (${gap.text}, ${required(gap.text, fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2))}).`],   // P53 sibling (review v10)
-        `D3→D4: ${gap.text} (${gap.exact ? `minimum ${fmtMonths(MENB_HR_D3_MIN_MONTHS_FROM_D2)}` : `min ${fmtDays(MENB_HR_D3_MIN_FROM_D2)}`}).`
-      );
-    },
   },
   {
     id: 'MENB-HIGHRISK-BOOSTER-GAP',

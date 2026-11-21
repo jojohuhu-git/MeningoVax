@@ -293,11 +293,9 @@ export const MENB_HIGHRISK_D2_ROUTINE_MONTHS = 1;
 export const MENB_HIGHRISK_D3_MONTHS_FROM_D1 = 6;
 /** ...AND at least 4 months after dose 2. Both must be met. */
 export const MENB_HIGHRISK_D3_MONTHS_FROM_D2 = 4;
-/**
- * A high-risk dose 3 given sooner than MENB_HIGHRISK_D3_MONTHS_FROM_D2 still
- * COUNTS; CDC owes the patient a fourth dose this long after it.
- */
-export const MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS = 4;
+// M1 (owner, 2026-11-20): MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS (the 4th dose
+// after an early dose 3) is gone. That dose 3 is now repeated, held to the two
+// lines above (seriesTotals.js menbHighRiskDose3Early).
 
 /** Healthy 2-dose MenB: dose 2 at least 6 months after dose 1. */
 export const MENB_HEALTHY_D2_MONTHS = 6;

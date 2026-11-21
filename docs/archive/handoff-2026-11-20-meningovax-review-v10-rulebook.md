@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-20** by `handoff-2026-11-20-meningovax-m1-and-rulebook-reorg.md` (PR #125 merged; owner decisions for M1, the MenB dose 3 rule, and the Rulebook reorganization recorded in `decisions-2026-11-20-rulebook-reorg.md`). Do not resume from this file.
+
 # MeningoVax — Handoff after review v10 Batch 5: the Rulebook redesign (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

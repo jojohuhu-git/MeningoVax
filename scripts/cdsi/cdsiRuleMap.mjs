@@ -247,17 +247,17 @@ export const ROW_MAP = {
     })),
   },
   'MENB-HIGHRISK-EARLY-DOSE-3': {
+    // M1 (owner, 2026-11-20, "follow CDSI"): an early dose 3 no longer counts
+    // with a 4th dose owed; it is not counted and repeated, as CDSI has it. Both
+    // lines compare with no difference (number, floor, grace — C7 and D3).
     compare: [
       ...[['R_4C', ''], ['R_FH', SINCE_2017]].map(([s, w]) => ({
-        what: `High-risk MenB (${s}) dose 3: gap from dose 2`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D2)),
-        cdsi: f(s, 3, `gap from previous dose${w}`), differs: ['floor'], status: 'owner',
-        decided: '2026-11-15, STOP C C6 and C7 (stop-c-packet-2026-11-15.md)',
-        why: 'Under 4 months after dose 2 (and under 6 months after dose 1), CDSI does not count dose 3 and repeats it 4 months later; the app counts it and asks a 4th dose 4 months later (CDC\'s notes). The number of doses and the date of the last one are the same. Both now give the 4-month line the 4-day grace (C7).',
+        what: `High-risk MenB (${s}) dose 3: gap from the previous dose`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D2)),
+        cdsi: f(s, 3, `gap from previous dose${w}`),
       })),
       ...['R_4C', 'R_FH'].map((s) => ({
-        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: { ...months(MENB_HIGHRISK_D3_MONTHS_FROM_D1), grace: false, floor: true },
-        cdsi: f(s, 3, 'allowable gap from dose 1'), differs: ['grace'], status: 'open', stopC: 'Q2 (follow-up to C6/C7)',
-        why: 'The app now has ACIP 2024\'s "unless the third dose was administered ≥6 months after the first dose" (owner, C6). CDSI gives that 6-month line the 4-day grace; the app does not, because the owner\'s C7 answer named two other lines. A follow-up question, not assumed.',
+        what: `High-risk MenB (${s}) dose 3: counts anyway if at least 6 months after dose 1`, app: fromRow('MENB-HIGHRISK-EARLY-DOSE-3', months(MENB_HIGHRISK_D3_MONTHS_FROM_D1)),
+        cdsi: f(s, 3, 'allowable gap from dose 1'),
       })),
     ],
   },
@@ -266,9 +266,6 @@ export const ROW_MAP = {
       what: `High-risk MenB (${s}) dose 3: gap from dose 1`, app: fromRow('MENB-HIGHRISK-DOSE-3-FROM-DOSE-1', months(MENB_HIGHRISK_D3_MONTHS_FROM_D1)),
       cdsi: f(s, 3, 'gap from dose 1'),
     })),
-  },
-  'MENB-HIGHRISK-DOSE-4-AFTER-EARLY-DOSE-3': {
-    none: 'CDSI\'s high-risk series has no extra dose after an early dose 3: it counts such a dose 3 only when it is at least 6 months less 4 days after dose 1, and otherwise does not count it and repeats it. The difference is recorded on MENB-HIGHRISK-EARLY-DOSE-3 (owner, C6).',
   },
   'MENB-HIGHRISK-BOOSTER-GAP': {
     compare: ['R_4C', 'R_FH'].flatMap((s) => [

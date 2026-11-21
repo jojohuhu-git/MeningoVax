@@ -41,8 +41,8 @@ averaging. `ageMeetsMinimum` re-derives the age as if the dose were given 4 days
    (STOP C C7, 2026-11-15, and D3/D4, 2026-11-17: the grace applies where it means one
    dose fewer):
    - the healthy MenB 6-month line ("was dose 2 early, so a rescue dose 3 is owed?") — C7;
-   - the high-risk MenB 4-month line ("was dose 3 early, so a 4th dose is owed?") — C7;
-   - C6's high-risk "dose 3 ≥6 months after dose 1, so no 4th dose" line — D3;
+   - the high-risk MenB 4-month line ("was dose 3 too early to count?") — C7;
+   - C6's high-risk "dose 3 ≥6 months after dose 1, so it counts" line — D3;
    - the high-risk "dose 2 ≥6 months after dose 1, so no dose 3" line — D4.
    They live in `seriesTotals.js` (`menbHealthyDose2Early`, `menbHighRiskDose3Early`,
    `menbSeriesInfo`), read by the series total, the card and the dose verdict.
@@ -520,24 +520,32 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   `recommend.js` reads that total rather than a literal 3, so a patient whose
   D2 came six months on reaches the booster phase after two doses. **With the 4-day
   grace** (owner D4, 2026-11-17): a D2 1–4 days short of 6 months also completes it.
-- **An early D3 is CREDITED, not repeated** (MenB dose-3 rescue, 2026-09-17).
-  CDC MenB special situations: *"...if dose 3 is administered earlier than 4 months after
-  dose 2, a 4th dose should be administered at least 4 months after dose 3"*.
-  `menbSeriesInfo()` returns a total of **4** for those patients, `doseRules.js`
-  (`MENB-HIGHRISK-EARLY-DOSE-3`) marks the dose valid with a note saying a 4th dose is owed,
-  and `recommend.js` emits a "Dose 4 of 4 (extra dose: dose 3 given early)" card due ≥4
-  calendar months after D3. One test decides it, `menbHighRiskDose3Early()`:
-  - **C6 (owner, 2026-11-15) — the MMWR "unless":** no 4th dose when D3 is ≥6 months after
-    D1. ACIP mm7349a3 (read live 2026-11-16): *"If the third dose is administered <4 months
-    after the second dose, the dose should be repeated ≥4 months after the last dose, unless
-    the third dose was administered ≥6 months after the first dose."* CDC's schedule notes
-    leave out the "unless"; the owner chose the MMWR. **With the 4-day grace** (owner D3,
-    2026-11-17): a D3 1–4 days short of 6 months after D1 also needs no 4th dose.
-  - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace — a D3 given 1–4 days
-    before 4 months after D2 is not early.
-  Grace also applies to whether the 4th dose itself counts.
-- First booster: ≥1 year after the LAST PRIMARY dose — which is D4, not D3, for a patient
-  who got the extra dose above. Read from `menbSeriesInfo()`, never a literal 3.
+- **An early D3 is NOT counted; it is repeated** (owner M1, 2026-11-20, "follow CDSI";
+  reverses the 2026-09-17 "credited, and a 4th dose is owed" rule built from CDC's schedule
+  notes). A high-risk D3 given under 4 months after D2 and under 6 months after D1 is
+  "Not counted — repeat" and is repeated at least 4 months after it; D2 keeps its number. ACIP mm7349a3 (Dec 12, 2024; read live
+  2026-11-20): *"If the third dose is administered <4 months after the second dose, the dose
+  should be repeated ≥4 months after the last dose, unless the third dose was administered
+  ≥6 months after the first dose."* CDSI 4.65, both increased-risk series, dose 3: absolute
+  minimum "4 months - 4 days" from the previous dose, allowable "6 months - 4 days" from
+  dose 1. There is no high-risk 4-dose series any more (`menbSeriesInfo()` never returns 4).
+  One test decides it, `menbHighRiskDose3Early(d1, prev, d3)` in `seriesTotals.js`, read by
+  the rule row (`MENB-HIGHRISK-EARLY-DOSE-3`) and the card:
+  - **C6 (owner, 2026-11-15) — the MMWR "unless":** a D3 ≥6 months after D1 counts even if
+    under 4 months after D2. **With the 4-day grace** (owner D3, 2026-11-17).
+  - **C7 (owner, 2026-11-15):** the 4-month line takes the 4-day grace.
+  - **M1c (owner, 2026-11-20) — the repeat is not counted either if it misses both lines:** it
+    counts only ≥4 months after the dose that did not count ("the last dose"), or ≥6 months
+    after D1, both with the grace. `prev` is the last dose GIVEN (Ruling D anchor). ACIP Best
+    Practice (read live 2026-11-20): *"The repeat dose should be spaced after the invalid dose
+    by the recommended minimum interval"*. A dose not counted for another reason (the other
+    MenB product) keeps its 4-week repeat gap (`MENB-REPEAT-GAP`, E2).
+  - **M1b (owner, 2026-11-20) — the repeat's date:** the card advises the latest of 4 months
+    after the dose that did not count, 4 months after D2 and 6 months after D1, and states the
+    earliest valid date beside it (`minimumBesideRoutine()`), never under the 4-week floor after
+    a dose that did not count. Jan 1, Feb 1, Feb 15 → due Jul 1, earliest valid Jun 15.
+- First booster: ≥1 year after the LAST PRIMARY dose (D3, or the repeat that counted, or D2
+  when D2 was ≥6 months after D1). Read from `menbSeriesInfo()`, never a literal 3.
 - Subsequent boosters: every 2 years
 
 ### Min Age ≥10y (120m)

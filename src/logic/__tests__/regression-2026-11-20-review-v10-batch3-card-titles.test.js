@@ -35,7 +35,8 @@ describe('Review v10 Batch 3: card titles', () => {
     const d2 = run({ dob: '2009-06-01', menacwyDoses: [MV('2020-07-01'), MV('2025-07-01')], menbDoses: [BX('2026-04-01')] }).menb[0];
     expect(d2.doseLabel).toBe('Dose 2 of 2 (Bexsero)');
     const d4 = run({ dob: '2006-06-01', riskIds: ['asplenia'], menbDoses: [BX('2026-01-01'), BX('2026-02-01'), BX('2026-04-10')] }).menb[0];
-    expect(d4.doseLabel).toBe('Dose 4 of 4 (dose 3 <4 months after dose 2)');
+    // M1 (owner, 2026-11-20): no "Dose 4 of 4" card; the early dose 3 is repeated.
+    expect(d4.doseLabel).toBe('Dose 3 of 3 (high-risk, Bexsero)');
   });
 
   it('P17 and P19: MenACWY high-risk boosters', () => {

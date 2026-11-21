@@ -59,9 +59,8 @@ export const MENACWY_SINGLE_TOTAL = 1;           // military / college-dorm / ou
 export const MENB_HIGHRISK_TOTAL = 3;
 export const MENB_HEALTHY_TOTAL = 2;
 export const MENB_HEALTHY_RESCUE_TOTAL = 3;
-// The high-risk mirror of the rescue total: a dose 3 given earlier than 4
-// months after dose 2 still COUNTS, and CDC adds a fourth dose 4 months on.
-export const MENB_HIGHRISK_RESCUE_TOTAL = 4;
+// M1 (owner, 2026-11-20): there is no high-risk 4-dose series. A dose 3 given
+// too early does not count and is repeated (menbHighRiskDose3Early below).
 // Routine MenACWY is the only schedule whose PRIMARY series is shorter than
 // its total: the 11-12y dose is primary, the 16y dose is the booster that
 // closes it. Exported so recommend.js's routine branches never hand-type it.
@@ -324,23 +323,26 @@ export function menbHealthyDose2Early(d1Date, d2Date) {
 }
 
 /**
- * High-risk MenB: was dose 3 given early enough that a 4th dose is owed?
+ * High-risk MenB: was this dose 3 given too early to count?
  * ACIP (mm7349a3): "If the third dose is administered <4 months after the
  * second dose, the dose should be repeated ≥4 months after the last dose,
  * unless the third dose was administered ≥6 months after the first dose."
+ * CDSI 4.65, both increased-risk series, dose 3: "4 months - 4 days" from the
+ * previous dose, or the allowable "6 months - 4 days" from dose 1.
  *
- *   C7 (owner, 2026-11-15): the 4-day grace applies to the 4-month line.
- *   C6 (owner, 2026-11-15): the "unless" — no 4th dose when dose 3 is ≥6
- *       months after dose 1.
- *   D3 (owner, 2026-11-17): the 4-day grace applies to that 6-month line too
- *       (asked as a follow-up to C7, not assumed).
+ *   M1 (owner, 2026-11-20): follow CDSI — a dose 3 that meets neither line
+ *       does not count and is repeated (was: it counted and a 4th dose was owed).
+ *   M1c (owner, 2026-11-20): the repeat is held to the same two lines, the
+ *       4-month one measured from the dose that did not count ("the last dose").
+ *       So `prevDate` is the last dose GIVEN: dose 2, or a dose 3 that did not count.
+ *   C7 / D3 (owner): the 4-day grace on both lines.
  *
- * The one copy of this test: menbSeriesInfo(), the card and the dose verdict
- * (doseRules.js MENB-HIGHRISK-EARLY-DOSE-3) all call it.
+ * The one copy of this test: the dose verdict (doseRules.js
+ * MENB-HIGHRISK-EARLY-DOSE-3) and the card (recommend.js) both call it.
  */
-export function menbHighRiskDose3Early(d1Date, d2Date, d3Date) {
-  if (!d2Date || !d3Date) return false;
-  if (calendarIntervalMeetsMinimum(d2Date, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3Date)) return false;
+export function menbHighRiskDose3Early(d1Date, prevDate, d3Date) {
+  if (!prevDate || !d3Date) return false;
+  if (calendarIntervalMeetsMinimum(prevDate, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3Date)) return false;
   if (d1Date && calendarIntervalMeetsMinimum(d1Date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3Date)) return false;
   return true;
 }
@@ -365,26 +367,13 @@ export function menbSeriesInfo({ highRisk, doses }) {
   if (highRisk) {
     const hr1 = doses[0];
     const hr2 = doses[1];
-    const hr3 = doses[2];
     // D4 (owner, 2026-11-17): with the 4-day grace — one dose fewer.
     if (hr1?.date && hr2?.date && calendarIntervalMeetsMinimum(hr1.date, MENB_HIGHRISK_D3_MONTHS_FROM_D1, hr2.date)) {
       return { total: MENB_HEALTHY_TOTAL, primaryTotal: MENB_HEALTHY_TOTAL, hasBoosterPhase: true };
     }
-    // MenB dose-3 rescue (2026-09-17): the SECOND half of the same CDC bullet.
-    // The test itself is menbHighRiskDose3Early() below (STOP C C6, C7).
-    // "...if dose 3 is administered earlier than 4 months after dose 2, a 4th
-    // dose should be administered at least 4 months after dose 3". So an early
-    // dose 3 is not a wasted injection to repeat — it counts, and the series
-    // grows by one. The app used to discard it and ask for dose 3 again, which
-    // both lost a dose CDC credits and hid the extra dose the patient needs.
-    //
-    if (menbHighRiskDose3Early(hr1?.date, hr2?.date, hr3?.date)) {
-      return {
-        total: MENB_HIGHRISK_RESCUE_TOTAL,
-        primaryTotal: MENB_HIGHRISK_RESCUE_TOTAL,
-        hasBoosterPhase: true,
-      };
-    }
+    // M1 (owner, 2026-11-20): an early dose 3 no longer adds a 4th dose. It
+    // does not count (doseRules.js MENB-HIGHRISK-EARLY-DOSE-3), so it never
+    // reaches `doses` here and the series stays three doses long.
     return { total: MENB_HIGHRISK_TOTAL, primaryTotal: MENB_HIGHRISK_TOTAL, hasBoosterPhase: true };
   }
   // Healthy 2-dose schedule becomes a 3-dose total only once a D1→D2

@@ -1,13 +1,12 @@
 // @vitest-environment happy-dom
-// UI-layer regression for the MenB dose-3 rescue (2026-09-17). Engine-layer
-// coverage, the reproduction and the live-fetched CDC quote are in
+// UI-layer regression for a high-risk MenB dose 3 given early. Engine-layer
+// coverage and the live-read quotes are in
 // src/logic/__tests__/regression-menb-hr-early-dose3-counts.test.js.
 //
-// What the clinician used to see on the card for a high-risk patient whose dose
-// 3 came early: an "Invalid" chip on dose 3 telling them to repeat it, and a
-// heading reading "Dose 3 of 3". Both were wrong. CDC credits that dose and
-// adds a fourth one, so the card must read "Dose 4 of 4" and the dose-3 chip
-// must not say Invalid.
+// 2026-09-17 (superseded): the card read "Dose 4 of 4" and dose 3 counted.
+// M1 (owner, 2026-11-20, "follow CDSI"): ACIP mm7349a3 says the dose "should be
+// repeated ≥4 months after the last dose", so dose 3 shows "Not counted —
+// repeat" and the card asks for "Dose 3 of 3" again.
 //
 // This test feeds RecCard the REAL output of recommend() and validateHistory
 // rather than hand-written props, so it cannot pass while the engine says
@@ -27,8 +26,8 @@ const DOSES = ['2026-02-15', '2026-04-15', '2026-06-15']
   .map((date) => ({ date, brand: 'Bexsero (MenB)' }));
 const ANSWERS = { MenB: { 0: 'yes', 1: 'yes', 2: 'yes' } };
 
-describe('MenB dose-3 rescue (UI): the card asks for dose 4 and keeps dose 3', () => {
-  it('renders "Dose 4 of 4" and no Invalid chip on the early dose 3', () => {
+describe('M1 (UI): the card asks for dose 3 again and the early dose 3 is not counted', () => {
+  it('renders "Dose 3 of 3", a "Not counted — repeat" chip, and no "Dose 4 of 4"', () => {
     const rec = recommend({
       today: TODAY, ageMonths: AGE_M, riskIds: RISK,
       menacwyDoses: [], menbDoses: DOSES, riskAtDoseAnswers: ANSWERS,
@@ -37,8 +36,8 @@ describe('MenB dose-3 rescue (UI): the card asks for dose 4 and keeps dose 3', (
 
     render(<RecCard rec={rec} doses={DOSES} doseValidations={doseValidations} />);
 
-    expect(screen.getByText(/Dose 4 of 4/)).toBeTruthy();
-    expect(screen.queryByText(/Dose 3 of 3/)).toBeNull();
-    expect(screen.queryByText('Invalid')).toBeNull();
+    expect(screen.getAllByText(/Dose 3 of 3/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Dose 4 of 4/)).toBeNull();
+    expect(screen.getByText('Not counted — repeat')).toBeTruthy();
   });
 });

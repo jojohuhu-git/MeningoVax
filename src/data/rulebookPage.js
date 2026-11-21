@@ -46,7 +46,7 @@ import {
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENB_HIGHRISK_BOOSTER_CADENCE_LABEL, MENB_REPEAT_MIN_INTERVAL, MENB_HIGHRISK_D2_GAP,
   MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
-  MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS, MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
+  MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
   GRACE_DAYS, MENACWY_GRACE_LINES_M, PENTAVALENT_REPEAT_MONTHS, weeksLabel, monthsLabel, yearsLabel,
 } from '../logic/intervals.js';
 import {
@@ -198,7 +198,8 @@ const P = {
   menbD2at6: ex('20-year-old with asplenia, Bexsero 6 months apart', { dob: '2006-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2020-01-01', '2020-03-01', '2025-03-01'), menbDoses: doses(BX, '2026-01-01', '2026-07-05') },
     { menb: [/^First booster \(dose 3\), 1 year after the series$/], chip: ['MenB', 1, 'Dose 2 of 2'] }),
   menbD3early: ex('20-year-old with asplenia, Bexsero dose 3 2 months after dose 2', { dob: '2006-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2020-01-01', '2020-03-01', '2025-03-01'), menbDoses: doses(BX, '2026-01-01', '2026-04-01', '2026-06-15') },
-    { menb: [/^Dose 4 of 4 \(dose 3 <4 months after dose 2/], chip: ['MenB', 2, 'Dose 3 of 4'] }),
+    // M1 (owner, 2026-11-20): not counted, repeated (was "Dose 3 of 4", then "Dose 4 of 4").
+    { menb: [/^Dose 3 of 3 \(high-risk, Bexsero\)$/], chip: ['MenB', 2, 'Not counted — repeat'] }),
   menbD3unless: ex('20-year-old with asplenia, dose 3 2 months after dose 2 and 6 months after dose 1', { dob: '2006-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2020-01-01', '2020-03-01', '2025-03-01'), menbDoses: doses(BX, '2026-01-01', '2026-05-01', '2026-07-05') },
     { menb: [/^First booster \(dose 4\), 1 year after the series$/], chip: ['MenB', 2, 'Dose 3 of 3'] }),
   menbD3fromD2: ex('20-year-old with asplenia, dose 3 4 months after dose 2 but 5 months after dose 1', { dob: '2006-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2020-01-01', '2020-03-01', '2025-03-01'), menbDoses: doses(BX, '2026-01-01', '2026-01-29', '2026-05-30') },
@@ -704,8 +705,9 @@ export const MENB_HIGHRISK = {
   doses: ['Dose 1', `${mo(MENB_HIGHRISK_D2_ROUTINE_MONTHS)} after dose 1 (at least ${wk(MENB_HIGHRISK_D2_GAP)})`, `≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 and ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2`],
   rows: [
     { text: `No dose 3 is needed if dose 2 was ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1.`, ex: [P.menbD2at6] },
-    { text: `Dose 3 given <${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 counts. Give dose 4 ≥${mo(MENB_HIGHRISK_EARLY_D3_RESCUE_MONTHS)} after dose 3.`, ex: [P.menbD3early] },
-    { text: `No dose 4 is needed if dose 3 was ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1.`, ex: [P.menbD3unless] },
+    // M1 (owner, 2026-11-20, "follow CDSI"; ACIP mm7349a3).
+    { text: `Dose 3 given <${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 and <${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 does not count. Repeat it ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after that dose.`, ex: [P.menbD3early] },
+    { text: `Dose 3 given <${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 counts if it was ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1.`, ex: [P.menbD3unless] },
     { text: `Dose 3 ≥${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 counts, even <${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1.`, decision: 'menbDose3FromDose2', ex: [P.menbD3fromD2] },
     { text: `The first booster is ${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, later ones every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk (the app dates each at ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)}). A booster given sooner does not count.`, ex: [P.menbBoosterDue] },
     { text: 'Serogroup B outbreak alone: one booster, then complete.', ex: [P.menbOutbreakDone] },
@@ -753,7 +755,8 @@ export const INTERVALS = [
   { doses: 'MenACWY booster', gap: `${B3} after a series ending before ${AT7}, otherwise ${MENACWY_FIRST_BOOSTER_YEARS_FROM_7}, then ${EVERY5} after the last booster`, decision: 'boosterMinimum', ex: [P.aspBoosterEarly, P.military19] },
   { doses: 'Any two MenB doses', gap: W4, ex: [P.menbHealthy3wk] },
   { doses: 'Healthy MenB dose 2', gap: mo(MENB_HEALTHY_D2_MONTHS), text: 'Sooner still counts. Dose 3 is added.', ex: [P.menbHealthyEarly] },
-  { doses: 'High-risk MenB dose 3', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2`, text: 'Sooner still counts. Dose 4 is added.', ex: [P.menbD3early] },
+  // M1 (owner, 2026-11-20): sooner no longer counts with a dose 4 added.
+  { doses: 'High-risk MenB dose 3', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2, or ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1`, text: 'Sooner does not count. Repeat it.', ex: [P.menbD3early] },
   { doses: 'High-risk MenB booster', gap: `${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)} after the last booster`, decision: 'boosterMinimum', ex: [P.menbBoosterEarly] },
 ];
 

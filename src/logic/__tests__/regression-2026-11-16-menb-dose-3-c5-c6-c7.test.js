@@ -64,9 +64,11 @@ describe('C6: the MMWR "unless" — no 4th dose when dose 3 is ≥6 months after
     expect(r.history.MenB.perDose[2].reasons.join(' ')).not.toMatch(/4th dose/);
   });
 
-  it('control: dose 3 under 4 months after dose 2 AND under 6 months from dose 1 still owes a 4th dose', () => {
+  // M1 (owner, 2026-11-20, "follow CDSI"): was "still owes a 4th dose".
+  it('control: dose 3 under 4 months after dose 2 AND under 6 months from dose 1 is not counted', () => {
     const r = run({ ...HR, menbDoses: [B('2026-01-10'), B('2026-02-10'), B('2026-04-15')] });
-    expect(card(r).doseLabel).toMatch(/Dose 4 of 4/);
+    expect(verdicts(r)).toEqual(['dose 1', 'dose 2', 'invalid']);
+    expect(card(r).doseLabel).toMatch(/Dose 3 of 3/);
   });
 });
 
@@ -92,9 +94,11 @@ describe('C7: the 4-day grace at the two "is one more dose owed?" lines', () => 
     expect(card(r).earliestNextDate).toBe('2027-06-07');
   });
 
-  it('high-risk: five days short still owes the 4th dose', () => {
+  // M1 (owner, 2026-11-20): was "still owes the 4th dose".
+  it('high-risk: five days short — dose 3 is not counted', () => {
     const r = run({ ...HR, menbDoses: [B('2026-01-10'), B('2026-02-10'), B('2026-06-05')] });
-    expect(card(r).doseLabel).toMatch(/Dose 4 of 4/);
+    expect(verdicts(r)).toEqual(['dose 1', 'dose 2', 'invalid']);
+    expect(card(r).doseLabel).toMatch(/Dose 3 of 3/);
   });
 
   it('the packet\'s "inconsistent" patient now reads complete: Bexsero 2025-06-01, 2025-07-05, 2025-11-02', () => {

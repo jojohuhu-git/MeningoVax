@@ -118,7 +118,8 @@ describe('every difference is named, with its evidence', () => {
       // 2026-11-16 (family 3): MENB-HEALTHY-EARLY-DOSE-2 (C7) and
       // MENB-HIGHRISK-DOSE-3-FROM-DOSE-1 (C5) left. EARLY-DOSE-3 stays for one
       // follow-up: the 4-day grace on C6's 6-months-from-dose-1 line.
-      'MENB-HIGHRISK-EARLY-DOSE-3',
+      // 2026-11-20: that follow-up was owner D3 (2026-11-17, grace given), and
+      // M1 (owner, 2026-11-20, "follow CDSI") removed the last difference.
     ]);
   });
 });
