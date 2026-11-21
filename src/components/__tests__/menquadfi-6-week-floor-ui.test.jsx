@@ -41,21 +41,22 @@ const show = (dob) => {
   }} />);
 };
 
+// Owner, 2026-11-21 ("Can be given (Rec.)"): from 6 weeks the MenACWY card
+// says MenQuadfi can be given today; dose 1 is still due at 2 months. Was:
+// "Not yet due (from 2 months)" with no brand offered.
 describe('a 7-week-old with asplenia', () => {
-  it('the MenACWY card reads "Not yet due (from 2 months)" — not due, despite MenQuadfi\'s 6-week licence', () => {
+  it('the MenACWY card reads "Can be given today", dose 1 of 4, next dose due at 2 months', () => {
     show('2026-08-04'); // 7 weeks (49 days) before TODAY
-    // Both MenACWY (schedule floor 2 months) and MenB (10-year floor) read
-    // this way at 7 weeks — same convention as
-    // regression-newborn-menacwy-not-due-yet-ui.test.jsx.
-    // Review v10 P21: each card names its own age (MenACWY 2 months, MenB 10 years).
-    expect(screen.getAllByText('Not yet due (from 2 months)')).toHaveLength(1);
+    expect(screen.getByText('Can be given today')).toBeDefined();
+    expect(screen.getByText('Dose 1 of 4 (infant high-risk)')).toBeDefined();
+    expect(screen.getByText('Next dose due Oct 4, 2026')).toBeDefined();
+    // MenB is unchanged: its 10-year floor.
     expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
   });
 
-  it('no brand chip is offered', () => {
+  it('offers MenQuadfi only ("Brand: MenQuadfi") — Menveo is licensed from 2 months', () => {
     show('2026-08-04');
-    expect(screen.queryByText(/brand options/i)).toBeNull();
-    expect(screen.queryByText('MenQuadfi')).toBeNull();
+    expect(screen.getByText('Brand: MenQuadfi')).toBeDefined();
     expect(screen.queryByText('Menveo 2-vial')).toBeNull();
   });
 });

@@ -401,7 +401,7 @@ export const DECISIONS = [
     short: `MenQuadfi from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}`,
     problem: `MenQuadfi is licensed from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}, younger than the infant schedule's first dose at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. A record may show a dose in between, or a dose of unknown brand.`,
     cdc: `The infant series starts at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. CDC's notes list MenQuadfi from ${age(CDC_MENQUADFI_MIN_AGE_MONTHS)}. AAP lists it from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}.`,
-    does: `Never asks for a dose before ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. A MenQuadfi dose at ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)} or older counts, following AAP. A dose of unknown brand counts only from ${age(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)}, since it may not have been MenQuadfi.`,
+    does: `Dose 1 is due at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. From ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}, a high-risk, travelling or outbreak baby with a date of birth on file can be given MenQuadfi (Can be given today), following AAP. A MenQuadfi dose at ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)} or older counts, following AAP. A dose of unknown brand counts only from ${age(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)}, since it may not have been MenQuadfi.`,
     ex: [P.menquadfi6wk, P.unknown6wk],
   },
   {
