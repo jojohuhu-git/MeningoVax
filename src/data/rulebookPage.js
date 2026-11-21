@@ -55,7 +55,7 @@ import {
 } from './brands.js';
 import { RISK_FACTORS, RISK_BY_ID } from './riskFactors.js';
 import {
-  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL, menacwyInfantHighRiskTotal,
+  MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL, MENB_HEALTHY_TOTAL, menacwyInfantHighRiskTotal,
 } from '../logic/seriesTotals.js';
 import { CITATIONS } from './refs.js';
 
@@ -76,6 +76,10 @@ const moBand = (fromM, toM) => `${fromM}–${toM - 1} months`;
 /** A count as a word, where it sits beside an age (owner, 2026-11-19). */
 const COUNT_WORDS = ['no', 'one', 'two', 'three', 'four', 'five'];
 const word = (n) => COUNT_WORDS[n] ?? `${n}`;
+/** "Two doses": a word that opens a bar or a sentence. */
+const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+/** The last whole year before an age line: "21 years" before 22. */
+const yearBefore = (toM) => `${toM / 12 - 1} years`;
 /** "3 months, 7 months, 2 years or 16 years". */
 const orList = (items) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} or ${items.at(-1)}`);
 
@@ -86,6 +90,9 @@ const orList = (items) => (items.length < 2 ? items.join('') : `${items.slice(0,
 //   `menbHealthyPreferredAge1618`), ends at the 19th birthday.
 const CDC_MENQUADFI_MIN_AGE_MONTHS = 2 * 12;
 const MENB_PREFERRED_END_MONTHS = 19 * 12;
+//   ACIP's high-risk MenB series is "0, 1–2, and 6 months" (refs.js
+//   `menbHighRisk3DoseSchedule`); the app dates dose 2 at the first of those.
+const MENB_D2_ACIP_LATEST_MONTHS = 2;
 
 // ── The worked patients ──────────────────────────────────────────────────
 /** The fixed "today" every worked patient is run on. */
@@ -250,6 +257,25 @@ const P = {
     { chip: ['MenACWY', 1, 'Not counted — repeat'] }),
   aspBoosterEarly: ex('14-year-old with asplenia, MenACWY booster 2 years after the series', { dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2023-06-10', '2023-08-15', '2025-08-15') },
     { chip: ['MenACWY', 2, 'Not counted — repeat'], due: ['MenACWY', '2030-08-15'] }),
+
+  // D1, the seven steps and Quick look (2026-11-20)
+  travelInfant: ex('Infant traveller, 4 months, no doses', { dob: '2026-07-15', riskIds: ['travel'] }, { acwy: [/^Dose 1 of 4 \(infant travel\)$/] }),
+  outbreakInfant: ex('Infant in a serogroup C outbreak, 4 months, no doses', { dob: '2026-07-15', riskIds: ['outbreak_acwy'] }, { acwy: [/^Dose 1 of 4 \(infant outbreak\)$/] }),
+  microInfant: ex('1-year-old listed as lab-exposed, no doses', { dob: '2025-11-01', riskIds: ['microbiologist'] }, { acwy: [/^Dose 1 \(boosters while at risk\)$/] }),
+  military14: ex('14-year-old military recruit, no doses', { dob: '2012-06-01', riskIds: ['military'] }, { acwy: [/^Dose 1 \(catch-up, 13–15y\)$/] }),
+  military25: ex('25-year-old military recruit, no doses', { dob: '2001-06-01', riskIds: ['military'] }, { acwy: [/^1 dose$/] }),
+  military19b: ex('19-year-old recruit, MenACWY at 11 and 16', { dob: '2007-06-01', riskIds: ['military'], menacwyDoses: doses(MV, '2018-07-01', '2023-07-01') },
+    { acwy: [/^Booster \(dose 3\) if required by assignment$/], due: ['MenACWY', '2028-07-01'] }),
+  outbreakB12: ex('12-year-old in a serogroup B outbreak, no doses', { dob: '2014-06-01', riskIds: ['outbreak_b'] },
+    { acwy: [/^Dose 1 \(routine, 11–12y\)$/], menb: [/^Dose 1 of 3 \(high-risk series\)$/], booster: [['MenB', /1 year after the primary series, if outbreak risk continues/]] }),
+  pregnant15: ex('Pregnant 15-year-old, no doses', { dob: '2011-06-01', riskIds: ['pregnancy'] },
+    { acwy: [/^Dose 1 \(catch-up, 13–15y\)$/], menb: [/^Defer during pregnancy$/] }),
+  menbHealthy17today: ex('Healthy 17-year-old, MenACWY complete, no MenB', { dob: '2009-06-01', menacwyDoses: doses(MV, '2020-07-01', '2025-07-01') },
+    { menb: [/^Dose 1 of 2 \(shared clinical decision\)$/], due: ['MenB', 'today'] }),
+  earliestInfant: ex('Infant with asplenia, MenACWY dose 1 at 2 months', { dob: '2026-08-15', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2026-10-15'), riskAtDoseAnswers: { MenACWY: yes(1) } },
+    { due: ['MenACWY', '2026-12-15'], note: [/Earliest valid date: Dec 10, 2026 \(minimum interval 8 weeks\)/] }),
+  earliestMenb: ex('14-year-old with asplenia, Bexsero dose 1 two weeks ago', { dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2024-06-10', '2024-08-15'), menbDoses: doses(BX, '2026-11-05'), riskAtDoseAnswers: { MenB: yes(1) } },
+    { due: ['MenB', '2026-12-05'], note: [/Earliest valid date: Dec 3, 2026 \(minimum interval 4 weeks\)/] }),
 };
 export const WORKED_PATIENTS = P;
 
@@ -293,6 +319,8 @@ const YEAR16 = `${y(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS)}-year`;
 const SIXTEEN_TO_18 = yrsBand(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, MENACWY_CATCHUP_MIN_AGE_MONTHS);
 const CATCHUP_ADULT = yrsBand(MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS);
 const MENB_WINDOW = yrsBand(MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS);
+const MENB_PREFERRED = yrsBand(MENB_HEALTHY_MIN_AGE_MONTHS, MENB_PREFERRED_END_MONTHS);
+const MENB_D2_ACIP_RANGE = `${MENB_HIGHRISK_D2_ROUTINE_MONTHS}–${mo(MENB_D2_ACIP_LATEST_MONTHS)}`;
 const AT10 = age(MENB_MIN_AGE_MONTHS);
 const AT7 = age(MENACWY_BOOSTER_AGE_SPLIT_MONTHS);
 const AT2Y = age(MENACWY_INFANT_SERIES_MAX_AGE_MONTHS);
@@ -661,7 +689,7 @@ export const ACWY_OTHER_NOTE = {
 
 // ── 4. MenB ──────────────────────────────────────────────────────────────
 export const MENB_HEALTHY = {
-  lead: `Healthy patients aged ${MENB_WINDOW} may be offered MenB by shared clinical decision-making, preferably at ${yrsBand(MENB_HEALTHY_MIN_AGE_MONTHS, MENB_PREFERRED_END_MONTHS)}.`,
+  lead: `Healthy patients aged ${MENB_WINDOW} may be offered MenB by shared clinical decision-making, preferably at ${MENB_PREFERRED}.`,
   doses: ['Dose 1', `≥${mo(MENB_HEALTHY_D2_MONTHS)}`],
   rows: [
     { text: `Dose 2 given <${mo(MENB_HEALTHY_D2_MONTHS)} after dose 1 counts. Give dose 3 ≥${mo(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2.`, ex: [P.menbHealthyEarly] },
@@ -763,3 +791,255 @@ export const SOURCE_DOCS = Object.values(Object.values(CITATIONS).reduce((acc, c
   if (c.lastVerified && (!d.lastVerified || c.lastVerified > d.lastVerified)) d.lastVerified = c.lastVerified;
   return acc;
 }, {})).sort((a, b) => b.quotes - a.quotes || a.name.localeCompare(b.name));
+
+// ═════════════════════════════════════════════════════════════════════════
+// D1 (owner, 2026-11-20: "Approve them all", D1 included; placement "New top,
+// then 1–8 folded"). The top of the screen: how MeningoVax decides, in seven
+// steps, then Quick look. Same rules as the parts below: no typed number, and
+// every row carries worked patients that recommend() is run on.
+// ═════════════════════════════════════════════════════════════════════════
+
+/** How MeningoVax decides: seven steps, in the engine's order. */
+export const PATH_STEPS = [
+  {
+    key: 'stop',
+    title: 'Stop check',
+    sum: 'A transplant, CAR-T therapy or B-cell therapy stops the app.',
+    ask: 'Has the patient had a stem cell transplant, CAR-T therapy, a B-cell cancer or B-cell-depleting therapy?',
+    head: ['Answer', 'What the app does'],
+    rows: [
+      { who: 'Yes', lead: 'The app stops.', rest: `It shows only "${TRANSPLANT_STOP.text.split('.')[0]}."`, tone: 'stop', ex: [P.transplant] },
+      { who: 'No', rest: 'The app goes on to the next step.', ex: [P.healthy11] },
+    ],
+    next: 'If the answer is yes, follow your institution\'s revaccination protocol.',
+    decision: 'transplant',
+  },
+  {
+    key: 'record',
+    title: 'Read the record',
+    sum: 'Each recorded dose is checked and given one label.',
+    ask: `Each dose is checked for a date, the minimum age and the minimum interval. Both minimums include the ${GRACE_DAYS}-day grace period. A combined shot counts as one MenACWY dose and one MenB dose.`,
+    // The chip, then a one-line reason (owner, 2026-11-19). Each chip is the
+    // one its worked patient's dose really shows (guarded like CHIP_LEGEND).
+    // Colours stay the app's own: the amber "do not repeat" (Q5) is not built.
+    labels: [
+      { chip: 'No date recorded — not counted', tone: 'unknown', text: 'No date on the record.', ex: [P.undated] },
+      { chip: 'Date is in the future — not counted', tone: 'unknown', text: 'Date is after today.', ex: [P.future] },
+      { chip: 'Entered twice — this row not counted', tone: 'unknown', text: 'Same dose entered twice.', ex: [P.duplicate] },
+      { chip: 'Not counted — repeat', tone: 'invalid', text: 'Minimum age not met.', ex: [P.unknown6wk] },
+      { chip: 'Not counted — repeat', tone: 'invalid', text: 'Minimum interval not met.', ex: [P.acwyTooSoon] },
+      { chip: 'Not counted — repeat', tone: 'invalid', text: 'MenB product not interchangeable with the first MenB dose.', ex: [P.wrongFamily] },
+      { chip: 'Not counted — do not repeat', tone: 'invalid', text: 'Invalid dose, but no further dose is owed.', ex: [P.doNotRepeat] },
+      { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Routine MenACWY before ${AT10}.`, ex: [P.healthy13pre10] },
+      { chip: `Not counted — given before age ${y(MENB_HEALTHY_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Healthy MenB before ${AT16}.`, ex: [P.menbPre16] },
+      { chip: 'Not counted — Extra. Do not repeat.', tone: 'extra', text: 'Given when no dose was due.', ex: [P.extraAcwy] },
+      { chip: 'Needs input', tone: 'input', text: 'Risk status on the dose date unknown.', ex: [P.riskAsk] },
+      { chip: 'Dose 2 of 2', tone: 'valid', text: 'Valid dose, with its place in the series.', ex: [P.healthy17done] },
+      { chip: 'Booster', tone: 'valid', text: 'Valid booster after a completed series.', ex: [P.boosterChip] },
+    ],
+    next: 'Repeat only the invalid dose, on the date the card shows. Do not restart the series.',
+  },
+  {
+    key: 'acwy',
+    title: 'MenACWY schedule',
+    sum: 'The patient\'s risk group determines the doses and the boosters.',
+    ask: 'If the patient is in more than one group, the first matching row applies.',
+    head: ['Patient', 'What to give'],
+    rows: [
+      { who: `Under ${AT2Y}, with asplenia, complement deficiency, HIV, travel or an A/C/W/Y outbreak`, lead: 'An infant series', rest: `of ${word(INFANT_FEWEST)} to ${word(INFANT_MOST)} doses. The age at the first dose determines how many are needed.`, ex: [P.asp2m, P.asp9m, P.travelInfant, P.outbreakInfant] },
+      { who: `${AT2Y} or older, with asplenia, complement deficiency or HIV`, lead: `${cap(word(MENACWY_HIGHRISK_PRIMARY_TOTAL))} doses,`, rest: `at least ${wk(MENACWY_HIGHRISK_PRIMARY_GAP)} apart, then boosters while at risk.`, ex: [P.asp3y, P.hiv14] },
+      { who: 'Travel, or lab work with meningococcus', lead: `${cap(word(MENACWY_SINGLE_TOTAL))} dose,`, rest: 'then boosters while the risk continues.', ex: [P.travel5, P.micro30] },
+      { who: RISK_BY_ID.military.label, lead: `${cap(word(MENACWY_SINGLE_TOTAL))} dose.`, rest: 'Boosters are given only if the assignment requires them.', decision: 'militaryAssignment', ex: [P.military25, P.military19] },
+      { who: 'A/C/W/Y outbreak', lead: `${cap(word(MENACWY_SINGLE_TOTAL))} dose.`, rest: 'A booster is given only if the outbreak continues.', ex: [P.outbreakA20, P.outbreakA20had] },
+      { who: `College residence hall, ${AT16} or older`, lead: `${cap(word(MENACWY_SINGLE_TOTAL))} dose,`, rest: `unless one was given at ${AT16} or older within the last ${yr(MENACWY_COLLEGE_COVER_YEARS)}. No booster follows.`, decision: 'collegeCover', ex: [P.college18, P.college18had16, P.college22] },
+      { who: 'None of these', lead: 'The routine schedule:', rest: `a first dose at ${ROUTINE_D1} and a booster at ${AT16}.`, ex: [P.healthy11, P.healthy16] },
+    ],
+    foot: {
+      text: `Under ${AT16}, college and military follow the routine schedule. Under ${AT16}, travel, lab work and an outbreak still get the ${YEAR16} booster, and later boosters are timed from it.`,
+      decision: 'routine16First',
+      ex: [P.college14, P.military14, P.travel15],
+    },
+  },
+  {
+    key: 'menb',
+    title: 'MenB schedule',
+    sum: `MenB is not routine. High-risk patients start at ${AT10}. Healthy patients aged ${MENB_WINDOW} may choose it.`,
+    ask: 'The first matching row applies.',
+    head: ['Patient', 'What to give'],
+    rows: [
+      { who: `Under ${AT10}`, lead: 'Nothing is due yet.', rest: `A high-risk patient starts at ${AT10}.`, ex: [P.menbAsp9] },
+      { who: `${AT10} or older, with asplenia, complement deficiency, lab work or a B outbreak`, lead: `${cap(word(MENB_HIGHRISK_TOTAL))} doses:`, rest: `the second ${mo(MENB_HIGHRISK_D2_ROUTINE_MONTHS)} after the first, the third ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after the first. Pregnancy does not delay them.`, ex: [P.menbAsp12, P.micro30, P.outbreakB12, P.pregnantAsp] },
+      { who: 'Pregnant without risk factors', lead: 'Wait', rest: 'until after pregnancy.', ex: [P.pregnant20] },
+      { who: `Healthy, ${MENB_WINDOW}`, lead: `Offer ${word(MENB_HEALTHY_TOTAL)} doses,`, rest: `${mo(MENB_HEALTHY_D2_MONTHS)} apart, after discussing it with the patient. The preferred age is ${MENB_PREFERRED}.`, ex: [P.menbHealthy17] },
+      { who: `Healthy, ${yrsBand(MENB_MIN_AGE_MONTHS, MENB_HEALTHY_MIN_AGE_MONTHS)} or ${age(MENB_HEALTHY_MAX_AGE_MONTHS)} and older`, lead: 'Not routinely recommended.', ex: [P.menbHealthy12, P.healthy25] },
+    ],
+    foot: { text: 'HIV, travel, military service, college and an A/C/W/Y outbreak do not change the MenB schedule.', ex: [P.hiv14] },
+    next: `If a healthy patient chooses MenB, give the first dose today and the second ${mo(MENB_HEALTHY_D2_MONTHS)} later.`,
+    nextEx: [P.menbHealthy17today],
+  },
+  {
+    key: 'dates',
+    title: 'Set the dates',
+    sum: 'The card shows the routine date, and the earliest valid date when it is sooner.',
+    rows: [
+      { who: 'After a valid dose', rest: 'The next dose is due on the routine date. If the minimum interval allows an earlier date, it is shown beside it.', ex: [P.earliestInfant, P.earliestMenb] },
+      // "at least": a healthy MenB dose 2 given too soon is repeated 6 months
+      // after dose 1, later than 4 weeks after the invalid dose (menbHealthy3wk).
+      { who: 'After an invalid dose', rest: `Repeat only the invalid dose, at least the minimum interval after it: ${W8} for MenACWY, ${W4} for MenB.`, ex: [P.acwyTooSoon, P.unknown6wk, P.menbHealthy3wk] },
+      { who: 'A booster', rest: 'Timed from the last dose of the series, or from the last booster.', ex: [P.aspDoneFrom7, P.travel5had, P.menbBoosterDue] },
+      { who: `A MenACWY dose within ${GRACE_DAYS} days before age ${orList(MENACWY_GRACE_LINES_M.map(age))}`, rest: 'The app applies the schedule that needs fewer doses.', decision: 'graceFewerDoses', ex: [P.grace16] },
+    ],
+  },
+  {
+    key: 'penta',
+    title: 'Combined shot (MenABCWY)',
+    sum: `${PENMENVY} or ${PENBRAYA} replaces two injections when both vaccines are due.`,
+    ask: 'It is offered only when every statement below is true.',
+    rows: [
+      { who: 'MenACWY is due today.', ex: [P.healthy16] },
+      { who: 'MenB is due today, or can be given today.', ex: [P.healthy16, P.pentaFamily] },
+      { who: `The patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.menbAsp9] },
+      { who: 'It matches the earlier MenB doses.', rest: `${PENMENVY} follows ${BEXSERO}. ${PENBRAYA} follows ${TRUMENBA}.`, ex: [P.pentaFamily] },
+      { who: `The same combined shot was not given in the last ${mo(PENTAVALENT_REPEAT_MONTHS)}.`, ex: [P.pentaRecent] },
+      { who: 'No dose on the record reads "Needs input."', ex: [P.pentaWaits] },
+    ],
+    next: 'Otherwise, MenACWY and MenB are given as two injections.',
+  },
+  {
+    key: 'cards',
+    title: 'The cards',
+    sum: 'This is what the Patient screen shows.',
+    rows: [
+      { who: 'Each vaccine', rest: 'The card shows the dose due and its date. It says "Up to date" only when nothing is left.', ex: [P.healthy11, P.healthy17done] },
+      { who: 'Each recorded dose', rest: 'Each dose has one label, from "Read the record".', ex: [P.boosterChip] },
+      { who: '"Why this"', rest: 'This opens the reasons and the CDC or ACIP sentence behind them.', ex: [P.healthy16] },
+    ],
+  },
+];
+/** Every worked patient a step names, for its one "Source". */
+export const stepExamples = (s) => [...(s.rows ?? []), ...(s.labels ?? [])].flatMap((r) => r.ex ?? [])
+  .concat(s.foot?.ex ?? [], s.nextEx ?? []).filter((e, i, a) => a.indexOf(e) === i);
+
+// ── Quick look: who gets what, by age today ──────────────────────────────
+// Short bars of one to three words across the ages they cover; blank means
+// nothing is due (owner, 2026-11-19). Each row's Details holds a few full
+// sentences, and its Sources are the app's own card citations for its
+// worked patients.
+const bar = (text, span = 1) => ({ text, span, kind: 'give' });
+const sd = (text, span = 1) => ({ text, span, kind: 'shared' });
+const wait = (text, span = 1) => ({ text, span, kind: 'wait' });
+const quiet = (text, span = 1) => ({ text, span, kind: 'quiet' });
+const blank = (span = 1) => ({ text: '', span, kind: 'blank' });
+const SAME = 'Same as healthy';
+const ACWY_BOOSTER_PAIR = `${MENACWY_FIRST_BOOSTER_YEARS_UNDER_7} or ${B5}`;
+
+export const QUICK_LOOK = {
+  acwy: {
+    name: 'MenACWY',
+    cols: [`Under ${AT2Y}`, yrsBand(MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_ROUTINE_DOSE1_AGE_MONTHS), yrsBand(MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS), yrsBand(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS), `${y(MENACWY_CATCHUP_MAX_AGE_MONTHS)}+ years`],
+    rows: [
+      { key: 'healthy', group: 'Healthy', cells: [blank(), blank(), bar('Dose 1'), bar(`Booster at ${AT16}`), blank()],
+        boosters: `At ${AT16}, if the first dose was before ${AT16}`,
+        details: [
+          `The first dose is given at ${ROUTINE_D1}, or at ${CATCHUP_TEEN} as catch-up.`,
+          `A booster is given at ${AT16}, at least ${wk(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} after the first dose.`,
+          `A patient with no dose at ${AT16} or older gets one dose by age ${yearBefore(MENACWY_CATCHUP_MAX_AGE_MONTHS)}. No booster follows it.`,
+          `From ${age(MENACWY_CATCHUP_MAX_AGE_MONTHS)}, MenACWY is not routine for a healthy adult.`,
+        ],
+        ex: [P.healthy9, P.healthy11, P.healthy14, P.healthy16, P.healthy17, P.healthy20, P.healthy25] },
+      { key: 'hr', group: 'Asplenia, complement deficiency, HIV', cells: [bar('Infant series'), bar(`${cap(word(MENACWY_HIGHRISK_PRIMARY_TOTAL))} doses`, 4)],
+        boosters: `${ACWY_BOOSTER_PAIR} after the series, then every ${MENACWY_BOOSTER_CADENCE_YEARS}`,
+        details: [
+          `Under ${AT2Y}, the infant series has ${word(INFANT_FEWEST)} to ${word(INFANT_MOST)} doses. The age at the first dose determines how many are needed.`,
+          `From ${AT2Y}, the series is ${word(MENACWY_HIGHRISK_PRIMARY_TOTAL)} doses, at least ${wk(MENACWY_HIGHRISK_PRIMARY_GAP)} apart.`,
+          `The first booster is due ${B3} after the last series dose if that dose was given before age ${AT7}, and ${B5} after it otherwise.`,
+          `Further boosters follow every ${EVERY5}, each timed from the one before, while the risk lasts.`,
+        ],
+        ex: [P.asp2m, P.asp9m, P.asp3y, P.hiv14, P.aspDoneBefore7, P.aspDoneFrom7] },
+      { key: 'travel', group: 'Travel', cells: [bar('Infant series'), bar(`${cap(word(MENACWY_SINGLE_TOTAL))} dose`, 4)],
+        boosters: `${ACWY_BOOSTER_PAIR} after the dose, then every ${MENACWY_BOOSTER_CADENCE_YEARS}`,
+        details: [
+          `Under ${AT2Y}, the infant series is given. From ${AT2Y}, ${word(MENACWY_SINGLE_TOTAL)} dose.`,
+          `The first booster is due ${B3} after that dose if it was given before age ${AT7}, and ${B5} after it otherwise.`,
+          `Further boosters follow every ${EVERY5} while travel continues.`,
+          `A patient under ${AT16} still gets the routine ${YEAR16} booster first. Later boosters are timed from it.`,
+        ],
+        ex: [P.travelInfant, P.travel5, P.travel5had, P.travel15] },
+      { key: 'acwyout', group: 'A/C/W/Y outbreak', cells: [bar('Infant series'), bar(`${cap(word(MENACWY_SINGLE_TOTAL))} dose`, 4)],
+        boosters: `${ACWY_BOOSTER_PAIR} after the dose, if the outbreak continues`,
+        details: [
+          `Under ${AT2Y}, the infant series is given. From ${AT2Y}, ${word(MENACWY_SINGLE_TOTAL)} dose.`,
+          `A booster is given only if the outbreak is still going on: ${B3} after the last dose if it was given before age ${AT7}, and ${B5} after it otherwise.`,
+          'When the outbreak ends, uncheck the outbreak box.',
+        ],
+        ex: [P.outbreakInfant, P.outbreakA20, P.outbreakA20had] },
+      { key: 'lab', group: 'Lab work', cells: [bar(`${cap(word(MENACWY_SINGLE_TOTAL))} dose`, 5)],
+        boosters: `${EVERY5} after the dose, then every ${MENACWY_BOOSTER_CADENCE_YEARS}`,
+        details: [
+          `${cap(word(MENACWY_SINGLE_TOTAL))} dose is given, at any age.`,
+          `A booster is due every ${EVERY5} while the exposure continues, each timed from the dose before.`,
+          'MenB is also given. See the MenB table.',
+        ],
+        ex: [P.micro30, P.microInfant] },
+      { key: 'military', group: 'Military recruit', cells: [quiet(SAME, 4), bar(`${cap(word(MENACWY_SINGLE_TOTAL))} dose`)],
+        boosters: `${EVERY5} after the dose, if the assignment requires`,
+        // The mockup said "Under 22 years, the routine schedule applies". That is
+        // true of the doses but not the booster: a 19-year-old recruit with
+        // doses at 11 and 16 owes one "if required by assignment" (military19b).
+        details: [
+          `Under ${age(MENACWY_CATCHUP_MAX_AGE_MONTHS)}, the doses follow the routine schedule. From ${age(MENACWY_CATCHUP_MAX_AGE_MONTHS)}, ${word(MENACWY_SINGLE_TOTAL)} dose is given.`,
+          `A booster is due ${EVERY5} after the last dose, but only if the assignment requires it.`,
+          'The app cannot see the assignment, so the card never says "Complete."',
+        ],
+        decision: 'militaryAssignment',
+        ex: [P.military14, P.military18, P.military19b, P.military25] },
+      { key: 'college', group: 'College residence hall', cells: [quiet(SAME, 3), bar(`${cap(word(MENACWY_SINGLE_TOTAL))} dose`, 2)],
+        boosters: { quiet: 'None' },
+        details: [
+          `Under ${AT16}, the routine schedule applies.`,
+          `From ${AT16}, ${word(MENACWY_SINGLE_TOTAL)} dose is given before college entry, unless one was given at ${AT16} or older within the last ${yr(MENACWY_COLLEGE_COVER_YEARS)}.`,
+          'No booster follows.',
+        ],
+        decision: 'collegeCover',
+        ex: [P.college14, P.college18, P.college18had16, P.college22] },
+    ],
+    note: { text: 'Serogroup B outbreak and pregnancy: same as healthy.', ex: [P.outbreakB12, P.pregnant15] },
+  },
+  menb: {
+    name: 'MenB',
+    cols: [`Under ${AT10}`, yrsBand(MENB_MIN_AGE_MONTHS, MENB_HEALTHY_MIN_AGE_MONTHS), MENB_WINDOW, `${y(MENB_HEALTHY_MAX_AGE_MONTHS)}+ years`],
+    rows: [
+      { key: 'bhealthy', group: 'Healthy', cells: [blank(), blank(), sd(`${cap(word(MENB_HEALTHY_TOTAL))} doses`), blank()],
+        boosters: { quiet: 'None' },
+        details: [
+          `MenB is offered after discussion with the patient: ${word(MENB_HEALTHY_TOTAL)} doses, ${mo(MENB_HEALTHY_D2_MONTHS)} apart. The preferred age is ${MENB_PREFERRED}.`,
+          `If the second dose came less than ${mo(MENB_HEALTHY_D2_MONTHS)} after the first, a third dose is given at least ${mo(MENB_HEALTHY_RESCUE_MONTHS)} after the second.`,
+          `A dose before ${AT16} does not count. No booster follows the series.`,
+        ],
+        ex: [P.menbHealthy12, P.menbHealthy17, P.menbHealthyEarly, P.menbPre16, P.healthy25] },
+      { key: 'bhr', group: 'Asplenia, complement deficiency, lab work', cells: [blank(), bar(`${cap(word(MENB_HIGHRISK_TOTAL))} doses`, 3)],
+        boosters: `${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL.replace(/ years$/, '')}`,
+        details: [
+          `From ${AT10}, with no upper age limit, the series is ${word(MENB_HIGHRISK_TOTAL)} doses: the second ${mo(MENB_HIGHRISK_D2_ROUTINE_MONTHS)} after the first (ACIP allows ${MENB_D2_ACIP_RANGE}), the third ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after the first.`,
+          `If the second dose came ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} or more after the first, a third dose is not needed.`,
+          `The first booster is due ${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the last series dose. Further boosters follow every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while the risk lasts. The app dates each one ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)} after the last.`,
+        ],
+        ex: [P.menbAsp9, P.menbAsp12, P.micro30, P.menbD2at6, P.menbBoosterDue, P.menbOutbreakAsp] },
+      { key: 'bout', group: 'Serogroup B outbreak', cells: [blank(), bar(`${cap(word(MENB_HIGHRISK_TOTAL))} doses`, 3)],
+        boosters: `One, ${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series`,
+        details: [
+          `The series is ${word(MENB_HIGHRISK_TOTAL)} doses: the second ${mo(MENB_HIGHRISK_D2_ROUTINE_MONTHS)} after the first (ACIP allows ${MENB_D2_ACIP_RANGE}), the third ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after the first.`,
+          `One booster is given ${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the last series dose, if the outbreak is still going on. No further boosters follow.`,
+        ],
+        ex: [P.outbreakB12, P.menbOutbreakDone] },
+      { key: 'preg', group: 'Pregnancy', cells: [wait('Wait until after pregnancy', 4)],
+        boosters: null,
+        details: [
+          'MenB waits until after pregnancy.',
+          `A patient with asplenia, complement deficiency, lab exposure or a serogroup B outbreak gets the ${word(MENB_HIGHRISK_TOTAL)}-dose series now.`,
+        ],
+        ex: [P.pregnant20, P.pregnantAsp] },
+    ],
+    note: { text: 'HIV, travel, military, college and an A/C/W/Y outbreak: same as healthy.', ex: [P.hiv14] },
+  },
+};

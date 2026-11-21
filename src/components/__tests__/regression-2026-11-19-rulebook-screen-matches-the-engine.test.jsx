@@ -187,12 +187,16 @@ describe('Rulebook screen — every list is the app\'s own list', () => {
 describe('Rulebook screen — what a clinician sees', () => {
   it('shows the parts in the order the app decides', () => {
     render(<Rulebook />);
+    // D1 (owner, 2026-11-20): the seven steps and Quick look first, the
+    // numbered parts behind one "Full rulebook" tap.
+    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
     const h2 = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-    expect(h2).toEqual(Object.values(HEADINGS).map((h, i) => `${i + 1}. ${h}`));
+    expect(h2.slice(3)).toEqual(Object.values(HEADINGS).map((h, i) => `${i + 1}. ${h}`));
   });
 
   it('a Source button opens the quoted sentence, and a decision opens its three parts', () => {
     render(<Rulebook />);
+    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
     const src = screen.getAllByRole('button', { name: 'Source' })[0];
     fireEvent.click(src);
     expect(src.getAttribute('aria-expanded')).toBe('true');
