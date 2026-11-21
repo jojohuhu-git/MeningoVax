@@ -8,7 +8,7 @@ owner is a clinician: plain English, ask, don't default. **Supersedes**
 Branch: `port/review-v10-rulebook`, off `origin/main` `37ef2fd` (PR #124, Batches 1–4, merged).
 **Pushed; PR #125 open against `main`** (https://github.com/jojohuhu-git/MeningoVax/pull/125),
 waiting for the owner to merge. Baseline was 2,322 / 193; now **2,356 passed (195 files)**, all
-green (`npm test`, 2026-11-20). Commits `6c72c1a` (5a), `e061354` (D1), the R91 change and this handoff.
+green (`npm test`, 2026-11-20; 2,359 after the last wording commits). Commits `6c72c1a` (5a), `e061354` (D1), the R91 change and this handoff.
 
 ## The source of truth
 
@@ -37,7 +37,9 @@ sentence** "Recommendations are based on age, risk conditions and dated vaccine 
    dose 1; worked patient `menbHealthy3wk` now on that row). R102 keeps "at the minimum interval":
    it covers only a too-young first dose, where that is exact.
 4. **Two "No change" lines, semicolons to periods** (owner): "Sooner still counts. Dose 3 is added." and
-   "…Dose 4 is added." in part 6's intervals table. Suite then **2,357 / 195**.
+   "…Dose 4 is added." in part 6's intervals table. Then (owner, "Yes, both") R50 takes a comma and
+   the "Applies in:" lists join with commas. A test now finds no semicolon anywhere in the screen's
+   own words (CDC's quoted sentences keep theirs). Suite **2,359 / 195**.
    **D1 was changed from the mockup so it is true of the app** (in PR #125): military Details ("the doses
    follow the routine schedule"); "After an invalid dose … at least the minimum interval"; label
    colours stay the app's own (Q5 not built), and the "Red labels mean… amber…" sentence is left out.
@@ -45,9 +47,6 @@ sentence** "Recommendations are based on age, risk conditions and dated vaccine 
 ## What's NOT done
 
 - **Owner: review and merge PR #125.** Point out the "changed from the approved words" table there.
-- **Two semicolons left on the Rulebook screen, owner not yet asked:** R50 ("Infant series: early
-  doses ≥8 weeks apart; the final dose…", `ACWY_HIGHRISK_NOTES.spacing`) and the "Applies in:" list
-  under each MeningoVax decision ("MenB; Doses on the record", joined in `Rulebook.jsx`).
 - **Q5** (amber "Not counted — do not repeat"): approved, but **remind the owner to check PneumoVax's
   labels first**. Building it also means adding back the step 2 colour sentence.
 - **STOP H**: owner reviews the rulebook (`docs/agent/meningococcal-rules-summary.md`), per the plan.

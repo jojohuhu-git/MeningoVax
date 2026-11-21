@@ -175,6 +175,21 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
   });
 });
 
+describe('Style rule 4 on the whole Rulebook screen (owner, 2026-11-20: R50 and "Applies in" too)', () => {
+  it('R50 uses a comma', () => {
+    expect(ACWY_HIGHRISK_NOTES.spacing).toBe('Infant series: early doses ≥8 weeks apart, the final dose ≥12 weeks after the one before and at 12 months or older.');
+  });
+  it('no semicolon anywhere in the app\'s own words on the screen (CDC\'s quoted sentences keep theirs)', () => {
+    render(<Rulebook />);
+    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
+    for (const b of screen.getAllByRole('button', { name: /^(Show|Details|MeningoVax decision: .*)$/ })) fireEvent.click(b);
+    const copy = document.body.cloneNode(true);
+    copy.querySelectorAll('.rb-src-panel, .rb-doc').forEach((e) => e.remove());
+    expect(copy.textContent).toContain('Applies in:');   // not vacuous: part 7 is open
+    expect(copy.textContent.match(/[^;]{0,40};[^;]{0,40}/g) ?? []).toEqual([]);
+  });
+});
+
 describe('Review v10 Batch 5a — part 7, MeningoVax decisions (R94–R104)', () => {
   it('R94: "CDC and ACIP say:" followed by a statement, never a command', () => {
     expect(DECISION.transplant.cdc).toBe('Revaccination for these patients falls outside the routine and risk-based schedules.');

@@ -668,7 +668,7 @@ export const ACWY_HIGHRISK_LANES = [
   },
 ];
 export const ACWY_HIGHRISK_NOTES = {
-  spacing: `Infant series: early doses ≥${wk(MENACWY_INFANT_EARLY_GAP)} apart; the final dose ≥${W12} after the one before and at ${AT12M} or older.`,
+  spacing: `Infant series: early doses ≥${wk(MENACWY_INFANT_EARLY_GAP)} apart, the final dose ≥${W12} after the one before and at ${AT12M} or older.`,
   boosters: `The first booster is ${B3} after the series if it ended before ${AT7}, otherwise ${B5}. Each later booster is ${EVERY5} after the last, while at risk.`,
   boostersEx: [P.aspDoneBefore7, P.aspDoneFrom7],
 };

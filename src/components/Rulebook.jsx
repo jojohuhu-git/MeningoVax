@@ -426,7 +426,7 @@ function DecisionItem({ d }) {
       <FoldBar name={d.short} open={open} toggle={toggle} />
       <h4 className="rb-h4 rb-fold-title">{d.short}</h4>
       <span className="rb-dec-body"><DecisionText d={d} /></span>
-      <span className="rb-cell-note">Applies in: {DECISION_USES[d.key].join('; ')}</span>
+      <span className="rb-cell-note">Applies in: {DECISION_USES[d.key].join(', ')}</span>
     </li>
   );
 }
