@@ -2,12 +2,17 @@
 // Rulebook.jsx — the "Rulebook" view (port Phase 7.2; owner Q11, 2026-11-19:
 // "Yes, like PneumoVax").
 //
-// PneumoVax's screen, brought here: the parts follow the order the app
-// decides in (the transplant stop, the vaccines, age and risk group, MenACWY,
-// MenB, the combined shot, doses on the record, then MeningoVax's own
-// decisions and the sources). It is a view of the same tab, switched from the
-// header ("Patient | Rulebook"); App.jsx keeps the patient part mounted but
-// hidden, so a half-entered patient is still there on the way back.
+// The Rulebook reorganization (owner, 2026-11-20; decisions in
+// docs/archive/decisions-2026-11-20-rulebook-reorg.md, drawn and approved
+// "Build as shown"): "How MeningoVax decides" is one fold of seven one-line
+// steps, each linking to its part. Then nine parts, each its own fold, all
+// closed when the screen opens. Each thing is said once: no Quick look, no
+// age lines, no risk-group table. Every schedule is a Dose | Routine |
+// Minimum interval table, the Minimum interval column shaded light grey.
+//
+// It is a view of the same tab, switched from the header ("Patient |
+// Rulebook"); App.jsx keeps the patient part mounted but hidden, so a
+// half-entered patient is still there on the way back.
 //
 // This file renders and decides nothing. Every sentence, age and interval
 // comes from src/data/rulebookPage.js, which draws its numbers from the
@@ -18,24 +23,17 @@
 import React, { useState } from 'react';
 import {
   HEADINGS, DECISIONS, DECISION, DECISION_USES, decisionsOf, sourcesFor, TRANSPLANT_STOP,
-  VACCINE_ROWS, FAMILIES, AGE_LINES, RISK_ROWS, RISK_RANKING, ACWY_ROUTINE, ACWY_BY_AGE,
-  ACWY_HISTORY_NOTES, ACWY_HIGHRISK_LANES, ACWY_HIGHRISK_NOTES, ACWY_OTHER, ACWY_OTHER_NOTE,
-  MENB_HEALTHY, MENB_HIGHRISK, MENB_PREGNANCY, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS,
-  NOT_COUNTED, SOURCE_DOCS, PATH_STEPS, stepExamples, QUICK_LOOK,
+  VACCINE_ROWS, FAMILIES, ACWY_GROUPS, MENB_GROUPS, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES,
+  ACWY_HIGHRISK_TABLES, ACWY_HIGHRISK_NOTES, MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER,
+  MENB_PREGNANCY, RISK_RANKING, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS, SOONER_ADDS, NOT_COUNTED,
+  SOURCE_GROUPS, PATH_STEPS,
 } from '../data/rulebookPage.js';
 
-const SECTIONS = [
-  ['rb-vaccines', HEADINGS.vaccines],
-  ['rb-who', HEADINGS.who],
-  ['rb-acwy', HEADINGS.acwy],
-  ['rb-menb', HEADINGS.menb],
-  ['rb-penta', HEADINGS.penta],
-  ['rb-record', HEADINGS.record],
-  ['rb-decisions', HEADINGS.decisions],
-  ['rb-sources', HEADINGS.sources],
-];
+/** The nine parts, in the order the app decides. */
+const PARTS = Object.keys(HEADINGS);
+const partId = (key) => `rb-${key}`;
 
-/** A decision's three labelled lines, shared by the chip and part 7. */
+/** A decision's three labelled lines, shared by the chip and the decisions part. */
 function DecisionText({ d }) {
   return (
     <>
@@ -51,13 +49,10 @@ function useFold() {
   const [open, setOpen] = useState(false);
   return [open ? ' rb-fold rb-open' : ' rb-fold', open, () => setOpen((v) => !v)];
 }
-function FoldBar({ name, summary, open, toggle }) {
+function FoldBar({ name, open, toggle }) {
   return (
     <button type="button" className="rb-fold-btn" aria-expanded={open} onClick={toggle}>
-      <span className="rb-fold-text">
-        <strong className="rb-fold-name">{name}</strong>
-        {summary && <span className="rb-fold-sum">{summary}</span>}
-      </span>
+      <span className="rb-fold-text"><strong className="rb-fold-name">{name}</strong></span>
       <span className="rb-fold-mark">{open ? 'Hide' : 'Show'}</span>
     </button>
   );
@@ -112,35 +107,8 @@ function Source({ row, keys }) {
   );
 }
 
-function DoseBox({ children, done }) {
-  const cls = ['rb-dose', done && 'rb-dose-done'].filter(Boolean).join(' ');
-  return <span className={cls}>{children}</span>;
-}
-const Arrow = () => <span className="rb-arrow" aria-hidden="true">&rarr;</span>;
-/**
- * Dose boxes joined by arrows, ending in Complete unless told otherwise.
- * When the doses carry ages, the ages sit on a second row of the same grid,
- * each under its own box, so every box and arrow stays on one line (owner,
- * 2026-11-19: the Complete box was misaligned).
- */
-function Series({ doses, end = 'Complete' }) {
-  const items = [];
-  doses.forEach((d, i) => {
-    if (i > 0) items.push({ arrow: true });
-    items.push(typeof d === 'string' ? { text: d } : d);
-  });
-  if (end) items.push({ arrow: true }, { text: end, done: true });
-  const timed = doses.some((d) => typeof d !== 'string');
-  const top = items.map((it, i) => (it.arrow
-    ? <Arrow key={`a${i}`} />
-    : <DoseBox key={`d${i}`} done={it.done}>{it.text}</DoseBox>));
-  if (!timed) return <div className="rb-pattern-doses">{top}</div>;
-  return (
-    <div className="rb-pattern-doses rb-timed" style={{ gridTemplateColumns: `repeat(${items.length}, auto)` }}>
-      {top}
-      {items.map((it, i) => <span key={`t${i}`} className="rb-tick-age">{it.age ?? ''}</span>)}
-    </div>
-  );
+function DoseBox({ children }) {
+  return <span className="rb-dose">{children}</span>;
 }
 
 function Card({ id, title, children, tone }) {
@@ -152,42 +120,130 @@ function Card({ id, title, children, tone }) {
   );
 }
 
-// ── The stop: the first thing the app checks ─────────────────────────────
+/** A line under a table, with its decision and its Source. */
+function Line({ row }) {
+  return <p className="rb-small">{row.text}<Decisions row={row} /><Source row={row} /></p>;
+}
+
+// ── Group table: Group | Doses | Boosters (item 4) ───────────────────────
+// Details sits under the group name and opens the row's short panel; one row
+// open at a time, a second tap closes it. Only blue (shared decision) and
+// amber (wait) cells are tinted.
+const TONE_CLASS = { shared: 'rb-tint-shared', wait: 'rb-tint-wait' };
+function GroupTable({ t, label }) {
+  const [openKey, setOpenKey] = useState(null);
+  return (
+    <>
+      <table className="rb-table rb-fixed rb-groups-table" aria-label={label}>
+        <colgroup><col className="rb-w34" /><col className="rb-w33" /><col /></colgroup>
+        <thead><tr><th>Group</th><th>Doses</th><th>Boosters</th></tr></thead>
+        <tbody>
+          {t.rows.map((r) => {
+            const open = openKey === r.key;
+            return (
+              <React.Fragment key={r.key}>
+                <tr className={open ? 'rb-g-on' : undefined}>
+                  <th scope="row" className="rb-g-name">
+                    {r.group}
+                    <button type="button" className="rb-g-details" aria-expanded={open} onClick={() => setOpenKey(open ? null : r.key)}>
+                      {open ? 'Close' : 'Details'}
+                    </button>
+                  </th>
+                  <td className={TONE_CLASS[r.tone]}>{r.doses}</td>
+                  <td>{r.boosters ?? '—'}</td>
+                </tr>
+                {open && (
+                  <tr className="rb-g-det">
+                    <td colSpan={3}>
+                      <div className="rb-g-detin">
+                        <ul className="rb-bullets">{r.details.map((d) => <li key={d}>{d}</li>)}</ul>
+                        <p className="rb-cell-note"><Decisions row={r} /><Source row={r} /></p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+      <Line row={t.note} />
+    </>
+  );
+}
+
+// ── Schedule table: Dose | Routine | Minimum interval (item 6) ───────────
+// The Minimum interval column is shaded light grey (owner, 2026-11-20).
+function ScheduleTable({ rows, label }) {
+  return (
+    <table className="rb-table rb-fixed rb-sched" aria-label={label}>
+      <colgroup><col className="rb-w22" /><col className="rb-w39" /><col /></colgroup>
+      <thead><tr><th>Dose</th><th>Routine</th><th className="rb-min">Minimum interval</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.dose}>
+            <th scope="row" className="rb-strong-wrap">{r.dose}</th>
+            <td>{r.routine}</td>
+            <td className="rb-min">{r.min}<Decisions row={r} /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+/**
+ * The line under a schedule table, if any, ending in ONE Source for the table
+ * and the line together (two Source links in a row read as a mistake).
+ */
+function TableFoot({ s, note }) {
+  const both = { ex: [...(s.ex ?? []), ...(note?.ex ?? [])] };
+  if (!note) return <p className="rb-cell-note"><Source row={both} /></p>;
+  return <p className="rb-small">{note.text}<Decisions row={note} /><Source row={both} /></p>;
+}
+function Schedule({ s, title }) {
+  const note = s.note && (typeof s.note === 'string' ? { text: s.note, decision: s.decision } : s.note);
+  return (
+    <div className="rb-sched-block">
+      <h4 className="rb-h4">{title ?? s.title}</h4>
+      <ScheduleTable rows={s.rows} label={title ?? s.title} />
+      <TableFoot s={s} note={note} />
+    </div>
+  );
+}
+
+// ── The parts ────────────────────────────────────────────────────────────
 function Stop() {
   return (
-    <Card id="rb-stop" title={TRANSPLANT_STOP.title} tone="stop">
+    <Card id="rb-stop-card" title={TRANSPLANT_STOP.title} tone="stop">
       <p className="rb-body">{TRANSPLANT_STOP.text}<Decisions row={TRANSPLANT_STOP} /></p>
     </Card>
   );
 }
 
-// ── 1. The vaccines ──────────────────────────────────────────────────────
 function Vaccines() {
   return (
     <>
       <p className="rb-lead">MenACWY and MenB have separate schedules. One MenABCWY injection gives a dose of each.</p>
-      <div className="rb-card"><div className="rb-scroll">
-        <table className="rb-table rb-fixed rb-freeze">
-          {/* Q2: "Counts as" holds a brand name ("Trumenba"), wider than the old "FHbp". */}
-          <colgroup><col className="rb-w18" /><col className="rb-w12" /><col className="rb-w18" /><col /></colgroup>
-          <thead><tr><th className="rb-freeze-col">Vaccine</th><th>Minimum age</th><th>Counts as</th><th>Use</th></tr></thead>
+      <div className="rb-card">
+        <table className="rb-table rb-fixed">
+          <colgroup><col className="rb-w24" /><col className="rb-w18" /><col /></colgroup>
+          <thead><tr><th>Vaccine</th><th>Minimum age</th><th>Use</th></tr></thead>
           <tbody>
             {VACCINE_ROWS.map((g) => (
               <React.Fragment key={g.name}>
-                <tr className="rb-grp"><td colSpan={4}><span className="rb-grp-label">{g.name}</span></td></tr>
+                <tr className="rb-grp"><td colSpan={3}><span className="rb-grp-label">{g.name}</span></td></tr>
                 {g.rows.map((p) => (
                   <tr key={p.key}>
-                    <td className="rb-freeze-col rb-strong" data-label="Vaccine">{p.name}</td>
-                    <td data-label="Minimum age">{p.minAge}</td>
-                    <td data-label="Counts as">{p.countsAs}</td>
-                    <td data-label="Use">{p.use}<Decisions row={p} /></td>
+                    <td className="rb-strong-wrap">{p.name}</td>
+                    <td>{p.minAge}</td>
+                    <td>{p.use}<Decisions row={p} /></td>
                   </tr>
                 ))}
               </React.Fragment>
             ))}
           </tbody>
         </table>
-      </div></div>
+      </div>
 
       <Card id="rb-families" title={FAMILIES.title}>
         {FAMILIES.rows.map((f) => (
@@ -197,167 +253,96 @@ function Vaccines() {
             ))}
           </div>
         ))}
-        <p className="rb-small">{FAMILIES.note}<Source row={FAMILIES} /></p>
+        <p className="rb-small">{FAMILIES.note} {FAMILIES.finish}<Source row={FAMILIES} /></p>
       </Card>
     </>
-  );
-}
-
-// ── 2. Age and risk group ────────────────────────────────────────────────
-/** What to give, then (if any) when boosters are due, on its own line. */
-function GiveCell({ cell }) {
-  return (
-    <>
-      <span className={cell.boosters === null && /^Same as/.test(cell.give) ? 'rb-any' : undefined}>{cell.give}</span>
-      {cell.boosters && <span className="rb-cell-text">{cell.boosters}</span>}
-    </>
-  );
-}
-function RiskRow({ r }) {
-  return (
-    <tr>
-      <td className="rb-freeze-col rb-strong-wrap" data-label="Condition">{r.name}</td>
-      <td data-label="MenACWY"><GiveCell cell={r.acwy} /></td>
-      <td data-label="MenB"><GiveCell cell={r.menb} /><Source row={r} /></td>
-    </tr>
-  );
-}
-
-function Who() {
-  return (
-    <>
-      <Card id="rb-ages" title="Age lines, youngest first">
-        <ol className="rb-agetrack">
-          {AGE_LINES.map((a) => (
-            <li key={a.age} className="rb-agestop">
-              <strong className="rb-agestop-age">{a.age}</strong>
-              <span className="rb-agestop-text">{a.text}</span>
-            </li>
-          ))}
-        </ol>
-      </Card>
-
-      <Card id="rb-groups" title="Risk groups">
-        <p className="rb-small">This table gives the doses and boosters for each condition.</p>
-        <div className="rb-scroll">
-          <table className="rb-table rb-freeze">
-            <thead><tr><th className="rb-w24 rb-freeze-col">Condition</th><th>MenACWY</th><th>MenB</th></tr></thead>
-            <tbody>{RISK_ROWS.map((r) => <RiskRow key={r.id} r={r} />)}</tbody>
-          </table>
-        </div>
-      </Card>
-
-      <Card id="rb-multi" title="When a patient has more than one condition">
-        <p className="rb-small">{RISK_RANKING.lead}</p>
-        <div className="rb-scroll">
-          <table className="rb-table">
-            <thead><tr><th className="rb-w40">If the patient has</th><th>Give</th></tr></thead>
-            <tbody>
-              {RISK_RANKING.steps.map((s) => (
-                <tr key={s.name}>
-                  <td className="rb-strong-wrap" data-label="If the patient has">{s.name}</td>
-                  <td data-label="Give">{s.text}<Decisions row={s} /><Source row={s} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </>
-  );
-}
-
-// ── 3. MenACWY ───────────────────────────────────────────────────────────
-function HighRiskLane({ lane }) {
-  const [cls, open, toggle] = useFold();
-  return (
-    <div className={`rb-lane${cls}`}>
-      <FoldBar name={`Dose 1 at ${lane.start}`} summary={lane.doses.join(' → ')} open={open} toggle={toggle} />
-      <strong className="rb-lane-name rb-fold-title">Dose 1 at {lane.start}</strong>
-      <Series doses={lane.doses} end="Boosters" />
-      {lane.note && <p className="rb-cell-note">{lane.note}<Decisions row={lane} /></p>}
-      <p className="rb-cell-note"><Source row={lane} /></p>
-    </div>
   );
 }
 
 function MenACWY() {
   return (
     <>
-      <Card id="rb-acwy-routine" title="Routine, no risk factor">
-        <Series doses={ACWY_ROUTINE.doses} />
-        <p className="rb-small">{ACWY_ROUTINE.note}<Source row={ACWY_ROUTINE} /></p>
-        <div className="rb-scroll">
-          <table className="rb-table">
-            <thead><tr><th className="rb-w30">Age today, no doses</th><th>Next step</th></tr></thead>
-            <tbody>
-              {ACWY_BY_AGE.map((r) => (
-                <tr key={r.age}><td className="rb-strong" data-label="Age today">{r.age}</td><td data-label="Next step">{r.next}<Source row={r} /></td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <ul className="rb-bullets">
-          {ACWY_HISTORY_NOTES.map((n) => <li key={n.text}>{n.text}<Source row={n} /></li>)}
-        </ul>
+      <div className="rb-card"><GroupTable t={ACWY_GROUPS} label="MenACWY groups" /></div>
+
+      <Card id="rb-acwy-routine" title={ACWY_ROUTINE.title}>
+        <ScheduleTable rows={ACWY_ROUTINE.rows} label={ACWY_ROUTINE.title} />
+        <TableFoot s={ACWY_ROUTINE} />
+        <table className="rb-table">
+          <thead><tr><th className="rb-w30">Age today, no doses</th><th>Next step</th></tr></thead>
+          <tbody>
+            {ACWY_BY_AGE.map((r) => (
+              <tr key={r.age}><td className="rb-strong">{r.age}</td><td>{r.next}<Source row={r} /></td></tr>
+            ))}
+          </tbody>
+        </table>
+        {ACWY_HISTORY_NOTES.map((n) => <Line key={n.text} row={n} />)}
       </Card>
 
       <Card id="rb-acwy-highrisk" title="High risk: asplenia, complement deficiency, HIV">
-        <p className="rb-small">The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.</p>
-        <div className="rb-lanes">{ACWY_HIGHRISK_LANES.map((l) => <HighRiskLane key={l.start} lane={l} />)}</div>
-        <p className="rb-small">{ACWY_HIGHRISK_NOTES.spacing}</p>
+        <p className="rb-small">{ACWY_HIGHRISK_NOTES.lead}</p>
+        {ACWY_HIGHRISK_TABLES.map((t) => (
+          <Schedule key={t.start} s={t} title={`Dose 1 at ${t.start}`} />
+        ))}
         <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
-      </Card>
-
-      <Card id="rb-acwy-other" title="Other indications">
-        <div className="rb-scroll">
-          <table className="rb-table rb-freeze">
-            <thead><tr><th className="rb-w30 rb-freeze-col">Indication</th><th className="rb-w24">Primary</th><th>Boosters</th></tr></thead>
-            <tbody>
-              {ACWY_OTHER.map((r) => (
-                <tr key={r.name}>
-                  <td className="rb-freeze-col rb-strong-wrap" data-label="Indication">{r.name}</td>
-                  <td data-label="Primary">{r.primary}</td>
-                  <td data-label="Boosters">{r.boosters}<Decisions row={r} /><Source row={r} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="rb-small">{ACWY_OTHER_NOTE.text}<Decisions row={ACWY_OTHER_NOTE} /><Source row={ACWY_OTHER_NOTE} /></p>
       </Card>
     </>
   );
 }
 
-// ── 4. MenB ──────────────────────────────────────────────────────────────
 function MenB() {
   return (
     <>
-      <Card id="rb-menb-healthy" title="Healthy: shared clinical decision-making">
-        <p className="rb-small">{MENB_HEALTHY.lead}<Source row={MENB_HEALTHY} /></p>
-        <Series doses={MENB_HEALTHY.doses} />
-        <ul className="rb-bullets">
-          {MENB_HEALTHY.rows.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
-        </ul>
+      <div className="rb-card"><GroupTable t={MENB_GROUPS} label="MenB groups" /></div>
+
+      <Card id="rb-menb-healthy" title={MENB_HEALTHY.title}>
+        <ScheduleTable rows={MENB_HEALTHY.rows} label={MENB_HEALTHY.title} />
+        <TableFoot s={MENB_HEALTHY} note={MENB_HEALTHY.note} />
       </Card>
 
-      <Card id="rb-menb-highrisk" title="High risk">
-        <p className="rb-small">{MENB_HIGHRISK.lead}<Source row={MENB_HIGHRISK} /></p>
-        <Series doses={MENB_HIGHRISK.doses} end="Boosters" />
-        <ul className="rb-bullets">
-          {MENB_HIGHRISK.rows.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
-        </ul>
+      <Card id="rb-menb-highrisk" title={MENB_HIGHRISK.title}>
+        <ScheduleTable rows={MENB_HIGHRISK.rows} label={MENB_HIGHRISK.title} />
+        <TableFoot s={MENB_HIGHRISK} note={MENB_HIGHRISK.note} />
+
+        <h4 className="rb-h4">{MENB_DOSE3_EARLY.title}</h4>
+        <table className="rb-table rb-fixed" aria-label={MENB_DOSE3_EARLY.title}>
+          <colgroup><col className="rb-w55" /><col /></colgroup>
+          <thead><tr><th>Dose 3 was given</th><th>Result</th></tr></thead>
+          <tbody>
+            {MENB_DOSE3_EARLY.rows.map((r) => (
+              <tr key={r.given}><td>{r.given}</td><td>{r.result}<Decisions row={r} /><Source row={r} /></td></tr>
+            ))}
+          </tbody>
+        </table>
+        {MENB_OTHER.map((r) => <Line key={r.text} row={r} />)}
       </Card>
 
       <Card id="rb-menb-pregnancy" title="Pregnancy">
-        <p className="rb-small">{MENB_PREGNANCY.text}<Source row={MENB_PREGNANCY} /></p>
+        <Line row={MENB_PREGNANCY} />
       </Card>
     </>
   );
 }
 
-// ── 5. The combined shot ─────────────────────────────────────────────────
+function Multi() {
+  return (
+    <div className="rb-card">
+      <p className="rb-small">{RISK_RANKING.lead}</p>
+      <table className="rb-table rb-fixed">
+        <colgroup><col className="rb-w40" /><col /></colgroup>
+        <thead><tr><th>If the patient has</th><th>Give</th></tr></thead>
+        <tbody>
+          {RISK_RANKING.steps.map((s) => (
+            <tr key={s.name}>
+              <td className="rb-strong-wrap">{s.name}</td>
+              <td>{s.text}<Decisions row={s} /><Source row={s} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function Penta() {
   return (
     <div className="rb-card">
@@ -368,7 +353,6 @@ function Penta() {
   );
 }
 
-// ── 6. Doses on the record ───────────────────────────────────────────────
 const CHIP_CLASS = { valid: 'dose-val-valid', invalid: 'dose-val-invalid', extra: 'dose-val-offwindow', unknown: 'dose-val-unknown', input: 'dose-val-needs-input' };
 const Chip = ({ tone, children }) => <span className={`dose-val-chip ${CHIP_CLASS[tone]}`}>{children}</span>;
 
@@ -390,35 +374,38 @@ function Record() {
 
       <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
         <p className="rb-band rb-band-green">{GRACE.text}<Decisions row={GRACE} /></p>
-        <div className="rb-scroll">
-          <table className="rb-table">
-            <thead><tr><th className="rb-w40">Doses</th><th>Minimum interval</th></tr></thead>
-            <tbody>
-              {INTERVALS.map((r) => (
-                <tr key={r.doses}>
-                  <td data-label="Doses">{r.doses}</td>
-                  <td data-label="Minimum interval">
-                    <strong>{r.gap}</strong>
-                    {r.text && <span className="rb-cell-text">{r.text}</span>}
-                    <Decisions row={r} /><Source row={r} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <table className="rb-table rb-fixed">
+          <colgroup><col className="rb-w40" /><col /></colgroup>
+          <thead><tr><th>Doses</th><th className="rb-min">Minimum interval</th></tr></thead>
+          <tbody>
+            {INTERVALS.map((r) => (
+              <tr key={r.doses}>
+                <td>{r.doses}</td>
+                <td className="rb-min"><strong>{r.gap}</strong><Decisions row={r} /><Source row={r} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <h4 className="rb-h4">{SOONER_ADDS.title}</h4>
+        <ul className="rb-bullets">
+          {SOONER_ADDS.rows.map((r) => <li key={r.text}>{r.text}<Source row={r} /></li>)}
+        </ul>
       </Card>
 
       <Card id="rb-not-counted" title="A dose that does not count">
+        <h4 className="rb-h4">General rules</h4>
         <ul className="rb-bullets">
-          {NOT_COUNTED.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
+          {NOT_COUNTED.general.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
+        </ul>
+        <h4 className="rb-h4">Special cases</h4>
+        <ul className="rb-bullets">
+          {NOT_COUNTED.special.map((r) => <li key={r.text}>{r.text}<Decisions row={r} /><Source row={r} /></li>)}
         </ul>
       </Card>
     </>
   );
 }
 
-// ── 7. MeningoVax decisions ──────────────────────────────────────────────
 function DecisionItem({ d }) {
   const [cls, open, toggle] = useFold();
   return (
@@ -430,7 +417,6 @@ function DecisionItem({ d }) {
     </li>
   );
 }
-
 function DecisionList() {
   return (
     <>
@@ -442,181 +428,56 @@ function DecisionList() {
   );
 }
 
-// ── 8. Sources ───────────────────────────────────────────────────────────
+// Item 10: grouped, with no count of quoted sentences and no read date.
 function Sources() {
   return (
-    <>
-      <p className="rb-lead">Every document the app cites. A document&rsquo;s count is how many of its sentences the app quotes.</p>
-      <div className="rb-card">
-        {SOURCE_DOCS.map((d) => (
-          <div key={d.url} className="rb-doc">
-            <a href={d.url} target="_blank" rel="noopener noreferrer">{d.name}</a>
-            {d.title && d.title !== d.name && <span className="rb-cell-note">{d.title}</span>}
-            <span className="rb-cell-note">
-              {d.quotes ? `${d.quotes} sentence${d.quotes === 1 ? '' : 's'} quoted` : 'Listed, not quoted'}
-              {d.lastVerified ? ` · read ${d.lastVerified}` : ''}
-            </span>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-// ── D1: how MeningoVax decides, in seven steps (owner, 2026-11-20) ──────
-/** "<b>lead</b> rest", the way each row says what to give. */
-const Then = ({ r }) => (
-  <>
-    {r.lead && <strong>{r.lead}</strong>}
-    {r.lead && r.rest ? ' ' : null}
-    {r.rest}
-    <Decisions row={r} />
-  </>
-);
-
-function Step({ s, n }) {
-  const [open, setOpen] = useState(false);
-  const id = `rb-step-${s.key}`;
-  return (
-    <li className="rb-step">
-      <span className="rb-step-num" aria-hidden="true">{n}</span>
-      <div className="rb-step-body">
-        <div className="rb-step-head">
-          <div>
-            <h3 className="rb-h3">{s.title}</h3>
-            <p className="rb-small">{s.sum}</p>
-          </div>
-          <button type="button" className="rb-tap" aria-expanded={open} aria-controls={id} onClick={() => setOpen((v) => !v)}>
-            {open ? 'Hide' : 'Show'}
-          </button>
+    <div className="rb-card">
+      {SOURCE_GROUPS.filter((g) => g.docs.length).map((g) => (
+        <div key={g.name} className="rb-src-group">
+          <h4 className="rb-h4">{g.name}</h4>
+          {g.docs.map((d) => (
+            <div key={d.url} className="rb-doc">
+              <a href={d.url} target="_blank" rel="noopener noreferrer">{d.name}</a>
+              {d.title && d.title !== d.name && <span className="rb-cell-note">{d.title}</span>}
+            </div>
+          ))}
         </div>
-        {open && (
-          <div id={id} className="rb-step-more">
-            {s.ask && <p className="rb-small">{s.ask}</p>}
-            {s.labels ? (
-              <ul className="rb-step-labels">
-                {s.labels.map((l) => (
-                  <li key={`${l.chip}-${l.text}`}><Chip tone={l.tone}>{l.chip}</Chip><span>{l.text}</span></li>
-                ))}
-              </ul>
-            ) : (
-              <div className="rb-step-rows" role="table">
-                {s.head && (
-                  <div className="rb-step-row rb-step-row-head" role="row">
-                    <span role="columnheader">{s.head[0]}</span><span role="columnheader">{s.head[1]}</span>
-                  </div>
-                )}
-                {s.rows.map((r) => (
-                  <div key={r.who} className={`rb-step-row${r.tone ? ` rb-step-row-${r.tone}` : ''}${r.lead || r.rest ? '' : ' rb-step-row-one'}`} role="row">
-                    <span role="cell">{r.who}</span>
-                    {(r.lead || r.rest) && <span role="cell" className="rb-step-then"><Then r={r} /></span>}
-                  </div>
-                ))}
-              </div>
-            )}
-            {s.foot && <p className="rb-small">{s.foot.text}<Decisions row={s.foot} /></p>}
-            {s.next && <p className="rb-step-next">{s.next}</p>}
-            <p className="rb-cell-note">
-              <Decisions row={s} />
-              <Source row={{ ex: stepExamples(s) }} />
-            </p>
-          </div>
-        )}
-      </div>
-    </li>
-  );
-}
-
-function Path() {
-  return (
-    <section className="rb-section" aria-labelledby="rb-path">
-      <h2 id="rb-path" className="rb-h2">How MeningoVax decides</h2>
-      <p className="rb-small">Seven steps, always in this order.</p>
-      <ol className="rb-steps">{PATH_STEPS.map((s, i) => <Step key={s.key} s={s} n={i + 1} />)}</ol>
-    </section>
-  );
-}
-
-// ── D1: Quick look, who gets what by age today ───────────────────────────
-const BAR_CLASS = { give: 'rb-bar', shared: 'rb-bar rb-bar-shared', wait: 'rb-bar rb-bar-wait', quiet: 'rb-quiet', blank: '' };
-function QuickTable({ t }) {
-  const [openKey, setOpenKey] = useState(null);
-  const n = t.cols.length + 3;
-  return (
-    <>
-      <h3 className="rb-h3">{t.name}</h3>
-      <div className="rb-scroll rb-q-wrap">
-        <table className={`rb-q rb-q-${t.cols.length}`}>
-          <thead>
-            <tr>
-              <th className="rb-freeze-col">Group</th>
-              {t.cols.map((c) => <th key={c}>{c}</th>)}
-              <th className="rb-q-bst">Boosters</th>
-              <th><span className="rb-sr">Details</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {t.rows.map((r) => {
-              const open = openKey === r.key;
-              return (
-                <React.Fragment key={r.key}>
-                  <tr className={open ? 'rb-q-on' : undefined}>
-                    <th scope="row" className="rb-freeze-col">{r.group}</th>
-                    {r.cells.map((c, i) => (
-                      <td key={i} colSpan={c.span > 1 ? c.span : undefined}>
-                        {c.text && <span className={BAR_CLASS[c.kind]}>{c.text}</span>}
-                      </td>
-                    ))}
-                    <td className="rb-q-bst">
-                      {r.boosters?.quiet ? <span className="rb-quiet">{r.boosters.quiet}</span> : r.boosters}
-                    </td>
-                    <td className="rb-q-btn">
-                      <button type="button" className="rb-tap" aria-expanded={open} onClick={() => setOpenKey(open ? null : r.key)}>
-                        {open ? 'Close' : 'Details'}
-                      </button>
-                    </td>
-                  </tr>
-                  {open && (
-                    <tr className="rb-q-det">
-                      <td colSpan={n}>
-                        <div className="rb-q-detin">
-                          <ul className="rb-bullets">{r.details.map((d) => <li key={d}>{d}</li>)}</ul>
-                          <p className="rb-cell-note"><Decisions row={r} /><Source row={r} /></p>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="rb-small">{t.note.text}</p>
-    </>
-  );
-}
-
-function QuickLook() {
-  return (
-    <section className="rb-section" aria-labelledby="rb-quick">
-      <h2 id="rb-quick" className="rb-h2">Quick look: who gets what</h2>
-      <p className="rb-small">Rows are by age today. Details opens the group&rsquo;s schedule and its booster timing.</p>
-      <QuickTable t={QUICK_LOOK.acwy} />
-      <QuickTable t={QUICK_LOOK.menb} />
-    </section>
+      ))}
+    </div>
   );
 }
 
 const BODY = {
-  'rb-vaccines': Vaccines, 'rb-who': Who, 'rb-acwy': MenACWY, 'rb-menb': MenB,
-  'rb-penta': Penta, 'rb-record': Record, 'rb-decisions': DecisionList, 'rb-sources': Sources,
+  stop: Stop, vaccines: Vaccines, acwy: MenACWY, menb: MenB, multi: Multi,
+  penta: Penta, record: Record, decisions: DecisionList, sources: Sources,
 };
 
+/** One fold: a heading that is a button, and the body once it is open. */
+function Fold({ id, name, open, toggle, children }) {
+  return (
+    <section id={id} className="rb-section rb-part" aria-labelledby={`${id}-h`}>
+      <h2 id={`${id}-h`} className="rb-h2">
+        <button type="button" className="rb-full-btn" aria-expanded={open} aria-controls={`${id}-body`} onClick={toggle}>
+          <span>{name}</span>
+          <span className="rb-fold-mark">{open ? 'Hide' : 'Show'}</span>
+        </button>
+      </h2>
+      {open && <div id={`${id}-body`} className="rb-part-body">{children}</div>}
+    </section>
+  );
+}
+
 export default function Rulebook() {
-  // D1 placement (owner, 2026-11-20: "New top, then 1–8 folded"): the full
-  // rulebook is one tap below Quick look, closed by default.
-  const [full, setFull] = useState(false);
+  // All folds closed when the screen opens (owner, 2026-11-20: "All nine closed").
+  const [open, setOpen] = useState(() => new Set());
+  const toggle = (key) => setOpen((s) => {
+    const next = new Set(s);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    return next;
+  });
+  /** A step's link opens its part; the browser then jumps to the part's heading. */
+  const openPart = (key) => setOpen((s) => new Set(s).add(key));
+
   return (
     <div className="rb">
       <div className="rb-top">
@@ -625,37 +486,29 @@ export default function Rulebook() {
         <p className="rb-intro">Recommendations are based on age, risk conditions and dated vaccine history.</p>
       </div>
 
-      <Path />
-      <QuickLook />
+      <Fold id="rb-path" name="How MeningoVax decides" open={open.has('path')} toggle={() => toggle('path')}>
+        <p className="rb-small">Seven steps, always in this order.</p>
+        <ol className="rb-steps">
+          {PATH_STEPS.map((s, i) => (
+            <li key={s.key} className="rb-step">
+              <span className="rb-step-num" aria-hidden="true">{i + 1}</span>
+              <div className="rb-step-body">
+                <h3 className="rb-h3"><a href={`#${partId(s.to)}`} onClick={() => openPart(s.to)}>{s.title}</a></h3>
+                <p className="rb-small">{s.sum}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Fold>
 
-      <section className="rb-full" aria-labelledby="rb-full">
-        <h2 id="rb-full" className="rb-h2">
-          <button type="button" className="rb-full-btn" aria-expanded={full} aria-controls="rb-full-body" onClick={() => setFull((v) => !v)}>
-            <span>Full rulebook</span>
-            <span className="rb-fold-mark">{full ? 'Hide' : 'Show'}</span>
-          </button>
-        </h2>
-        <p className="rb-small">Every rule in detail, the MeningoVax decisions and the sources.</p>
-        {full && (
-          <div id="rb-full-body" className="rb-full-body">
-            <nav aria-label="On this page" className="rb-nav">
-              {SECTIONS.map(([id, name], i) => <a key={id} href={`#${id}`}>{i + 1}. {name}</a>)}
-            </nav>
-
-            <Stop />
-
-            {SECTIONS.map(([id, name], i) => {
-              const Body = BODY[id];
-              return (
-                <section key={id} className="rb-section" aria-labelledby={id}>
-                  <h2 id={id} className="rb-h2">{i + 1}. {name}</h2>
-                  <Body />
-                </section>
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {PARTS.map((key) => {
+        const Body = BODY[key];
+        return (
+          <Fold key={key} id={partId(key)} name={HEADINGS[key]} open={open.has(key)} toggle={() => toggle(key)}>
+            <Body />
+          </Fold>
+        );
+      })}
 
       <p className="rb-foot">
         This page is a guide to the app&rsquo;s reasoning, not a clinical reference. Where it and a

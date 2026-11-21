@@ -7,14 +7,14 @@
 // CDC's own quoted sentences and paper titles keep "MenB-4C": their words.
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import Rulebook from '../Rulebook.jsx';
 
 function screenTextWithoutQuotes() {
   const { container } = render(<Rulebook />);
-  // D1 (2026-11-20): the numbered parts are behind "Full rulebook". Open it,
-  // so the whole screen is read, not just the new top.
-  fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
+  // Every part is a fold (Rulebook reorganization, 2026-11-20). Open them all,
+  // so the whole screen is read.
+  for (const b of container.querySelectorAll('.rb-part > h2 > button[aria-expanded="false"]')) fireEvent.click(b);
   const copy = container.cloneNode(true);
   // The Sources list gives each CDC paper's own title ("…Bexsero MenB-4C
   // Vaccine…"): their words, not the app's.
@@ -40,7 +40,8 @@ describe('Q2: the Rulebook screen names MenB products by brand, not 4C / FHbp', 
 
   it('the seven approved sentences are on the screen', () => {
     const text = screenTextWithoutQuotes();
-    expect(text).toContain('Counts as');                                                                   // S1
+    // S1 is extinct: the "Counts as" column was removed (reorganization item 5, owner 2026-11-20).
+    expect(text).not.toContain('Counts as');
     expect(text).toContain('Use for every MenB dose. Not interchangeable with Trumenba or Penbraya.');     // S2
     expect(text).toContain('Use for every MenB dose. Not interchangeable with Bexsero or Penmenvy.');      // S3
     expect(text).toContain('Gives one MenACWY dose and one Bexsero dose in a single injection.');          // S4

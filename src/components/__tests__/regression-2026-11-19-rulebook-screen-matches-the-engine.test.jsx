@@ -23,10 +23,11 @@ import Rulebook from '../Rulebook.jsx';
 import App from '../../App.jsx';
 import { doseChipLabel } from '../doseChipLabel.js';
 import {
-  WORKED_PATIENTS, DECISIONS, DECISION_USES, TRANSPLANT_STOP, FAMILIES, RISK_ROWS, RISK_RANKING,
-  ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES, ACWY_HIGHRISK_LANES, ACWY_HIGHRISK_NOTES,
-  ACWY_OTHER, ACWY_OTHER_NOTE, MENB_HEALTHY, MENB_HIGHRISK, MENB_PREGNANCY, PENTA_ROWS,
-  CHIP_LEGEND, GRACE, INTERVALS, NOT_COUNTED, VACCINE_ROWS, SOURCE_DOCS, HEADINGS, sourcesFor,
+  WORKED_PATIENTS, DECISIONS, DECISION_USES, TRANSPLANT_STOP, FAMILIES, RISK_RANKING,
+  ACWY_GROUPS, MENB_GROUPS, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES, ACWY_HIGHRISK_TABLES,
+  ACWY_HIGHRISK_NOTES, MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER, MENB_PREGNANCY,
+  PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS, SOONER_ADDS, NOT_COUNTED, VACCINE_ROWS, SOURCE_DOCS,
+  SOURCE_GROUPS, HEADINGS, PATH_STEPS, sourcesFor,
 } from '../../data/rulebookPage.js';
 import { RISK_FACTORS } from '../../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../../data/brands.js';
@@ -86,14 +87,16 @@ describe('Rulebook screen — every claim is true of the app, patient by patient
   });
 
   it('every written row carries at least one worked patient', () => {
+    // A schedule table's rows share the table's patients (its one Source).
     const rows = [
       TRANSPLANT_STOP, FAMILIES, ...RISK_RANKING.steps, ACWY_ROUTINE, ...ACWY_BY_AGE, ...ACWY_HISTORY_NOTES,
-      ...ACWY_HIGHRISK_LANES, { text: ACWY_HIGHRISK_NOTES.boosters, ex: ACWY_HIGHRISK_NOTES.boostersEx },
-      ...ACWY_OTHER, ACWY_OTHER_NOTE, MENB_HEALTHY, ...MENB_HEALTHY.rows, MENB_HIGHRISK, ...MENB_HIGHRISK.rows,
-      MENB_PREGNANCY, ...PENTA_ROWS, ...CHIP_LEGEND, GRACE, ...INTERVALS, ...NOT_COUNTED, ...DECISIONS,
-      ...RISK_ROWS,
+      ...ACWY_HIGHRISK_TABLES, { text: ACWY_HIGHRISK_NOTES.boosters, ex: ACWY_HIGHRISK_NOTES.boostersEx },
+      ...ACWY_GROUPS.rows, ACWY_GROUPS.note, ...MENB_GROUPS.rows, MENB_GROUPS.note,
+      MENB_HEALTHY, MENB_HEALTHY.note, MENB_HIGHRISK, MENB_HIGHRISK.note, ...MENB_DOSE3_EARLY.rows, ...MENB_OTHER,
+      MENB_PREGNANCY, ...PENTA_ROWS, ...CHIP_LEGEND, GRACE, ...INTERVALS, ...SOONER_ADDS.rows,
+      ...NOT_COUNTED.general, ...NOT_COUNTED.special, ...DECISIONS, ...PATH_STEPS,
     ];
-    const bare = rows.filter((r) => !r.ex?.length).map((r) => r.text ?? r.name ?? r.doses ?? r.chip ?? r.short ?? r.age ?? r.start);
+    const bare = rows.filter((r) => !r.ex?.length).map((r) => r.text ?? r.name ?? r.group ?? r.given ?? r.doses ?? r.chip ?? r.short ?? r.age ?? r.start ?? r.title);
     expect(bare).toEqual([]);
   });
 
@@ -112,7 +115,7 @@ describe('Rulebook screen — every claim is true of the app, patient by patient
   it('every Source a row shows is a sentence the app\'s own card for that patient cites', () => {
     // sourcesFor() reads only the cards' own citations; a row with a worked
     // patient whose card quotes nothing would show an empty Source.
-    for (const r of [...ACWY_BY_AGE, ...ACWY_HIGHRISK_LANES, ...MENB_HIGHRISK.rows, ...PENTA_ROWS]) {
+    for (const r of [...ACWY_BY_AGE, ...ACWY_HIGHRISK_TABLES, ...MENB_DOSE3_EARLY.rows, ...PENTA_ROWS, ...ACWY_GROUPS.rows, ...MENB_GROUPS.rows]) {
       for (const q of sourcesFor(r.ex)) expect(q.quote, q.key).toBeTruthy();
     }
     expect(sourcesFor([WORKED_PATIENTS.healthy16]).map((q) => q.key)).toContain('acwyRoutine1112and16');
@@ -159,9 +162,14 @@ describe('Rulebook screen — no age or interval is typed by hand', () => {
 });
 
 describe('Rulebook screen — every list is the app\'s own list', () => {
-  it('lists every condition the app asks about except the transplant stop, in the app\'s order', () => {
-    expect(RISK_ROWS.map((r) => r.id)).toEqual(RISK_FACTORS.filter((r) => !r.exclude).map((r) => r.id));
-    for (const r of RISK_ROWS) expect(r.acwy || r.menb, r.id).toBeTruthy();
+  it('each group table names every condition the app asks about, except the transplant stop, once', () => {
+    // The risk-group table is gone (reorganization item 1, owner 2026-11-20):
+    // the MenACWY and MenB group tables and their notes now carry every condition.
+    const all = RISK_FACTORS.filter((r) => !r.exclude).map((r) => r.id).sort();
+    for (const t of [ACWY_GROUPS, MENB_GROUPS]) {
+      const named = [...t.rows.flatMap((r) => r.ids), ...t.note.ids];
+      expect([...named].sort(), t.note.text).toEqual(all);
+    }
   });
 
   it('lists every product the app offers, and Menactra as history', () => {
@@ -178,25 +186,30 @@ describe('Rulebook screen — every list is the app\'s own list', () => {
     expect(results).toContain(`>${bannerTitle}<`);
   });
 
-  it('lists each document the app quotes, with its count of quoted sentences', () => {
+  it('lists each document the app cites once, in one of the five groups (item 10)', () => {
     expect(SOURCE_DOCS.length).toBeGreaterThan(3);
-    expect(SOURCE_DOCS.reduce((n, d) => n + d.quotes, 0)).toBeGreaterThan(40);
+    expect(SOURCE_DOCS.reduce((n, d) => n + d.quotes, 0)).toBeGreaterThan(40);   // counts stay in the data
+    expect(SOURCE_GROUPS.map((g) => g.name)).toEqual(['ACIP recommendations', 'CDC schedule notes', 'Other CDC and ACIP guidance', 'immunize.org', 'Other']);
+    expect(SOURCE_GROUPS.flatMap((g) => g.docs).map((d) => d.url).sort()).toEqual(SOURCE_DOCS.map((d) => d.url).sort());
+    const group = (name) => SOURCE_GROUPS.find((g) => g.name === name).docs.map((d) => d.url);
+    for (const u of group('ACIP recommendations')) expect(u).toMatch(/cdc\.gov\/mmwr\//);
+    for (const u of group('immunize.org')) expect(u).toMatch(/immunize\.org/);
   });
 });
 
 describe('Rulebook screen — what a clinician sees', () => {
   it('shows the parts in the order the app decides', () => {
     render(<Rulebook />);
-    // D1 (owner, 2026-11-20): the seven steps and Quick look first, the
-    // numbered parts behind one "Full rulebook" tap.
-    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
-    const h2 = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
-    expect(h2.slice(3)).toEqual(Object.values(HEADINGS).map((h, i) => `${i + 1}. ${h}`));
+    // Reorganization (owner, 2026-11-20): "How MeningoVax decides", then the
+    // nine parts, each its own fold. No numbers.
+    const h2 = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent.replace(/(Show|Hide)$/, ''));
+    expect(h2).toEqual(['How MeningoVax decides', ...Object.values(HEADINGS)]);
   });
 
   it('a Source button opens the quoted sentence, and a decision opens its three parts', () => {
     render(<Rulebook />);
-    fireEvent.click(screen.getByRole('button', { name: /Full rulebook/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^MeningoVax decisions/ }));   // a decision's three parts
+    fireEvent.click(screen.getByRole('button', { name: /^MenACWY (Show|Hide)$/ }));
     const src = screen.getAllByRole('button', { name: 'Source' })[0];
     fireEvent.click(src);
     expect(src.getAttribute('aria-expanded')).toBe('true');

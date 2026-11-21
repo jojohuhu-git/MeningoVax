@@ -1,3 +1,5 @@
+> **SUPERSEDED (2026-11-20):** M1 merged (#126) and the Rulebook reorganization was built (PR #127). Resume from `handoff-2026-11-20-meningovax-rulebook-reorg-built.md`, not this file.
+
 # MeningoVax — Handoff after M1 was built (high-risk MenB dose 3 follows CDSI) (2026-11-20, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

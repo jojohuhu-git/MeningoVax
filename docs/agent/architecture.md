@@ -36,9 +36,12 @@ src/
                          "About risk history" (Q10).
     Rulebook.jsx         The Rulebook view (Phase 7.2, Q11), switched from the header
                          ("Patient | Rulebook", `?rules`). Renders rulebookPage.js;
-                         decides nothing. In view: the seven decision steps and two
-                         Quick look tables (D1, 2026-11-20); parts 1–8 behind one
-                         "Full rulebook" tap.
+                         decides nothing. Reorganized 2026-11-20 (owner): "How
+                         MeningoVax decides" (seven one-line steps, each a link)
+                         and nine parts, each its own fold, all closed at first.
+                         Group tables (Group | Doses | Boosters) and schedule
+                         tables (Dose | Routine | Minimum interval, the last
+                         shaded grey). No Quick look, age lines or risk table.
   logic/
     recommend.js         THE engine. recommend(input) → { menacwy[], menb[], pentavalent, meta }.
                          recommend() = foldResult(recommendBeforeFold(input)).

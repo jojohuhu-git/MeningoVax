@@ -172,3 +172,12 @@ date" (M1b). Why asked: a dose 3 ≥4 months after dose 2 counts (C5), or ≥6 m
 no source advises giving it then. Engine 2026-11-20: Jan 1, Feb 1 → due Jul 1; Jan 1, Apr 1 → due
 Aug 1; Jan 1, Jun 25 → due Oct 25; no earlier date on any. Pinned by the control in
 `regression-2026-11-20-m1-menb-highrisk-dose3-follows-cdsi.test.js`.
+
+## Layout points (asked and answered 2026-11-20, resumed session)
+
+- **Fold default. Owner: "All nine closed".** The screen opens with "How MeningoVax decides"
+  and the nine section headings, every fold closed: Stop check, The vaccines, MenACWY, MenB,
+  More than one condition, The combined shot, Doses on the record, MeningoVax decisions, Sources.
+- **Minimum interval column. Owner: "Light grey shading".** In every Dose | Routine | Minimum
+  interval table, the Minimum interval cells get a faint grey background. Blue (shared decision)
+  and amber (wait) stay the only colored tints (item 4).
