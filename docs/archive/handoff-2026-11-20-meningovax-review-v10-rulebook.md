@@ -63,7 +63,7 @@ live check, PR open. What's left is owner decisions, not code in progress.
    if #125 is merged; else `git checkout port/review-v10-rulebook`.
 2. `npm test`: confirm **2,356 passed / 195 files** (more if #125 merged with later work).
    `preview_start {name: "MeningoVax dev server"}`.
-3. Ask, don't default: the R91 "at least" question; Q5 after the PneumoVax check; the parity
+3. Ask, don't default: Q5 after the PneumoVax check; the parity
    follow-ups.
 4. Per item (fix-queue skill): failing test quoting the approved wording → fix (no semicolons; no
    typed numbers in `rulebookPage.js` below THE PAGE line; every row gets worked patients) → `npm test`
