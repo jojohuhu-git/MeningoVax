@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
+import { isFutureDated } from '../logic/doseRules.js';
 import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { Chevron } from './icons.jsx';
 import { doseAnswerKey } from '../logic/doseIdentity.js';
@@ -114,7 +115,17 @@ function describeDose(dose, idx, ageMonths, today, dob) {
   // Exact day count for the weeks band (fmtAgeMonths' exactDays param) --
   // same dob + dose.date pair ageAtDoseFromDate already used above.
   const ageAtDoseDays = dob && dose?.date ? daysBetween(dob, dose.date) : null;
-  parts.push(ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose, ageAtDoseDays)}` : 'age unknown');
+  // A dose dated in the future used to print the age the patient WILL be
+  // ("D1 · May 1, 2030 · age 10 years 4 months" for a child of 6 years 9
+  // months). The verdict beside it was right; the age described a visit that
+  // has not happened. Parity with PneumoVax (owner, 2026-10-12; PneumoVax #41).
+  // A date before birth already reads "age Before birth" (fmtAgeMonths); that
+  // one is unchanged. The test is the rule table's own, so they cannot disagree.
+  parts.push(
+    isFutureDated(dose, today)
+      ? 'In the future'
+      : ageAtDose != null ? `age ${fmtAgeMonths(ageAtDose, ageAtDoseDays)}` : 'age unknown'
+  );
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   if (dose?.creditedFrom) {
     parts.push(`one shot covering both — recorded under ${dose.creditedFrom}`);
