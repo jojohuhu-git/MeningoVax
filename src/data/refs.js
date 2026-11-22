@@ -496,7 +496,7 @@ export const CITATIONS = {
     // uniform 3-dose schedule for both brands matches this current page,
     // not the older MMWR table. Bulleted list content, not a clean
     // quotable sentence, so cited here as a whole-page chip rather than a
-    // [N] highlight-superscript (same reasoning as immunize.org below).
+    // [N] highlight-superscript.
     url: 'https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html',
     label: 'CDC: Meningococcal Vaccine Recommendations (HCP)',
     short: 'CDC Meningococcal Recommendations',
@@ -566,23 +566,21 @@ export const CITATIONS = {
     lastVerified: '2026-11-22',
   },
 
-  // immunize.org — landing-page chips ONLY, never per-sentence superscripts.
-  // Each "Ask the Experts" topic page bundles 44–56 Q&As with no versioning,
-  // so there's no stable sentence to deep-link or quote (2026-07-23
-  // finding). Leads only on "messy practical" recs (interrupted series,
-  // "does this old dose count") — CDC/ACIP still leads where a specific
-  // MMWR rule defines the recommendation.
+  // immunize.org's "Ask the Experts" topic pages (immMenACWY, immMenB) were
+  // whole-page buttons until 2026-11-22. Owner, 2026-11-22: "Remove the
+  // buttons" -- each card that listed one already cited ACIP's own sentence
+  // for the same point. Where an immunize.org answer is the source, quote it
+  // (as acwyAge10CountsAsDose1 does); each answer has its own "Last reviewed"
+  // date. docs/archive/decisions-2026-11-22-c4-immunize-org.md.
+  //
+  // immMenACWY stays only as the MenACWY page's title: RecCard.jsx's
+  // documentTitle() names a numbered quote's button (acwyAge10CountsAsDose1)
+  // after the page's whole-document entry. No card lists it as a button.
   immMenACWY: {
     url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
     label: 'immunize.org: Ask the Experts — Meningococcal ACWY',
     short: 'Ask the Experts: MenACWY',
-    lastVerified: '2026-07-23',
-  },
-  immMenB: {
-    url: 'https://www.immunize.org/ask-experts/topic/menb/',
-    label: 'immunize.org: Ask the Experts — Meningococcal B',
-    short: 'Ask the Experts: MenB',
-    lastVerified: '2026-07-23',
+    lastVerified: '2026-11-22',
   },
 
   // CAR-T / B-cell malignancy / B-cell-depleting therapy hard stop --------
