@@ -81,6 +81,10 @@ export const RISK_FACTORS = [
     menbClass: undefined,
     group: 'IC',
     refs: ['acip2020'],
+    // C4 (2026-11-21): ACIP 2020 Table 6, read live: "No recommendations for use of
+    // MenB vaccines in these populations unless otherwise indicated". So the
+    // MenB card takes none of this risk factor's documents.
+    menbRefs: [],
   },
   // One box, not two (owner decision 2026-10-16). Transplant used to have its
   // own row here and an advisory banner on the results screen; the advisory's
@@ -123,6 +127,9 @@ export const RISK_FACTORS = [
     // acip2020 chip and the separate cdcRecommendations page (W1 already
     // dropped the CDC-page duplication elsewhere for the same reason).
     refs: ['acip2020Table9'],
+    // C4 (2026-11-21): Table 9's MenB column, read live: "No recommendations for
+    // use of MenB vaccines in this population unless otherwise indicated".
+    menbRefs: [],
   },
   {
     id: 'military',
@@ -133,6 +140,9 @@ export const RISK_FACTORS = [
     // Table 10's only age-group row is ">=10 yrs" — see the header note.
     minPlausibleAgeMonths: MENINGO_TABLE_MIN_AGE_MONTHS,
     refs: ['acip2020Table10'],
+    // C4 (2026-11-21): Table 10's MenB column, read live: "No recommendations for
+    // use of MenB vaccines in this population unless otherwise indicated".
+    menbRefs: [],
   },
   {
     id: 'college_dorm',
@@ -143,6 +153,8 @@ export const RISK_FACTORS = [
     // Table 10's only age-group row is ">=10 yrs" — see the header note.
     minPlausibleAgeMonths: MENINGO_TABLE_MIN_AGE_MONTHS,
     refs: ['acip2020Table10'],
+    // C4 (2026-11-21): Table 10's MenB column, as for military.
+    menbRefs: [],
   },
   {
     id: 'outbreak_acwy',
@@ -151,6 +163,10 @@ export const RISK_FACTORS = [
     menbClass: undefined,
     group: 'exposure',
     refs: ['acip2020Table8'],
+    // C4 (2026-11-21): Table 8 is for an outbreak "attributable to a vaccine
+    // serogroup"; its MenB column is for a serogroup B outbreak (outbreak_b),
+    // not this one. The MenB card takes none of this risk factor's documents.
+    menbRefs: [],
   },
   {
     id: 'outbreak_b',

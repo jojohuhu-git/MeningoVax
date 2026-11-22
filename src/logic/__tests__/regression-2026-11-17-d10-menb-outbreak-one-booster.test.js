@@ -43,7 +43,8 @@ describe('D10: serogroup B outbreak — one booster', () => {
   it('during the series: the booster line says one booster', () => {
     const c = run(['outbreak_b'], [B('2026-10-01')]);
     expect(c.doseLabel).toMatch(/^Dose 2 of 3/);
-    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues');
+    // C4 (2026-11-21): the line now cites ACIP 2020 Table 8 ([c]); words unchanged.
+    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c]');
   });
 
   it('control: asplenia, same doses — dose 5 still due Aug 1, 2027', () => {
