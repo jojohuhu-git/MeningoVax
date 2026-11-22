@@ -203,6 +203,7 @@ const TODO_Q = '../archive/decisions-2026-11-19-t1-t2-todo-rules.md';
 const REORG = '../archive/decisions-2026-11-20-rulebook-reorg.md';
 const RULES = 'clinical-rules.md';
 const MQ6_Q = '../archive/decisions-2026-11-21-menquadfi-from-6-weeks.md';
+const MQ6_GAP = '../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md';
 export const OWNER_ANSWERS = {
   'P0-1': { date: '2026-09-17', where: RULES },
   'PneumoVax-Complete': { date: '2026-11-01', where: PLAN },
@@ -241,6 +242,11 @@ export const OWNER_ANSWERS = {
   M1d: { date: '2026-11-21', where: '../archive/decisions-2026-11-21-menb-repeat-dose3.md' },
   // MenQuadfi can be given from 6 weeks ("Can be given (Rec.)", "Yes, outbreak too").
   MQ6: { date: '2026-11-21', where: MQ6_Q },
+  // After a 6-week MenQuadfi dose; the gap between a minimum and a routine date.
+  'MQ6-e': { date: '2026-11-21', where: MQ6_GAP },
+  'MQ6-f': { date: '2026-11-21', where: MQ6_GAP },
+  'MQ6-g': { date: '2026-11-21', where: MQ6_GAP },
+  'MQ6-h': { date: '2026-11-21', where: MQ6_GAP },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */

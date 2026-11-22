@@ -140,7 +140,9 @@ function rec(o) {
     // Owner F2a (2026-11-18): not due yet, but the minimum interval has passed,
     // so the card says "It can be given today if needed". Only MenB high-risk
     // dose 2 carries it (the one MenB place the routine date and the minimum
-    // differ, STOP F1). The pentavalent offer reads it.
+    // differ, STOP F1). Only the pentavalent offer reads it: the badge stays
+    // "Next dose not yet due" (owner MQ6-f, 2026-11-21: follow the standard
+    // schedule when it can be followed; a dose at the minimum still counts).
     ...(o.canGiveToday ? { canGiveToday: true } : {}),
     doseLabel: o.doseLabel,
     doseNum: o.doseNum ?? null,
@@ -1081,7 +1083,8 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // had never happened, right after a clause claiming only Menveo was
     // licensed that young (false: MenQuadfi's own floor is younger still).
     // Owner, 2026-11-21 ("Can be given (Rec.)", "Yes, outbreak too"): from 6
-    // weeks, MenQuadfi CAN be given today; dose 1 is still due at 2 months.
+    // weeks, MenQuadfi can be given; dose 1 is still due at 2 months. The badge
+    // reads "Next dose not yet due" (MQ6-g, the same day).
     // AAP 2026: "The first dose of MenQuadfi may be given as early as 6 weeks."
     // Needs a date of birth: from whole months alone a 5-week-old and a
     // 7-week-old look the same, and the app never guesses an age.
@@ -1090,7 +1093,10 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       const startTotal = menacwyInfantHighRiskTotal({ d1AgeM: MENACWY_SCHEDULE_MIN_AGE_MONTHS });
       const startGate = menacwyInfantNextDoseGate({ d1AgeM: am, d2AgeM: null, given: 1 });
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${startTotal} (${why})`, doseNum: 1, seriesTotal: startTotal, boosterSummary: boosterSummaryText,
-        dueToday: false, canGiveToday: true,
+        // MQ6-g (owner, 2026-11-21, "Apply the principle"): not "Can be given
+        // today". Dose 1 is due at 2 months; the note says MenQuadfi may be
+        // given from 6 weeks.
+        dueToday: false,
         earliestNextDate: addCalendarMonths(dob, MENACWY_SCHEDULE_MIN_AGE_MONTHS),
         brands: MENACWY_INFANT_SERIES_BRANDS.filter((b) => b.startsWith('MenQuadfi')),
         minIntervalDays: startGate.minIntervalDays,
@@ -1113,20 +1119,12 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         noteCites: [cite('acwyInfantHighRisk2to6mo')],
         refs });
     }
-    // M4 (2026-09-23): this card makes a LICENCE claim ("a product licensed
-    // that young") the schedule citation (acwyInfantHighRisk2to6mo) doesn't
-    // support -- that MMWR states dose counts and intervals, not which
-    // product may be given when. The package insert is the right source for
-    // that; the WA DOH chip carries the "why" (AAP alignment) a clinician
-    // reading this unusual card would otherwise have to take on faith.
-    return rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Dose 1 given; next dose not yet due',
-      dueToday: false,
-      note: {
-        lead: `Dose 1 was given before ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, using a product licensed that young [c]; it counts toward the ${why} series.`,
-        detail: `${whyTitle} series: ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)}, then 4, 6 and 12 months [c]. The next dose is not due yet — it needs both its own interval since dose 1 and, for most of this series, an age floor to be met.`,
-      },
-      noteCites: [cite('menQuadfiPackageInsert'), cite('acwyInfantHighRisk2to6mo')],
-      refs: [...refs, 'waDohMenQuadfiAapAlignment'] });
+    // MQ6-e (owner, 2026-11-21, "Same as at 2 months"): a dose already given
+    // before 2 months (MenQuadfi from 6 weeks) falls through to the series
+    // continuation below, the card the same baby gets from 2 months: dose 2
+    // due at 4 months, the 8-week minimum beside it (AAP 2026 catch-up table,
+    // MenACWY dose 1 to dose 2: "8 weeks"; owner Q9b). This used to return
+    // "Not needed" / "Dose 1 given; next dose not yet due", with no date.
   }
   if (am < MENACWY_INFANT_SERIES_MAX_AGE_MONTHS && given === 0 && am >= MENACWY_SCHEDULE_MIN_AGE_MONTHS) {
     // start series; Menveo and MenQuadfi both licensed by this age (M3, 2026-09-23).
@@ -1854,7 +1852,9 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
-        canGiveToday: !elapsed && !!repeatMin && repeatMin <= today,
+        // MQ6-h (owner, 2026-11-21, "Dose 2 only"): a repeated dose 3 does not
+        // carry canGiveToday, so the combined shot never puts it in before its
+        // advised date. The note still states the earliest valid date.
         family, brands: menbBrands(family),
         // U2: the "boost 1 year later, then every 2-3 years" tail is the booster
       // line's sentence, four lines above it on the same card.

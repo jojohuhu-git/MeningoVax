@@ -20,7 +20,6 @@ import { citeTitle } from '../data/refs.js';
 //   series done, booster due today  -> "Booster due today"
 //   series done, booster in future  -> "Future booster needed"
 //   optional (MenB 16-23y)          -> "Optional today - shared decision"
-//   not due, minimum passed         -> "Can be given today" (owner, 2026-11-18)
 //   not due, next dose dated        -> "Next dose not yet due" (F-3, owner 2026-11-18)
 //   not due, next booster dated     -> "Future booster needed" (F-3)
 //   nothing left                    -> "Up to date"
@@ -86,10 +85,11 @@ export function statusPillLabel(rec, pending) {
   // The routine "Booster (16y)" card (status 'due' since STOP B: never
   // "complete" while a booster is coming) keeps the pill it had.
   if (!dueToday && boosterDueDate) return 'Booster due later';
-  // Gap badge (owner, 2026-11-18): not due yet, but its minimum has passed and a
-  // dose given today counts (high-risk MenB dose 2, STOP F1 Q9a). Never "due" —
-  // the date line beside it still says "Next dose due <date>".
-  if (!dueToday && rec.canGiveToday) return 'Can be given today';
+  // MQ6-f (owner, 2026-11-21, "Yes, both match"): no "Can be given today" badge.
+  // Between a dose's minimum and its routine date the card reads "Next dose not
+  // yet due" with "Next dose due <date>"; the note says it can be given if
+  // needed. Follow the standard schedule when it can be followed; a dose at the
+  // minimum still counts. As PneumoVax. (Was the owner's 2026-11-18 gap badge.)
   if (datedNext) return comingLabel;
   if (!dueToday) return 'Up to date';
   if (isBooster) return 'Booster due today';

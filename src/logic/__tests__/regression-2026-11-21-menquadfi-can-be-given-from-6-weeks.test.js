@@ -7,9 +7,12 @@
 // 2 months: 4-dose series (additional 3 doses at age 4, 6, and 12 months). The
 // first dose of MenQuadfi may be given as early as 6 weeks."
 //
-// Owner's answers: "Can be given (Rec.)" — badge "Can be given today",
-// MenQuadfi only, dose 1 still due at 2 months; and "Yes, outbreak too".
-// Decisions file: docs/archive/decisions-2026-11-21-menquadfi-from-6-weeks.md.
+// Owner's answers: "Can be given (Rec.)" — MenQuadfi only, dose 1 still due at
+// 2 months; and "Yes, outbreak too". Decisions file:
+// docs/archive/decisions-2026-11-21-menquadfi-from-6-weeks.md. Later the same
+// day, MQ6-g ("Apply the principle": follow the standard schedule when it can
+// be followed): the badge reads "Next dose not yet due", not "Can be given
+// today" (docs/archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md).
 //
 // Without a date of birth the app knows only whole months, so it cannot tell a
 // 5-week-old from a 7-week-old: the offer needs a date of birth.
@@ -25,10 +28,10 @@ const LEAD = 'The infant series starts at 2 months; MenQuadfi may be given from 
 describe('a high-risk baby of 7 weeks (born 3 Oct 2026, seen 21 Nov 2026)', () => {
   const c = card({ dob: '2026-10-03', riskIds: ['asplenia'] });
 
-  it('can be given MenQuadfi today, and only MenQuadfi', () => {
-    expect(c.canGiveToday).toBe(true);
+  it('names MenQuadfi only; the badge reads "Next dose not yet due" (MQ6-g)', () => {
+    expect(c.canGiveToday).toBeUndefined();
     expect(c.dueToday).toBe(false);
-    expect(statusPillLabel(c, false)).toBe('Can be given today');
+    expect(statusPillLabel(c, false)).toBe('Next dose not yet due');
     expect(c.brands).toEqual(['MenQuadfi (MenACWY)']);
   });
 
@@ -47,13 +50,13 @@ describe('a high-risk baby of 7 weeks (born 3 Oct 2026, seen 21 Nov 2026)', () =
 describe('travel and outbreak babies get the same offer (owner: "Yes, outbreak too")', () => {
   it('travel', () => {
     const c = card({ dob: '2026-10-03', riskIds: ['travel'] });
-    expect(statusPillLabel(c, false)).toBe('Can be given today');
+    expect(statusPillLabel(c, false)).toBe('Next dose not yet due');
     expect(c.brands).toEqual(['MenQuadfi (MenACWY)']);
     expect(c.doseLabel).toBe('Dose 1 of 4 (infant travel)');
   });
   it('outbreak', () => {
     const c = card({ dob: '2026-10-03', riskIds: ['outbreak_acwy'] });
-    expect(statusPillLabel(c, false)).toBe('Can be given today');
+    expect(statusPillLabel(c, false)).toBe('Next dose not yet due');
     expect(c.brands).toEqual(['MenQuadfi (MenACWY)']);
     expect(c.doseLabel).toBe('Dose 1 of 4 (infant outbreak)');
   });
@@ -63,8 +66,10 @@ describe('the 6-week line', () => {
   it('is the licence floor the dose rules already use', () => {
     expect(MENACWY_LICENCE_MIN_AGE_DAYS).toBe(42);
   });
-  it('day 42 (born 10 Oct 2026): offered', () => {
-    expect(card({ dob: '2026-10-10', riskIds: ['asplenia'] }).canGiveToday).toBe(true);
+  it('day 42 (born 10 Oct 2026): the MenQuadfi card', () => {
+    const c = card({ dob: '2026-10-10', riskIds: ['asplenia'] });
+    expect(c.doseLabel).toBe('Dose 1 of 4 (infant high-risk)');
+    expect(c.brands).toEqual(['MenQuadfi (MenACWY)']);
   });
   it('day 41 (born 11 Oct 2026): not yet — the card is unchanged', () => {
     const c = card({ dob: '2026-10-11', riskIds: ['asplenia'] });

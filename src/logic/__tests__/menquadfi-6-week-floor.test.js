@@ -21,7 +21,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateHistory } from '../validate.js';
 import { recommend } from '../recommend.js';
-import { addDays } from '../dateUtils.js';
+import { addDays, addCalendarMonths } from '../dateUtils.js';
 import {
   MENACWY_LICENCE_MIN_AGE_DAYS, MENACWY_INFANT_SERIES_BRANDS, ALL_BRANDS,
 } from '../../data/brands.js';
@@ -113,13 +113,14 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
   // Owner, 2026-11-21: from 6 weeks MenQuadfi CAN be given (AAP 2026), but
   // dose 1 is still DUE at the 2-month schedule floor. The two floors still
   // differ; the card now says both. Was: not-indicated, nothing offered.
-  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months), but MenQuadfi can be given today', () => {
+  // MQ6-g (owner, the same day): no "Can be given today" flag or badge.
+  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months); the card names MenQuadfi', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks = 49 days old
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     expect(r.menacwy[0].dueToday).toBe(false);
-    expect(r.menacwy[0].canGiveToday).toBe(true);
+    expect(r.menacwy[0].canGiveToday).toBeUndefined();
     expect(r.menacwy[0].brands).toEqual([MENQUADFI]);
   });
 
@@ -218,11 +219,19 @@ describe('M3 — no card names one brand while offering two chips', () => {
     expect(card.dueToday).toBe(false);
     expect(card.doseLabel).not.toBe('Not yet due (from 2 months)');
     expect(noteText(card)).not.toMatch(/track them and start it/);
-    expect(noteText(card)).toMatch(/6 weeks, then 4, 6 and 12 months/);
-    expect(noteText(card)).not.toMatch(/Menveo/);
+    // MQ6-e (owner, 2026-11-21, "Same as at 2 months"): the card is the dose-2
+    // card the same baby gets from 2 months -- due at 4 months, 8 weeks minimum.
+    // Was: "Not needed" and "6 weeks, then 4, 6 and 12 months", with no date.
+    expect(card.doseLabel).toBe('Dose 2 (infant high-risk series)');
+    expect(card.status).toBe('risk-based');
+    expect(card.earliestNextDate).toBe(addCalendarMonths(dob, 4));
+    expect(noteText(card)).toMatch(/minimum interval 8 weeks/);
   });
 
-  it('cites the package insert for the licence claim and the MMWR for the schedule claim (M4)', () => {
+  // MQ6-e (2026-11-21): the card no longer makes M4's licence claim ("a
+  // product licensed that young"), so it no longer cites the package insert;
+  // it cites the schedule, as the 2-month card does.
+  it('cites the MMWR schedule, as the dose-2 card does (MQ6-e; was M4\'s package insert too)', () => {
     const dob = addDays(TODAY, -49);
     const doseDate = addDays(dob, 42);
     const r = recommend({
@@ -231,8 +240,10 @@ describe('M3 — no card names one brand while offering two chips', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes' } },
     });
     const card = r.menacwy[0];
-    expect(card.noteCites.map((c) => c.key)).toEqual(['menQuadfiPackageInsert', 'acwyInfantHighRisk2to6mo']);
-    expect(card.citations.map((c) => c.short)).toContain('WA DOH');
+    expect(card.noteCites.map((c) => c.key)).toEqual(['acwyInfantHighRisk2to6mo']);
+    // WA DOH (the 6-week dose counts) stays with the dose's own rule in
+    // doseRules.js, which judges the recorded dose.
+    expect(card.citations.map((c) => c.short)).toContain('ACIP 2020 MMWR');
   });
 
   it('invariant: across the whole infant band, a card never names "Menveo" in prose while offering more than one brand chip', () => {

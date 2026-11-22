@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-mq6-gap-badge.md`. PRs #130, #131 and #132 are merged; do not resume from this file.
+
 # MeningoVax — Handoff after session 1's small fixes (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

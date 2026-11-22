@@ -1,16 +1,15 @@
 // @vitest-environment happy-dom
-// The summary line names MenB dose 2 when its card says "Can be given today"
-// (owner, 2026-11-21, "Yes, add it").
+// The summary line does not add "MenB dose 2 can be given today." (owner MQ6-f,
+// 2026-11-21, "Yes, both match"; was "Yes, add it" that morning, MQ6-d).
 //
-// A 12-year-old with asplenia, MenACWY up to date, Bexsero 29 days ago: the
-// MenB card says "Can be given today" (dose 2 is past its 4-week minimum but
-// before its 1-month routine date), yet the line above the cards said only
-// "No MenACWY or MenB doses due today." The same gap was closed for MenQuadfi
-// the same day (MQ6-c, menquadfi-6-week-floor-ui.test.jsx).
-//
-// Only dose 2 was asked. A dose 3 being repeated after one given too early can
-// also read "Can be given today"; whether the line names it is an open owner
-// question, so it is not built here.
+// A 12-year-old with asplenia, MenACWY up to date, Bexsero 29 days ago: dose 2
+// is past its 4-week minimum but before its 1-month routine date. Owner: follow
+// the standard schedule when it can be followed; a dose at the minimum still
+// counts. So the card's badge reads "Next dose not yet due" and the line above
+// the cards says only "No MenACWY or MenB doses due today." The card's note
+// still says "It can be given today if needed". The MenQuadfi sentence (MQ6-c)
+// went the same way (MQ6-g; menquadfi-6-week-floor-ui.test.jsx).
+// Decisions: docs/archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md.
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -34,10 +33,11 @@ function line(menbDoses) {
 }
 
 describe('a 12-year-old with asplenia, MenACWY up to date', () => {
-  it('Bexsero 29 days ago: the line says MenB dose 2 can be given today', () => {
-    expect(line([B('2026-10-23')]))
-      .toBe('No MenACWY or MenB doses due today. MenB dose 2 can be given today.');
-    expect(screen.getByText('Can be given today')).toBeDefined();
+  it('Bexsero 29 days ago: the line says only that nothing is due; the badge is "Next dose not yet due"', () => {
+    expect(line([B('2026-10-23')])).toBe('No MenACWY or MenB doses due today.');
+    expect(screen.queryByText('Can be given today')).toBeNull();
+    expect(screen.getByText('Next dose not yet due')).toBeDefined();
+    expect(screen.getByText(/It can be given today if needed/)).toBeDefined();
   });
 
   it('control: Bexsero 20 days ago (before the 4-week minimum): line unchanged', () => {
