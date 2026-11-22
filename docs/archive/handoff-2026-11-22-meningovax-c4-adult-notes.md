@@ -6,20 +6,17 @@ owner is a clinician: plain English, short questions with a worked patient and a
 ask, don't default. **Supersedes** `handoff-2026-11-22-meningovax-c4-cdc-recs-page.md`.
 
 **#144 squash-merged into `main` (`2d8b4cd`) during this session**; `main` was then merged into #145's branch (no force-push, tree unchanged). One open PR:
-- **PR #144** `phase8/c4-cdc-recs-page`: C4 document 4 (CDC recommendations page).
-  https://github.com/jojohuhu-git/MeningoVax/pull/144. #143 squash-merged into `main` (`adf950e`);
-  this session merged `main` into #144's branch (no force-push). All four conflicts were main's
-  older text against the branch's superset, so I kept the branch's side. #144 is mergeable; its `test` check re-ran.
-- **PR #145** `phase8/c4-cdc-adult-notes` (branched from #144, opened against `main`): C4 document 5.
-  https://github.com/jojohuhu-git/MeningoVax/pull/145. Until #144 merges, its diff also shows #144's
-  commits. After #144 squash-merges, merge `main` into this branch (no force-push).
+- **PR #145** `phase8/c4-cdc-adult-notes` (against `main`): C4 document 5.
+  https://github.com/jojohuhu-git/MeningoVax/pull/145. Mergeable; its `test` check re-ran after the
+  last push.
 
 Suite: **2,534 passing, 0 failing (214 files)** (`npx vitest run`, 2026-11-22, on
 `phase8/c4-cdc-adult-notes`). Baseline at session start: 2,527 (213 files).
 
 ## What's done
 
-1. **#144's conflicts fixed**: merge commit on `phase8/c4-cdc-recs-page`, suite 2,527 green after.
+1. **#144's conflicts fixed** (main merged into its branch; every conflict was main's older text,
+   the branch's side kept), suite 2,527 green; the owner then merged #144.
 2. **C4 document 5, CDC Adult Immunization Schedule notes** (PR #145, owner chose it 2026-11-22).
    Read live 2026-11-22 (updated July 2, 2025): "Pregnancy: Delay MenB until after pregnancy due to
    lack of safety data in pregnant women. May administer if at increased risk and vaccination
