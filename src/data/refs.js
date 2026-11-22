@@ -502,6 +502,18 @@ export const CITATIONS = {
     short: 'CDC Meningococcal Recommendations',
     lastVerified: '2026-07-24',
   },
+  // C4, document 4 (2026-11-22, Q12: the dose is unchanged): read live
+  // 2026-11-22 (page dated Mar. 30, 2026), an exact substring of the page text,
+  // under MenB "Boosting during an outbreak", whose footnote B reads
+  // "Specifically outbreaks involving serogroup B meningococcal disease".
+  // Cited beside ACIP 2020 Table 8 on a serogroup B outbreak's one MenB booster.
+  cdcRecsMenbOutbreakBoosterYear: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html',
+    quote: 'CDC recommends a booster dose for these individuals if a year or more has passed since the most recent MenB vaccine',
+    label: 'CDC meningococcal recommendations: in a serogroup B outbreak, a MenB booster if a year or more has passed',
+    short: 'CDC Meningococcal Recommendations',
+    lastVerified: '2026-11-22',
+  },
   cdcComplementInhibitor: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     label: 'CDC: Managing Meningococcal Risk in Patients on Complement Inhibitor Therapy',

@@ -105,8 +105,10 @@ describe('C4 ACIP 2020: the high-risk MenB booster line cites ACIP 2020', () => 
     // Table 8, read live 2026-11-21: "Single dose if ≥1 yr after MenB primary
     // series completion". Every-2–3-years would contradict the line.
     const c = run({ dob: '2014-06-01', riskIds: ['outbreak_b'] }).menb[0];
-    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c]');
-    expect(c.boosterCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster']);
+    // C4 CDC recommendations page (2026-11-22): a second mark, the CDC page's
+    // "if a year or more has passed" sentence; words unchanged.
+    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c][c]');
+    expect(c.boosterCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear']);
   });
 });
 
