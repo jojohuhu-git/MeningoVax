@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-stop-h-done.md`. PRs #134 and #135 are merged, Q5 and STOP H are done; do not resume from this file.
+
 # MeningoVax — Handoff after MQ6-i/j/k, PR #70 closed, and the MenB editor note (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
