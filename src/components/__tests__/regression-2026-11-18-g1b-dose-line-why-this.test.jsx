@@ -55,7 +55,10 @@ describe('G1-b: a recorded dose has its own "Why this"; the line keeps the reaso
     expect(line.textContent).not.toContain(MENB_LICENSED_FROM_10_WHY);
     expect(line.textContent).not.toContain('Age at administration');
     const number = line.querySelector('.note-cite').textContent;
-    expect(number).toBe('[1]');
+    // C2 (owner 2026-11-21, "Order you read"): the card's "Why this" sits
+    // above the recorded doses and cites ACIP Oct 2024 first, so this line's
+    // ACIP 2020 is [2].
+    expect(number).toBe('[2]');
     const toggle = within(line).getByTestId('dose-val-toggle');
     expect(toggle.textContent).toBe('Why this');
     expect(toggle.getAttribute('aria-expanded')).toBe('false');

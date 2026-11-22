@@ -9,7 +9,7 @@ import { doseChipLabel, doseChipClass, NEEDS_INPUT_LABEL } from './doseChipLabel
 import { OpenAllDisclosures } from './openAllDisclosures.js';
 // C1 (2026-10-17): the inline [N] hover text names its document. Lives beside
 // cite() in refs.js, the same file PneumoVax keeps it in.
-import { citeTitle } from '../data/refs.js';
+import { citeTitle, CITATIONS } from '../data/refs.js';
 
 // C3 (2026-07-23 handoff): self-describing pills that state WHEN and WHAT
 // instead of a terse status word that needed a legend to decode (the legend
@@ -191,14 +191,76 @@ export function doseRowsWithGroups(doses, doseValidations, primaryTotal) {
 // cadence sentence moved out of the note and into it), and it renders ABOVE the
 // recorded doses -- so it is seeded first, or its source would be numbered after
 // sources the reader meets later down the card.
-function cardCiteNumberer(doseValidations, noteCites, boosterCites) {
+//
+// Port Phase 8, C2/C3 (2026-11-21), replacing cardCiteNumberer: ONE
+// computation hands back both the numbering and the button list, so a [2] in
+// a sentence always names the button marked [2] (PneumoVax's `cardSources`,
+// owner 2026-10-17). Before, the buttons were a separate engine list with no
+// numbers: 2,730 grid cards showed a number with no button.
+//
+// Order (owner, 2026-11-21, "Order you read"): the order the reader meets the
+// sentences down the card. On a card open by default "Why this" sits first
+// (L4), then its lead, the booster line, the recorded doses. On a card shut
+// by default, or waiting on a question, the note is at the bottom.
+//
+// A button no sentence cites keeps its authored place after the cited ones,
+// numbered — never dropped (taking one off is the per-document reading, C4).
+// A button for a document a sentence already cites shares that number, and
+// its authored link and title win: they were written for this card.
+export function cardSources({ doseValidations, note, noteCites, citations, boosterCites, whyFirst = false }) {
   const numberFor = makeCiteNumberer();
-  for (const c of boosterCites || []) numberFor(c.page ?? c.key);
-  for (const v of doseValidations || []) {
-    for (const c of v?.reasonCites || []) numberFor(c.page ?? c.key);
+  const lead = note?.lead ?? '';
+  const leadCount = (lead.match(/\[c\]/g) || []).length;
+  const leadCites = (noteCites ?? []).slice(0, leadCount);
+  const detailCites = (noteCites ?? []).slice(leadCount);
+  // Only the cites a verdict actually prints: one per "[c]" in its reasons.
+  const verdictCites = (doseValidations ?? []).flatMap((v) => {
+    const markers = (v?.reasons ?? []).reduce((n, r) => n + (String(r).split('[c]').length - 1), 0);
+    return (v?.reasonCites ?? []).slice(0, markers);
+  });
+  const marks = whyFirst
+    ? [...detailCites, ...leadCites, ...(boosterCites ?? []), ...verdictCites]
+    : [...(boosterCites ?? []), ...verdictCites, ...leadCites, ...detailCites];
+
+  const sources = [];
+  const fromSentence = new Map(); // document -> its entry, until a button claims it
+  for (const m of marks) {
+    const key = m.page ?? m.key;
+    const n = numberFor(key);
+    const doc = documentOf(key);
+    if (fromSentence.has(doc) || sources.some((s) => documentOf(s.url) === doc)) continue;
+    const entry = { n, url: m.page ?? m.url, short: m.doc ?? m.label, title: documentTitle(doc) ?? m.doc };
+    fromSentence.set(doc, entry);
+    sources.push(entry);
   }
-  for (const c of noteCites || []) numberFor(c.page ?? c.key);
-  return numberFor;
+  for (const ch of citations ?? []) {
+    const n = numberFor(ch.url);
+    const doc = documentOf(ch.url);
+    const entry = { n, url: ch.url, short: ch.short || ch.label, title: ch.label };
+    if (fromSentence.has(doc)) {
+      Object.assign(fromSentence.get(doc), entry);
+      fromSentence.delete(doc);
+    } else {
+      sources.push(entry);
+    }
+  }
+  // Stable: two buttons for one document (e.g. ACIP 2020 linked at two of its
+  // tables) sit together, in the order the engine lists them.
+  return { numberFor, sources: sources.sort((a, b) => a.n - b.n) };
+}
+
+// The document a link belongs to: the address without its "#…" part. One
+// document is linked at many sentences and sections; the number names the
+// document (owner 2026-07-24), so they all share it.
+function documentOf(url) {
+  return String(url ?? '').split('#')[0];
+}
+
+// A sentence-only document's button title: its whole-document entry's full
+// title, when refs.js has one.
+function documentTitle(doc) {
+  const whole = Object.values(CITATIONS).find((e) => !e.quote && documentOf(e.url) === doc);
+  return whole?.label;
 }
 
 // The chip wording for a row whose PROBLEM IS THE ENTRY, keyed by the `kind`
@@ -286,9 +348,12 @@ function DoseValidation({ result, seriesTotal, onAnswer, wasPrompted, doseDate, 
 function makeCiteNumberer() {
   const numberByPage = new Map();
   let nextNumber = 1;
+  // C2 (2026-11-21): keyed by DOCUMENT, so a sentence link (`…htm#:~:text=…`)
+  // and the plain page (`…htm`) are one number, not two (2,245 grid cards).
   return (dedupeKey) => {
-    if (!numberByPage.has(dedupeKey)) numberByPage.set(dedupeKey, nextNumber++);
-    return numberByPage.get(dedupeKey);
+    const doc = documentOf(dedupeKey);
+    if (!numberByPage.has(doc)) numberByPage.set(doc, nextNumber++);
+    return numberByPage.get(doc);
   };
 }
 
@@ -316,15 +381,21 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
 // `noteCites` is ONE ordered list across both halves (the contract `rec()`
 // documents): the `[c]` markers in `lead` consume the first entries, and
 // `detail` takes the rest. The card's citation numbers are seeded from the
-// whole list by cardCiteNumberer, so a source keeps the same [N] whether the
+// whole list by cardSources, so a source keeps the same [N] whether the
 // disclosure happens to be open or shut.
 // L4 (review v10, owner 2026-11-20): `whyFirst` puts "Why this" right under the
 // card title, and the lines that stay in view (another product, an earliest
 // date) after it.
-export function RecNote({ note, noteCites = [], numberFor, citations = [], className = 'rec-note', whyFirst = false }) {
+// C2 (2026-11-21): a card passes its `numberFor` and `sources` from
+// cardSources(); a note shown on its own (the combined-shot card) works them
+// out from its own sentences and buttons, so it gets the same numbered row.
+export function RecNote({ note, noteCites = [], numberFor: numberForProp, sources: sourcesProp, citations = [], className = 'rec-note', whyFirst = false }) {
   // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
   const openAll = useContext(OpenAllDisclosures);
   const [open, setOpen] = useState(openAll);
+  const own = numberForProp && sourcesProp ? null : cardSources({ note, noteCites, citations, whyFirst });
+  const numberFor = numberForProp ?? own.numberFor;
+  const sources = sourcesProp ?? own.sources;
   const lead = note?.lead ?? '';
   const detail = note?.detail ?? '';
   const leadCiteCount = (lead.match(/\[c\]/g) || []).length;
@@ -333,7 +404,7 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
   // and no explanation sentence titles the toggle "Sources" (PneumoVax's owner
   // ruling of 2026-11-07, "Call it Sources"), so it never opens onto an empty
   // "Why this".
-  const hasSources = citations && citations.length > 0;
+  const hasSources = sources.length > 0;
   const toggleLabel = detail ? 'Why this' : 'Sources';
   const leadBlock = lead && (
     <div className="rec-note-lead">
@@ -357,18 +428,24 @@ export function RecNote({ note, noteCites = [], numberFor, citations = [], class
           {open && (
             <div className="rec-note-detail" data-testid="rec-note-detail">
               {detail && renderNoteWithCites(detail, noteCites.slice(leadCiteCount), numberFor)}
+              {/* C2 (PneumoVax, owner 2026-10-17): each button carries the
+                  number the sentences use, so a [2] names the button marked
+                  [2]. Headed "Sources" under an explanation; with no
+                  explanation the toggle itself already says "Sources". */}
               {hasSources && (
                 <div className="rec-citations">
-                  {citations.map((c, i) => (
+                  {detail && <span className="rec-citations-heading">Sources</span>}
+                  {sources.map((s, i) => (
                     <a
                       key={i}
-                      href={c.url}
+                      href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="citation-chip"
-                      title={c.label}
+                      title={s.title}
                     >
-                      {c.short || c.label}
+                      <span className="citation-chip-num">[{s.n}]</span>
+                      {s.short}
                     </a>
                   ))}
                 </div>
@@ -446,7 +523,7 @@ function showReasonsBlock(reasons, detail, reasonCites, numberFor = makeCiteNumb
 // PneumoVax's DoseValidation. The trigger re-uses .rec-note-toggle, so the
 // card's fold-out and the dose's cannot drift apart. `whys` carry no "[c]":
 // a source number stays on the line, on the sentence it supports, so the
-// card's numbering (cardCiteNumberer) is the same open or shut.
+// card's numbering (cardSources) is the same open or shut.
 function DoseWhy({ whys, detail }) {
   // false in the app; true only when scripts/proseDiff.mjs reads every sentence.
   const openAll = useContext(OpenAllDisclosures);
@@ -487,7 +564,6 @@ function timingClass(status, dueToday) {
 
 export default function RecCard({ rec, doses = [], doseValidations = [], ageMonths = 0, dob = null, onRiskAtDoseAnswer, riskAtDoseAnswers = {}, today: todayProp }) {
   const { vaccine, status, doseLabel, primaryTotal, dueToday, earliestNextDate, boosterDueDate, boosterDueDateExact, brands, note, noteCites, citations, seriesTotal, boosterSummary, boosterCites } = rec;
-  const numberFor = cardCiteNumberer(doseValidations, noteCites, boosterCites);
   const isNeutral = status === 'complete' || status === 'not-indicated' || status === 'deferred';
   // D5: neutral cards (nothing to do) collapse to a compact row so due items
   // dominate the screen. B6 exception: a "complete" status with a booster
@@ -497,6 +573,9 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
   // clinician is being asked to do.
   const pending = hasPendingDoses(doseValidations);
   const collapsible = isNeutral && !boosterDueDate && !pending;
+  // C2/C3: numbers and buttons, one computation, in the order this card is read.
+  const whyFirst = !collapsible && !pending;
+  const { numberFor, sources } = cardSources({ doseValidations, note, noteCites, citations, boosterCites, whyFirst });
   // Port 1.2: the prose tool opens every card (openAllDisclosures.js); the app never does.
   const openAll = useContext(OpenAllDisclosures);
   const [expanded, setExpanded] = useState(!collapsible || openAll);
@@ -562,8 +641,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
         {/* L4 (review v10): on a card that is open by default, "Why this" sits
             right under the title it explains. A card shut by default keeps its
             note whole at the bottom, as before. */}
-        {!collapsible && !pending && (note || citations?.length > 0) && (
-          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} whyFirst />
+        {whyFirst && (note || sources.length > 0) && (
+          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} sources={sources} whyFirst />
         )}
 
         {brands && brands.length > 0 && !isNeutral && !pending && (
@@ -641,8 +720,8 @@ export default function RecCard({ rec, doses = [], doseValidations = [], ageMont
           </div>
         )}
 
-        {(collapsible || pending) && (note || citations?.length > 0) && (
-          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} citations={citations} />
+        {!whyFirst && (note || sources.length > 0) && (
+          <RecNote note={note} noteCites={noteCites} numberFor={numberFor} sources={sources} />
         )}
       </div>
       )}

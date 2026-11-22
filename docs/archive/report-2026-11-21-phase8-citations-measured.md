@@ -86,3 +86,34 @@ cites stays, numbered and last. It changes what the card looks like, so the owne
 before/after first (memory: "show layout changes before building"). The order question on
 "Why this first" cards goes to her with it, because her 2026-10-17 ruling ("the sentences dictate
 the order") was made on PneumoVax cards, where "Why this" is not above the other lines.
+
+## Owner answers and what was built (2026-11-21, same day)
+
+- **C2 order: "Order you read"** — numbers follow the card top to bottom. On a card open by
+  default: "Why this" (its explanation, then the line under it), the booster line, the recorded
+  doses. On a card shut by default, or waiting on a question, the note is at the bottom and is
+  numbered last.
+- **Shut or open: "Open reads 1, 2"** — on the 108 grid cards whose line under "Why this" cites
+  its own document, that line shows `[2]` alone while "Why this" is shut. A number never changes
+  when "Why this" is opened.
+
+**Built** (`cardSources()` in `src/components/RecCard.jsx`, a port of PneumoVax's): one computation
+gives the numbers and the buttons; each button shows its number; buttons sit under a "Sources"
+heading inside "Why this"; a document a sentence cites always has a button (C3); a number names
+the document, whatever `#…` its link carries (fixes the 2,245); a button no sentence cites keeps
+its place after the cited ones, numbered, never dropped. Guard:
+`regression-2026-11-21-c2-c3-numbered-sources.test.jsx` (the owner's worked patient, the healthy
+11-year-old, and every 7th grid patient checked both ways).
+
+**Judgement call, for the owner's audit:** 8,244 grid cards already showed two grey "ACIP 2020
+MMWR" buttons, each linked to a different table of the same report (e.g. Table 2 and Table 9).
+They are kept, side by side, with the **same** number. Merging them would drop a table link, which
+is a removal and belongs to that document's reading (C4/C10).
+
+**Counts:** 0 answers moved (saved-answers sweep green). Wording: 22,960 of 24,600 saved patients
+read differently (`npm run prose -- diff`), nearly all the new "Sources" heading and the `[n]` on
+each button. `node scripts/citationMapping.mjs` still prints the engine's own lists, before
+`cardSources()` joins them, so its counts do not change; the guard test checks the joined result.
+
+**Not covered:** the age-doubt note at the top of the results and the transplant stop message keep
+their own unnumbered buttons; the combined-shot card now uses `cardSources()` through `RecNote`.
