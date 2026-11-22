@@ -5,7 +5,7 @@ that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys 
 owner is a clinician: plain English, short questions with a worked patient and a before/after;
 ask, don't default. **Supersedes** `handoff-2026-11-22-meningovax-c4-cdc-recs-page.md`.
 
-Two open PRs, stacked; **the owner merges, #144 first**:
+**#144 squash-merged into `main` (`2d8b4cd`) during this session**; `main` was then merged into #145's branch (no force-push, tree unchanged). One open PR:
 - **PR #144** `phase8/c4-cdc-recs-page`: C4 document 4 (CDC recommendations page).
   https://github.com/jojohuhu-git/MeningoVax/pull/144. #143 squash-merged into `main` (`adf950e`);
   this session merged `main` into #144's branch (no force-push). All four conflicts were main's
@@ -37,7 +37,7 @@ Suite: **2,534 passing, 0 failing (214 files)** (`npx vitest run`, 2026-11-22, o
 
 ## What's NOT done — the remaining queue
 
-1. **Owner merges #144, then #145** (merge `main` into #145's branch between). Check `origin/main`.
+1. **Owner merges #145.** Check `origin/main`.
 2. **C4, documents left**: immunize.org ACWY **888**, MenB **492** cards (landing-page buttons only;
    `refs.js` says they have no stable sentences to quote, so this probably needs an owner call on
    whether to number them at all).
