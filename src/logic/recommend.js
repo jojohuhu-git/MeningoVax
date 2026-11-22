@@ -1746,12 +1746,14 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
      
         repeatLater: REPEAT_LATER_MENB_HIGH_RISK,
         note: {
-          lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
+          lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c], so nothing is due yet.`,
           detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
         },
         // C4 (2026-11-21): ACIP 2020's "persons aged ≥10 years who are at
         // increased risk" sentence, so the ACIP 2020 button here is cited.
-        noteCites: [cite('acip2020MenbRiskGroups')],
+        // C4 mm7349a3 (2026-11-22): the licensure line cites the 2024 report's
+        // "currently licensed for use in persons aged 10–25 years".
+        noteCites: [cite('menbLicensedAge1025Acip2024'), cite('acip2020MenbRiskGroups')],
         refs: refs() })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
@@ -1848,10 +1850,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           // P46 (review v10): one sentence; the earliest-date line, when there is
           // one, stays on the card (Q10 list).
           lead: minClause
-            ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1.${minClause}`
-            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1.`,
+            ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1 [c].${minClause}`
+            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1 [c].`,
           detail: menbPregnancyCaveat.trim(),
         },
+        // C4 mm7349a3 (2026-11-22): the 0 / 1–2 / 6-month schedule, as the dose
+        // 1 and dose 3 cards already cite it.
+        noteCites: [cite('menbHighRisk3DoseSchedule')],
         refs: refs(['mm7349a3']) })];
     }
     // Only reachable while the series really is three doses long; a 2-dose
@@ -1940,7 +1945,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           detail: 'Repeat boosters every 2–3 years are for asplenia, complement deficiency, complement-inhibitor therapy and microbiologists, not for an outbreak.',
         },
         noteCites: [cite('acip2020Table8MenbOutbreakBooster')],
-        refs: refs(['mm7349a3']) })];
+        // C4 mm7349a3 (2026-11-22): both sentences are ACIP 2020's; the 2024
+        // report leaves booster recommendations "unchanged" and says nothing
+        // this card says, so its button is not on this card.
+        refs: refs().filter((k) => k !== 'mm7349a3') })];
     }
     const boosterYears = menbHighRiskBoosterYears(firstBooster);
     const intervalDays = DAYS.years(boosterYears);
@@ -1958,11 +1966,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         lead: firstBooster
           ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`
           : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
-        detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable.${menbPregnancyCaveat}`,
+        detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
       },
       // D10: an outbreak's one booster cites Table 8, not the "every 2–3
       // years" box, which would contradict the line above it.
-      noteCites: [cite(outbreakOnly ? 'acip2020Table8MenbOutbreakBooster' : 'menbHighRiskBoosterCadenceBox')],
+      // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
+      // "Booster doses need to be from the same manufacturer".
+      noteCites: [cite(outbreakOnly ? 'acip2020Table8MenbOutbreakBooster' : 'menbHighRiskBoosterCadenceBox'), cite('menbBoosterSameManufacturer')],
       refs: refs(['mm7349a3']) })];
   }
 
@@ -2056,9 +2066,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
         note: {
-          lead: 'The healthy 2-dose MenB series is complete.',
-          detail: `The two doses were at least 6 months apart. No booster is recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
+          lead: 'The healthy 2-dose MenB series is complete [c].',
+          detail: `The two doses were at least 6 months apart. No booster is recommended unless a high-risk indication develops [c].${menbPregnancyCaveat}`,
         },
+        // C4 mm7349a3 (2026-11-22): the 2024 report's 6-month sentence (it
+        // names Bexsero and Trumenba) and its "remain or become at increased
+        // risk ... booster vaccination" sentence.
+        noteCites: [cite('menbHealthy2DoseSeparated6Months'), cite('menbBoosterIfRemainOrBecomeAtRisk')],
         refs: refs([], ['mm7349a3']) })];
     }
     if (given >= 3) {
@@ -2088,16 +2102,20 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // only that it becomes possible at 16.
       ? {
         lead: 'MenB is not routine at this age. A healthy patient may choose it from 16 years.',
-        detail: 'From 16 through 23 years, MenB is given by shared clinical decision-making. The preferred age is 16 through 18 years [c].',
+        detail: 'From 16 through 23 years, MenB is given by shared clinical decision-making [c]. The preferred age is 16 through 18 years [c].',
       }
       : {
         lead: 'MenB is not routinely recommended for a healthy adult of this age [c].',
-        detail: 'The shared-decision window runs from 16 years through the 24th birthday. Past it, vaccinate only for a high-risk indication.',
+        detail: 'The shared-decision window runs from 16 years through the 24th birthday [c]. Past it, vaccinate only for a high-risk indication.',
       },
     // M16: the pre-16 branch's claim is the preferred-age one, so it cites
     // Table 2; the post-23 branch's claim is the window, which Table 2 also
     // states in the same sentence.
-    noteCites: [cite('menbHealthyPreferredAge1618')],
+    // C4 mm7349a3 (2026-11-22): the 16–23-year shared-decision line, in both
+    // branches, cites the 2024 report's own sentence for it.
+    noteCites: am < MENB_HEALTHY_MIN_AGE_MONTHS
+      ? [cite('menbScdm1623General'), cite('menbHealthyPreferredAge1618')]
+      : [cite('menbHealthyPreferredAge1618'), cite('menbScdm1623General')],
     family, refs: refs([], ['mm7349a3']) })];
 }
 

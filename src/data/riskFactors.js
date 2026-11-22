@@ -177,7 +177,11 @@ export const RISK_FACTORS = [
     // C1/2026-07-24 note (flagged in the C2 plan, applied here): a MenB
     // indication, not MenACWY, so it gets the C1 mm7349a3 swap, not a
     // Table 8 (MenACWY) anchor.
-    refs: ['mm7349a3', 'cdcRecommendations'],
+    // C4 mm7349a3 (2026-11-22): that report is about MenB only, so it sat
+    // uncited on this patient's MenACWY cards. MenB cards keep it (`menbRefs`).
+    // The CDC page stays on both; it is decided in its own C4 pass.
+    refs: ['cdcRecommendations'],
+    menbRefs: ['mm7349a3', 'cdcRecommendations'],
   },
 
   // ── Other ──────────────────────────────────────────────────────────────

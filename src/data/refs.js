@@ -357,6 +357,49 @@ export const CITATIONS = {
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-07-24',
   },
+  // C4, document 2 (port Phase 8, 2026-11-22): the report's button sat on
+  // 7,459 cards that cited none of its sentences. Each sentence below was read
+  // live 2026-11-22 in the browser pane and checked as an exact substring of
+  // the page text; each backs one card line (see
+  // regression-2026-11-22-c4-mm7349a3-cited-where-it-speaks.test.js).
+  // The Introduction's sentence names MenB in general, not MenB-4C only, so it
+  // backs "from 16 through 23 years, by shared clinical decision-making" for
+  // either product.
+  menbScdm1623General: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'Vaccination against serogroup B meningococcal disease is recommended by the Advisory Committee on Immunization Practices (ACIP) for adolescents and young adults aged 16–23 years, based on shared clinical decision-making',
+    label: 'ACIP Oct 2024 MMWR: MenB for ages 16–23 years by shared clinical decision-making',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  menbBoosterSameManufacturer: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'Booster doses need to be from the same manufacturer used for doses in the primary series',
+    label: 'ACIP Oct 2024 MMWR: a MenB booster is the same manufacturer as the primary series',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  menbHealthy2DoseSeparated6Months: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'When administering the 2-dose series (e.g., for healthy adolescents) of MenB-4C (Bexsero) or MenB-FHbp (Trumenba), the 2 doses should be separated by 6 months',
+    label: 'ACIP Oct 2024 MMWR: the healthy 2-dose series, Bexsero or Trumenba, is 6 months apart',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  menbBoosterIfRemainOrBecomeAtRisk: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'Persons who have completed a MenB vaccine primary series and who remain or become at increased risk for invasive meningococcal disease are recommended to receive booster vaccination',
+    label: 'ACIP Oct 2024 MMWR: a MenB booster only for someone who remains or becomes at increased risk',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  menbLicensedAge1025Acip2024: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'Two serogroup B meningococcal vaccines (MenB-FHbp [Trumenba, Pfizer, Inc.] and MenB-4C [Bexsero, GSK]) and one serogroup ABCWY pentavalent meningococcal (MenABCWY) vaccine (MenACWY-TT/MenB-FHbp [Penbraya, Pfizer Inc.]) are currently licensed for use in persons aged 10–25 years in the United States',
+    label: 'ACIP Oct 2024 MMWR: MenB vaccines are licensed for ages 10–25 years',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
 
   // MMWR 75(1);7–14 — the SAME document as pentavalentGSK2025 below (its PMC
   // mirror is PMC12782235); its Box cleanly restates every current

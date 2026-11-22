@@ -81,7 +81,9 @@ describe('C5 note-citation anchors', () => {
     const rec = menb(r);
     expect(noteText(rec)).toContain('[c]');
     expect(noteText(rec)).toMatch(/16 through 18/);
-    expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
+    // C4 mm7349a3 (2026-11-22): the shared-decision sentence before it now
+    // cites the 2024 report, so the preferred-age source is second.
+    expect(rec.noteCites.map((c) => c.key)).toEqual(['menbScdm1623General', 'menbHealthyPreferredAge1618']);
     expect(rec.noteCites.map((c) => c.key)).not.toContain('menbHealthySCDM1623Box');
   });
 

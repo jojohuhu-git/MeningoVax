@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-c4-mm7349a3.md`. PR #141 is merged (`2dccc5a`) and C4 document 2 (mm7349a3) is built in PR #142; do not resume from this file.
+
 # MeningoVax — Handoff after the C11 minimum-age sources (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

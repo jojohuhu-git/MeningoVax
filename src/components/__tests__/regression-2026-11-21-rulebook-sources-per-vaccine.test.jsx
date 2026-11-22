@@ -114,7 +114,12 @@ describe('Rulebook Sources cite only their own vaccine', () => {
       }
       return seen;
     };
-    const hits = (texts, only) => texts.filter((t) => [...only].some((q) => t.includes(q)));
+    // A panel reads “<quote>”<short name>, so match the WHOLE quoted sentence.
+    // C4 mm7349a3 (2026-11-22): a bare substring match read the MenB sentence
+    // "… are currently licensed for use in persons aged 10–25 years in the
+    // United States" as the Penmenvy report's shorter quote "licensed for use in
+    // persons aged 10–25 years", which sits inside it.
+    const hits = (texts, only) => texts.filter((t) => [...only].some((q) => t.includes(`“${q}”`)));
     /** Every quoted sentence not about `v` and not general best practice. */
     const notAbout = (v) => new Set(Object.entries(SENTENCE_VACCINE)
       .filter(([, sv]) => ![v, 'general'].includes(sv)).map(([k]) => CITATIONS[k].quote));
