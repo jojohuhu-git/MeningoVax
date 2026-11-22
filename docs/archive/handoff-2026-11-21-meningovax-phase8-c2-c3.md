@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-c4-acip2020-menb.md`. PR #137 is merged and C4 has started; do not resume from this file.
+
 # MeningoVax — Handoff after Phase 8 opened: Q12, the citation measurement, C2/C3 (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
