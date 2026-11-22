@@ -86,7 +86,10 @@ describe('RecCard note-citation links (C5/Change 4)', () => {
   // U1 (2026-09-17): noteCites stays ONE ordered list across both halves of the
   // note -- the lead's [c] markers consume the first entries and the detail's
   // take the rest. These two cases are the ones the slicing can get wrong.
-  it('numbers a citation in the detail after the lead\'s, and links it once opened', () => {
+  // C2 (owner 2026-11-21, "Order you read", and "Open reads 1, 2"): on a card
+  // open by default, "Why this" sits above the lead, so the detail is numbered
+  // first. Shut, the lead shows [2] alone; a number never changes on opening.
+  it('numbers the detail (above) before the lead (below), the same shut or open', () => {
     render(<RecCard rec={{
       ...baseRec,
       note: { lead: 'The lead cites this [c].', detail: 'The detail cites a different page [c].' },
@@ -95,13 +98,14 @@ describe('RecCard note-citation links (C5/Change 4)', () => {
         { key: 'detailSource', page: 'https://example.com/detail', url: 'https://example.com/detail#y', label: 'Detail source' },
       ],
     }} />);
-    // Shut, only the lead's marker is on screen -- but its number is [1], and
-    // the detail's source has not stolen it.
-    expect(screen.getByText('[1]').getAttribute('href')).toBe('https://example.com/lead#x');
-    expect(screen.queryByText('[2]')).toBeNull();
+    const marks = () => [...document.querySelectorAll('a.note-cite')];
+    // Shut, only the lead's marker is on screen, as [2].
+    expect(marks().map((a) => a.textContent)).toEqual(['[2]']);
+    expect(marks()[0].getAttribute('href')).toBe('https://example.com/lead#x');
     fireEvent.click(screen.getByTestId('rec-note-toggle'));
-    expect(screen.getByText('[2]').getAttribute('href')).toBe('https://example.com/detail#y');
-    expect(screen.getByText('[2]').getAttribute('title')).toBe('Detail source');
+    expect(marks().map((a) => a.textContent)).toEqual(['[1]', '[2]']);
+    expect(marks()[0].getAttribute('href')).toBe('https://example.com/detail#y');
+    expect(marks()[0].getAttribute('title')).toBe('Detail source');
   });
 
   it('a lead with no marker leaves the whole list to the detail', () => {
@@ -110,8 +114,9 @@ describe('RecCard note-citation links (C5/Change 4)', () => {
       note: { lead: 'The lead makes no cited claim.', detail: 'The detail does [c].' },
       noteCites: [{ key: 'detailOnly', url: 'https://example.com/only#z', label: 'Detail only' }],
     }} />);
-    expect(screen.queryByText('[1]')).toBeNull();
+    expect(document.querySelector('a.note-cite')).toBeNull();
     fireEvent.click(screen.getByTestId('rec-note-toggle'));
-    expect(screen.getByText('[1]').getAttribute('href')).toBe('https://example.com/only#z');
+    expect(document.querySelector('a.note-cite').textContent).toBe('[1]');
+    expect(document.querySelector('a.note-cite').getAttribute('href')).toBe('https://example.com/only#z');
   });
 });

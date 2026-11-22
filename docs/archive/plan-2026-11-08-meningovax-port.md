@@ -222,13 +222,13 @@ column says which step below carries it. (Since the 2026-11-08 review, "step N" 
 | # | PneumoVax decision | Where it was decided | MeningoVax now | Step |
 |---|---|---|---|---|
 | C1 | Hovering a raised number names the document | C1, 2026-10-17 | **Done** (`c1118c1`) | — |
-| C2 | The source buttons sit under a row headed "Sources", and each carries the same number the text uses. **Numbering order is hers (2026-10-17): "The sentences dictate the order the references are listed out"** — the first document a sentence cites is [1]. Numbers and buttons come from one computation (`cardSources()`), never two lists | C2/C3, PR #66 | Not done (C1 only) | 8 |
-| C3 | Every number has a button on the card; no number without a button | G2 guard | Not done | 8 |
+| C2 | The source buttons sit under a row headed "Sources", and each carries the same number the text uses. **Numbering order is hers (2026-10-17): "The sentences dictate the order the references are listed out"** — the first document a sentence cites is [1]. Numbers and buttons come from one computation (`cardSources()`), never two lists | C2/C3, PR #66 | **Done 2026-11-21** (`cardSources()`; order: as read, owner) | 8 |
+| C3 | Every number has a button on the card; no number without a button | G2 guard | **Done 2026-11-21** (guard: `regression-2026-11-21-c2-c3-numbered-sources.test.jsx`) | 8 |
 | C4 | A card credits only the documents that speak for it — each (document, statement) pair is cited or taken off, never left in between | CLAUDE.md "A card credits only…", 2026-10-17 to 10-29 | Not done | 8 |
 | C5 | Every quoted source names the patient group it was written about (`population`); a card never shows another group's quote except where declared | 2026-10-17 | Not done | 8 |
 | C6 | Cite CDC first; use immunize.org only where CDC does not state the claim | 2026-10-23 | Not done | 8 |
 | C7 | One source per claim, one number per sentence a document states; never the same sentence twice | FINDING N, 2026-10-23 | Not done | 8 |
-| C8 | Sources row sits inside "Why this" | §WORD-1 decision, 2026-11-06 | Not done | 8 |
+| C8 | Sources row sits inside "Why this" | §WORD-1 decision, 2026-11-06 | **Done** by Q10 (2026-11-19) | 8 |
 | C9 | A CDC link opens the closed section that holds the quoted sentence | #141, 2026-11-07 | Uses `#:~:text=` links; to measure | 8 |
 | C10 | A source button comes off a card when its row does not fit the patient (all columns must fit) | §B-JOBAID-NOROW, 2026-10-18 / 11-07 | Not done | 8 |
 | C11 | Each number sits on the exact claim its document states (e.g. the word "complete" cites the sentence that says "complete"; a dose TOTAL cites the row that states that total) | P2-7 (2026-11-06); C10-1 (PR #81) | Not done | 8 |
@@ -671,7 +671,7 @@ days), add about 2.5% per fix.
 | Q9 | Routine date beside the minimum? | 5 | a high-risk MenB dose 3 |
 | Q10 | Fold the result page? | 6 | — |
 | Q11 | In-app Rulebook tab? **Answered 2026-11-19: yes, like PneumoVax** | 7 | — |
-| Q12 | Does the "same dose, decide alone" delegation carry over? | 8 | — |
+| Q12 | Does the "same dose, decide alone" delegation carry over? | 8 | — **Answered 2026-11-21: "Yes, same as PneumoVax"** (`report-2026-11-21-phase8-citations-measured.md`) |
 
 ## Not in this plan
 

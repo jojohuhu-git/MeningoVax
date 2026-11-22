@@ -1761,3 +1761,13 @@ body {
 .rb-step-sum { font-size: var(--fs-sm); font-weight: 400; color: var(--gy2); line-height: 1.45; }
 .rb-step-body > .rb-part-body { padding-top: var(--sp-4); }
 .rb-ref-label { margin: var(--sp-8) 0 calc(-1 * var(--sp-8)); font-size: var(--fs-sm); font-weight: 600; color: var(--gy2); }
+
+/* Port Phase 8, C2 (2026-11-21): the Sources row's heading and each button's
+   number, as PneumoVax's App.css has them. */
+.rec-citations-heading {
+  font-size: var(--fs-sm); font-weight: 600; color: var(--gy3);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  flex-basis: 100%; margin-bottom: calc(var(--sp-8) * -1 + var(--sp-4));
+}
+.citation-chip-num { color: var(--gy3); font-variant-numeric: tabular-nums; margin-right: var(--sp-4); }
+.citation-chip:hover .citation-chip-num { color: var(--cmd); }

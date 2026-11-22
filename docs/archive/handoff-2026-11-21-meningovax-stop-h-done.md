@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-phase8-c2-c3.md`. PR #136 is merged and Q12 is answered; do not resume from this file.
+
 # MeningoVax — Handoff after Q5 and STOP H (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

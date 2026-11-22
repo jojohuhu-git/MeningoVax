@@ -82,8 +82,10 @@ describe('G4: record-panel verdicts render their citation', () => {
     );
     const verdict = document.querySelector('.dose-val-reason a.note-cite');
     const noteLink = document.querySelector('.rec-note a.note-cite');
-    expect(verdict.textContent).toBe('[1]');   // appears first on screen
-    expect(noteLink.textContent).toBe('[2]');  // a different document, a different number
+    // C2 (owner 2026-11-21, "Order you read"): since L4 the note sits ABOVE
+    // the recorded doses on a card open by default, so it is met first.
+    expect(noteLink.textContent).toBe('[1]');  // appears first on screen
+    expect(verdict.textContent).toBe('[2]');   // a different document, a different number
     expect(verdict.getAttribute('href')).toContain('rr6909a1');
     expect(noteLink.getAttribute('href')).toContain('mm7349a3');
   });
