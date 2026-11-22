@@ -117,7 +117,7 @@ import { ageAtDoseMonths } from './patientAge.js';
 import {
   menacwyInfantNextDoseGate, menacwyFirstBoosterYears, ageMeetsMinimum, ageMeetsMinimumDays, intervalMeetsMinimum,
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
-  MENACWY_BOOSTER_CADENCE_YEARS,
+  MENACWY_BOOSTER_CADENCE_YEARS, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
@@ -450,6 +450,40 @@ function undatedNotCounted() {
   return r;
 }
 
+// C11 (owner, 2026-11-21, "Dose-line citations"): a not-counted dose line
+// cites the sentence its claim rests on, one of its row's `sourcesSay.refs`.
+//
+// MenACWY minimum age, by product: Menveo's 2 months and the one-vial form's
+// 10 years as CDC states them; MenQuadfi's 6 weeks as WA DOH states it (the
+// owner's 2026-09-23 decision, following AAP). Menactra, the pentavalents and
+// an unknown brand (owner C13) have no quoted MenACWY minimum-age sentence yet,
+// so their line carries no mark rather than a sentence about another product.
+function acwyMinAgeCite(brand) {
+  if (!brand) return null;
+  if (brand.startsWith('Menveo 1-vial')) return cite('cdcChildMenveoLiquid10y');
+  if (brand.startsWith('Menveo')) return cite('cdcChildAcwyMinAge');
+  if (brand.startsWith('MenQuadfi')) return cite('waDohMenQuadfiAapAlignment');
+  return null;
+}
+
+// A MenACWY booster too soon: the same table the patient's card cites for that
+// booster. 3 years (series ended before 7): ACIP's under-7 row. 5 years: the
+// travel table for travel, the microbiologist table for lab work, the military
+// row for a recruit, and the medical-risk row otherwise (it also covers an
+// A/C/W/Y outbreak, whose table gives the same timing).
+function acwyBoosterGapCite(ctx, cadenceYears) {
+  const a = acwy(ctx);
+  if (a.militaryBoosterNow) return cite('acip2020MilitaryBooster5Years');
+  if (cadenceYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7) return cite('boosterBeforeAge7');
+  if (!a.isHighRiskNow && ctx.riskIds.includes('travel')) return cite('acip2020Table9TravelBooster');
+  if (!a.isHighRiskNow && ctx.riskIds.includes('microbiologist')) return cite('acip2020Table7MicrobiologistBooster');
+  return cite('boosterAtOrAfterAge7');
+}
+
+/** Adds " [c]" before a line's final full stop when there is a sentence to cite. */
+const withMark = (line, c) => (c ? line.replace(/\.$/, ' [c].') : line);
+const citesOf = (c) => (c ? [c] : undefined);
+
 const brandLabelOf = (brand, fallback) => (brand
   ? brand.replace(/\s*\(Men(?:ACWY|B|ABCWY)\).*/, '')
   : fallback);
@@ -601,8 +635,9 @@ function acwyBoosterTooSoon(ctx, who) {
   const cadenceAdj = cadenceLabel.replace(' years', '-year');
   const gap = gapUnder(prev.dose.date, ctx.dose.date, cadenceYears * 12);
   return tooSoonBooster(invalidResult(
-    [`Booster ${gap.text} after the last dose, ${required(gap.text, cadenceLabel)}.`],   // P56 (review v10)
-    `Interval: ${gap.text}. Required: ${cadenceLabel}.`   // P66
+    [`Booster ${gap.text} after the last dose, ${required(gap.text, cadenceLabel)} [c].`],   // P56 (review v10); C11
+    `Interval: ${gap.text}. Required: ${cadenceLabel}.`,   // P66
+    [acwyBoosterGapCite(ctx, cadenceYears)],
   ));
 }
 
@@ -781,9 +816,11 @@ export const DOSE_RULES = [
       const currentAgeDays = dob ? daysBetween(dob, today) : null;
       if (meetsMenacwyFloor(knownBrandFloor, ageMonths, currentAgeDays, { doseDate: today, ageMonths, today, dob })) return null;
       const label = brandLabelOf(brand, '');
+      const c = acwyMinAgeCite(brand);   // C11
       return invalidResult(
-        [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths, currentAgeDays)} today, below the ${fmtMinAgeAdj(knownBrandFloor)} minimum age for ${label}, so the dose was given too young.`],
-        `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths, currentAgeDays)}. Minimum for ${label}: ${fmtMinAge(knownBrandFloor)}.`
+        [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths, currentAgeDays)} today, below the ${fmtMinAgeAdj(knownBrandFloor)} minimum age for ${label}${c ? ' [c]' : ''}, so the dose was given too young.`],
+        `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths, currentAgeDays)}. Minimum for ${label}: ${fmtMinAge(knownBrandFloor)}.`,
+        citesOf(c),
       );
     },
   },
@@ -831,10 +868,12 @@ export const DOSE_RULES = [
       const floor = brandMinAge(ctx.brand) ?? MIN_AGE_MENACWY_PERMISSIVE;
       if (ctx.ageAtDose === null || meetsMenacwyFloor(floor, ctx.ageAtDose, ctx.ageAtDoseDays, ctx.whenGiven)) return null;
       const label = brandLabelOf(ctx.brand, 'this brand');
+      const c = acwyMinAgeCite(ctx.brand);   // C11
       return invalidResult(
         // P55 (review v10): the clinical term first.
-        [`Minimum age not met (${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}, ${minAgeNoun(floor)} for ${ctx.brand ? label : 'an unknown brand'}).`],
-        `Age at administration: ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}. Minimum for ${label}: ${fmtMinAge(floor)}.`
+        [withMark(`Minimum age not met (${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}, ${minAgeNoun(floor)} for ${ctx.brand ? label : 'an unknown brand'}).`, c)],
+        `Age at administration: ${aboutAgeAt(ctx.ageAtDose, ctx.ageAtDoseDays)}. Minimum for ${label}: ${fmtMinAge(floor)}.`,
+        citesOf(c),
       );
     },
   },
@@ -994,8 +1033,10 @@ export const DOSE_RULES = [
       // L3 (review v10): CDC's requirement sentence repeated the line; the numbers stay in the detail.
       return {
         ...invalidResult(
-          [line],
-          `Interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`
+          // C11: CDC's infant-series sentence states the 8 weeks, the 12 weeks and the 12 months.
+          [withMark(line, cite('cdcChildAcwyInfantSeries'))],
+          `Interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`,
+          [cite('cdcChildAcwyInfantSeries')],
         ),
       };
     },
@@ -1022,8 +1063,10 @@ export const DOSE_RULES = [
       if (!prev || acwySeries(ctx).onInfantPrimary || !acwy(ctx).isHighRiskNow || ctx.effectiveIdx !== 1) return null;
       if (intervalMeetsMinimum(prev.interval, MENACWY_HR_ADULT_MIN_INTERVAL)) return null;
       return invalidResult(
-        [`Minimum interval not met (${fmtDays(prev.interval)}, ${required(fmtDays(prev.interval), fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL))}).`],   // P53 (review v10)
-        `Interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL)}.`
+        [`Minimum interval not met (${fmtDays(prev.interval)}, ${required(fmtDays(prev.interval), fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL))}) [c].`],   // P53 (review v10); C11
+        `Interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENACWY_HR_ADULT_MIN_INTERVAL)}.`,
+        // C11: ACIP's sentence, for every age (CDC's child notes stop at 18).
+        [cite('acip2020Acwy8WeekMinimum')],
       );
     },
   },
@@ -1060,7 +1103,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 Tables 7, 8, 9, 10; owner, STOP C C10 (2026-11-15) and D6 (2026-11-17)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
+      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acip2020Table9TravelBooster', 'acip2020Table7MicrobiologistBooster', 'acip2020MilitaryBooster5Years'],
       note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9. Owner answer D6 (2026-11-17): military recruits the same, from 16 (Table 10: "Every 5 yrs on basis of assignment"; CDC\'s software also floors it).',
     },
     label: 'Not counted — repeat',
@@ -1468,7 +1511,9 @@ export const DOSE_RULES = [
       return wrongFamily({
         establishedFamily: d1Family,
         ...invalidResult(
-          [`Not interchangeable with the first MenB dose (${MENB_BRAND_BY_FAMILY[d1Family] ?? `MenB-${d1Family}`}).`],   // P54 (review v10)
+          [`Not interchangeable with the first MenB dose (${MENB_BRAND_BY_FAMILY[d1Family] ?? `MenB-${d1Family}`}) [c].`],   // P54 (review v10); C11
+          undefined,
+          [cite('acip2020MenbNotInterchangeable')],
         ),
         // L3 (review v10, owner 2026-11-20): no "Why this": it only repeated the line.
       });
@@ -1496,8 +1541,9 @@ export const DOSE_RULES = [
       if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx !== 1 || !prev) return null;
       if (intervalMeetsMinimum(prev.interval, MENB_HR_D2_MIN_INTERVAL)) return null;
       return invalidResult(
-        [`Minimum interval not met (${fmtDays(prev.interval)}, ${required(fmtDays(prev.interval), fmtDays(MENB_HR_D2_MIN_INTERVAL))}).`],   // P53 sibling (review v10)
-        `Interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`
+        [`Minimum interval not met (${fmtDays(prev.interval)}, ${required(fmtDays(prev.interval), fmtDays(MENB_HR_D2_MIN_INTERVAL))}) [c].`],   // P53 sibling (review v10); C11
+        `Interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(MENB_HR_D2_MIN_INTERVAL)}.`,
+        [cite('acip2020MenbRepeat4Weeks')],
       );
     },
   },
@@ -1629,8 +1675,9 @@ export const DOSE_RULES = [
       const minYears = isFirstBooster ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS;
       const gap = gapUnder(prev.dose.date, ctx.dose.date, minYears * 12);
       const r = invalidResult(
-        [`Booster ${gap.text} after the ${isFirstBooster ? 'series' : 'last booster'}, ${required(gap.text, minLabel)}.`],   // P57 (review v10)
-        `Interval: ${gap.text}. Minimum: ${gap.exact ? fmtMonths(minYears * 12) : fmtDays(minInterval)}.`
+        [`Booster ${gap.text} after the ${isFirstBooster ? 'series' : 'last booster'}, ${required(gap.text, minLabel)} [c].`],   // P57 (review v10); C11
+        `Interval: ${gap.text}. Minimum: ${gap.exact ? fmtMonths(minYears * 12) : fmtDays(minInterval)}.`,
+        [cite('acip2020MenbBoosterCadence')],
       );
       return tooSoonBooster(isFirstBooster ? r : { ...r, whys: [MENB_HR_BOOSTER_CADENCE_WHY] });
     },
@@ -1710,7 +1757,7 @@ export const DOSE_RULES = [
     authorityToday: 'CDC notes',
     sourcesSay: {
       verdict: 'stated',
-      refs: ['menbRescueDoseRule'],
+      refs: ['menbRescueDoseRule', 'gbpRepeatSpacedFromInvalidDose'],
       note: 'ACIP states the rescue dose 3 "≥4 months after the second dose", a minimum in words. The app voids a dose below it.',
     },
     label: 'Not counted — repeat',
@@ -1730,9 +1777,12 @@ export const DOSE_RULES = [
       const gap = gapUnder(from, ctx.dose.date, MENB_RESCUE_D3_MIN_MONTHS_FROM_D2);
       return invalidResult(
         [from === d2Date
-          ? `Minimum interval not met (${gap.text}, ${required(gap.text, fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2))}).`
-          : `Given ${gap.text} after an invalid dose, ${fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2)} required.`],   // P53/P60 siblings (review v10)
-        `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${gap.text} (${gap.exact ? `minimum ${fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2)}` : `min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}`}).`
+          ? `Minimum interval not met (${gap.text}, ${required(gap.text, fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2))}) [c].`
+          : `Given ${gap.text} after an invalid dose, ${fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2)} required [c].`],   // P53/P60 siblings (review v10); C11
+        `${from === d2Date ? 'D2' : 'Previous dose'}→D3: ${gap.text} (${gap.exact ? `minimum ${fmtMonths(MENB_RESCUE_D3_MIN_MONTHS_FROM_D2)}` : `min ${fmtDays(MENB_RESCUE_D3_MIN_FROM_D2)}`}).`,
+        // C11: the rescue rule from dose 2; after an invalid dose, CDC's spacing
+        // sentence, as the MenACWY 8-week row does.
+        [cite(from === d2Date ? 'menbRescueDoseRule' : 'gbpRepeatSpacedFromInvalidDose')],
       );
     },
   },

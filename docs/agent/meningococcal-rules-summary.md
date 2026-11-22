@@ -1022,6 +1022,9 @@ sentence is about the record, not the vaccine.
 - `ACWY-TRAVEL-BOOSTER-GAP`:
   - "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR: booster cadence, primary completed before age 7](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   - "Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR: booster cadence, primary completed at/after age 7](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  - "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR, Table 9 (travelers, ≥2 yrs): MenACWY booster every 5 years while at risk](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
+  - "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR, Table 7 (microbiologists, ≥10 yrs only): MenACWY booster every 5 years](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
+  - "Military recruits: Every 5 yrs on basis of assignment" — [ACIP 2020 MMWR, Table 10: military recruits, a booster every 5 years on the basis of assignment](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=Military%20recruits%3A%20Every%205%20yrs%20on%20basis%20of%20assignment), read 2026-11-16.
 - `ACWY-ROUTINE-BOOSTER-GAP`:
   - "the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained" — [ACIP 2020 MMWR: at least 8 weeks between dose 1 and the 16-year booster](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   - "Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)" — [CDC Child/Adolescent Schedule Notes: MenACWY catch-up, booster at least 8 weeks after dose 1](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening), read 2026-11-18.
@@ -1076,6 +1079,7 @@ sentence is about the record, not the vaccine.
   - "There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule." — [ACIP Oct 2024 MMWR: no extra doses for people who had Bexsero at 0 and 1 month before October 24, 2024](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
 - `MENB-HEALTHY-RESCUE-DOSE-3-GAP`:
   - "the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose" — [ACIP Oct 2024 MMWR: healthy 2-dose interval and the third dose after an early dose 2](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
+  - "The repeat dose should be spaced after the invalid dose by the recommended minimum interval" — [ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose](https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html), read 2026-11-20.
 - `SERIES-CAP-EXTRA-DOSE`: no sentence (about the record, not the vaccine).
 - `NOT-ASKED-FOR-EXTRA-DOSE`: no sentence (about the record, not the vaccine).
 
