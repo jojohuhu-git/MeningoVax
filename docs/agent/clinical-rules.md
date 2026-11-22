@@ -562,7 +562,10 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
     a dose that did not count. Jan 1, Feb 1, Feb 15 → due Jul 1, earliest valid Jun 15.
 - First booster: ≥1 year after the LAST PRIMARY dose (D3, or the repeat that counted, or D2
   when D2 was ≥6 months after D1). Read from `menbSeriesInfo()`, never a literal 3.
-- Subsequent boosters: every 2 years
+- Subsequent boosters: every 2–3 years (ACIP). The card says "2–3 years"
+  (`MENB_HIGHRISK_BOOSTER_CADENCE_LABEL`); its date and the validator's floor are 2 years
+  (`MENB_HIGHRISK_BOOSTER_CADENCE_YEARS`, row `MENB-HIGHRISK-BOOSTER-GAP` in `doseRules.js`),
+  with the 4-day grace.
 
 ### Min Age ≥10y (120m)
 Enforced on EVERY dose (D1 and D2/D3+), not just D1. Implemented in `validate.js` per-dose brand `minAgeM` check.

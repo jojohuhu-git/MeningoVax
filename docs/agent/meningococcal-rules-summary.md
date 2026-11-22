@@ -601,7 +601,9 @@ with an old dose "you're done" when they weren't.)
     > Owner decision M1d, 2026-11-21 ([decisions-2026-11-21-menb-repeat-dose3.md](../archive/decisions-2026-11-21-menb-repeat-dose3.md)).
     <!-- /SOURCES -->
 - **Boosters**: first booster 1 year after completing the primary series,
-  then every 2 years while the risk condition persists.
+  then every 2–3 years while the risk condition persists. The card says "every 2–3
+  years"; its date is the 2-year mark, and a booster given sooner than 2 years
+  (beyond the 4-day grace) does not count.
   <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox -->
   > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   >
