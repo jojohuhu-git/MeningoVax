@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-rulebook-sources-per-vaccine.md`. PR #139 is merged (`88f0bc0`) and the Rulebook Sources fix is in PR #140; do not resume from this file.
+
 # MeningoVax — Handoff after C4 document 1 finished: ACIP 2020 cited on every card (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

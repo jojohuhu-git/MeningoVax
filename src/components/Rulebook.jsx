@@ -23,7 +23,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
-  HEADINGS, DECISIONS, DECISION, DECISION_USES, decisionsOf, sourcesFor, TRANSPLANT_STOP,
+  HEADINGS, DECISIONS, DECISION, DECISION_USES, decisionsOf, rowSources, TRANSPLANT_STOP,
   VACCINE_ROWS, FAMILIES, ACWY_GROUPS, MENB_GROUPS, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES,
   ACWY_HIGHRISK_TABLES, ACWY_HIGHRISK_NOTES, MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER,
   MENB_PREGNANCY, RISK_RANKING, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS, SOONER_ADDS, NOT_COUNTED,
@@ -89,11 +89,12 @@ function Decisions({ row }) {
 
 /**
  * "Source": the sentences the app's own cards cite for this row's worked
- * patients. A row whose patients' cards quote nothing has no button.
+ * patients (only its own vaccine's card when the row is about one vaccine).
+ * A row whose patients' cards quote nothing has no button.
  */
-function Source({ row, keys }) {
+function Source({ row }) {
   const [open, setOpen] = useState(false);
-  const quotes = row?.ex?.length ? sourcesFor(row.ex, keys) : [];
+  const quotes = rowSources(row);
   if (!quotes.length) return null;
   return (
     <span className="rb-src">
@@ -204,7 +205,7 @@ function ScheduleTable({ rows, label }) {
  * and the line together (two Source links in a row read as a mistake).
  */
 function TableFoot({ s, note }) {
-  const both = { ex: [...(s.ex ?? []), ...(note?.ex ?? [])] };
+  const both = { ex: [...(s.ex ?? []), ...(note?.ex ?? [])], vaccine: s.vaccine };
   if (!note) return <p className="rb-cell-note"><Source row={both} /></p>;
   return <p className="rb-small">{note.text}<Decisions row={note} /><Source row={both} /></p>;
 }
@@ -291,7 +292,7 @@ function MenACWY() {
         {ACWY_HIGHRISK_TABLES.map((t) => (
           <Schedule key={t.start} s={t} title={`Dose 1 at ${t.start}`} />
         ))}
-        <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={{ ex: ACWY_HIGHRISK_NOTES.boostersEx }} /></p>
+        <p className="rb-small">{ACWY_HIGHRISK_NOTES.boosters}<Source row={ACWY_HIGHRISK_NOTES.boostersRow} /></p>
       </Card>
 
       <Multi vaccine="MenACWY" />

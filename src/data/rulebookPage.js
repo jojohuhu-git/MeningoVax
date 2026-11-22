@@ -292,9 +292,17 @@ export const WORKED_PATIENTS = P;
  * The sentences a row rests on: those the app's own cards (and dose lines)
  * cite for the row's worked patients, limited to `keys` when the row names
  * them. One per sentence, in order of first use. Generated, never typed.
+ *
+ * `vaccine` ('MenACWY' or 'MenB'): a row about one vaccine reads only that
+ * vaccine's card and that vaccine's recorded-dose lines. A worked patient also
+ * gets the other vaccine's card, whose sentences are not this row's sources
+ * (owner, 2026-11-21: "MenB sources under MenACWY and vice versa"). With no
+ * vaccine (the combined shot, the shared steps), both cards are read.
  */
-export function sourcesFor(examples = [], keys = null) {
+export function sourcesFor(examples = [], keys = null, vaccine = null) {
   const seen = new Map();
+  const vaccines = vaccine ? [vaccine] : ['MenACWY', 'MenB'];
+  const STREAM = { MenACWY: 'menacwy', MenB: 'menb' };
   for (const e of examples) {
     const out = recommend(e.input);
     if (out.excluded) {
@@ -302,16 +310,62 @@ export function sourcesFor(examples = [], keys = null) {
       continue;
     }
     const cites = [
-      ...[...(out.menacwy ?? []), ...(out.menb ?? [])].flatMap((r) => [...(r.noteCites ?? []), ...(r.boosterCites ?? [])]),
-      ...(out.pentavalent?.noteCites ?? []),
-      ...['MenACWY', 'MenB'].flatMap((v) => (out.history?.[v]?.perDose ?? []).flatMap((d) => d.reasonCites ?? [])),
+      ...vaccines.flatMap((v) => out[STREAM[v]] ?? []).flatMap((r) => [...(r.noteCites ?? []), ...(r.boosterCites ?? [])]),
+      ...(vaccine ? [] : out.pentavalent?.noteCites ?? []),
+      ...vaccines.flatMap((v) => (out.history?.[v]?.perDose ?? []).flatMap((d) => d.reasonCites ?? [])),
     ];
     for (const c of cites) {
       if (!c?.quote || (keys && !keys.includes(c.key)) || seen.has(c.key)) continue;
+      if (vaccine && ![vaccine, 'general'].includes(SENTENCE_VACCINE[c.key])) continue;
       seen.set(c.key, { key: c.key, quote: c.quote, doc: c.doc, url: c.url });
     }
   }
   return [...seen.values()];
+}
+
+/**
+ * What each quoted sentence in refs.js is about. A card can quote the other
+ * vaccine in passing (the MenACWY card for an 11-year-old says when MenB is
+ * offered, and cites it), but a MenACWY row on this page does not rest on a
+ * MenB sentence. So a one-vaccine row shows only sentences about that vaccine,
+ * and general best-practice sentences. A combined-shot sentence shows only
+ * where both vaccines are read. Every quoted key must be in exactly one list
+ * (regression-2026-11-21-rulebook-sources-per-vaccine.test.jsx).
+ */
+export const SENTENCE_VACCINE = Object.fromEntries([
+  ['general', ['gbpWrittenDatedRecords', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat', 'gbpRecordsNotFoundSusceptible']],
+  ['MenABCWY', ['pentavalentHighRiskNoUpperAge', 'pentavalentLicensed10to25', 'cdcAdultPenbrayaSameDay', 'cdcChildPenbrayaDose2Trumenba',
+    'cdcChildPenbraya6Months', 'penmenvyIsCrm4C', 'penmenvyMenb4COtherDoses', 'penbrayaMenbFhbpOtherDoses', 'pentavalentWhenBothIndicated',
+    'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent']],
+  ['MenB', ['menbHealthyPreferredAge1618', 'menbPregnancyDeferral', 'menbLicensedAge1025', 'menbBexseroOldCourseStands', 'menbHighRisk3DoseSchedule',
+    'menbHealthy2Dose0and6', 'menbHighRiskEarlyD3ExtraDose', 'menbRescueDoseRule', 'menbAcceleratedRapidProtection', 'menbHighRiskBoosterCadenceBox',
+    'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'acip2020MenbMixedProductsSelectOne',
+    'acip2020MenbNotInterchangeable', 'acip2020MenbBoosterCadence', 'menbHighRiskEarlyD3Unless', 'acip2020MenbRiskGroups',
+    'acip2020MenbShortProtection', 'cdcChildMenbHighRiskD2SixMonthsNoD3']],
+  ['MenACWY', ['acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
+    'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
+    'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acwyAge10CountsAsDose1',
+    'cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'cdcChildAcwyInfantSeries', 'cdcChildAcwyRisk2DoseFrom24m', 'cdcChildAcwyBefore10OngoingRisk',
+    'cdcCatchupAcwyBooster8Weeks', 'acip2020Acwy8WeekMinimum', 'acip2020AcwyRiskGroupsFrom2mo', 'acip2020Table2CatchupOnly1921',
+    'acip2020Table2Booster16', 'acip2020Table7MicrobiologistBooster', 'acip2020Table9TravelBooster', 'acip2020IndicationMicrobiologist',
+    'acip2020IndicationOutbreakACWY', 'acip2020IndicationTravel', 'acip2020IndicationMilitary', 'acip2020College1DoseBeforeEntry',
+    'acip2020CollegePreferredAfter16', 'acip2020CollegeBoosterBeforeEnrollment', 'cdcCatchupAcwy1618OneDose', 'cdcChildAcwyTravelUnder24m']],
+].flatMap(([v, keys]) => keys.map((k) => [k, v])));
+
+/** A row's Source: its worked patients, its named sentences, its vaccine. */
+export const rowSources = (row) => (row?.ex?.length ? sourcesFor(row.ex, row.keys ?? null, row.vaccine ?? null) : []);
+
+/**
+ * Marks every row inside `x` (anything holding worked patients in `ex`) as
+ * belonging to one vaccine, unless the row already names one. Worked patients
+ * themselves are never marked.
+ */
+function forVaccine(vaccine, x) {
+  if (Array.isArray(x)) { x.forEach((v) => forVaccine(vaccine, v)); return x; }
+  if (!x || typeof x !== 'object' || x.input) return x;
+  if (Array.isArray(x.ex) && !x.vaccine) x.vaccine = vaccine;
+  for (const [k, v] of Object.entries(x)) if (k !== 'ex') forVaccine(vaccine, v);
+  return x;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -737,6 +791,7 @@ export const ACWY_HIGHRISK_NOTES = {
   lead: 'The age at dose 1 sets the series. Travel and an A/C/W/Y outbreak use the same infant series.',
   boosters: `The first booster is ${B3} after the series if it ended before ${AT7}, otherwise ${B5}. Each later booster is ${EVERY5} after the last, while at risk.`,
   boostersEx: [P.aspDoneBefore7, P.aspDoneFrom7],
+  get boostersRow() { return { ex: this.boostersEx, vaccine: 'MenACWY' }; },
 };
 
 export const MENB_HEALTHY = {
@@ -802,7 +857,7 @@ export function riskRankingFor(vaccine) {
   const prefix = `${vaccine}: `;
   return RISK_RANKING.steps.filter((s) => s.name.startsWith(prefix)).map((s) => {
     const rest = s.name.slice(prefix.length);
-    return { ...s, name: rest.charAt(0).toUpperCase() + rest.slice(1) };
+    return { ...s, vaccine, name: rest.charAt(0).toUpperCase() + rest.slice(1) };
   });
 }
 
@@ -822,11 +877,11 @@ export const CHIP_LEGEND = [
   { chip: 'Booster', tone: 'valid', text: 'Valid booster after a completed series.', ex: [P.boosterChip] },
   { chip: 'Not counted — repeat', tone: 'invalid', text: 'Minimum age or minimum interval not met, or the MenB product is not interchangeable with the first. The line below gives the repeat date.', ex: [P.acwyTooSoon] },
   { chip: 'Not counted — do not repeat', tone: 'invalid', text: 'Invalid dose, but no further dose is owed.', ex: [P.doNotRepeat] },
-  { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Routine MenACWY before ${AT10}. The teen series starts at ${ROUTINE_D1}.`, ex: [P.healthy13pre10] },
+  { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS)}`, tone: 'extra', vaccine: 'MenACWY', text: `Routine MenACWY before ${AT10}. The teen series starts at ${ROUTINE_D1}.`, ex: [P.healthy13pre10] },
   // Owner 2026-11-21 ("Keep two, fix key"): the same label also marks a routine
   // MenACWY booster before 16, so each vaccine has its own row.
-  { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS)}`, tone: 'extra', text: `Routine MenACWY booster before ${AT16}. The booster is given at ${AT16} or older.`, ex: [P.boosterAt15] },
-  { chip: `Not counted — given before age ${y(MENB_HEALTHY_MIN_AGE_MONTHS)}`, tone: 'extra', text: `Healthy MenB before ${AT16}. The series starts at ${AT16} or older.`, decision: 'healthyMenbBefore16', ex: [P.menbPre16] },
+  { chip: `Not counted — given before age ${y(MENACWY_ROUTINE_BOOSTER_AGE_MONTHS)}`, tone: 'extra', vaccine: 'MenACWY', text: `Routine MenACWY booster before ${AT16}. The booster is given at ${AT16} or older.`, ex: [P.boosterAt15] },
+  { chip: `Not counted — given before age ${y(MENB_HEALTHY_MIN_AGE_MONTHS)}`, tone: 'extra', vaccine: 'MenB', text: `Healthy MenB before ${AT16}. The series starts at ${AT16} or older.`, decision: 'healthyMenbBefore16', ex: [P.menbPre16] },
   { chip: 'Not counted — Extra. Do not repeat.', tone: 'extra', text: 'Given when no dose was recommended.', decision: 'extraDose', ex: [P.extraAcwy] },
   { chip: 'No date recorded — not counted', tone: 'unknown', text: 'Only dated records count. Add the date to have the dose checked.', ex: [P.undated] },
   { chip: 'Date is in the future — not counted', tone: 'unknown', text: 'A typing mistake or a visit not yet held. Correct the date.', ex: [P.future] },
@@ -842,19 +897,19 @@ export const GRACE = {
 
 /** Minimum intervals: a dose given sooner does not count (item 9: every row). */
 export const INTERVALS = [
-  { doses: 'Any two MenACWY doses', gap: W8, ex: [P.acwyTooSoon] },
-  { doses: 'MenACWY infant series, final dose', gap: INFANT_FINAL_STEP, ex: [P.asp9m] },
-  { doses: 'MenACWY booster', gap: `${B3} after a series ending before ${AT7}, otherwise ${MENACWY_FIRST_BOOSTER_YEARS_FROM_7}, then ${EVERY5} after the last booster`, decision: 'boosterMinimum', ex: [P.aspBoosterEarly, P.military19] },
-  { doses: 'Any two MenB doses', gap: W4, ex: [P.menbHealthy3wk] },
+  { doses: 'Any two MenACWY doses', vaccine: 'MenACWY', gap: W8, ex: [P.acwyTooSoon] },
+  { doses: 'MenACWY infant series, final dose', vaccine: 'MenACWY', gap: INFANT_FINAL_STEP, ex: [P.asp9m] },
+  { doses: 'MenACWY booster', vaccine: 'MenACWY', gap: `${B3} after a series ending before ${AT7}, otherwise ${MENACWY_FIRST_BOOSTER_YEARS_FROM_7}, then ${EVERY5} after the last booster`, decision: 'boosterMinimum', ex: [P.aspBoosterEarly, P.military19] },
+  { doses: 'Any two MenB doses', vaccine: 'MenB', gap: W4, ex: [P.menbHealthy3wk] },
   // M1 (owner, 2026-11-20): sooner no longer counts with a dose 4 added.
-  { doses: 'High-risk MenB dose 3', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2, or ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1`, ex: [P.menbD3early] },
-  { doses: 'High-risk MenB booster', gap: `${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)} after the last booster`, decision: 'boosterMinimum', ex: [P.menbBoosterEarly] },
+  { doses: 'High-risk MenB dose 3', vaccine: 'MenB', gap: `${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2, or ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1`, ex: [P.menbD3early] },
+  { doses: 'High-risk MenB booster', vaccine: 'MenB', gap: `${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then ${yr(MENB_HIGHRISK_BOOSTER_CADENCE_YEARS)} after the last booster`, decision: 'boosterMinimum', ex: [P.menbBoosterEarly] },
 ];
 /** Item 9: where a sooner dose still counts, but a dose is added. */
 export const SOONER_ADDS = {
   title: 'Sooner counts, but a dose is added',
   rows: [
-    { text: `Healthy MenB dose 2 <${mo(MENB_HEALTHY_D2_MONTHS)} after dose 1 counts. Dose 3 is added.`, ex: [P.menbHealthyEarly] },
+    { vaccine: 'MenB', text: `Healthy MenB dose 2 <${mo(MENB_HEALTHY_D2_MONTHS)} after dose 1 counts. Dose 3 is added.`, ex: [P.menbHealthyEarly] },
   ],
 };
 
@@ -867,9 +922,15 @@ export const NOT_COUNTED = {
   ],
   special: [
     { text: `A too-young first dose: the repeat waits ${W8} (MenACWY) or ${W4} (MenB) after it.`, decision: 'repeatAfterTooYoung', ex: [P.unknown6wk] },
-    { text: `A routine MenACWY dose before ${AT10} does not count, but the next dose still waits ${W8} after it.`, decision: 'setAsideClock', ex: [P.setAside] },
+    { vaccine: 'MenACWY', text: `A routine MenACWY dose before ${AT10} does not count, but the next dose still waits ${W8} after it.`, decision: 'setAsideClock', ex: [P.setAside] },
   ],
 };
+
+// Which vaccine each section is about: its Source reads only that vaccine's
+// card and dose lines (owner, 2026-11-21). FAMILIES (MenB products) sits in
+// "Read the record" but is about MenB only.
+forVaccine('MenACWY', [ACWY_GROUPS, ACWY_ROUTINE, ACWY_BY_AGE, ACWY_HISTORY_NOTES, ACWY_HIGHRISK_TABLES]);
+forVaccine('MenB', [FAMILIES, MENB_GROUPS, MENB_HEALTHY, MENB_HIGHRISK, MENB_DOSE3_EARLY, MENB_OTHER, MENB_PREGNANCY]);
 
 /** Which steps of the page name each decision (for "Applies in"). */
 export const DECISION_USES = Object.fromEntries(DECISIONS.map((d) => [d.key, [
