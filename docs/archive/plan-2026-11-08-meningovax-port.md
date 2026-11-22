@@ -607,6 +607,8 @@ due" card with no date — ask with F-3 and F-5, with worked patients.
     answer must be explained; one label list; the rulebook is held to the code).
     **BUILT 2026-11-19** (CLAUDE.md, "What the PneumoVax Port Made Permanent").
 **STOP H — owner reviews the rulebook and merges.**
+**DONE 2026-11-21**: walked through section by section, all approved, document fixes only
+(`decisions-2026-11-21-stop-h-rulebook-review.md`).
 
 ### Phase 8 — Citations (3–4 sessions, ≈ 20–25%)
 

@@ -213,6 +213,7 @@ export const OWNER_ANSWERS = {
   'B-3': { date: '2026-11-15', where: PLAN },
   'B-4': { date: '2026-11-15', where: PLAN },
   'B-5': { date: '2026-11-15', where: PLAN },
+  C4: { date: '2026-11-15', where: STOP_C },
   C5: { date: '2026-11-15', where: STOP_C },
   C6: { date: '2026-11-15', where: STOP_C },
   C7: { date: '2026-11-15', where: STOP_C },
