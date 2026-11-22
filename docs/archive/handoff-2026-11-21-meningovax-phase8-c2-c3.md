@@ -7,7 +7,7 @@ ask, don't default. **Supersedes** `handoff-2026-11-21-meningovax-stop-h-done.md
 
 Branch `phase8/q12-and-citation-measure`, off `main` at `bf318fb` (#136). Pushed; **PR #137** open
 against `main` (https://github.com/jojohuhu-git/MeningoVax/pull/137); **the owner merges** (this repo
-runs no CI checks). Baseline was 2,439 passing (205 files); now **2,443 passing (206 files)**, 0
+has a `test` check on every PR; it passed on #137 after the 2026-11-21 merge of `main` that cleared the conflict). Baseline was 2,439 passing (205 files); now **2,443 passing (206 files)**, 0
 failing (`npx vitest run`, 2026-11-21), working tree clean before this handoff file.
 
 ## What's done
