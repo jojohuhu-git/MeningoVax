@@ -508,6 +508,31 @@ export const CITATIONS = {
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-07-23',
   },
+  // C4, document 3 (owner, 2026-11-22, "Cite on booster lines"): read live
+  // 2026-11-22 (page dated Mar. 6, 2026), exact substrings of the page text.
+  // Cited only on a complement patient's cards (recommend.js
+  // withComplementPageCites and the under-10 MenB card).
+  cdcComplementMenacwyBoosterEvery5: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Administer a booster dose of MenACWY vaccine every 5 years, for the duration of complement inhibitor therapy',
+    label: 'CDC complement-inhibitor guidance: MenACWY booster every 5 years during therapy',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-22',
+  },
+  cdcComplementMenbBoosterEvery2to3: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Every 2 to 3 years thereafter, for the duration of complement inhibitor therapy',
+    label: 'CDC complement-inhibitor guidance: MenB booster every 2 to 3 years during therapy',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-22',
+  },
+  cdcComplementMenb3Doses: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'MenB vaccines need 3 doses',
+    label: 'CDC complement-inhibitor guidance: MenB vaccines need 3 doses',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-22',
+  },
 
   // immunize.org — landing-page chips ONLY, never per-sentence superscripts.
   // Each "Ask the Experts" topic page bundles 44–56 Q&As with no versioning,

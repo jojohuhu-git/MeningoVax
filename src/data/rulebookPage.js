@@ -342,7 +342,8 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'acip2020MenbMixedProductsSelectOne',
     'acip2020MenbNotInterchangeable', 'acip2020MenbBoosterCadence', 'menbHighRiskEarlyD3Unless', 'acip2020MenbRiskGroups',
     'acip2020MenbShortProtection', 'cdcChildMenbHighRiskD2SixMonthsNoD3', 'menbScdm1623General', 'menbBoosterSameManufacturer',
-    'menbHealthy2DoseSeparated6Months', 'menbBoosterIfRemainOrBecomeAtRisk', 'menbLicensedAge1025Acip2024']],
+    'menbHealthy2DoseSeparated6Months', 'menbBoosterIfRemainOrBecomeAtRisk', 'menbLicensedAge1025Acip2024',
+    'cdcComplementMenbBoosterEvery2to3', 'cdcComplementMenb3Doses']],
   ['MenACWY', ['acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
     'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
     'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acwyAge10CountsAsDose1',
@@ -350,7 +351,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'cdcCatchupAcwyBooster8Weeks', 'acip2020Acwy8WeekMinimum', 'acip2020AcwyRiskGroupsFrom2mo', 'acip2020Table2CatchupOnly1921',
     'acip2020Table2Booster16', 'acip2020Table7MicrobiologistBooster', 'acip2020Table9TravelBooster', 'acip2020IndicationMicrobiologist',
     'acip2020IndicationOutbreakACWY', 'acip2020IndicationTravel', 'acip2020IndicationMilitary', 'acip2020College1DoseBeforeEntry',
-    'acip2020CollegePreferredAfter16', 'acip2020CollegeBoosterBeforeEnrollment', 'cdcCatchupAcwy1618OneDose', 'cdcChildAcwyTravelUnder24m']],
+    'acip2020CollegePreferredAfter16', 'acip2020CollegeBoosterBeforeEnrollment', 'cdcCatchupAcwy1618OneDose', 'cdcChildAcwyTravelUnder24m', 'cdcComplementMenacwyBoosterEvery5']],
 ].flatMap(([v, keys]) => keys.map((k) => [k, v])));
 
 /** A row's Source: its worked patients, its named sentences, its vaccine. */

@@ -1747,13 +1747,19 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         repeatLater: REPEAT_LATER_MENB_HIGH_RISK,
         note: {
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c], so nothing is due yet.`,
-          detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
+          detail: riskIds.includes('complement')
+            ? `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series [c] once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`
+            : `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
         },
         // C4 (2026-11-21): ACIP 2020's "persons aged ≥10 years who are at
         // increased risk" sentence, so the ACIP 2020 button here is cited.
         // C4 mm7349a3 (2026-11-22): the licensure line cites the 2024 report's
         // "currently licensed for use in persons aged 10–25 years".
-        noteCites: [cite('menbLicensedAge1025Acip2024'), cite('acip2020MenbRiskGroups')],
+        // C4 complement page (owner, 2026-11-22): a complement patient's
+        // "3-dose" also cites CDC's "MenB vaccines need 3 doses".
+        noteCites: [cite('menbLicensedAge1025Acip2024'),
+          ...(riskIds.includes('complement') ? [cite('cdcComplementMenb3Doses')] : []),
+          cite('acip2020MenbRiskGroups')],
         refs: refs() })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
@@ -1826,7 +1832,12 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // table for both antigen families — cdcRecommendations dropped
         // (citation audit finding).
         noteCites: [cite('menbHighRisk3DoseSchedule')],
-        refs: refs(['cdcComplementInhibitor', 'mm7349a3']) })];
+        // C4 complement-inhibitor page (2026-11-22): that page is about
+        // complement-inhibitor therapy only, and this card put it in front of
+        // every high-risk patient (asplenia, lab workers, a serogroup B
+        // outbreak: 3,720 saved cards). A complement patient still gets it,
+        // from the risk factor's own refs.
+        refs: refs(['mm7349a3']) })];
     }
     if (given === 1) {
       // STOP F1 Q9a (owner, 2026-11-17): advise the ROUTINE date (1 month after
@@ -2328,6 +2339,27 @@ function outbreakWording(cards, applies) {
   });
 }
 
+// C4 complement-inhibitor page (owner, 2026-11-22, "Cite on booster lines"):
+// a complement patient's booster line ("... then every N years while at risk")
+// also cites CDC's complement-inhibitor guidance, read live 2026-11-22 (page
+// dated Mar. 6, 2026). The mark goes after "while at risk", so it backs the
+// repeating cadence only: MenACWY "every 5 years" (the page gives no 3-year
+// first booster for a series ended before age 7; that clause stays ACIP
+// 2020's) and MenB "every 2 to 3 years". Words unchanged.
+const COMPLEMENT_PAGE_BOOSTER_CITE = { MenACWY: 'cdcComplementMenacwyBoosterEvery5', MenB: 'cdcComplementMenbBoosterEvery2to3' };
+function withComplementPageCites(cards, riskIds, family) {
+  if (!riskIds.includes('complement')) return cards;
+  return cards.map((c) => {
+    const line = c.boosterSummary ?? '';
+    if (!/while at risk( \[c\])?$/.test(line)) return c;
+    return {
+      ...c,
+      boosterSummary: line.endsWith('[c]') ? `${line}[c]` : `${line} [c]`,
+      boosterCites: [...(c.boosterCites ?? []), cite(COMPLEMENT_PAGE_BOOSTER_CITE[family])],
+    };
+  });
+}
+
 // D8 (owner, 2026-11-17; E2's unbuilt option): after one dose of each MenB
 // product, the card still finishes with the first product (E2) and adds one
 // line — the date to finish with the other product instead. ACIP 2020 (read
@@ -2649,18 +2681,18 @@ function recommendOneReading(input) {
   // a floor after any dose that did not count (owner E1/E2).
   // MenACWY: 8 weeks after any dose, including a too-young first dose (owner
   // C11, 2026-11-15; D5, 2026-11-17) — as doseRules.js ACWY-ANY-TWO-DOSES-GAP.
-  const menacwy = outbreakWording(applyRepeatFloor(
+  const menacwy = withComplementPageCites(outbreakWording(applyRepeatFloor(
     menacwyRec(acwyAm, riskIds, effectiveMenacwyDoses, today, input.dob, menacwyHistory.anchorDate,
       menacwyHistory.uncountedDate ? addDays(menacwyHistory.uncountedDate, MENACWY_ANY_TWO_DOSES_MIN_GAP) : null),
     menacwyHistory.uncountedDate,
     MENACWY_ANY_TWO_DOSES_MIN_GAP,
     today,
-  ), outbreakIsTheOnlyBoosterReason('MenACWY', riskIds));
-  const menb = withMenbSwitchLine(outbreakWording(applyRepeatFloor(
+  ), outbreakIsTheOnlyBoosterReason('MenACWY', riskIds)), riskIds, 'MenACWY');
+  const menb = withComplementPageCites(withMenbSwitchLine(outbreakWording(applyRepeatFloor(
     menbRec(am, riskIds, effectiveMenbDoses, today, menbHistory.anchorDate,
       menbHistory.uncountedDate ? addDays(menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL) : null),
     menbHistory.uncountedDate, MENB_REPEAT_MIN_INTERVAL, today,
-  ), outbreakIsTheOnlyBoosterReason('MenB', riskIds)), menbHistory, am, riskIds, today);
+  ), outbreakIsTheOnlyBoosterReason('MenB', riskIds)), menbHistory, am, riskIds, today), riskIds, 'MenB');
 
   // Pentavalent (MenABCWY) is an OPTION only when a MenACWY dose AND a MenB
   // dose are both due today at this visit (and the patient is ≥10y). MenB can

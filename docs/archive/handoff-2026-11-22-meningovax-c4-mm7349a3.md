@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-c4-complement-page.md`. C4 document 3 (the CDC complement page) is built in PR #143; do not resume from this file.
+
 # MeningoVax — Handoff after C4 document 2: the ACIP Oct 2024 report cited (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
