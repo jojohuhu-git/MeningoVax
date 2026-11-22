@@ -29,9 +29,15 @@
 //   Routine 16y still owed      Table 2: "Booster: 1 dose at age 16 yrs if
 //     first dose administered before 16th birthday"   [acip2020Table2Booster16]
 //
-// Held back for the owner (Q12 case a): a microbiologist under 10. Table 7
-// has only a "≥10 yrs" row, so those cards cite nothing new until the owner
-// says what they should cite. The control below holds that.
+// Owner answers, 2026-11-21:
+//   "Same as 10+": a microbiologist under 10 (Table 7 has only a "≥10 yrs"
+//     row) cites the same as at 10+. ACIP's summary names microbiologists
+//     among "persons aged ≥2 months at increased risk"; the age-doubt note
+//     still asks the user to check the age.
+//   "Match ACIP": the college card said the requirement "is met only by a
+//     dose given on or after the 16th birthday"; the Table 10 footnote says
+//     "The preferred timing of the most recent dose is on or after their 16th
+//     birthday." The sentence now says what ACIP says. Words only.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 
@@ -127,7 +133,7 @@ describe('C4 ACIP 2020 part 2: each MenACWY exposure card cites the report where
     const r = run({ dob: '2009-06-01', riskIds: ['college_dorm'], menacwyDoses: [{ date: '2021-07-01', brand: 'Menveo' }] });
     const c = r.menacwy[0];
     expect(c.doseLabel).toBe('1 dose (booster at ≥16y)');
-    expect(keys(c.noteCites)).toEqual(['acip2020CollegeBoosterBeforeEnrollment']);
+    expect(keys(c.noteCites)[0]).toBe('acip2020CollegeBoosterBeforeEnrollment');
     expect(acip2020Uncited(r, c)).toBe(false);
   });
 
@@ -138,11 +144,25 @@ describe('C4 ACIP 2020 part 2: each MenACWY exposure card cites the report where
     expect(acip2020Uncited(r, c)).toBe(false);
   });
 
-  it('control, held for the owner: a microbiologist under 10 gets no Table 7 mark', () => {
-    const r = run({ dob: '2021-06-01', riskIds: ['microbiologist'] });
+  it('owner "Same as 10+": a microbiologist of 5 cites what the 12-year-old cites; the age note stays', () => {
+    const young = run({ dob: '2021-06-01', riskIds: ['microbiologist'] });
+    const older = run({ dob: '2014-06-01', riskIds: ['microbiologist'] });
+    const [c, d] = [young.menacwy[0], older.menacwy[0]];
+    expect(c.doseLabel).toBe(d.doseLabel);
+    expect(keys(c.boosterCites)).toEqual(['acip2020Table7MicrobiologistBooster']);
+    expect(keys(c.noteCites)).toEqual(keys(d.noteCites));
+    expect(acip2020Uncited(young, c)).toBe(false);
+    expect(young.riskAgeNote?.lines?.[0]).toContain('only for ages 10 years and over');
+  });
+
+  it('owner "Match ACIP": the college sentence says "prefers", as Table 10\'s footnote does', () => {
+    const r = run({ dob: '2008-06-01', riskIds: ['college_dorm'], menacwyDoses: [{ date: '2020-07-01', brand: 'Menveo' }] });
     const c = r.menacwy[0];
-    expect(c.doseLabel).toBe('Dose 1 (boosters while at risk)');
-    expect(keys(c.boosterCites)).toEqual([]);
-    expect(marksIn(c.boosterSummary)).toBe(0);
+    expect(c.doseLabel).toBe('1 dose (booster at ≥16y)');
+    expect(noteText(c)).toContain('ACIP prefers the most recent dose on or after the 16th birthday [c]');
+    // extinct: the old "met only by a dose given on or after" college sentence, replaced by owner answer "Match ACIP", 2026-11-21
+    expect(noteText(c)).not.toContain('met only by');
+    expect(marksIn(noteText(c))).toBe(c.noteCites.length);
+    expect(keys(c.noteCites)).toEqual(['acip2020CollegeBoosterBeforeEnrollment', 'acip2020CollegePreferredAfter16', 'acip2020CollegeBoosterBeforeEnrollment']);
   });
 });

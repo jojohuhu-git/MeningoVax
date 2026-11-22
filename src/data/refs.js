@@ -733,6 +733,13 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
   },
+  acip2020CollegePreferredAfter16: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'The preferred timing of the most recent dose is on or after their 16th birthday.',
+    label: 'ACIP 2020 MMWR, Table 10 footnote: the most recent dose preferably on or after the 16th birthday',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
   // Table 10 footnote *: a college entrant whose only dose came before 16.
   acip2020CollegeBoosterBeforeEnrollment: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',

@@ -602,10 +602,12 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     // C4, ACIP 2020 part 2 (2026-11-21): the booster line and the dose-1
     // sentence each cite the report (read live 2026-11-21). Travel: Table 9's
     // "≥2 yrs" row, which also covers a traveller who works with the bacteria.
-    // Lab exposure alone: Table 7, whose only row is "≥10 yrs"; under 10 the
-    // card cites nothing new until the owner says what it should cite (Q12
-    // case a). Wording, dates and doses unchanged.
-    const microCited = hasMicro && ageImplausibleRisks(['microbiologist'], am).length === 0;
+    // Lab exposure alone: Table 7. Its only row is "≥10 yrs"; under 10 the
+    // card cites the same as at 10+ (owner, 2026-11-21, "Same as 10+": ACIP's
+    // summary names microbiologists among "persons aged ≥2 months at increased
+    // risk", and the age-doubt note already asks the user to check the age).
+    // Wording, dates and doses unchanged.
+    const microCited = hasMicro;
     const boosterCite = hasTravel ? cite('acip2020Table9TravelBooster')
       : microCited ? cite('acip2020Table7MicrobiologistBooster') : null;
     const boosterLine = `Boosters: every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while ${exposurePhrase} continues${boosterCite ? ' [c]' : ''}`;
@@ -837,14 +839,18 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           // only 1 dose of vaccine was administered before the 16th birthday, a
           // booster dose should be administered before enrollment."
           noteCites: datesKnown
-            ? [cite('acip2020CollegeBoosterBeforeEnrollment'), ...(timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')])]
+            ? [cite('acip2020CollegeBoosterBeforeEnrollment'), ...(timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')]),
+              cite('acip2020CollegePreferredAfter16'), cite('acip2020CollegeBoosterBeforeEnrollment')]
             : [],
           note: datesKnown
             ? {
               lead: timing.dueToday
                 ? 'The recorded dose was given before age 16, so one dose is due now [c].'
                 : `The recorded dose was given before age 16, so one more dose is needed [c].${ROUTINE_BOOSTER_WAIT_SENTENCE}`,
-              detail: 'The college-residence requirement is met only by a dose given on or after the 16th birthday. An earlier dose still counts as vaccination — it just does not satisfy this requirement.',
+              // Owner, 2026-11-21 ("Match ACIP"): this said the requirement "is met
+              // only by a dose given on or after the 16th birthday". ACIP's Table 10
+              // footnote (read live) says that timing is "preferred". Words only.
+              detail: 'ACIP prefers the most recent dose on or after the 16th birthday [c]. A single dose before 16 needs a booster before enrollment [c].',
             }
             : {
               lead: 'The age at the recorded dose cannot be confirmed — check its date in the record.',
