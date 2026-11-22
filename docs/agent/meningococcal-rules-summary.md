@@ -192,11 +192,13 @@ purposes. This only applies to healthy patients; a high-risk infant series
     at 2 months. Since 2026-11-21 (your MQ6 answer, AAP 2026: "The first dose of
     MenQuadfi may be given as early as 6 weeks"), a high-risk, travelling or
     outbreak baby from 6 weeks to under 2 months with no MenACWY yet gets a card
-    naming MenQuadfi only, "Dose 1 of 4", next dose due at 2 months, and the note
-    "MenQuadfi may be given from 6 weeks". Its badge says **"Next dose not yet
+    listing Menveo 2-vial and MenQuadfi, as at 2 months (your MQ6-j answer: dose 1
+    is advised at 2 months, when both are fine), "Dose 1 of 4", next dose due at
+    2 months, and "MenQuadfi may be given from 6 weeks" behind "Why this" (your
+    MQ6-i answer: keep it folded). Its badge says **"Next dose not yet
     due"** (your MQ6-g answer: follow the standard schedule when it can be
     followed). This needs a date of birth: from whole months alone a 5-week-old
-    and a 7-week-old look the same. A MenQuadfi dose actually given at 6 or 7
+    and a 7-week-old look the same (your MQ6-k answer: keep it so). A MenQuadfi dose actually given at 6 or 7
     weeks is licensed and **counts**, and the card is the one the same baby gets
     from 2 months: dose 2 due at 4 months, earliest valid 8 weeks after dose 1
     (your MQ6-e answer). Menveo's own floor
@@ -207,7 +209,7 @@ purposes. This only applies to healthy patients; a high-risk infant series
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
-    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, aap2026MenQuadfiFrom6Weeks, cdcChildAcwyMinAge, owner:C13, owner:MQ6, owner:MQ6-e, owner:MQ6-g -->
+    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, aap2026MenQuadfiFrom6Weeks, cdcChildAcwyMinAge, owner:C13, owner:MQ6, owner:MQ6-e, owner:MQ6-g, owner:MQ6-i, owner:MQ6-j, owner:MQ6-k -->
     > "MenQuadfi is approved for use in individuals 6 weeks of age and older." — [MenQuadfi Package Insert](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7), read 2026-09-23.
     >
     > "Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation." — [WA DOH](https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines), read 2026-09-22.
@@ -223,6 +225,12 @@ purposes. This only applies to healthy patients; a high-risk infant series
     > Owner decision MQ6-e, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
     >
     > Owner decision MQ6-g, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
+    >
+    > Owner decision MQ6-i, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
+    >
+    > Owner decision MQ6-j, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
+    >
+    > Owner decision MQ6-k, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
     <!-- /SOURCES -->
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
     at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or

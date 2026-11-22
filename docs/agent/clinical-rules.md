@@ -312,11 +312,15 @@ unchanged, does the app ASK for one yet). MenQuadfi is AAP-aligned per WA DOH to
 weeks; Menveo's floor stays 2 months. Dose 1 is DUE at 2 months. **Since owner MQ6
 (2026-11-21; AAP 2026: "The first dose of MenQuadfi may be given as early as 6 weeks"),
 a high-risk, travel or outbreak baby from day 42 to under 2 months, with a date of birth
-and no MenACWY yet, gets a card naming MenQuadfi only, "Dose 1 of 4", next dose due at 2
-months, the note "MenQuadfi may be given from 6 weeks".** Its badge reads "Next dose not
+and no MenACWY yet, gets a card listing Menveo 2-vial and MenQuadfi (owner MQ6-j,
+2026-11-21: dose 1 is advised at 2 months, so the same brands as the 2-month card; AAP 2026
+catch-up table, minimum age for dose 1: "2 months MenACWY-CRM, 6 weeks MenACWY-TT"), "Dose 1
+of 4", next dose due at 2 months, the note "MenQuadfi may be given from 6 weeks" behind "Why
+this" (owner MQ6-i, the same day: keep it folded).** Its badge reads "Next dose not
 yet due", not "Can be given today", and the summary line adds nothing (owner MQ6-g,
 2026-11-21: follow the standard schedule when it can be followed). Without a date of
-birth there is no such card: whole months cannot confirm 6 weeks. A MenQuadfi dose
+birth there is no such card: whole months cannot confirm 6 weeks (owner MQ6-k, 2026-11-21,
+"Keep as is"). A MenQuadfi dose
 actually given at 6 or 7 weeks is licensed and counts, and the card is the dose-2 card
 the same baby gets from 2 months: dose 2 due at 4 months, earliest valid 8 weeks after
 dose 1 (owner MQ6-e, 2026-11-21; AAP 2026 catch-up table, MenACWY dose 1 to dose 2:

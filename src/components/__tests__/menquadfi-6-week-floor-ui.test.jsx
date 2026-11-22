@@ -64,10 +64,14 @@ describe('a 7-week-old with asplenia', () => {
       .toBe('No MenACWY or MenB doses due today.');
   });
 
-  it('offers MenQuadfi only ("Brand: MenQuadfi") — Menveo is licensed from 2 months', () => {
+  // MQ6-j (owner, 2026-11-21, "Both brands"): dose 1 is advised at 2 months,
+  // when Menveo is licensed too, so the card lists both, as at 2 months.
+  it('lists both brands, Menveo 2-vial and MenQuadfi, as the 2-month card does', () => {
     show('2026-08-04');
-    expect(screen.getByText('Brand: MenQuadfi')).toBeDefined();
-    expect(screen.queryByText('Menveo 2-vial')).toBeNull();
+    expect(screen.getByText(/brand options/i)).toBeDefined();
+    expect(screen.getByText('Menveo 2-vial')).toBeDefined();
+    expect(screen.getByText('MenQuadfi')).toBeDefined();
+    expect(screen.queryByText('Brand: MenQuadfi')).toBeNull();
   });
 });
 
