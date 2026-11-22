@@ -27,6 +27,14 @@ Baseline was 2,475 passing (209 files); now **2,493 passing (210 files)**, 0 fai
    (16-y asplenia: MenACWY 3-week dose 2 and Trumenba-after-Bexsero both show [1] with ACIP's
    sentence on hover). Report: `docs/archive/report-2026-11-21-c11-dose-line-citations.md`.
 
+## Settled design note (owner, 2026-11-21)
+
+A card's source buttons **expand with "Why this"**, to keep the card cleaner; they stay inside the
+card's "Why this" fold (as owner Q10, 2026-11-19). While it is closed, a [n] mark on a dose line
+or booster line has no visible button beside it. That is intended: the mark itself links to the
+exact sentence (hover shows the quote; click opens it). The owner noticed this live after C11 and
+kept it. Do not move the buttons out of the fold or propose it again.
+
 ## What's NOT done — the remaining queue
 
 1. **Owner merges PR #141.** Check `origin/main` before calling it merged.
