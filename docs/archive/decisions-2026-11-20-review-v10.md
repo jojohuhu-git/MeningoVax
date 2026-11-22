@@ -33,7 +33,8 @@ Answer column says "Built".
 
 - **R1**: answered (above).
 - **Q5 (amber "Not counted — do not repeat")**: approved 2026-11-19, but the owner asked to check
-  PneumoVax's dose labels first. Not part of this approval. Remind her.
+  PneumoVax's dose labels first. Not part of this approval. Remind her. **Closed 2026-11-21:
+  "Keep red"** (`decisions-2026-11-21-session1-small-fixes.md`); no amber is built.
 - **P12–P21** are card titles (`doseLabel`), not the closed chip list beside recorded doses
   (`src/components/doseChipLabel.js`), which they do not change. (Corrected 2026-11-20; this line
   first said otherwise.)

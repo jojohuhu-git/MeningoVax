@@ -10,7 +10,7 @@ is built yet.
 | Q2 | Say "4C / FHbp family", or brand names? | "Bexsero" and "Trumenba", with no "type" after them. Applies to the Rulebook and to the card text in the Patient screen review. |
 | Q3 | High-risk MenB dose 2: "at 1 month" or "1–2 months"? | "Dose 2 at 1 month" stays. Give the full ACIP range (1–2 months) in the "why" text (Details panel, "Why this"). |
 | Q4 | Healthy MenB "wanes within about a year" (`src/logic/doseRules.js:369`) vs the source's "1–2 years" | Change it to "within 1–2 years". |
-| Q5 | Amber on dose labels | Red means repeat; amber on a dose label means not counted, with nothing to give now. "Not counted — do not repeat" moves from red (`invalid` tone) to amber. **Owner: "make sure to remind me to check PneumoVax"**: check PneumoVax's dose labels for the same rule before building (shared design system; design-review skill). |
+| Q5 | Amber on dose labels | Red means repeat; amber on a dose label means not counted, with nothing to give now. "Not counted — do not repeat" moves from red (`invalid` tone) to amber. **Owner: "make sure to remind me to check PneumoVax"**: check PneumoVax's dose labels for the same rule before building (shared design system; design-review skill). **Reversed 2026-11-21: after the PneumoVax check the owner chose "Keep red" (`decisions-2026-11-21-session1-small-fixes.md`). Do not build amber.** |
 
 Other owner direction from the same session (v6–v9 notes) is in memory
 `rulebook-screen-mockup-direction`. Every age carries its unit; where an age sits next to a dose
