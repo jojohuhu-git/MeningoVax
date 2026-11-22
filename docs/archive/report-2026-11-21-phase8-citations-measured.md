@@ -37,6 +37,7 @@ results; they are rendered by other code and are still to measure.
 | **2,730** | A raised number names a document that has **no button** on the card (C3). |
 | **21,180** | A button names a document that **no sentence** on the card cites (C4). |
 | **6,206** | The same quoted sentence is cited more than once on one card (C7, see below). |
+| **2,245** | One document carries **two different numbers** on the same card. A link that jumps to a sentence (`…htm#:~:text=…`) is counted as a different document from the plain link (`…htm`), so ACIP 2020 can be both `[1]` and `[2]`. The owner's rule of 2026-07-24 is that the number names the document, so this is a defect, fixed with C2 (number by the document, `#…` dropped). |
 
 **Checked in the running app**, a healthy 11-year-old with no doses, MenACWY card, "Why this"
 open (dev server, 2026-11-21):
@@ -64,6 +65,18 @@ open (dev server, 2026-11-21):
 | C11 | Each number sits on the exact claim | Not done | Per document. |
 | C12 | Clicking or hovering a number shows the quote in a pop-up | To measure | **Not done**: the quote shows as the browser's plain hover text (`title`), not a pop-up. |
 | C13 | A quote never says the opposite of its card | Not done | Per document. |
+
+## The order question (for the owner, with C2)
+
+Her PneumoVax ruling: the first document a sentence cites is `[1]`. Since L4 (2026-11-20), an open
+MeningoVax card shows "Why this" **above** its booster line and its recorded doses, but the
+numbers are still handed out booster line first, then recorded doses, then "Why this". Of the
+19,635 cards that open by default, **2,491** would number differently if numbers followed the order
+the reader meets them (measured with a one-off script over the same grid, 2026-11-21).
+
+Worked patient: a 10-year-old (born 2016-09-15, seen 2026-09-15) with complement deficiency and
+one Bexsero at 9 years. Today "Why this" says "…at 0, 1–2 and 6 months [2]" and the recorded dose
+below says "Minimum age not met (10 years for Bexsero). [1]" — the reader meets [2] first.
 
 ## Next
 
