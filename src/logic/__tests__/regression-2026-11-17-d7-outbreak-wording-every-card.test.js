@@ -63,7 +63,8 @@ describe('D7: MenB outbreak cards', () => {
   it('primary series: the booster line says "if outbreak risk continues" (D10: one booster)', () => {
     const c = run({ riskIds: ['outbreak_b'], dob: '2006-01-01' }).menb[0];
     expect(c.doseLabel).toMatch(/^Dose 1 of 3/);
-    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues');
+    // C4 (2026-11-21): the line now cites ACIP 2020 Table 8 ([c]); words unchanged.
+    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c]');
   });
 
   it('control: asplenia keeps its wording', () => {

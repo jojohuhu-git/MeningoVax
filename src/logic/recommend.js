@@ -1699,7 +1699,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   const highRisk = hasMenbRisk(riskIds);
   // 2026-07-24: cdcAdultMening dropped from the high-risk default — it just
   // restates the same MMWR rule (2026-07-23 owner decision).
-  const refs = (extra = [], base = highRisk ? ['acip2020'] : ['cdcChildMenB']) => collectRefs(riskIds, extra, base);
+  const refs = (extra = [], base = highRisk ? ['acip2020'] : ['cdcChildMenB']) => collectRefs(riskIds, extra, base, 'MenB');
 
   // MenB is only licensed ≥10y.
   if (am < MENB_MIN_AGE_MONTHS) {
@@ -1709,8 +1709,12 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         repeatLater: REPEAT_LATER_MENB_HIGH_RISK,
         note: {
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years, so nothing is due yet.`,
-          detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)}.`,
-        }, refs: refs() })];
+          detail: `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
+        },
+        // C4 (2026-11-21): ACIP 2020's "persons aged ≥10 years who are at
+        // increased risk" sentence, so the ACIP 2020 button here is cited.
+        noteCites: [cite('acip2020MenbRiskGroups')],
+        refs: refs() })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
       note: {
@@ -1764,11 +1768,14 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     // series completion". The "every 2–3 years" boosters are Tables 4, 5 and 7
     // (complement, asplenia, microbiologists) and stay theirs.
     const outbreakOnly = outbreakIsTheOnlyBoosterReason('MenB', riskIds);
-    const seriesBoosterLine = (afterWhat) => (outbreakOnly
-      ? `Booster: 1 dose, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series, if outbreak risk continues`
-      : afterWhat);
+    // C4 (2026-11-21): the "1 year, then every 2–3 years" line cites ACIP 2020's
+    // sentence (`acip2020MenbBoosterCadence`, read live 2026-11-21). It cited
+    // nothing, so the ACIP 2020 button on these cards was unnumbered.
+    const seriesBooster = (afterWhat) => (outbreakOnly
+      ? { boosterSummary: `Booster: 1 dose, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series, if outbreak risk continues [c]`, boosterCites: [cite('acip2020Table8MenbOutbreakBooster')] }
+      : { boosterSummary: `${afterWhat} [c]`, boosterCites: [cite('acip2020MenbBoosterCadence')] });
     if (given === 0) {
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
         family, brands: menbBrands(family),
         note: {
           lead: 'A three-dose MenB series at 0, 1–2 and 6 months [c].',
@@ -1795,7 +1802,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // accepted, never what is advised (A13).
       const statedMin = repeatFloorDate && repeatFloorDate > minDate ? repeatFloorDate : minDate;
       const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate });
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 2, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 2, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: due, earliestNextDate: due ? null : advisedDate, minIntervalDays: MENB_HIGHRISK_D2_GAP,
         canGiveToday: !due && statedMin <= today,
         family, brands: menbBrands(family),
@@ -1853,7 +1860,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         }
         repeatClause = minimumBesideRoutine({ minDate: repeatMin, advisedDate: routineDate, today, minWords, fmt: fmtDate });
       }
-      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, boosterSummary: seriesBoosterLine(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
+      return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
         minIntervalDays: DAYS.months(MENB_HIGHRISK_D3_MONTHS_FROM_D2), // min from D2 (D1 floor shown in note)
         // MQ6-h (owner, 2026-11-21, "Dose 2 only"): a repeated dose 3 does not
@@ -1902,7 +1909,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: firstBooster ? `First booster (dose ${given + 1}), ${yearsLabel(boosterYears)} after the series` : `Booster (dose ${given + 1}), ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the last`,   // P20 (review v10)
-      doseNum: given + 1, seriesTotal: hrSeries.total, boosterSummary: outbreakOnly ? 'Booster: 1 dose for this outbreak, no repeat boosters' : `Boosters: every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`, dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: hrSeries.total, ...(outbreakOnly ? { boosterSummary: 'Booster: 1 dose for this outbreak, no repeat boosters' } : { boosterSummary: `Boosters: every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk [c]`, boosterCites: [cite('acip2020MenbBoosterCadence')] }), dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, boosterYears), minIntervalDays: intervalDays,
       family, brands: menbBrands(family),
       // U2: "then every 2-3 years while the high-risk condition persists" is
@@ -2057,10 +2064,16 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
 }
 
 // Merge risk-driven ref keys with defaults, de-duplicated, preserving order.
-function collectRefs(riskIds, extra, defaults) {
+// C4 (2026-11-21): a MenB card takes a risk factor's `menbRefs` when it has
+// them. A risk factor with no MenB recommendation (travel, college, military,
+// HIV, a serogroup A/C/W/Y outbreak) sets `menbRefs: []`, so its MenACWY table
+// no longer lands, uncited, on the MenB card.
+function collectRefs(riskIds, extra, defaults, family = 'MenACWY') {
   const out = [];
   for (const id of riskIds) {
-    for (const k of RISK_BY_ID[id]?.refs ?? []) if (!out.includes(k)) out.push(k);
+    const r = RISK_BY_ID[id];
+    const own = family === 'MenB' && r && 'menbRefs' in r ? r.menbRefs : r?.refs;
+    for (const k of own ?? []) if (!out.includes(k)) out.push(k);
   }
   for (const k of [...extra, ...defaults]) if (!out.includes(k)) out.push(k);
   return out;

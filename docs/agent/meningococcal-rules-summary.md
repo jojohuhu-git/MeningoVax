@@ -605,7 +605,7 @@ with an old dose "you're done" when they weren't.)
   years"; its date is the 2-year mark, and a booster given sooner than 2 years
   (beyond the 4-day grace) does not count.
   <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox -->
-  > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   >
   > "the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-10-17.
   <!-- /SOURCES -->
@@ -616,14 +616,14 @@ with an old dose "you're done" when they weren't.)
     boosters are Tables 4, 5 and 7 (complement, asplenia, microbiologists). If
     another of those risks is also checked, its boosters win.
     <!-- SOURCES: acip2020Table8MenbOutbreakBooster, owner:D10 -->
-    > "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-17.
+    > "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
     >
     > Owner decision D10, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
     <!-- /SOURCES -->
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
   alone — only the specific list above triggers high-risk MenB.
   <!-- SOURCES: acip2020MenbRiskGroups, acip2020AcwyRiskGroupsFrom2mo -->
-  > "ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  > "ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   >
   > "ACIP also recommends routine vaccination with MenACWY for persons aged ≥2 months at increased risk for meningococcal disease caused by serogroups A, C, W, or Y, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor (e.g., eculizumab [Soliris] or ravulizumab [Ultomiris]); persons who have anatomic or functional asplenia; persons with human immunodeficiency virus infection; microbiologists routinely exposed to isolates of Neisseria meningitidis; persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y; persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic; unvaccinated or incompletely vaccinated first-year college students living in residence halls; and military recruits" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
   <!-- /SOURCES -->
@@ -1068,7 +1068,7 @@ sentence is about the record, not the vaccine.
   - "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR: MenB-4C high-risk 3-dose series, 0/1–2/6 months](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
   - "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated ≥4 months after it, unless it was 6 months after dose 1](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
 - `MENB-HIGHRISK-BOOSTER-GAP`:
-  - "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR: high-risk MenB booster schedule](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  - "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR: high-risk MenB booster schedule](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
 - `MENB-HEALTHY-DOSE-2-GAP`:
   - "For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses" — [ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
 - `MENB-HEALTHY-EARLY-DOSE-2`:

@@ -609,7 +609,7 @@ export const CITATIONS = {
     quote: 'Single dose if ≥1 yr after MenB primary series completion',
     label: 'ACIP 2020 MMWR Table 8: one MenB booster for a serogroup B outbreak',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-17',
+    lastVerified: '2026-11-21',
   },
   acip2020MenbMixedProductsSelectOne: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
@@ -630,7 +630,7 @@ export const CITATIONS = {
     quote: 'a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter',
     label: 'ACIP 2020 MMWR: high-risk MenB booster schedule',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-15',
+    lastVerified: '2026-11-21',
   },
   menbHighRiskEarlyD3Unless: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
@@ -659,7 +659,7 @@ export const CITATIONS = {
     quote: 'ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B',
     label: 'ACIP 2020 MMWR: who gets MenB for risk (HIV is not on this list)',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-19',
+    lastVerified: '2026-11-21',
   },
   acip2020Table2CatchupOnly1921: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
