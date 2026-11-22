@@ -854,26 +854,9 @@ ACIP MMWR 2024;73(15), https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm)
   and the card says what is owed (your Q6 answer, 2026-11-17; it read
   "Off-window - repeat"). A high-risk patient's MenB from age 10 counts.
 
-### The label beside each recorded dose (your STOP E1 answers, 2026-11-17)
-
-Every recorded dose gets exactly one label from this list:
-
-| Label | When |
-|---|---|
-| Dose N of M / Dose N | Counted. "Dose N" alone when no series is running now (Q9; it read "Given — not part of a series this patient needs"). |
-| Booster | A counted dose after the primary series (Q7: kept). |
-| Not counted — repeat | Too soon, too young, or the wrong MenB family, and a card still asks for that vaccine (Q5; it read "Invalid"). The line gives the date the card gives, then how: "Repeat from Dec 17, 2026. Do not restart the series." ("repeat" is the chip's word, so the line no longer says "This dose does not count toward the series: repeat this dose only"; owner G1-a, 2026-11-18). A booster given too soon ends at its date, with no "Do not restart the series.", because a booster has no series to restart (owner G1-a-F3, 2026-11-19) If a later dose of that vaccine is already on the record, the line says "Repeated on <date>. See that dose." instead (owner F-4a, F-4b, 2026-11-18). When the card gives no date because the next dose is years away, the line says when instead: a high-risk child's MenB "Repeat at 10 years or older, when the high-risk MenB series starts."; a healthy child's MenACWY "Repeat at 11–12 years, with the routine dose."; a healthy child's MenB drops "repeat" and says "MenB is next offered at 16–23 years, by shared clinical decision-making." (owner R-A, R-B, R-C, 2026-11-18). |
-| Not counted — do not repeat | The same, but no card asks for that vaccine: every card is "Complete" or "Not indicated" (Q10). A card that asks for a dose *later* ("Not yet age-eligible: start the series at 10") still asks, so that dose reads "repeat". So does a pregnancy deferral. One exception: a healthy child under 16 whose MenB was given too young reads "do not repeat", because no MenB dose is owed before the optional series at 16–23 (owner R-C, 2026-11-18). That holds even if another MenB shot followed it: a child who did not need MenB was not "repeated". A child who needed MenB (asplenia, complement, microbiologist, serogroup B outbreak) still reads "Repeated on <date>". |
-| Not counted — given before age 10 / 16 | Set aside for age (Q6). |
-| Not counted — Extra. Do not repeat. | Given correctly, but no card asked for it on the day it was given: the series was already complete, or no dose was recommended (Q8, Q11). This includes a patient's first dose: a healthy 30-year-old's Bexsero is Extra. A card that said "Not yet due" (it asks for a dose later) does not make a dose Extra: a healthy child's MenACWY at 10 still counts, because ACIP counts it as dose 1. **College is left alone** (Q8 follow-up): a dose given while the 5-year college cover runs still counts, because ACIP times the 5 years "since the dose". |
-| No date recorded / Date is in the future / Entered twice / Dated before birth — not counted | A record problem (unchanged). |
-| Needs input | Waiting for "was the patient high-risk on that date?" (unchanged). |
-
-The cards on the day of a dose are worked out with the patient's risks as
-checked today. So if a risk is checked later, those cards ask, and the doses
-count.
-- **A MenACWY dose set aside like that still starts the 8-week clock** (your
-  D2 answer, 2026-11-17): the next MenACWY dose waits 8 weeks after it. A dose
+- **A MenACWY dose set aside for age still starts the 8-week clock** (given
+  before 10, or more than 4 days too early to be the 16-year booster; your D2
+  answer, 2026-11-17): the next MenACWY dose waits 8 weeks after it. A dose
   given 5 days before the 16th birthday puts the booster 8 weeks after that
   dose, not on the birthday; a dose at 9 years 11 months means a dose at 10
   under 8 weeks later does not count.
@@ -898,6 +881,25 @@ count.
   dose is measured from the last dose actually given (the bullet on repeat
   timing above). Before 2026-11-16 the gap was measured from the last kept
   dose instead.
+
+### The label beside each recorded dose (your STOP E1 answers, 2026-11-17)
+
+Every recorded dose gets exactly one label from this list:
+
+| Label | When |
+|---|---|
+| Dose N of M / Dose N | Counted. "Dose N" alone when no series is running now (Q9; it read "Given — not part of a series this patient needs"). |
+| Booster | A counted dose after the primary series (Q7: kept). |
+| Not counted — repeat | Too soon, too young, or the wrong MenB family, and a card still asks for that vaccine (Q5; it read "Invalid"). The line gives the date the card gives, then how: "Repeat from Dec 17, 2026. Do not restart the series." ("repeat" is the chip's word, so the line no longer says "This dose does not count toward the series: repeat this dose only"; owner G1-a, 2026-11-18). A booster given too soon ends at its date, with no "Do not restart the series.", because a booster has no series to restart (owner G1-a-F3, 2026-11-19). If a later dose of that vaccine is already on the record, the line says "Repeated on <date>. See that dose." instead (owner F-4a, F-4b, 2026-11-18). When the card gives no date because the next dose is years away, the line says when instead: a high-risk child's MenB "Repeat at 10 years or older, when the high-risk MenB series starts."; a healthy child's MenACWY "Repeat at 11–12 years, with the routine dose."; a healthy child's MenB drops "repeat" and says "MenB is next offered at 16–23 years, by shared clinical decision-making." (owner R-A, R-B, R-C, 2026-11-18). |
+| Not counted — do not repeat | The same, but no card asks for that vaccine: every card is "Complete" or "Not indicated" (Q10). A card that asks for a dose *later* ("Not yet age-eligible: start the series at 10") still asks, so that dose reads "repeat". So does a pregnancy deferral. One exception: a healthy child under 16 whose MenB was given too young reads "do not repeat", because no MenB dose is owed before the optional series at 16–23 (owner R-C, 2026-11-18). That holds even if another MenB shot followed it: a child who did not need MenB was not "repeated". A child who needed MenB (asplenia, complement, microbiologist, serogroup B outbreak) still reads "Repeated on <date>". |
+| Not counted — given before age 10 / 16 | Set aside for age (Q6). |
+| Not counted — Extra. Do not repeat. | Given correctly, but no card asked for it on the day it was given: the series was already complete, or no dose was recommended (Q8, Q11). This includes a patient's first dose: a healthy 30-year-old's Bexsero is Extra. A card that said "Not yet due" (it asks for a dose later) does not make a dose Extra: a healthy child's MenACWY at 10 still counts, because ACIP counts it as dose 1. **College is left alone** (Q8 follow-up): a dose given while the 5-year college cover runs still counts, because ACIP times the 5 years "since the dose". |
+| No date recorded / Date is in the future / Entered twice / Dated before birth — not counted | A record problem (unchanged). |
+| Needs input | Waiting for "was the patient high-risk on that date?" (unchanged). |
+
+The cards on the day of a dose are worked out with the patient's risks as
+checked today. So if a risk is checked later, those cards ask, and the doses
+count.
 
 ---
 
@@ -1085,16 +1087,23 @@ sentence is about the record, not the vaccine.
 
 | Rule area | File |
 |---|---|
-| Per-dose validity, counting, age exclusions | `src/logic/validate.js` |
+| Every rule that judges a recorded dose (the rule table, one row per rule; section 5) | `src/logic/doseRules.js` |
+| Walks the rule table over each dose; counting, age exclusions | `src/logic/validate.js` |
+| MenB series length and the dose 2 / dose 3 timing decisions (`menbSeriesInfo`, `menbHighRiskDose3Early`, `menbHealthyDose2Early`) | `src/logic/seriesTotals.js` |
+| Gaps between doses and booster intervals | `src/logic/intervals.js` |
+| Ages (schedule floors, age bands) | `src/logic/ages.js` |
 | What's due today / next, boosters, pentavalent gate | `src/logic/recommend.js` |
 | Risk factor → schedule class mapping | `src/data/riskFactors.js` |
 | Brand → antigen family, min ages | `src/data/brands.js` |
 | Citations | `src/data/refs.js` |
+| Section 5 and the source lines under sections 1–3 (generated by `npm run rulebook`) | `src/data/rulebook.js` |
+| The in-app Rulebook screen | `src/data/rulebookPage.js`, `src/components/Rulebook.jsx` |
 
 ## Keeping this in sync
 
 This doc exists because rules drift as new test cases surface edge cases.
-**Whenever `validate.js` or `recommend.js` changes a rule described above,
+**Whenever `doseRules.js`, `recommend.js`, `seriesTotals.js`, `intervals.js` or `ages.js`
+changes a rule described above,
 update this file in the same commit/PR**. Section 5 is not edited by hand: after any change to
 a row of `src/logic/doseRules.js` or a quoted sentence in `src/data/refs.js`, run
 `npm run rulebook` and read the diff (every changed line is a rule that changed). Don't let this document silently go stale; if you're not sure
