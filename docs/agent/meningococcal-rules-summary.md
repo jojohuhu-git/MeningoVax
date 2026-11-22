@@ -11,9 +11,13 @@ date each was read.
 its link and the date it was read, or the owner decision it rests on (owner 2026-11-19: "Link to
 source list"). Those lines are copied from the app's own source list (`src/data/refs.js`) by
 `npm run rulebook`, so they are the same sentences the cards cite. A rule with no sentence yet
-says so in italics: on 2026-11-19 that was 20 of 75 rules, still to be read live.
+says so in italics: on 2026-11-19 that was 20 of 75 rules; since later that day it is 0 (every
+rule names its source).
 
-**Last verified against code:** 2026-11-16 (STOP B B-2–B-5 and the Complete rule; MenACWY
+**Last verified against code:** 2026-11-21 (the owner's STOP H walk-through: section 5
+regenerated from the code with no difference, and the full suite, which holds this file's
+load-bearing rules to the code, passing; rules changed since 2026-11-16 include D1–D13, M1,
+M1d and MQ6); before that 2026-11-16 (STOP B B-2–B-5 and the Complete rule; MenACWY
 gaps, STOP C C10, C11, C13; MenB dose 3, C5–C7; an undated dose does not count, C1);
 before that 2026-09-23 (MenQuadfi 6-week licence floor, M3-M5);
 before that 2026-09-17 (P0-1, MenACWY infant primary intervals), and 2026-09-16, after
@@ -124,7 +128,7 @@ Two deliberate limits:
   >
   > Owner decision N5, 2026-11-15 ([clinical-rules.md](clinical-rules.md)).
   <!-- /SOURCES -->
-- **17–21 years, no dose recorded on/after the 16th birthday:** one catch-up
+- **16–21 years, no dose recorded on/after the 16th birthday:** one catch-up
   dose. Because it's given at ≥16, no further booster is needed. Especially
   called out for first-year college students in dorms.
   <!-- SOURCES: cdcCatchupAcwy1618OneDose, acwyCatchup1921, acwyFirstDoseAfter16NoBooster -->
@@ -357,10 +361,10 @@ receive another.
   > Owner decision D6, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
   <!-- /SOURCES -->
 - **Serogroup A/C/W/Y outbreak exposure**: one dose, then — **while the outbreak box is
-  ticked — a booster 3 years later if the series finished before age 7, otherwise 5,
+  checked — a booster 3 years later if the series finished before age 7, otherwise 5,
   and every 5 years after** (your B-2 answer). The card reads "Booster (dose N) if
   outbreak risk continues" with the date, never "Complete" or "top-up". A teenager's
-  routine 16-year booster still comes first. Untick the box when the risk is over.
+  routine 16-year booster still comes first. Uncheck the box when the risk is over.
   <!-- SOURCES: owner:B-2 -->
   > Owner decision B-2, 2026-11-15 ([plan-2026-11-08-meningovax-port.md](../archive/plan-2026-11-08-meningovax-port.md)).
   <!-- /SOURCES -->
@@ -368,7 +372,7 @@ receive another.
   continues"** on a booster not yet due ("for this outbreak" when due today), and
   its booster line reads "while outbreak risk continues" (your D7 answer,
   2026-11-17). Before, only the teenage MenACWY outbreak card said it. If another
-  risk is also ticked (asplenia, for example), that risk's wording stays.
+  risk is also checked (asplenia, for example), that risk's wording stays.
   <!-- SOURCES: owner:D7 -->
   > Owner decision D7, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
   <!-- /SOURCES -->
@@ -434,7 +438,7 @@ receive another.
 - **A teenager still gets the 16-year dose** (your answer, 2026-11-18) — travel,
   lab worker, and A/C/W/Y outbreak alike. Maya, 15, had one dose at 14 for
   travel: the app used to put her next dose in 2030 (5 years on), while the same
-  girl with no box ticked got it at 16. ACIP's routine rule — *"1 dose at age 16
+  girl with no box checked got it at 16. ACIP's routine rule — *"1 dose at age 16
   yrs if first dose administered before 16th birthday"* — names no exception.
   Now her card says "Booster (16y)"; the dose counts when given; boosters
   then follow every 5 years from it while she is at risk (5 years because it is
@@ -608,7 +612,7 @@ with an old dose "you're done" when they weren't.)
     reads "Complete (outbreak booster given)". ACIP 2020 Table 8: *"Single dose
     if ≥1 yr after MenB primary series completion"*. The every-2–3-years
     boosters are Tables 4, 5 and 7 (complement, asplenia, microbiologists). If
-    another of those risks is also ticked, its boosters win.
+    another of those risks is also checked, its boosters win.
     <!-- SOURCES: acip2020Table8MenbOutbreakBooster, owner:D10 -->
     > "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-17.
     >
@@ -858,7 +862,7 @@ Every recorded dose gets exactly one label from this list:
 | Needs input | Waiting for "was the patient high-risk on that date?" (unchanged). |
 
 The cards on the day of a dose are worked out with the patient's risks as
-ticked today. So if a risk is ticked later, those cards ask, and the doses
+checked today. So if a risk is checked later, those cards ask, and the doses
 count.
 - **A MenACWY dose set aside like that still starts the 8-week clock** (your
   D2 answer, 2026-11-17): the next MenACWY dose waits 8 weeks after it. A dose
