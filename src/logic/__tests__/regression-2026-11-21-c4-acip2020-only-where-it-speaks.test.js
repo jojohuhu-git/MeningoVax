@@ -113,6 +113,8 @@ describe('C4 ACIP 2020: a high-risk child under 10 is told, with ACIP\'s sentenc
     const c = run({ dob: '2024-06-01', riskIds: [risk] }).menb[0];
     expect(c.doseLabel).toBe('Not yet due (from 10 years)');
     expect(c.note.detail).toBe('This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series once they reach age 10 [c].');
-    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020MenbRiskGroups']);
+    // C4 mm7349a3 (2026-11-22): the lead's "licensed from age 10 years" now
+    // cites the 2024 report first; the detail still cites ACIP 2020.
+    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', 'acip2020MenbRiskGroups']);
   });
 });

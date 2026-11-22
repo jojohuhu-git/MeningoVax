@@ -37,7 +37,9 @@ describe('D10: serogroup B outbreak — one booster', () => {
     expect(c.doseLabel).toBe('First booster (dose 4), 1 year after the series for this outbreak');
     expect(c.boosterSummary).toBe('Booster: 1 dose for this outbreak, no repeat boosters');
     // Its source is Table 8's one-booster sentence, not "every 2–3 years".
-    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster']);
+    // C4 mm7349a3 (2026-11-22): the same-family line after it cites the 2024
+    // report's "Booster doses need to be from the same manufacturer".
+    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'menbBoosterSameManufacturer']);
   });
 
   it('during the series: the booster line says one booster', () => {
@@ -57,6 +59,6 @@ describe('D10: serogroup B outbreak — one booster', () => {
     const c = run(['asplenia', 'outbreak_b'], [...PRIMARY, B('2025-08-01')]);
     expect(c.earliestNextDate).toBe('2027-08-01');
     expect(c.boosterSummary).toMatch(/every 2–3 years/);
-    expect(c.noteCites.map((x) => x.key)).toEqual(['menbHighRiskBoosterCadenceBox']);
+    expect(c.noteCites.map((x) => x.key)).toEqual(['menbHighRiskBoosterCadenceBox', 'menbBoosterSameManufacturer']);
   });
 });
