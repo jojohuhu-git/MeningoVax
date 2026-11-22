@@ -671,7 +671,7 @@ days), add about 2.5% per fix.
 | Q9 | Routine date beside the minimum? | 5 | a high-risk MenB dose 3 |
 | Q10 | Fold the result page? | 6 | — |
 | Q11 | In-app Rulebook tab? **Answered 2026-11-19: yes, like PneumoVax** | 7 | — |
-| Q12 | Does the "same dose, decide alone" delegation carry over? | 8 | — |
+| Q12 | Does the "same dose, decide alone" delegation carry over? | 8 | — **Answered 2026-11-21: "Yes, same as PneumoVax"** (`report-2026-11-21-phase8-citations-measured.md`) |
 
 ## Not in this plan
 
