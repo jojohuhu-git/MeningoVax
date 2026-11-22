@@ -37,7 +37,7 @@ describe('Review v10 Batch 4: placement', () => {
     const chip = row.querySelector('.dose-val-chip');
     const reasons = row.querySelector('.dose-val-reasons');
     expect(chip.textContent).toBe('Not counted — repeat');
-    expect(reasons.textContent.replace(/\s+/g, ' ').trim()).toMatch(/^Not interchangeable with the first MenB dose \(Bexsero\)\. Repeat with Bexsero (today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\. Do not restart\.$/);
+    expect(reasons.textContent.replace(/\s+/g, ' ').trim()).toMatch(/^Not interchangeable with the first MenB dose \(Bexsero\) \[\d+\]\. Repeat with Bexsero (today|from [A-Z][a-z]{2} \d{1,2}, \d{4})\. Do not restart\.$/);
     // The chip comes before the reason in the row, so it sits on the row's first line.
     expect(chip.compareDocumentPosition(reasons) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

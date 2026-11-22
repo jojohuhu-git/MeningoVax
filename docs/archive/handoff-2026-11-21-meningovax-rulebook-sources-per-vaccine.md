@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-c11-dose-line-citations.md`. PR #140 is merged (`ec60c85`) and C11 dose-line citations are in PR #141; do not resume from this file.
+
 # MeningoVax — Handoff after the Rulebook Sources fix: each vaccine cites only itself (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
