@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-c4-acip2020-done.md`. PR #138 is merged and part 2 (MenACWY exposure cards, owner E1/E2) is built in PR #139; do not resume from this file.
+
 # MeningoVax — Handoff after C4 document 1, part 1: ACIP 2020 on MenB cards (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
