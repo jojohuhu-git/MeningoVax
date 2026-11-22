@@ -92,10 +92,17 @@ describe('Item 5: MenB family-lock guidance appears in the Results editor too', 
     expect(panel.textContent).not.toMatch(/Family locked|MenB-4C|MenB-FHbp/);
   });
 
-  it('shows the "brand unknown, both families open" note for an unbranded first MenB dose', () => {
+  // Owner, 2026-11-21 ("Reuse Q2 wording"): the note for an unbranded first
+  // MenB dose said "Brand unknown: both MenB families remain open. Once a brand
+  // is selected for dose 1, the engine will lock the series to that antigen
+  // family." Now it reuses the Q2 sentence ("Match the first"; ACIP 2020: "MenB
+  // vaccines are not interchangeable").
+  it('an unbranded first MenB dose: "Brand of dose 1 unknown. Enter it if known: every MenB dose must match the first."', () => {
     render(<Harness initial={baseState({ menbDoses: [{ date: '', brand: '' }] })} />);
     const panel = openRecordedDoses();
-    expect(panel.textContent).toMatch(/both MenB families remain open/i);
+    expect(panel.textContent).toContain('Brand of dose 1 unknown. Enter it if known: every MenB dose must match the first.');
+    // extinct: the old jargon, removed on purpose (owner, 2026-11-21)
+    expect(panel.textContent).not.toMatch(/families remain open|antigen family|the engine/i);
   });
 });
 
