@@ -24,6 +24,9 @@ are advised at the routine ages with the 8-week minimum stated beside them.
 | MQ6-f | Recommended, citing CDC Timing and Spacing (shorter intervals "might be necessary in certain circumstances, such as impending international travel or when a person is behind schedule") and PneumoVax (no "today" badge in the gap): for both vaccines, badge "Next dose not yet due", "Next dose due <routine date>", the note keeps "It can be given today if needed, as the minimum interval of … has passed." MenB changes: dose 2 in its gap, a repeated dose 3 before its advised date, and the summary line drops "MenB dose 2 can be given today." | **"Yes, both match."** Reverses the owner's 2026-11-18 gap badge and the morning's MQ6-d line. |
 | MQ6-g | MQ6 this morning: a high-risk baby of 6 weeks to under 2 months with no MenACWY reads "Can be given today" (MenQuadfi only). AAP: "The first dose of MenQuadfi may be given as early as 6 weeks." Keep it, or apply the principle? Then: drop the summary line's "MenQuadfi can be given today." (MQ6-c) too? | **"Apply the principle"**: badge "Next dose not yet due", dose 1 due at 2 months, the note says MenQuadfi may be given from 6 weeks. **"Drop it too."** Brands on that card are unchanged (MenQuadfi only); not asked. |
 | MQ6-h | The combined shot (Penmenvy/Penbraya) when MenACWY is due today and MenB is not yet due. Measured: MenB dose 2 at most 3 days early (Bexsero Nov 3 → offered Dec 1–2, routine Dec 3; Jul 3 → Jul 31–Aug 2; a dose 1 on Jan 31, Feb 1 or Feb 3 → 0 days). The same switch also opened it for a repeated dose 3, never asked (Bexsero Jun 1, Jul 1, Jul 15 → offered from Nov 15, advised Dec 1: 16 days early). | **"Dose 2 only."** A repeated dose 3 waits for its advised date. |
+| MQ6-i | Made-up patient: 7-week-old with asplenia, no doses yet. The card says dose 1 is due Dec 3 (at 2 months). The only mention that MenQuadfi can be given from 6 weeks is behind "Why this". Keep it folded there, or show it on the card? | **"Keep folded."** No change. |
+| MQ6-j | Same 7-week-old (asplenia, travel or outbreak; no doses). The card says dose 1 is due Dec 3 (2 months) but lists only MenQuadfi. On Dec 3 the same baby's card lists Menveo 2-vial and MenQuadfi. AAP 2026 minimum age: "2 months MenACWY-CRM, 6 weeks MenACWY-TT". Which brands should the card before 2 months list? | **"Both brands."** |
+| MQ6-k | Age typed as "1 month" (no date of birth), asplenia, no doses. The app can't tell 5 weeks from 7 weeks, so it shows "Not yet due (from 2 months)", no brand, no date, no mention of MenQuadfi at 6 weeks (applied without asking in #131). Keep it? | **"Keep as is."** No change. |
 
 ## Built
 
@@ -45,3 +48,9 @@ are advised at the routine ages with the 8-week minimum stated beside them.
   flag). Tests that pinned the old answers were changed to the new ones;
   `regression-2026-11-21-summary-line-names-menb-dose-2.test.jsx` became
   `regression-2026-11-21-summary-line-no-can-be-given-sentence.test.jsx`.
+- **MQ6-j** (2026-11-21): `recommend.js`: the 6-week-to-2-months card lists
+  `MENACWY_INFANT_SERIES_BRANDS` (Menveo 2-vial and MenQuadfi), the 2-month card's list, instead of
+  MenQuadfi alone. Note, badge, dates unchanged. Test:
+  `regression-2026-11-21-mq6-j-both-brands-before-2-months.test.js`; screen:
+  `menquadfi-6-week-floor-ui.test.jsx`. Tests that pinned "MenQuadfi only" changed to the new answer.
+  MQ6-i and MQ6-k change no code; their controls are in the same test.

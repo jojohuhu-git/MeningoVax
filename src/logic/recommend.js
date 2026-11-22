@@ -1098,7 +1098,11 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         // given from 6 weeks.
         dueToday: false,
         earliestNextDate: addCalendarMonths(dob, MENACWY_SCHEDULE_MIN_AGE_MONTHS),
-        brands: MENACWY_INFANT_SERIES_BRANDS.filter((b) => b.startsWith('MenQuadfi')),
+        // MQ6-j (owner, 2026-11-21, "Both brands"): dose 1 is advised at 2
+        // months, when Menveo is licensed too, so the card lists the same
+        // brands as the 2-month card. AAP 2026 catch-up table, minimum age
+        // for dose 1: "2 months MenACWY-CRM, 6 weeks MenACWY-TT".
+        brands: MENACWY_INFANT_SERIES_BRANDS,
         minIntervalDays: startGate.minIntervalDays,
         note: {
           lead: `The infant series starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}; MenQuadfi may be given from ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)} [c].`,

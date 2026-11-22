@@ -247,6 +247,10 @@ export const OWNER_ANSWERS = {
   'MQ6-f': { date: '2026-11-21', where: MQ6_GAP },
   'MQ6-g': { date: '2026-11-21', where: MQ6_GAP },
   'MQ6-h': { date: '2026-11-21', where: MQ6_GAP },
+  // The 6-week card: the 6-week line stays folded (i), both brands (j), no card without a date of birth (k).
+  'MQ6-i': { date: '2026-11-21', where: MQ6_GAP },
+  'MQ6-j': { date: '2026-11-21', where: MQ6_GAP },
+  'MQ6-k': { date: '2026-11-21', where: MQ6_GAP },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */

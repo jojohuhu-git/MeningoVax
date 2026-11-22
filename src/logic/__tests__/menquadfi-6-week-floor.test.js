@@ -114,14 +114,16 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
   // dose 1 is still DUE at the 2-month schedule floor. The two floors still
   // differ; the card now says both. Was: not-indicated, nothing offered.
   // MQ6-g (owner, the same day): no "Can be given today" flag or badge.
-  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months); the card names MenQuadfi', () => {
+  // MQ6-j (owner, the same day, "Both brands"): dose 1 is advised at 2
+  // months, so the card lists both brands, as the 2-month card does.
+  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months); the card lists both brands', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks = 49 days old
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     expect(r.menacwy[0].dueToday).toBe(false);
     expect(r.menacwy[0].canGiveToday).toBeUndefined();
-    expect(r.menacwy[0].brands).toEqual([MENQUADFI]);
+    expect(r.menacwy[0].brands).toEqual(MENACWY_INFANT_SERIES_BRANDS);
   });
 
   it('...but a MenQuadfi dose actually GIVEN at 7 weeks counts (licence floor is 6 weeks)', () => {
@@ -162,9 +164,9 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
 // ── M3 · card copy stops naming a single brand when two are offered ──────
 
 describe('M3 — no card names one brand while offering two chips', () => {
-  // Owner, 2026-11-21: the 7-week-old now reads "Dose 1 of 4", MenQuadfi only,
+  // Owner, 2026-11-21: the 7-week-old now reads "Dose 1 of 4", both brands (MQ6-j),
   // "may be given from 6 weeks" (was "Not yet due ... track them and start it").
-  it('a 7-week-old with NO doses yet: offered MenQuadfi only, series starting at 2 months, with no false "only Menveo" claim', () => {
+  it('a 7-week-old with NO doses yet: series starting at 2 months, with no false "only Menveo" claim', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks old, given === 0
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
