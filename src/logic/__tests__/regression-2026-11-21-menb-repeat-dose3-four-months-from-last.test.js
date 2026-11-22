@@ -94,7 +94,9 @@ describe('controls that do not move', () => {
   it('Jan 1, Feb 1, Feb 15: due Jul 1 (6 months after dose 1), earliest valid Jun 15 (4 months after Feb 15)', () => {
     const r = run([B('2026-01-01'), B('2026-02-01'), B('2026-02-15')], '2026-06-20');
     expect(card(r).earliestNextDate).toBe('2026-07-01');
-    expect(card(r).canGiveToday).toBe(true);
+    // MQ6-h (owner, 2026-11-21, "Dose 2 only"): no canGiveToday on a repeated
+    // dose 3, so the combined shot waits for Jul 1. The note still says Jun 15.
+    expect(card(r).canGiveToday).toBeUndefined();
     expect(card(r).note.lead).toMatch(/4 months after the invalid dose/);
   });
 

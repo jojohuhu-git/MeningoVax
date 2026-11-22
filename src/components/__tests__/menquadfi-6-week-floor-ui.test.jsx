@@ -41,25 +41,27 @@ const show = (dob) => {
   }} />);
 };
 
-// Owner, 2026-11-21 ("Can be given (Rec.)"): from 6 weeks the MenACWY card
-// says MenQuadfi can be given today; dose 1 is still due at 2 months. Was:
-// "Not yet due (from 2 months)" with no brand offered.
+// Owner, 2026-11-21 ("Can be given (Rec.)"): from 6 weeks MenQuadfi can be
+// given; dose 1 is still due at 2 months. MQ6-g (owner, the same day, "Apply
+// the principle"): the badge reads "Next dose not yet due", not "Can be given
+// today" -- follow the standard schedule when it can be followed.
 describe('a 7-week-old with asplenia', () => {
-  it('the MenACWY card reads "Can be given today", dose 1 of 4, next dose due at 2 months', () => {
+  it('the MenACWY card reads "Next dose not yet due", dose 1 of 4, next dose due at 2 months', () => {
     show('2026-08-04'); // 7 weeks (49 days) before TODAY
-    expect(screen.getByText('Can be given today')).toBeDefined();
+    expect(screen.queryByText('Can be given today')).toBeNull();
+    expect(screen.getByText('Next dose not yet due')).toBeDefined();
     expect(screen.getByText('Dose 1 of 4 (infant high-risk)')).toBeDefined();
     expect(screen.getByText('Next dose due Oct 4, 2026')).toBeDefined();
     // MenB is unchanged: its 10-year floor.
     expect(screen.getAllByText('Not yet due (from 10 years)')).toHaveLength(1);
   });
 
-  // Owner, 2026-11-21 ("Yes, add it"): the summary line above the cards names
-  // the offer too, so a clinician skimming it does not miss the card.
-  it('the summary line says nothing is due, and that MenQuadfi can be given today', () => {
+  // MQ6-g (owner, 2026-11-21, "Drop it too"): the summary line no longer adds
+  // "MenQuadfi can be given today." (MQ6-c, built that morning).
+  it('the summary line says only that nothing is due', () => {
     show('2026-08-04');
     expect(screen.getByTestId('results-summary-line').textContent)
-      .toBe('No MenACWY or MenB doses due today. MenQuadfi can be given today.');
+      .toBe('No MenACWY or MenB doses due today.');
   });
 
   it('offers MenQuadfi only ("Brand: MenQuadfi") — Menveo is licensed from 2 months', () => {

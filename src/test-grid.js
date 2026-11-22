@@ -192,7 +192,7 @@ function dobAtAgeMonths(ageMonths, today = TEST_TODAY) {
 // leap-day `dob`, chosen near the MenACWY 16-year routine-booster gate so
 // `addCalendarYears`'s Feb-29 clamp gets exercised, not just guessed at.
 // 1.5 (2026-11-21): a baby of about 6½ weeks, inside the MenQuadfi-from-6-weeks
-// band (owner, 2026-11-21: "Can be given today" before the 2-month series).
+// band (owner MQ6, 2026-11-21: MenQuadfi may be given before the 2-month series).
 const EDGE_BAND_HALF_MONTHS = [1.5, 6.5, 7.5, 11.5, 23.5];
 const BIRTHDAY_GATE_YEARS = [10, 11, 16, 19];
 

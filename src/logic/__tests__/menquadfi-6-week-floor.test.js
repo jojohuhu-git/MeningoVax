@@ -113,13 +113,14 @@ describe('M2 — the licence floor and the schedule floor are allowed to differ'
   // Owner, 2026-11-21: from 6 weeks MenQuadfi CAN be given (AAP 2026), but
   // dose 1 is still DUE at the 2-month schedule floor. The two floors still
   // differ; the card now says both. Was: not-indicated, nothing offered.
-  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months), but MenQuadfi can be given today', () => {
+  // MQ6-g (owner, the same day): no "Can be given today" flag or badge.
+  it('a 7-week-old with asplenia: not due yet (schedule floor is 2 months); the card names MenQuadfi', () => {
     const r = recommend({
       today: TODAY, dob: addDays(TODAY, -49), // 7 weeks = 49 days old
       riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [], riskAtDoseAnswers: {},
     });
     expect(r.menacwy[0].dueToday).toBe(false);
-    expect(r.menacwy[0].canGiveToday).toBe(true);
+    expect(r.menacwy[0].canGiveToday).toBeUndefined();
     expect(r.menacwy[0].brands).toEqual([MENQUADFI]);
   });
 

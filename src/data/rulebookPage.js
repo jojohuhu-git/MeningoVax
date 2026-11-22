@@ -401,7 +401,7 @@ export const DECISIONS = [
     short: `MenQuadfi from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}`,
     problem: `MenQuadfi is licensed from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}, younger than the infant schedule's first dose at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. A record may show a dose in between, or a dose of unknown brand.`,
     cdc: `The infant series starts at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. CDC's notes list MenQuadfi from ${age(CDC_MENQUADFI_MIN_AGE_MONTHS)}. AAP lists it from ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}.`,
-    does: `Dose 1 is due at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. From ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}, a high-risk, travelling or outbreak baby with a date of birth on file can be given MenQuadfi (Can be given today), following AAP. A MenQuadfi dose at ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)} or older counts, following AAP. A dose of unknown brand counts only from ${age(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)}, since it may not have been MenQuadfi.`,
+    does: `Dose 1 is due at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. From ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)}, a high-risk, travelling or outbreak baby with a date of birth on file may be given MenQuadfi, following AAP. The card still advises dose 1 at ${age(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}. A MenQuadfi dose at ${wk(MENACWY_LICENCE_MIN_AGE_DAYS)} or older counts, following AAP. A dose of unknown brand counts only from ${age(MENACWY_UNKNOWN_BRAND_MIN_AGE_MONTHS)}, since it may not have been MenQuadfi.`,
     ex: [P.menquadfi6wk, P.unknown6wk],
   },
   {
@@ -808,7 +808,7 @@ export function riskRankingFor(vaccine) {
 
 // ── The combined shot ────────────────────────────────────────────────────
 export const PENTA_ROWS = [
-  { text: `Offered when MenACWY is due today, MenB is due or can be given today, and the patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.healthy16, P.menbAsp9] },
+  { text: `Offered when MenACWY is due today, MenB is due or dose 2 can be given today, and the patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.healthy16, P.menbAsp9] },
   { text: `The product must match the earlier MenB doses: ${PENMENVY} after ${BEXSERO}, ${PENBRAYA} after ${TRUMENBA}.`, ex: [P.pentaFamily] },
   { text: `Not within ${mo(PENTAVALENT_REPEAT_MONTHS)} of the last dose of the same product: give the two vaccines separately.`, ex: [P.pentaRecent] },
   { text: 'Not offered while a dose on the record reads Needs input.', ex: [P.pentaWaits] },

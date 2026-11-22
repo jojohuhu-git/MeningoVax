@@ -191,13 +191,15 @@ purposes. This only applies to healthy patients; a high-risk infant series
     schedule floor (2026-09-23, AAP-aligned per WA DOH).** Dose 1 is still *due*
     at 2 months. Since 2026-11-21 (your MQ6 answer, AAP 2026: "The first dose of
     MenQuadfi may be given as early as 6 weeks"), a high-risk, travelling or
-    outbreak baby from 6 weeks to under 2 months with no MenACWY yet gets the card
-    **"Can be given today"**, MenQuadfi only, "Dose 1 of 4", next dose due at 2
-    months. This needs a date of birth: from whole months alone a 5-week-old and
-    a 7-week-old look the same. A MenQuadfi dose actually
-    given at 6 or 7 weeks is licensed and **counts**: the card for a patient in
-    that gap says so and states the schedule that follows ("6 weeks, then 4, 6
-    and 12 months") instead of pretending nothing happened. Menveo's own floor
+    outbreak baby from 6 weeks to under 2 months with no MenACWY yet gets a card
+    naming MenQuadfi only, "Dose 1 of 4", next dose due at 2 months, and the note
+    "MenQuadfi may be given from 6 weeks". Its badge says **"Next dose not yet
+    due"** (your MQ6-g answer: follow the standard schedule when it can be
+    followed). This needs a date of birth: from whole months alone a 5-week-old
+    and a 7-week-old look the same. A MenQuadfi dose actually given at 6 or 7
+    weeks is licensed and **counts**, and the card is the one the same baby gets
+    from 2 months: dose 2 due at 4 months, earliest valid 8 weeks after dose 1
+    (your MQ6-e answer). Menveo's own floor
     is unchanged at 2 months. **A dose whose brand is unknown counts only from 2
     months** (your C13 answer, 2026-11-15): the 6 weeks is MenQuadfi's alone,
     and an unknown brand might not have been MenQuadfi (CDC's software also
@@ -205,7 +207,7 @@ purposes. This only applies to healthy patients; a high-risk infant series
     `MENACWY_SCHEDULE_MIN_AGE_MONTHS` (ages.js) — two different questions that
     used to be one number only because every product's answer happened to
     match.
-    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, aap2026MenQuadfiFrom6Weeks, cdcChildAcwyMinAge, owner:C13, owner:MQ6 -->
+    <!-- SOURCES: menQuadfiPackageInsert, waDohMenQuadfiAapAlignment, aap2026MenQuadfiFrom6Weeks, cdcChildAcwyMinAge, owner:C13, owner:MQ6, owner:MQ6-e, owner:MQ6-g -->
     > "MenQuadfi is approved for use in individuals 6 weeks of age and older." — [MenQuadfi Package Insert](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7), read 2026-09-23.
     >
     > "Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation." — [WA DOH](https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines), read 2026-09-22.
@@ -217,6 +219,10 @@ purposes. This only applies to healthy patients; a high-risk infant series
     > Owner decision C13, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
     >
     > Owner decision MQ6, 2026-11-21 ([decisions-2026-11-21-menquadfi-from-6-weeks.md](../archive/decisions-2026-11-21-menquadfi-from-6-weeks.md)).
+    >
+    > Owner decision MQ6-e, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
+    >
+    > Owner decision MQ6-g, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
     <!-- /SOURCES -->
   - Dose 1 at 3–6 months: 3 **or** 4 doses. The **"3-dose shortcut"**: if dose 2 landed
     at 7 months or later, the series completes in 3 doses. If dose 2 came earlier, or
@@ -666,13 +672,19 @@ on-the-table today).
   combined shot is offered: *"MenACWY is due today; MenB dose 2 can be given
   today (its 4-week minimum has passed). One pentavalent (MenABCWY) dose may
   replace both."* ACIP: "may be used when both MenACWY and MenB are indicated
-  at the same visit". On those days the MenB card's badge says **"Can be
-  given today"** (your answer, 2026-11-18), not "Up to date"; its date line
-  still says "Next dose due <date>".
-  <!-- SOURCES: pentavalentHighRiskNoUpperAge, owner:F2a -->
+  at the same visit". **Dose 2 only** (your MQ6-h answer, 2026-11-21): a
+  repeated dose 3 waits for its own date. On those days the MenB card's badge
+  says **"Next dose not yet due"** (your MQ6-f answer, 2026-11-21, replacing
+  "Can be given today"); its date line says "Next dose due <date>" and its note
+  "It can be given today if needed".
+  <!-- SOURCES: pentavalentHighRiskNoUpperAge, owner:F2a, owner:MQ6-f, owner:MQ6-h -->
   > "persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
   >
   > Owner decision F2a, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+  >
+  > Owner decision MQ6-f, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
+  >
+  > Owner decision MQ6-h, 2026-11-21 ([decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md](../archive/decisions-2026-11-21-menquadfi-6-week-dose-and-infant-gap.md)).
   <!-- /SOURCES -->
 
 - **Penmenvy** = MenB-4C family → only offered/continued if the established

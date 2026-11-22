@@ -9,6 +9,12 @@
 // only "due" or "not due". Owner: the badge says "Can be given today" on those
 // days. Not "due": the card's own date line still reads "Next dose due <date>".
 //
+// REVERSED by owner MQ6-f (2026-11-21, "Yes, both match"): follow the standard
+// schedule when it can be followed; a dose at the minimum still counts. The
+// badge on those days reads "Next dose not yet due", as infant MenACWY's and
+// PneumoVax's do; the note still says "It can be given today if needed", and
+// the combined shot is still offered (F2a, kept for dose 2: "Dose 2 only").
+//
 // Owner's patient: asplenia, 20 y, Bexsero Oct 20, 2026, no MenACWY.
 // 4 weeks = Nov 17; 1 month = Nov 20. Gap days: Nov 17, 18, 19.
 import React from 'react';
@@ -33,23 +39,23 @@ const menbBadge = (today, menacwyDoses = []) => {
 
 describe('gap badge: high-risk MenB dose 2 between its 4-week minimum and its 1-month date', () => {
   for (const day of ['2026-11-17', '2026-11-18', '2026-11-19']) {
-    it(`${day}: "Can be given today", with "Next dose due Nov 20, 2026" beside it`, () => {
+    it(`${day}: "Next dose not yet due" (MQ6-f), with "Next dose due Nov 20, 2026" beside it`, () => {
       const { badge, card } = menbBadge(day);
-      expect(badge).toBe('Can be given today');
+      expect(badge).toBe('Next dose not yet due');
       expect(card.textContent).toContain('Next dose due Nov 20, 2026');
       expect(card.textContent).toContain('It can be given today if needed');
     });
   }
 
-  it('MenACWY not due (dose 1 given Oct 20): the MenB card stands alone and still reads "Can be given today"', () => {
+  it('MenACWY not due (dose 1 given Oct 20): the MenB card reads "Next dose not yet due" too', () => {
     const { badge } = menbBadge('2026-11-18', [{ date: '2026-10-20', brand: 'Menveo 2-vial (MenACWY)' }]);
-    expect(badge).toBe('Can be given today');
+    expect(badge).toBe('Next dose not yet due');
   });
 
   // F-3 (owner, STOP G1, 2026-11-18): this was "Up to date". A dated dose 2
   // still to come now reads "Next dose not yet due"; still never "Can be given
   // today" before the 4-week minimum.
-  it('control, Nov 16 (before the 4-week minimum): "Next dose not yet due" (F-3), not "Can be given today"', () => {
+  it('control, Nov 16 (before the 4-week minimum): "Next dose not yet due" (F-3)', () => {
     expect(menbBadge('2026-11-16').badge).toBe('Next dose not yet due');
   });
 

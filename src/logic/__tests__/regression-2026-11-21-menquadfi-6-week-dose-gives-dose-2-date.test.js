@@ -62,9 +62,9 @@ describe('MenQuadfi at 6 weeks, seen at 7 weeks (Nov 21, 2026)', () => {
 });
 
 describe('unchanged (controls)', () => {
-  it('no dose yet at 7 weeks: MenQuadfi can be given today (MQ6)', () => {
+  it('no dose yet at 7 weeks: dose 1 of 4 due at 2 months, MenQuadfi named (MQ6, MQ6-g)', () => {
     const c = recommend({ today: '2026-11-21', dob: DOB, riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [] }).menacwy[0];
-    expect(statusPillLabel(c, false)).toBe('Can be given today');
+    expect(statusPillLabel(c, false)).toBe('Next dose not yet due');
     expect(c.doseLabel).toBe('Dose 1 of 4 (infant high-risk)');
   });
 

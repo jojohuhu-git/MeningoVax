@@ -224,9 +224,11 @@ let p12Rows = 0;
 // a card that "can be given today" is never also due today, and its lead says
 // so. Walked day by day from 3 to 6 weeks after dose 1, both MenB products,
 // every MenB high-risk reason, with and without MenACWY due.
-// Gap badge (owner, 2026-11-18): a card's badge reads "Can be given today"
-// exactly when it can be given today — never on a due card, never "Up to date"
-// or "due" on a gap day.
+// Gap badge: owner MQ6-f (2026-11-21, "Yes, both match") retired the owner's
+// 2026-11-18 "Can be given today" badge. No card's badge reads it; on a gap day
+// the badge reads "Next dose not yet due". Only MenB dose 2 carries
+// canGiveToday, and only the combined shot reads it (MQ6-h, "Dose 2 only"): a
+// repeated dose 3 never opens the combined shot before its advised date.
 // Property 15 (owner, Port Phase 5, 2026-11-18). Ticking travel, lab worker or
 // A/C/W/Y outbreak never makes the next MenACWY dose LATER than for the same
 // child with no box ticked, from 10 through 21 (a dose at 10–15, seen at 10–21):
@@ -280,15 +282,37 @@ let p14GapRows = 0;
           }
           for (const c of [...r.menacwy, ...r.menb]) {
             const badge = statusPillLabel(c, false);
-            if ((badge === 'Can be given today') !== Boolean(c.canGiveToday)) {
-              p14.push(`${where}: ${c.vaccine} badge "${badge}" but canGiveToday=${Boolean(c.canGiveToday)}`);
-            }
+            if (badge === 'Can be given today') p14.push(`${where}: ${c.vaccine} badge "Can be given today" (retired, MQ6-f)`);
+            if (c.canGiveToday && badge !== 'Next dose not yet due') p14.push(`${where}: ${c.vaccine} gap card badge "${badge}"`);
+            if (c.canGiveToday && !(c.vaccine === 'MenB' && c.doseNum === 2)) p14.push(`${where}: ${c.vaccine} dose ${c.doseNum} carries canGiveToday (dose 2 only, MQ6-h)`);
           }
           const acwyDue = r.menacwy.some((c) => c.dueToday);
           const bAvailable = r.menb.some((c) => c.dueToday || c.canGiveToday);
           if (r.pentavalent.eligible !== (acwyDue && bAvailable)) {
             p14.push(`${where}: pentavalent ${r.pentavalent.eligible} but acwyDue=${acwyDue} bAvailable=${bAvailable}`);
           }
+        }
+      }
+    }
+  }
+  // MQ6-h (owner, 2026-11-21, "Dose 2 only"): a repeated dose 3 (the first
+  // dose 3 under 4 months after dose 2 and under 6 after dose 1, so it did not
+  // count) never opens the combined shot, nor reads "Can be given today",
+  // before MenB is due. No MenACWY on record, so MenACWY is due every day.
+  // Dose 3 lands 2 to 8 weeks after dose 2; walked from 3 to 6 months after it.
+  for (const riskIds of [['asplenia'], ['complement']]) {
+    for (const brand of MENB_BRANDS.map((b) => b.label)) {
+      for (let d3Gap = 14; d3Gap <= 56; d3Gap += 14) {
+        const d2 = at(d1, 31);
+        const menbDoses = [{ date: d1, brand }, { date: d2, brand }, { date: at(d2, d3Gap), brand }];
+        for (let day = 90; day <= 185; day += 3) {
+          const today = at(menbDoses[2].date, day);
+          const r = recommend({ today, dob: '2004-06-15', riskIds, menacwyDoses: [], menbDoses });
+          const where = `14-repeat ${riskIds[0]} ${brand} d3 +${d3Gap}d day ${day}`;
+          p14Rows += 1;
+          const bDue = r.menb.some((c) => c.dueToday);
+          if (!bDue && r.pentavalent.eligible) p14.push(`${where}: combined shot offered before MenB is due`);
+          if (r.menb.some((c) => statusPillLabel(c, false) === 'Can be given today')) p14.push(`${where}: "Can be given today"`);
         }
       }
     }
@@ -589,7 +613,7 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     expect(p12).toEqual([]);
   });
 
-  it('property 14 (owner F2a) — the combined shot is offered exactly when MenACWY is due and MenB is due or can be given today', () => {
+  it('property 14 (owner F2a, MQ6-f, MQ6-h) — the combined shot is offered exactly when MenACWY is due and MenB is due or dose 2 can be given today; no "Can be given today" badge', () => {
     report(`Property 14 (${p14Rows} visits, ${p14GapRows} in the gap)`, p14);
     expect(p14Rows).toBeGreaterThan(300);
     expect(p14GapRows).toBeGreaterThan(10);
