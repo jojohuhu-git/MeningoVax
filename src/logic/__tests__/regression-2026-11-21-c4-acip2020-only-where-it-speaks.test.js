@@ -87,8 +87,12 @@ describe('C4 ACIP 2020: the high-risk MenB booster line cites ACIP 2020', () => 
   ])('%s, born %s: booster line ends in [c] and cites acip2020MenbBoosterCadence', (risk, dob, menbDoses, label) => {
     const c = run({ dob, riskIds: [risk], menbDoses }).menb[0];
     expect(c.doseLabel.startsWith(label)).toBe(true);
-    expect(c.boosterSummary).toBe('Boosters: 1 year after the series, then every 2–3 years while at risk [c]');
-    expect(c.boosterCites.map((x) => x.key)).toEqual(['acip2020MenbBoosterCadence']);
+    // C4 complement page (owner, 2026-11-22, "Cite on booster lines"): a
+    // complement patient's line adds CDC's complement-inhibitor sentence after
+    // ACIP 2020's.
+    const comp = risk === 'complement';
+    expect(c.boosterSummary).toBe(`Boosters: 1 year after the series, then every 2–3 years while at risk [c]${comp ? '[c]' : ''}`);
+    expect(c.boosterCites.map((x) => x.key)).toEqual(['acip2020MenbBoosterCadence', ...(comp ? ['cdcComplementMenbBoosterEvery2to3'] : [])]);
   });
 
   it('complement, 12 y: every ACIP 2020 button on the MenB card is now cited by a sentence', () => {
@@ -112,9 +116,12 @@ describe('C4 ACIP 2020: a high-risk child under 10 is told, with ACIP\'s sentenc
     // vaccine series among persons aged ≥10 years who are at increased risk…"
     const c = run({ dob: '2024-06-01', riskIds: [risk] }).menb[0];
     expect(c.doseLabel).toBe('Not yet due (from 10 years)');
-    expect(c.note.detail).toBe('This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series once they reach age 10 [c].');
+    // C4 complement page (owner, 2026-11-22): a complement patient's "3-dose"
+    // also cites CDC's "MenB vaccines need 3 doses".
+    const comp = risk === 'complement';
+    expect(c.note.detail).toBe(`This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series${comp ? ' [c]' : ''} once they reach age 10 [c].`);
     // C4 mm7349a3 (2026-11-22): the lead's "licensed from age 10 years" now
-    // cites the 2024 report first; the detail still cites ACIP 2020.
-    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', 'acip2020MenbRiskGroups']);
+    // cites the 2024 report first; the detail's last mark still cites ACIP 2020.
+    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', ...(comp ? ['cdcComplementMenb3Doses'] : []), 'acip2020MenbRiskGroups']);
   });
 });
