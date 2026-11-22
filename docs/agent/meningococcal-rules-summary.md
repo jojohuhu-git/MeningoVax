@@ -1039,6 +1039,8 @@ sentence is about the record, not the vaccine.
   - "ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years" — [ACIP 2020 MMWR: routine 11–12y dose, 16y booster](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
 - `MENB-UNDATED-BELOW-10`:
   - "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]" — [CDC Child/Adolescent Schedule Notes: MenB minimum age](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
+  - "MenB vaccines are licensed in the United States only for persons aged 10–25 years" — [ACIP 2020 MMWR: MenB licensure (age 10–25 years)](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  - "Persons aged ≥10 years for whom MenACWY and MenB are both indicated" — [ACIP 2025 (Penmenvy) MMWR: recommended for persons aged ≥10 years for whom MenACWY and MenB are both indicated](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-21.
 - `MENB-UNDATED-HEALTHY-UNDER-16`:
   - "MenB series at age 16–23 yrs on basis of shared clinical decision-making (preferred age 16–18 yrs)" — [ACIP 2020 MMWR Table 2: healthy MenB shared clinical decision-making, preferred age 16–18 years](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=MenB%20series%20at%20age%2016%E2%80%9323%20yrs%20on%20basis%20of%20shared%20clinical%20decision-making%20(preferred%20age%2016%E2%80%9318%20yrs)), read 2026-11-15.
 - `MENB-UNDATED-NOT-COUNTED`:
@@ -1047,6 +1049,7 @@ sentence is about the record, not the vaccine.
 - `MENB-BELOW-MIN-AGE`:
   - "minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]" — [CDC Child/Adolescent Schedule Notes: MenB minimum age](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-15.
   - "MenB vaccines are licensed in the United States only for persons aged 10–25 years" — [ACIP 2020 MMWR: MenB licensure (age 10–25 years)](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
+  - "Persons aged ≥10 years for whom MenACWY and MenB are both indicated" — [ACIP 2025 (Penmenvy) MMWR: recommended for persons aged ≥10 years for whom MenACWY and MenB are both indicated](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-21.
 - `MENB-HEALTHY-BEFORE-16`:
   - "MenB series at age 16–23 yrs on basis of shared clinical decision-making (preferred age 16–18 yrs)" — [ACIP 2020 MMWR Table 2: healthy MenB shared clinical decision-making, preferred age 16–18 years](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=MenB%20series%20at%20age%2016%E2%80%9323%20yrs%20on%20basis%20of%20shared%20clinical%20decision-making%20(preferred%20age%2016%E2%80%9318%20yrs)), read 2026-11-15.
 - `MENB-HIGHRISK-BEFORE-16-ASK`:

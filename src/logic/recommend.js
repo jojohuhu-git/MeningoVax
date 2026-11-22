@@ -1756,6 +1756,15 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   // Under 19, ACIP 2020's pregnancy sentence stands alone; CDC's
   // child/adolescent notes say nothing about MenB in pregnancy.
   const pregnantAdult = riskIds.includes('pregnancy') && am >= ADULT_SCHEDULE_FROM_MONTHS;
+  // Phase 8 item 7 (2026-11-22, citation only, owner Q12): a schedule line
+  // cites ACIP Oct 2024's sentence for the patient's own product family. The
+  // report states the same doses and intervals for MenB-4C (`fourC`) and for
+  // MenB-FHbp (`menbFhbpSchedules`). With no product recorded yet the card
+  // offers both, so it cites both. The marks go with the cites: one [c] each.
+  const scheduleCites = (fourC) => (family === '4C' ? [cite(fourC)]
+    : family === 'FHbp' ? [cite('menbFhbpSchedules')]
+      : [cite(fourC), cite('menbFhbpSchedules')]);
+  const scheduleMarks = (fourC) => '[c]'.repeat(scheduleCites(fourC).length);
 
   // MenB is only licensed ≥10y.
   if (am < MENB_MIN_AGE_MONTHS) {
@@ -1857,14 +1866,14 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
         family, brands: menbBrands(family),
         note: {
-          lead: 'A three-dose MenB series at 0, 1–2 and 6 months [c].',
+          lead: `A three-dose MenB series at 0, 1–2 and 6 months ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
           detail: `Use one product for every dose: Bexsero (or Penmenvy), or Trumenba (or Penbraya).${menbPregnancyCaveat}`,
         },
         // C5/2026-07-24: ACIP Oct 2024 MMWR (mm7349a3) states this 3-dose
         // schedule explicitly and supersedes the 2020 MMWR's brand-split
         // table for both antigen families — cdcRecommendations dropped
         // (citation audit finding).
-        noteCites: [cite('menbHighRisk3DoseSchedule'), ...pregCites],
+        noteCites: [...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
         // C4 complement-inhibitor page (2026-11-22): that page is about
         // complement-inhibitor therapy only, and this card put it in front of
         // every high-risk patient (asplenia, lab workers, a serogroup B
@@ -1894,13 +1903,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           // P46 (review v10): one sentence; the earliest-date line, when there is
           // one, stays on the card (Q10 list).
           lead: minClause
-            ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1 [c].${minClause}`
-            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1 [c].`,
+            ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}.${minClause}`
+            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
           detail: menbPregnancyCaveat.trim(),
         },
         // C4 mm7349a3 (2026-11-22): the 0 / 1–2 / 6-month schedule, as the dose
         // 1 and dose 3 cards already cite it.
-        noteCites: [cite('menbHighRisk3DoseSchedule'), ...pregCites],
+        noteCites: [...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // Only reachable while the series really is three doses long; a 2-dose
@@ -1966,10 +1975,12 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           detail: menbPregnancyCaveat.trim(),
         }
         : {
-          lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,
+          lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
           detail: `That is the 0 / 1–2 / 6-month schedule ACIP gives a high-risk MenB series. Both intervals have to be met, so the dose falls on whichever comes later.${menbPregnancyCaveat}`,
         },
-        noteCites: [cite(invalidD3Date ? 'menbHighRiskEarlyD3Unless' : 'menbHighRisk3DoseSchedule'), ...pregCites],
+        // The repeat's sentence (`menbHighRiskEarlyD3Unless`) is from the paragraph
+        // that names both MenB-4C and MenB-FHbp, so it serves either family.
+        noteCites: [...(invalidD3Date ? [cite('menbHighRiskEarlyD3Unless')] : scheduleCites('menbHighRisk3DoseSchedule')), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // M1 (owner, 2026-11-20): there is no "Dose 4 of 4" card any more. An
@@ -2030,7 +2041,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // the fold puts first in "Why this" (79 → 69 words). "Up to the 24th
         // birthday" still gives the age range.
         note: {
-          lead: 'Two MenB doses 6 months apart, by shared clinical decision-making [c].',
+          lead: `Two MenB doses 6 months apart, by shared clinical decision-making ${scheduleMarks('menbHealthy2Dose0and6')}.`,
           detail: `Preferred age 16–18 years [c], given until the 24th birthday. For faster protection (for example, college entry within 6 months), give three doses at 0, 1–2 and 6 months.`,
         },
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
@@ -2053,7 +2064,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // schedule claim is now the lead's sentence and the preferred-age claim
         // the detail's, and noteCites runs lead-first -- so the 0/6-month
         // source comes first here. One source per claim, as before.
-        noteCites: [cite('menbHealthy2Dose0and6'), cite('menbHealthyPreferredAge1618')],
+        noteCites: [...scheduleCites('menbHealthy2Dose0and6'), cite('menbHealthyPreferredAge1618')],
         refs: refs([], ['mm7349a3']) })];
     }
     if (given === 1) {

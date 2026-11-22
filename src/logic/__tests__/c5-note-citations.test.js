@@ -62,14 +62,17 @@ describe('C5 note-citation anchors', () => {
     const r = run({ ageMonths: 192, riskIds: [], menacwyDoses: [], menbDoses: [] });
     const rec = menb(r);
     expect(rec.status).toBe('shared-decision');
-    expect(rec.noteCites).toHaveLength(2);
+    // Phase 8 item 7 (2026-11-22): no product is chosen yet, so the schedule
+    // claim cites the report's MenB-4C sentence and its MenB-FHbp sentence.
+    expect(rec.noteCites).toHaveLength(3);
     // U1 (2026-09-17): the note split into { lead, detail } and the two claims
     // changed places -- the 0/6-month schedule is the lead's sentence now and
     // the preferred age the detail's. noteCites is ordered lead-first, so the
     // schedule source comes first. Still one source per claim, which is what
     // this test is really guarding.
     expect(rec.noteCites[0]).toMatchObject({ key: 'menbHealthy2Dose0and6', url: ACIP_ANCHORS.menbHealthy2Dose0and6 });
-    expect(rec.noteCites[1]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
+    expect(rec.noteCites[1]).toMatchObject({ key: 'menbFhbpSchedules' });
+    expect(rec.noteCites[2]).toMatchObject({ key: 'menbHealthyPreferredAge1618' });
     expect(rec.note.lead).toContain('[c]');
     expect(rec.note.detail).toContain('[c]');
     // The thing C5 was actually guarding against:

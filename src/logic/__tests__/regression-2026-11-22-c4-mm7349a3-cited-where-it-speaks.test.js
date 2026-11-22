@@ -81,11 +81,13 @@ describe('C4 mm7349a3: the 2024 report is cited on the card line it backs', () =
     expect(mmUncited(r, c, 'MenB')).toBe(false);
   });
 
-  it.each([['Bexsero'], ['Trumenba']])('complement, 19 y, one %s dose a year ago: the dose 2 line cites the 3-dose schedule', (brand) => {
+  // Phase 8 item 7 (2026-11-22): each family cites the report's own sentence
+  // for it, MenB-4C's in the Recommendations, MenB-FHbp's in the Introduction.
+  it.each([['Bexsero', 'menbHighRisk3DoseSchedule'], ['Trumenba', 'menbFhbpSchedules']])('complement, 19 y, one %s dose a year ago: the dose 2 line cites the 3-dose schedule', (brand, key) => {
     const r = run({ dob: '2007-06-01', riskIds: ['complement'], menbDoses: [{ date: '2025-11-22', brand }] });
     const c = r.menb[0];
     expect(c.doseNum).toBe(2);
-    expect(keys(c.noteCites)).toEqual(['menbHighRisk3DoseSchedule']);
+    expect(keys(c.noteCites)).toEqual([key]);
     marksMatch(c);
     expect(mmUncited(r, c, 'MenB')).toBe(false);
   });
