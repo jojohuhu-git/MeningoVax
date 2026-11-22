@@ -200,6 +200,11 @@ export const RISK_FACTORS = [
     // floor is a judgement, not a rule — and the note says so by not citing.
     minPlausibleAgeMonths: 108,  // 9 years
     refs: ['cdcAdultMening'],
+    // C4, CDC Adult Notes (2026-11-22): no MenB button from the checkbox.
+    // The notes are for ages 19 and older, so a MenB card cites them only
+    // from 19 and only where it quotes them (recommend.js, `pregnantAdult`);
+    // the cited sentence brings its own button.
+    menbRefs: [],
   },
 ];
 

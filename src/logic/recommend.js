@@ -1722,6 +1722,10 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
 // CDC page's own sentence, read live 2026-11-22 ("CDC recommends a booster
 // dose for these individuals if a year or more has passed since the most
 // recent MenB vaccine"). Words unchanged; each line gets a second mark.
+// CDC's Adult Immunization Schedule is "Recommendations for Ages 19 Years or
+// Older" (read live 2026-11-22). Decides only which cards cite its notes;
+// no dose or date depends on it.
+const ADULT_SCHEDULE_FROM_MONTHS = 19 * 12;
 const OUTBREAK_B_BOOSTER_CITES = () => [cite('acip2020Table8MenbOutbreakBooster'), cite('cdcRecsMenbOutbreakBoosterYear')];
 
 function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = null) {
@@ -1745,6 +1749,13 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   // 2026-07-24: cdcAdultMening dropped from the high-risk default — it just
   // restates the same MMWR rule (2026-07-23 owner decision).
   const refs = (extra = [], base = highRisk ? ['acip2020'] : ['cdcChildMenB']) => collectRefs(riskIds, extra, base, 'MenB');
+  // C4, CDC Adult Notes (2026-11-22): the notes are "Recommendations for Ages
+  // 19 Years or Older" (read live 2026-11-22), so a pregnant patient's MenB
+  // card cites them only from 19, and only where it quotes them (the cited
+  // sentence brings its own source button; pregnancy's `menbRefs` is empty).
+  // Under 19, ACIP 2020's pregnancy sentence stands alone; CDC's
+  // child/adolescent notes say nothing about MenB in pregnancy.
+  const pregnantAdult = riskIds.includes('pregnancy') && am >= ADULT_SCHEDULE_FROM_MONTHS;
 
   // MenB is only licensed ≥10y.
   if (am < MENB_MIN_AGE_MONTHS) {
@@ -1797,16 +1808,28 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
   // (ACIP 2020 MMWR 69(RR-9), "Pregnancy and Lactation", fetched live from
   // cdc.gov 2026-09-15). shouldDeferMenB() is false for those patients, so they
   // dropped through to the ordinary high-risk cards with pregnancy unmentioned.
-  const menbPregnancyCaveat = (riskIds.includes('pregnancy') && !shouldDeferMenB(riskIds))
-    ? ' Pregnancy: safety data for MenB in pregnancy are limited. Offered because of increased risk. Discuss the benefit and potential risk before giving it.'
+  //
+  // C4, CDC Adult Notes (2026-11-22): the line cites ACIP 2020's sentence and,
+  // from 19, the notes' "May administer if at increased risk and vaccination
+  // benefits outweigh potential risks." It is always the last sentence of a
+  // card's detail, so its cites (`pregCites`) go last in that card's noteCites.
+  // Only the high-risk cards below can show it: without a MenB high-risk
+  // condition, pregnancy defers MenB.
+  const pregCites = (riskIds.includes('pregnancy') && !shouldDeferMenB(riskIds))
+    ? [cite('menbPregnancyDeferral'), ...(pregnantAdult ? [cite('cdcAdultMenbPregnancyMayGive')] : [])]
+    : [];
+  const menbPregnancyCaveat = pregCites.length
+    ? ` Pregnancy: safety data for MenB in pregnancy are limited. Offered because of increased risk. Discuss the benefit and potential risk before giving it ${'[c]'.repeat(pregCites.length)}.`
     : '';
   if (shouldDeferMenB(riskIds)) {
     return [rec({ vaccine: 'MenB', status: 'deferred', doseLabel: 'Defer during pregnancy', seriesTotal: highRisk ? 3 : 2,
       note: {
-        lead: 'MenB is generally deferred during pregnancy [c].',
+        lead: `MenB is generally deferred during pregnancy ${pregnantAdult ? '[c][c]' : '[c]'}.`,
         detail: 'Safety data in pregnancy are limited. A patient at increased risk is the exception and may be vaccinated: asplenia, complement deficiency, complement-inhibitor therapy, microbiologist exposure, or a serogroup B outbreak.',
       },
-      noteCites: [cite('menbPregnancyDeferral')],
+      // C4, CDC Adult Notes (2026-11-22): from 19, the notes' "Delay MenB
+      // until after pregnancy due to lack of safety data in pregnant women."
+      noteCites: [cite('menbPregnancyDeferral'), ...(pregnantAdult ? [cite('cdcAdultMenbPregnancyDelay')] : [])],
       refs: refs([], ['acip2020']) })];
   }
 
@@ -1841,7 +1864,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // schedule explicitly and supersedes the 2020 MMWR's brand-split
         // table for both antigen families — cdcRecommendations dropped
         // (citation audit finding).
-        noteCites: [cite('menbHighRisk3DoseSchedule')],
+        noteCites: [cite('menbHighRisk3DoseSchedule'), ...pregCites],
         // C4 complement-inhibitor page (2026-11-22): that page is about
         // complement-inhibitor therapy only, and this card put it in front of
         // every high-risk patient (asplenia, lab workers, a serogroup B
@@ -1877,7 +1900,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         },
         // C4 mm7349a3 (2026-11-22): the 0 / 1–2 / 6-month schedule, as the dose
         // 1 and dose 3 cards already cite it.
-        noteCites: [cite('menbHighRisk3DoseSchedule')],
+        noteCites: [cite('menbHighRisk3DoseSchedule'), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // Only reachable while the series really is three doses long; a 2-dose
@@ -1946,7 +1969,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,
           detail: `That is the 0 / 1–2 / 6-month schedule ACIP gives a high-risk MenB series. Both intervals have to be met, so the dose falls on whichever comes later.${menbPregnancyCaveat}`,
         },
-        noteCites: [cite(invalidD3Date ? 'menbHighRiskEarlyD3Unless' : 'menbHighRisk3DoseSchedule')],
+        noteCites: [cite(invalidD3Date ? 'menbHighRiskEarlyD3Unless' : 'menbHighRisk3DoseSchedule'), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // M1 (owner, 2026-11-20): there is no "Dose 4 of 4" card any more. An
@@ -1993,7 +2016,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // years" box, which would contradict the line above it.
       // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
       // "Booster doses need to be from the same manufacturer".
-      noteCites: [...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer')],
+      noteCites: [...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
       refs: refs(['mm7349a3']) })];
   }
 
@@ -2008,7 +2031,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // birthday" still gives the age range.
         note: {
           lead: 'Two MenB doses 6 months apart, by shared clinical decision-making [c].',
-          detail: `Preferred age 16–18 years [c], given until the 24th birthday. For faster protection (for example, college entry within 6 months), give three doses at 0, 1–2 and 6 months.${menbPregnancyCaveat}`,
+          detail: `Preferred age 16–18 years [c], given until the 24th birthday. For faster protection (for example, college entry within 6 months), give three doses at 0, 1–2 and 6 months.`,
         },
         // C1/2026-07-24: both [c] point at mm7349a3 (its SCDM sentence
         // covers the 16-23y age range and the 0/6-month schedule in one
@@ -2043,7 +2066,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         family, brands: menbBrands(family),
         note: {
           lead: `Dose 2 is due at least ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
-          detail: `Two doses ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third dose is needed at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after it [c].${menbPregnancyCaveat}`,
+          detail: `Two doses ${monthsLabel(MENB_HEALTHY_D2_MONTHS)} apart complete the series, for both Bexsero and Trumenba. If dose 2 is given earlier than that, a third dose is needed at least ${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after it [c].`,
         },
         noteCites: [cite('menbRescueDoseRule')],
         refs: refs([], ['mm7349a3']) })];
@@ -2076,7 +2099,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           family, brands: menbBrands(family),
           note: {
             lead: `Dose 2 was given <${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
-            detail: `It counts. Dose 3 is due ≥${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].${menbPregnancyCaveat}`,
+            detail: `It counts. Dose 3 is due ≥${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].`,
           },
           // C5: an interrupted/off-schedule series is a "does this old dose
           // count" practical judgment call -- immunize.org's Ask the
@@ -2088,7 +2111,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,
         note: {
           lead: 'The healthy 2-dose MenB series is complete [c].',
-          detail: `The two doses were at least 6 months apart. No booster is recommended unless a high-risk indication develops [c].${menbPregnancyCaveat}`,
+          detail: `The two doses were at least 6 months apart. No booster is recommended unless a high-risk indication develops [c].`,
         },
         // C4 mm7349a3 (2026-11-22): the 2024 report's 6-month sentence (it
         // names Bexsero and Trumenba) and its "remain or become at increased
@@ -2100,7 +2123,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (accelerated 3-dose series)', family, seriesTotal: 3,
         note: {
           lead: 'The accelerated 3-dose MenB series is complete [c].',
-          detail: `No booster is recommended unless a high-risk indication develops.${menbPregnancyCaveat}`,
+          detail: `No booster is recommended unless a high-risk indication develops.`,
         },
         noteCites: [cite('menbAcceleratedRapidProtection')],
         refs: refs([], ['mm7349a3']) })];
