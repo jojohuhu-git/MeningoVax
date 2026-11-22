@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-c11-minimum-age-sources.md`. The minimum-age question is answered and built (`f91fbe1`, PR #141); do not resume from this file.
+
 # MeningoVax — Handoff after C11: "not counted" dose lines cite their rule (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
