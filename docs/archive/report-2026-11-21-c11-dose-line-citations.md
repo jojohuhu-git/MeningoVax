@@ -57,3 +57,12 @@ the three MenB rows whose dose **counts** ("No dose 3 is needed if dose 2 was �
 dose 1"; the two "If dose 3 was early … Counts" rows). A counted dose's line has no reason, so it
 cites nothing; the card's own note would have to cite `cdcChildMenbHighRiskD2SixMonthsNoD3` /
 `menbHighRiskEarlyD3Unless`. That is card wording, a separate item.
+
+## Answered 2026-11-21
+
+The owner answered the question above
+(`docs/archive/decisions-2026-11-21-c11-minimum-age-sources.md`): Penbraya cites CDC's MenACWY
+minimum-age line (quote lengthened), Penmenvy cites ACIP's "Persons aged ≥10 years for whom
+MenACWY and MenB are both indicated", Menactra stays unmarked. Unmarked lines now **224**
+(Menactra 168, unknown brand 56). 0 answers moved; wording 924 of 24,600 saved patients, source
+marks only.

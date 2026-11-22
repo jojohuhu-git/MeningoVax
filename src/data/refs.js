@@ -540,10 +540,12 @@ export const CITATIONS = {
   // from changing when a rulebook quote is added.
   cdcChildAcwyMinAge: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
-    quote: 'minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]',
+    // Lengthened 2026-11-21 (owner, C11 follow-up) to take in Penbraya. The
+    // ")" after "MenQuadfi]" is on CDC's page as printed (read live 2026-11-21).
+    quote: 'minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]), 10 years [MenACWY-TT/MenB-FHbp, Penbraya]',
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY minimum ages',
     short: 'CDC Child/Adolescent Notes',
-    lastVerified: '2026-11-15',
+    lastVerified: '2026-11-21',
   },
   cdcChildMenveoLiquid10y: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
@@ -821,6 +823,17 @@ export const CITATIONS = {
     label: 'ACIP 2025 (Penmenvy) MMWR: a pentavalent only when both vaccines are due at the same visit',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
+  },
+  // The age ACIP recommends Penmenvy from (its box of recommendations). No
+  // ACIP/CDC page states a Penmenvy minimum age and CDC's schedule notes do not
+  // name it yet (read live 2026-11-21); the owner chose this sentence for the
+  // "Minimum age not met … for Penmenvy" line (2026-11-21, C11 follow-up).
+  penmenvyAged10BothIndicated: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'Persons aged ≥10 years for whom MenACWY and MenB are both indicated',
+    label: 'ACIP 2025 (Penmenvy) MMWR: recommended for persons aged ≥10 years for whom MenACWY and MenB are both indicated',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-21',
   },
   penmenvySeparateUnder6Months: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',

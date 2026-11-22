@@ -65,6 +65,13 @@ const CASES = [
   ['Menveo 2-vial at 4 weeks', 'MenACWY', d5, [{ date: at(d5, 0, 28), brand: MV2 }], ['asplenia'], 'ACWY-BELOW-MIN-AGE', 'cdcChildAcwyMinAge'],
   ['Menveo 1-vial at 8 years', 'MenACWY', d9y, [{ date: at(d9y, 8 * Y), brand: MV1 }], ['asplenia'], 'ACWY-BELOW-MIN-AGE', 'cdcChildMenveoLiquid10y'],
   ['MenQuadfi at 3 weeks', 'MenACWY', d5, [{ date: at(d5, 0, 21), brand: MQ }], ['asplenia'], 'ACWY-BELOW-MIN-AGE', 'waDohMenQuadfiAapAlignment'],
+  // Owner, 2026-11-21 (C11 follow-up): Penbraya cites CDC's MenACWY minimum-age
+  // line, which names it at 10 years; Penmenvy cites ACIP's "Persons aged ≥10
+  // years for whom MenACWY and MenB are both indicated".
+  ['Penbraya at 5 years', 'MenACWY', d9y, [{ date: at(d9y, 5 * Y), brand: 'Penbraya' }], ['asplenia'], 'ACWY-BELOW-MIN-AGE', 'cdcChildAcwyMinAge'],
+  ['Penmenvy at 5 years', 'MenACWY', d9y, [{ date: at(d9y, 5 * Y), brand: 'Penmenvy' }], ['asplenia'], 'ACWY-BELOW-MIN-AGE', 'penmenvyAged10BothIndicated'],
+  ['Penbraya, no date, patient 9', 'MenACWY', d9y, [{ date: '', brand: 'Penbraya' }], ['asplenia'], 'ACWY-UNDATED-BELOW-MIN-AGE', 'cdcChildAcwyMinAge'],
+  ['Penmenvy, no date, patient 9', 'MenACWY', d9y, [{ date: '', brand: 'Penmenvy' }], ['asplenia'], 'ACWY-UNDATED-BELOW-MIN-AGE', 'penmenvyAged10BothIndicated'],
   ['Menveo 1-vial, no date, patient 9', 'MenACWY', d9y, [{ date: '', brand: MV1 }], ['asplenia'], 'ACWY-UNDATED-BELOW-MIN-AGE', 'cdcChildMenveoLiquid10y'],
   ['Infant series, dose 2 three weeks after dose 1', 'MenACWY', d6m, [{ date: at(d6m, 2), brand: MV2 }, { date: at(d6m, 2, 21), brand: MV2 }], ['asplenia'], 'ACWY-INFANT-SERIES-GAP', 'cdcChildAcwyInfantSeries'],
   ['High risk from 2 years, dose 2 three weeks after dose 1', 'MenACWY', d4y, [{ date: at(d4y, 4 * Y), brand: MV2 }, { date: at(d4y, 4 * Y, 21), brand: MV2 }], ['asplenia'], 'ACWY-HIGHRISK-PRIMARY-GAP', 'acip2020Acwy8WeekMinimum'],
@@ -95,10 +102,10 @@ describe('a not-counted dose line cites its own rule\'s sentence', () => {
 // Not-counted lines whose claim no quoted sentence in refs.js states yet.
 // Each is named, so a new one fails the sweep instead of passing quietly.
 const NO_SENTENCE_YET = [
-  // Menactra (9 months) and the pentavalents (10 years) recorded under MenACWY:
-  // no MenACWY minimum-age sentence for them is quoted; the unknown-brand
-  // 2 months is the owner's C13 decision, not a sentence.
-  /^Minimum age not met \(.*for (Menactra|Penbraya|Penmenvy|an unknown brand)\)\.$/,
+  // Menactra (9 months, discontinued): no ACIP/CDC page states its minimum age
+  // (read live 2026-11-21); the owner chose to leave it unmarked. The unknown-
+  // brand 2 months is the owner's C13 decision, not a sentence.
+  /^Minimum age not met \(.*for (Menactra|an unknown brand)\)\.$/,
 ];
 
 describe('every not-counted dose line on every test patient carries a source mark', () => {

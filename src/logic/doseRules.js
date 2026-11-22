@@ -463,6 +463,12 @@ function acwyMinAgeCite(brand) {
   if (brand.startsWith('Menveo 1-vial')) return cite('cdcChildMenveoLiquid10y');
   if (brand.startsWith('Menveo')) return cite('cdcChildAcwyMinAge');
   if (brand.startsWith('MenQuadfi')) return cite('waDohMenQuadfiAapAlignment');
+  // Owner, 2026-11-21 (C11 follow-up). Penbraya: CDC's MenACWY minimum-age line
+  // names it at 10 years. Penmenvy: no page states its minimum age, so ACIP's
+  // "Persons aged ≥10 years for whom MenACWY and MenB are both indicated".
+  // Menactra: no sentence states its minimum age; left unmarked (owner).
+  if (brand.startsWith('Penbraya')) return cite('cdcChildAcwyMinAge');
+  if (brand.startsWith('Penmenvy')) return cite('penmenvyAged10BothIndicated');
   return null;
 }
 
@@ -802,8 +808,8 @@ export const DOSE_RULES = [
     authorityToday: 'Product minimum age (brands.js)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment'],
-      note: 'CDC states each product\'s minimum age; the app applies it to an undated dose by reasoning that the dose was given no later than today. For MenQuadfi the app uses 6 weeks (owner decision 2026-09-23, following AAP), where CDC\'s notes still say 2 years.',
+      refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment', 'penmenvyAged10BothIndicated'],
+      note: 'CDC states each product\'s minimum age (Penbraya 10 years among them; Penmenvy, not yet in CDC\'s notes, from ACIP\'s "aged ≥10 years"; Menactra\'s 9 months stated nowhere, owner 2026-11-21); the app applies it to an undated dose by reasoning that the dose was given no later than today. For MenQuadfi the app uses 6 weeks (owner decision 2026-09-23, following AAP), where CDC\'s notes still say 2 years.',
     },
     label: 'Not counted — repeat',
     // A past dose can never have been given later than today, so today's age
@@ -858,8 +864,8 @@ export const DOSE_RULES = [
     authorityToday: 'Product minimum age (brands.js); MenQuadfi 6 weeks is the owner\'s 2026-09-23 decision on AAP\'s word',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment'],
-      note: 'Menveo\'s minimum ages (2 months; the liquid one-vial form from 10 years) are as CDC states. MenQuadfi\'s 6 weeks is the owner\'s decision of 2026-09-23 following AAP, where CDC\'s notes still say 2 years (CLAUDE.md: AAP governs where the two disagree).',
+      refs: ['cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'waDohMenQuadfiAapAlignment', 'penmenvyAged10BothIndicated'],
+      note: 'Menveo\'s minimum ages (2 months; the liquid one-vial form from 10 years) and Penbraya\'s (10 years) are as CDC states. Penmenvy\'s 10 years cites ACIP\'s "Persons aged ≥10 years for whom MenACWY and MenB are both indicated" (no page states its minimum age); Menactra\'s 9 months is stated on no ACIP/CDC page and its line carries no source (owner 2026-11-21). MenQuadfi\'s 6 weeks is the owner\'s decision of 2026-09-23 following AAP, where CDC\'s notes still say 2 years (CLAUDE.md: AAP governs where the two disagree).',
     },
     label: 'Not counted — repeat',
     // brandMinAge() is the single source of a product's licence floor, in
