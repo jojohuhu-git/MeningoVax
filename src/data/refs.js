@@ -673,7 +673,7 @@ export const CITATIONS = {
     quote: 'Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday',
     label: 'ACIP 2020 MMWR, Table 2: the 16-year MenACWY dose',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-19',
+    lastVerified: '2026-11-21',
   },
   // The same words appear in Tables 4–9; this entry cites them for Table 7
   // (microbiologists), whose only row is "≥10 yrs".
@@ -682,7 +682,71 @@ export const CITATIONS = {
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
     label: 'ACIP 2020 MMWR, Table 7 (microbiologists, ≥10 yrs only): MenACWY booster every 5 years',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-19',
+    lastVerified: '2026-11-21',
+  },
+  // C4, ACIP 2020 part 2 (2026-11-21): the MenACWY exposure cards. Each quote
+  // read live 2026-11-21 in the browser pane (innerText of the rendered page).
+  // The Table 9 travel booster row has the same words as Table 7's; this entry
+  // names Table 9, whose row is "≥2 yrs".
+  acip2020Table9TravelBooster: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    label: 'ACIP 2020 MMWR, Table 9 (travelers, ≥2 yrs): MenACWY booster every 5 years while at risk',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  // The summary's list of who gets MenACWY for increased risk. One entry per
+  // group, each quoting that group's own words in the one sentence.
+  acip2020IndicationMicrobiologist: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'microbiologists routinely exposed to isolates of Neisseria meningitidis',
+    label: 'ACIP 2020 MMWR: MenACWY for microbiologists routinely exposed to N. meningitidis',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  acip2020IndicationOutbreakACWY: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y',
+    label: 'ACIP 2020 MMWR: MenACWY for persons at increased risk in a serogroup A, C, W or Y outbreak',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  acip2020IndicationTravel: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic',
+    label: 'ACIP 2020 MMWR: MenACWY for travel to, or residence in, hyperendemic or epidemic areas',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  acip2020IndicationMilitary: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'first-year college students living in residence halls; and military recruits',
+    label: 'ACIP 2020 MMWR: MenACWY for military recruits',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  // Table 10 footnote *: a college entrant with no dose on record.
+  acip2020College1DoseBeforeEntry: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry.',
+    label: 'ACIP 2020 MMWR, Table 10 footnote: at least 1 MenACWY dose within 5 years before college entry',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  acip2020CollegePreferredAfter16: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'The preferred timing of the most recent dose is on or after their 16th birthday.',
+    label: 'ACIP 2020 MMWR, Table 10 footnote: the most recent dose preferably on or after the 16th birthday',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
+  },
+  // Table 10 footnote *: a college entrant whose only dose came before 16.
+  acip2020CollegeBoosterBeforeEnrollment: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'If only 1 dose of vaccine was administered before the 16th birthday, a booster dose should be administered before enrollment.',
+    label: 'ACIP 2020 MMWR, Table 10 footnote: a dose before 16 needs a booster before college enrollment',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-21',
   },
   acip2020MenbShortProtection: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',

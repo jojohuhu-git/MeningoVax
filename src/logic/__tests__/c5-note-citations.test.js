@@ -159,8 +159,12 @@ describe('L2-3: the exposure first-booster note and its citation stay in step', 
     // ACIP Table 7 covers ">=10 yrs" with a flat 5-year interval and no under-7
     // row, so his card must not imply the age split travellers get.
     expect(noteText(rec)).not.toContain('age 7 or older');
-    expect(noteText(rec)).not.toContain('[c]');
-    expect(rec.noteCites).toHaveLength(0);
+    // C4 part 2 (2026-11-21): the sentence now cites Table 7's own flat
+    // 5-year row ("Single dose at 5 yrs after primary vaccination and every 5
+    // yrs thereafter", read live), not an age-split quote. Marks and sources
+    // still stay in step, so no empty superscript.
+    expect(noteText(rec).split('[c]').length - 1).toBe(rec.noteCites.length);
+    expect(rec.noteCites.map((c) => c.key)).toEqual(['acip2020Table7MicrobiologistBooster']);
     // The interval itself is unchanged by this fix.
     expect(rec.doseLabel).toContain('5 years after dose 1');
   });

@@ -292,14 +292,14 @@ function routineSixteenBoosterOwed(am, doses, today, dob, lastDate, { throughCat
 // it is the "still owed" card (its note says so) that the military schedule also
 // uses; at every age its title is the routine card's, "Booster (16y)" (F-5 and
 // its follow-ups, owner 2026-11-18; military too).
-function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, refs }) {
+function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boosterSummary, boosterCites = [], refs }) {
   if (am >= MENACWY_ROUTINE_BOOSTER_AGE_MONTHS) {
     return rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
       doseNum: given + 1, seriesTotal: 1, dueToday: owed.dueToday, earliestNextDate: owed.earliestNextDate,
-      boosterSummary, brands: menacwyBrands(am),
+      boosterSummary, boosterCites, brands: menacwyBrands(am),
       note: routineBoosterStillOwedNote(indication, !owed.dueToday),
-      noteCites: owed.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
+      noteCites: routineBoosterStillOwedCites(!owed.dueToday),
       refs,
     });
   }
@@ -308,7 +308,7 @@ function routineSixteenBoosterCard({ owed, am, given, lastDate, indication, boos
     vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
     doseNum: given + 1, seriesTotal: 1, dueToday: false,
     earliestNextDate: owed.earliestNextDate, boosterDueDate: owed.boosterDueDate, boosterDueDateExact: owed.boosterDueDateExact,
-    boosterSummary, brands: menacwyBrands(am),
+    boosterSummary, boosterCites, brands: menacwyBrands(am),
     note: {
       lead: `The routine MenACWY booster at 16 comes first [c].${waits
         ? ` It waits ${weeksLabel(MENACWY_ROUTINE_BOOSTER_MIN_GAP)} after the last dose given (${fmtDate(lastDate)}) [c].` : ''}`,
@@ -334,12 +334,20 @@ const ROUTINE_BOOSTER_WAIT_SENTENCE =
 // requirement IS "a dose at >=16"), which is why it alone was never affected.
 function routineBoosterStillOwedNote(indicationLabel, waiting = false) {
   return {
-    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then.'
+    // C4 part 2 (2026-11-21): the first sentence is ACIP 2020 Table 2's
+    // "Booster: 1 dose at age 16 yrs if first dose administered before 16th
+    // birthday" (read live); routineBoosterStillOwedCites() gives its source.
+    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then [c].'
       + (waiting ? ROUTINE_BOOSTER_WAIT_SENTENCE : ''),
     detail: `The ${indicationLabel} requirement is already met by that dose, but ACIP's routine age-16 `
       + 'booster is a separate rule that applies regardless of other indications. The next dose given '
       + 'will satisfy both at once.',
   };
+}
+
+// The sources for routineBoosterStillOwedNote's [c] marks, in order.
+function routineBoosterStillOwedCites(waiting = false) {
+  return [cite('acip2020Table2Booster16'), ...(waiting ? [cite('acwyBooster8WeeksAfterDose1')] : [])];
 }
 
 // ── MenACWY ────────────────────────────────────────────────────────────────
@@ -591,29 +599,45 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     const exposurePhrase = hasTravel && hasMicro
       ? 'travel or exposure'
       : hasMicro ? 'exposure' : 'travel';
-    const boosterLine = `Boosters: every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while ${exposurePhrase} continues`;
+    // C4, ACIP 2020 part 2 (2026-11-21): the booster line and the dose-1
+    // sentence each cite the report (read live 2026-11-21). Travel: Table 9's
+    // "≥2 yrs" row, which also covers a traveller who works with the bacteria.
+    // Lab exposure alone: Table 7. Its only row is "≥10 yrs"; under 10 the
+    // card cites the same as at 10+ (owner, 2026-11-21, "Same as 10+": ACIP's
+    // summary names microbiologists among "persons aged ≥2 months at increased
+    // risk", and the age-doubt note already asks the user to check the age).
+    // Wording, dates and doses unchanged.
+    const microCited = hasMicro;
+    const boosterCite = hasTravel ? cite('acip2020Table9TravelBooster')
+      : microCited ? cite('acip2020Table7MicrobiologistBooster') : null;
+    const boosterLine = `Boosters: every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while ${exposurePhrase} continues${boosterCite ? ' [c]' : ''}`;
+    const boosterCites = boosterCite ? [boosterCite] : [];
     // U2: each of these ended with a "re-vaccinate every 5 years" sentence that
     // boosterLine above already carries, naming the same exposure.
     const firstDoseNote = hasTravel && hasMicro
       ? {
-        lead: 'One MenACWY dose now, for travel to hyperendemic or epidemic areas and for occupational exposure.',
+        lead: `One MenACWY dose now, for travel to hyperendemic or epidemic areas [c] and for occupational exposure${microCited ? ' [c]' : ''}.`,
         detail: 'A microbiologist routinely exposed to isolates of N. meningitidis, and a traveller to a country where meningococcal disease is hyperendemic or epidemic, each qualify on their own. One dose covers both, and boosters follow while either exposure continues.',
       }
       : hasMicro
         ? {
-          lead: 'One MenACWY dose now, for routine occupational exposure to N. meningitidis.',
+          lead: `One MenACWY dose now, for routine occupational exposure to N. meningitidis${microCited ? ' [c]' : ''}.`,
           detail: 'This covers microbiologists routinely exposed to isolates of N. meningitidis. Protection is not lifelong, so boosters follow while that exposure continues.',
         }
         : {
-          lead: 'One MenACWY dose now, for travel to a country where meningococcal disease is hyperendemic or epidemic.',
+          lead: 'One MenACWY dose now, for travel to a country where meningococcal disease is hyperendemic or epidemic [c].',
           detail: 'This covers travel to, or residence in, such a country. Protection is not lifelong, so boosters follow while that travel risk continues.',
         };
+    const firstDoseCites = hasTravel && hasMicro
+      ? [cite('acip2020IndicationTravel'), ...(microCited ? [cite('acip2020IndicationMicrobiologist')] : [])]
+      : hasMicro ? (microCited ? [cite('acip2020IndicationMicrobiologist')] : []) : [cite('acip2020IndicationTravel')];
 
     if (given === 0) {
       return [rec({
         vaccine: 'MenACWY', status: 'exposure', doseLabel: 'Dose 1 (boosters while at risk)',   // P13 (review v10)
-        doseNum: 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: true, brands: menacwyBrands(am),
+        doseNum: 1, seriesTotal: 1, boosterSummary: boosterLine, boosterCites, dueToday: true, brands: menacwyBrands(am),
         note: firstDoseNote,
+        noteCites: firstDoseCites,
         // C2/2026-07-24: cites whichever risk factor's own table anchor
         // (Table 7 microbiologist / Table 9 travel) applies -- see refsExposure.
         refs: refsExposure(),
@@ -654,13 +678,13 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
     if (owed16 && (owed16.dueToday
       || (!elapsed && owed16.earliestNextDate <= addCalendarYears(lastDate, exposureBoostYears)))) {
       return [routineSixteenBoosterCard({
-        owed: owed16, am, given, lastDate, boosterSummary: boosterLine, refs: refsExposure(),
+        owed: owed16, am, given, lastDate, boosterSummary: boosterLine, boosterCites, refs: refsExposure(),
         indication: hasTravel && hasMicro ? 'travel and laboratory-exposure' : hasMicro ? 'laboratory-exposure' : 'travel',
       })];
     }
     return [rec({
       vaccine: 'MenACWY', status: 'exposure', doseLabel: exposureBoostTitle,
-      doseNum: given + 1, seriesTotal: 1, boosterSummary: boosterLine, dueToday: elapsed,
+      doseNum: given + 1, seriesTotal: 1, boosterSummary: boosterLine, boosterCites, dueToday: elapsed,
       earliestNextDate: elapsed ? null : addCalendarYears(lastDate, exposureBoostYears),
       minIntervalDays: exposureBoostDays, brands: menacwyBrands(am),
       // L2-3 (2026-09-16): the two first-booster sentences carry a [c] marker, and
@@ -700,7 +724,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
               detail: 'This is because dose 1 was given at 7 years or older.',
             }
             : {
-              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after dose 1.`,
+              lead: `The first booster is due ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after dose 1${microCited ? ' [c]' : ''}.`,
               // U2: the cadence is the booster line's; L6: nothing about other patients.
               detail: '',
             })
@@ -709,7 +733,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         exposureBoostYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
           ? cite('boosterBeforeAge7')
           : cite('boosterAtOrAfterAge7'),
-      ] : [],
+      ] : (isFirstExposureBooster && microCited) ? [cite('acip2020Table7MicrobiologistBooster')] : [],
       refs: refsExposure(),
     })];
   }
@@ -811,13 +835,22 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         return [rec({
           vaccine: 'MenACWY', status: 'exposure', doseLabel: '1 dose (booster at ≥16y)',
           doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
-          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
+          // C4 part 2 (2026-11-21): ACIP 2020 Table 10 footnote, read live: "If
+          // only 1 dose of vaccine was administered before the 16th birthday, a
+          // booster dose should be administered before enrollment."
+          noteCites: datesKnown
+            ? [cite('acip2020CollegeBoosterBeforeEnrollment'), ...(timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')]),
+              cite('acip2020CollegePreferredAfter16'), cite('acip2020CollegeBoosterBeforeEnrollment')]
+            : [],
           note: datesKnown
             ? {
               lead: timing.dueToday
-                ? 'The recorded dose was given before age 16, so one dose is due now.'
-                : `The recorded dose was given before age 16, so one more dose is needed.${ROUTINE_BOOSTER_WAIT_SENTENCE}`,
-              detail: 'The college-residence requirement is met only by a dose given on or after the 16th birthday. An earlier dose still counts as vaccination — it just does not satisfy this requirement.',
+                ? 'The recorded dose was given before age 16, so one dose is due now [c].'
+                : `The recorded dose was given before age 16, so one more dose is needed [c].${ROUTINE_BOOSTER_WAIT_SENTENCE}`,
+              // Owner, 2026-11-21 ("Match ACIP"): this said the requirement "is met
+              // only by a dose given on or after the 16th birthday". ACIP's Table 10
+              // footnote (read live) says that timing is "preferred". Words only.
+              detail: 'ACIP prefers the most recent dose on or after the 16th birthday [c]. A single dose before 16 needs a booster before enrollment [c].',
             }
             : {
               lead: 'The age at the recorded dose cannot be confirmed — check its date in the record.',
@@ -835,9 +868,11 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         doseNum: 1, dueToday: true, brands: menacwyBrands(am),
         note: {
           // P49 (review v10): one sentence; it folds whole behind "Why this" (owner 2026-11-20).
-          lead: 'One MenACWY dose before college entry, since none is on record at 16 years or older.',
+          lead: 'One MenACWY dose before college entry, since none is on record at 16 years or older [c].',
           detail: '',
         },
+        // C4 part 2 (2026-11-21): ACIP 2020 Table 10 footnote, read live.
+        noteCites: [cite('acip2020College1DoseBeforeEntry')],
         // C2/2026-07-24: cites college_dorm's own Table 10 anchor.
         refs: refsExposure(),
       })];
@@ -946,7 +981,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           vaccine: 'MenACWY', status: 'exposure', doseLabel: ROUTINE_16Y_BOOSTER_LABEL,
           doseNum: given + 1, seriesTotal: 1, ...timing, brands: menacwyBrands(am),
           note: routineBoosterStillOwedNote('military recruitment', !timing.dueToday),
-          noteCites: timing.dueToday ? [] : [cite('acwyBooster8WeeksAfterDose1')],
+          noteCites: routineBoosterStillOwedCites(!timing.dueToday),
           refs: refsExposure(),
         })];
       }
@@ -979,13 +1014,16 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       doseNum: 1, dueToday: true, brands: menacwyBrands(am),
       note: isOutbreakACWY
         ? {
-          lead: 'A single MenACWY dose, for someone at increased risk in a serogroup A, C, W or Y outbreak.',
+          lead: 'A single MenACWY dose, for someone at increased risk in a serogroup A, C, W or Y outbreak [c].',
           detail: 'While the outbreak risk continues, a booster follows 5 years later (3 if given before age 7).',
         }
         : {
-          lead: 'A single MenACWY dose, for a military recruit.',
+          lead: 'A single MenACWY dose, for a military recruit [c].',
           detail: 'One dose satisfies the recruitment requirement. Any further doses are set by the service on the basis of assignment, which this app cannot see.',
         },
+      // C4 part 2 (2026-11-21): ACIP 2020's list of who gets MenACWY for
+      // increased risk, read live (refs.js acip2020Indication*).
+      noteCites: [cite(isOutbreakACWY ? 'acip2020IndicationOutbreakACWY' : 'acip2020IndicationMilitary')],
       refs: refsExposure(),
     })];
   }

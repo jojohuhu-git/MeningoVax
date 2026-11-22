@@ -425,7 +425,7 @@ receive another.
   while the exposure continues — a flat interval with no under-7 variation, because
   ACIP's microbiologist table covers ages ≥10 only.
   <!-- SOURCES: acip2020Table7MicrobiologistBooster -->
-  > "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  > "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   <!-- /SOURCES -->
 - **A booster given too soon does not count, for both** (your C10 answer,
   2026-11-15): checked like a medical high-risk booster — 3 or 5 years, less
@@ -448,7 +448,7 @@ receive another.
   <!-- SOURCES: owner:16y-booster, acip2020Table2Booster16 -->
   > Owner decision 16y-booster, 2026-11-18 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
   >
-  > "Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  > "Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   <!-- /SOURCES -->
 
 ---
