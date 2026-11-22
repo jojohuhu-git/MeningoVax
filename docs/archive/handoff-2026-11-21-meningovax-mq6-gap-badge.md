@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-21** by `handoff-2026-11-21-meningovax-mq6-brands-and-editor-note.md`. PR #133 is merged; do not resume from this file.
+
 # MeningoVax — Handoff after MQ6-e to MQ6-h: the 6-week dose and the "Can be given today" badge (2026-11-21, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

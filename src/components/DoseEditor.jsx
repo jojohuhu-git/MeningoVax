@@ -245,7 +245,8 @@ export default function DoseEditor({
 
       {vaccine === 'MenB' && doses.length > 0 && !lockedFamily && doses[0]?.brand === '' && (
         <div className="family-note" style={{ borderLeftColor: 'var(--gy4)', background: 'var(--gy6)', color: 'var(--gy3)' }}>
-          Brand unknown: both MenB families remain open. Once a brand is selected for dose 1, the engine will lock the series to that antigen family.
+          {/* Owner, 2026-11-21 ("Reuse Q2 wording"): plain words, the Q2 sentence. */}
+          Brand of dose 1 unknown. Enter it if known: every MenB dose must match the first.
         </div>
       )}
 
