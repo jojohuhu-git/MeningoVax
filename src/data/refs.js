@@ -507,6 +507,26 @@ export const CITATIONS = {
   // under MenB "Boosting during an outbreak", whose footnote B reads
   // "Specifically outbreaks involving serogroup B meningococcal disease".
   // Cited beside ACIP 2020 Table 8 on a serogroup B outbreak's one MenB booster.
+  // C4, document 5 (2026-11-22): CDC's Adult Immunization Schedule notes, read
+  // live 2026-11-22 (updated July 2, 2025), "Special situations for MenB". The
+  // schedule is "Recommendations for Ages 19 Years or Older", so these are
+  // cited on cards for patients 19 and older only; CDC's child/adolescent notes
+  // say nothing about MenB in pregnancy, and ACIP 2020's sentence
+  // (`menbPregnancyDeferral`) covers every age.
+  cdcAdultMenbPregnancyDelay: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    quote: 'Delay MenB until after pregnancy due to lack of safety data in pregnant women.',
+    label: 'CDC Adult Schedule notes: delay MenB until after pregnancy',
+    short: 'CDC Adult Notes',
+    lastVerified: '2026-11-22',
+  },
+  cdcAdultMenbPregnancyMayGive: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    quote: 'May administer if at increased risk and vaccination benefits outweigh potential risks.',
+    label: 'CDC Adult Schedule notes: MenB in pregnancy if at increased risk',
+    short: 'CDC Adult Notes',
+    lastVerified: '2026-11-22',
+  },
   cdcRecsMenbOutbreakBoosterYear: {
     url: 'https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html',
     quote: 'CDC recommends a booster dose for these individuals if a year or more has passed since the most recent MenB vaccine',

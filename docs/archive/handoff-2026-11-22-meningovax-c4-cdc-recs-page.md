@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-c4-adult-notes.md`. #144's conflicts are fixed and C4 document 5 (CDC Adult Notes) is built in PR #145; do not resume from this file.
+
+
 # MeningoVax — Handoff after C4 document 4: the CDC recommendations page (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
