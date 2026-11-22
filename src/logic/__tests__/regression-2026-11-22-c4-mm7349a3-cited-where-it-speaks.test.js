@@ -147,7 +147,8 @@ describe('C4 mm7349a3: the 2024 report is cited on the card line it backs', () =
     const c = r.menb[0];
     expect(c.doseLabel).toBe('Complete (outbreak booster given)');
     expect(onCard(c)).toBe(false);
-    expect(keys(c.noteCites)).toEqual(['acip2020Table8MenbOutbreakBooster']);
+    // C4 CDC recommendations page (2026-11-22): the CDC page's sentence follows Table 8's.
+    expect(keys(c.noteCites)).toEqual(['acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear']);
   });
 
   it('college resident in a serogroup B outbreak: the MenB-only report is not on the MenACWY card, still on the MenB card', () => {

@@ -179,8 +179,12 @@ export const RISK_FACTORS = [
     // Table 8 (MenACWY) anchor.
     // C4 mm7349a3 (2026-11-22): that report is about MenB only, so it sat
     // uncited on this patient's MenACWY cards. MenB cards keep it (`menbRefs`).
-    // The CDC page stays on both; it is decided in its own C4 pass.
-    refs: ['cdcRecommendations'],
+    // C4 CDC recommendations page (2026-11-22): read live, the page speaks to a
+    // serogroup B outbreak only under MenB (its footnote B); its MenACWY
+    // outbreak sentence is for serogroups A, C, W or Y (footnote A). So the
+    // page is off this patient's MenACWY cards and stays on the MenB cards,
+    // where the outbreak booster line cites it.
+    refs: [],
     menbRefs: ['mm7349a3', 'cdcRecommendations'],
   },
 

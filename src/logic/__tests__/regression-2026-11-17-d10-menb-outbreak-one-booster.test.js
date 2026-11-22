@@ -39,14 +39,17 @@ describe('D10: serogroup B outbreak — one booster', () => {
     // Its source is Table 8's one-booster sentence, not "every 2–3 years".
     // C4 mm7349a3 (2026-11-22): the same-family line after it cites the 2024
     // report's "Booster doses need to be from the same manufacturer".
-    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'menbBoosterSameManufacturer']);
+    // C4 CDC recommendations page (2026-11-22): the CDC page's sentence follows Table 8's.
+    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear', 'menbBoosterSameManufacturer']);
   });
 
   it('during the series: the booster line says one booster', () => {
     const c = run(['outbreak_b'], [B('2026-10-01')]);
     expect(c.doseLabel).toMatch(/^Dose 2 of 3/);
     // C4 (2026-11-21): the line now cites ACIP 2020 Table 8 ([c]); words unchanged.
-    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c]');
+    // C4 CDC recommendations page (2026-11-22): a second mark, the CDC page's
+    // "if a year or more has passed" sentence; words unchanged.
+    expect(c.boosterSummary).toBe('Booster: 1 dose, 1 year after the primary series, if outbreak risk continues [c][c]');
   });
 
   it('control: asplenia, same doses — dose 5 still due Aug 1, 2027', () => {

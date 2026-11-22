@@ -1717,6 +1717,13 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
 }
 
 // ── MenB ─────────────────────────────────────────────────────────────────
+// C4 CDC recommendations page (2026-11-22, Q12: the dose is unchanged): a
+// serogroup B outbreak's one MenB booster cites ACIP 2020 Table 8, then the
+// CDC page's own sentence, read live 2026-11-22 ("CDC recommends a booster
+// dose for these individuals if a year or more has passed since the most
+// recent MenB vaccine"). Words unchanged; each line gets a second mark.
+const OUTBREAK_B_BOOSTER_CITES = () => [cite('acip2020Table8MenbOutbreakBooster'), cite('cdcRecsMenbOutbreakBoosterYear')];
+
 function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = null) {
   const given = doses.length;
   const last = doses[given - 1] || null;
@@ -1760,7 +1767,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         noteCites: [cite('menbLicensedAge1025Acip2024'),
           ...(riskIds.includes('complement') ? [cite('cdcComplementMenb3Doses')] : []),
           cite('acip2020MenbRiskGroups')],
-        refs: refs() })];
+        // C4 CDC recommendations page (2026-11-22): a serogroup B outbreak
+        // lists the page for its booster; nothing on this card is a booster,
+        // and an asplenia patient's same card has no CDC button.
+        refs: refs().filter((k) => k !== 'cdcRecommendations') })];
     }
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
       note: {
@@ -1818,7 +1828,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     // sentence (`acip2020MenbBoosterCadence`, read live 2026-11-21). It cited
     // nothing, so the ACIP 2020 button on these cards was unnumbered.
     const seriesBooster = (afterWhat) => (outbreakOnly
-      ? { boosterSummary: `Booster: 1 dose, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series, if outbreak risk continues [c]`, boosterCites: [cite('acip2020Table8MenbOutbreakBooster')] }
+      ? { boosterSummary: `Booster: 1 dose, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series, if outbreak risk continues [c][c]`, boosterCites: OUTBREAK_B_BOOSTER_CITES() }
       : { boosterSummary: `${afterWhat} [c]`, boosterCites: [cite('acip2020MenbBoosterCadence')] });
     if (given === 0) {
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: 'Dose 1 of 3 (high-risk series)', doseNum: 1, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`), dueToday: true,
@@ -1952,10 +1962,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         doseNum: given, seriesTotal: hrSeries.total, dueToday: false, earliestNextDate: null,
         family, brands: [],
         note: {
-          lead: 'A serogroup B outbreak calls for one MenB booster, at least 1 year after the primary series, and it has been given [c].',
+          lead: 'A serogroup B outbreak calls for one MenB booster, at least 1 year after the primary series, and it has been given [c][c].',
           detail: 'Repeat boosters every 2–3 years are for asplenia, complement deficiency, complement-inhibitor therapy and microbiologists, not for an outbreak.',
         },
-        noteCites: [cite('acip2020Table8MenbOutbreakBooster')],
+        noteCites: OUTBREAK_B_BOOSTER_CITES(),
         // C4 mm7349a3 (2026-11-22): both sentences are ACIP 2020's; the 2024
         // report leaves booster recommendations "unchanged" and says nothing
         // this card says, so its button is not on this card.
@@ -1975,7 +1985,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // E3 (2026-11-19): a later booster counts 2–3 years from the previous
         // booster, as its label and due date do; not "every" (U2).
         lead: firstBooster
-          ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c].`
+          ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? '[c]' : ''}.`
           : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
       },
@@ -1983,7 +1993,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // years" box, which would contradict the line above it.
       // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
       // "Booster doses need to be from the same manufacturer".
-      noteCites: [cite(outbreakOnly ? 'acip2020Table8MenbOutbreakBooster' : 'menbHighRiskBoosterCadenceBox'), cite('menbBoosterSameManufacturer')],
+      noteCites: [...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer')],
       refs: refs(['mm7349a3']) })];
   }
 

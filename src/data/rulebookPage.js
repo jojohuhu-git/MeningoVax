@@ -339,7 +339,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent', 'penmenvyAged10BothIndicated']],
   ['MenB', ['menbHealthyPreferredAge1618', 'menbPregnancyDeferral', 'menbLicensedAge1025', 'menbBexseroOldCourseStands', 'menbHighRisk3DoseSchedule',
     'menbHealthy2Dose0and6', 'menbHighRiskEarlyD3ExtraDose', 'menbRescueDoseRule', 'menbAcceleratedRapidProtection', 'menbHighRiskBoosterCadenceBox',
-    'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'acip2020MenbMixedProductsSelectOne',
+    'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear', 'acip2020MenbMixedProductsSelectOne',
     'acip2020MenbNotInterchangeable', 'acip2020MenbBoosterCadence', 'menbHighRiskEarlyD3Unless', 'acip2020MenbRiskGroups',
     'acip2020MenbShortProtection', 'cdcChildMenbHighRiskD2SixMonthsNoD3', 'menbScdm1623General', 'menbBoosterSameManufacturer',
     'menbHealthy2DoseSeparated6Months', 'menbBoosterIfRemainOrBecomeAtRisk', 'menbLicensedAge1025Acip2024',
