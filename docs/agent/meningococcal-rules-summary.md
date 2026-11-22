@@ -671,13 +671,19 @@ A single pentavalent shot can substitute for two separate injections **only**
 when, at the same visit: the patient is ≥10 years old, a MenACWY dose is due
 today, AND a MenB dose is due today (MenB "due" includes the 16–23y
 shared-decision window — it doesn't have to be a hard requirement, just
-on-the-table today).
-<!-- SOURCES: cdcAdultPenbrayaSameDay, pentavalentLicensed10to25, pentavalentHighRiskNoUpperAge -->
+on-the-table today). **No upper age** (your C4 answer, 2026-11-15): from 26 on, the combined shot is still offered
+when both vaccines are due, and one already given still counts for both. Both brands are
+licensed for ages 10–25, but ACIP's recommendation for high-risk patients sets only a lower
+age, and ACIP outranks the licence. CDC's scheduling software (CDSI) stops at 26; this is a
+chosen difference (`PENTAVALENT-UPPER-AGE`).
+<!-- SOURCES: cdcAdultPenbrayaSameDay, pentavalentLicensed10to25, pentavalentHighRiskNoUpperAge, owner:C4 -->
 > "Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day." — [CDC Adult Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening), read 2026-11-15.
 >
 > "licensed for use in persons aged 10–25 years" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
 >
 > "persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-15.
+>
+> Owner decision C4, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
 <!-- /SOURCES -->
 
 - **Also when MenB dose 2 can be given today but isn't due yet** (your F2a
