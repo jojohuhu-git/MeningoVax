@@ -856,10 +856,9 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
               lead: 'The age at the recorded dose cannot be confirmed — check its date in the record.',
               detail: 'If that dose was given on or after the 16th birthday, no further dose is needed. If it was earlier, or the date cannot be established, give one dose now.',
             },
-          // C5: an unconfirmed-date dose is a "does this old dose count"
-          // practical judgment call, not a rule a single MMWR table defines
-          // -- immunize.org's Ask the Experts leads here.
-          refs: datesKnown ? refsExposure() : ['immMenACWY', ...refsExposure()],
+          // Owner, 2026-11-22 ("Remove the buttons"): no immunize.org
+          // topic-page button (docs/archive/decisions-2026-11-22-c4-immunize-org.md).
+          refs: refsExposure(),
         })];
       }
       // No history.
@@ -1702,18 +1701,19 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       },
       noteCites: routineCite, refs })];
   }
-  // C5/2026-07-24: immunize.org's homeless/halfway-house Q&A page states
-  // catch-up runs only "through age 21 years" — so beyond 21 (≥22y), a
-  // healthy person with no risk gets neither a routine nor a catch-up dose.
-  // Cite immunize.org (whole-page chip) + the 2020 MMWR catch-up sentence
-  // as MMWR backing (citation audit W5 finding, owner-confirmed 2026-07-24).
+  // Beyond 21 (≥22y), a healthy person with no risk gets neither a routine
+  // nor a catch-up dose: ACIP 2020's catch-up sentence covers 19–21 only.
+  // Owner, 2026-11-22 ("Remove the buttons"): immunize.org's MenACWY page,
+  // read live, says the same ("through age 21 years"), but ACIP's sentence is
+  // already cited and outranks it, so the whole-page button is gone
+  // (docs/archive/decisions-2026-11-22-c4-immunize-org.md).
   return [rec({ vaccine: 'MenACWY', status: 'not-indicated', doseLabel: 'Not routinely indicated',
     note: {
       lead: 'MenACWY is not routinely recommended for a healthy adult of 22 or older [c].',
       detail: 'Vaccinate only if a risk indication applies: asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist exposure, travel, military service, or an outbreak.',
     },
     noteCites: [cite('acwyCatchup1921')],
-    refs: [...refs, 'immMenACWY'] })];
+    refs })];
 }
 
 // ── MenB ─────────────────────────────────────────────────────────────────
@@ -2101,11 +2101,11 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
             lead: `Dose 2 was given <${monthsLabel(MENB_HEALTHY_D2_MONTHS)} after dose 1.`,
             detail: `It counts. Dose 3 is due ≥${monthsLabel(MENB_HEALTHY_RESCUE_MONTHS)} after dose 2 [c].`,
           },
-          // C5: an interrupted/off-schedule series is a "does this old dose
-          // count" practical judgment call -- immunize.org's Ask the
-          // Experts leads here, ahead of the general schedule source.
+          // Owner, 2026-11-22 ("Remove the buttons"): ACIP's own sentence is
+          // cited; immunize.org's MenB page says the same, and ACIP outranks it
+          // (docs/archive/decisions-2026-11-22-c4-immunize-org.md).
           noteCites: [cite('menbRescueDoseRule')],
-          refs: ['immMenB', ...refs([], ['mm7349a3'])],
+          refs: refs([], ['mm7349a3']),
         })];
       }
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (2-dose series)', family, seriesTotal: 2,

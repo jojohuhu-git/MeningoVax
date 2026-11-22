@@ -314,9 +314,9 @@ describe('MenB healthy 16-23y shared decision — 2-dose 0/6', () => {
     expect(menb(r).doseLabel).toMatch(/dose 2 given early/i); // G1-a-F2: no "rescue"
     expect(menb(r).doseNum).toBe(3);
     expect(menb(r).minIntervalDays).toBe(DAYS.months(4));
-    // C5: an interrupted/off-schedule series is a "does this old dose
-    // count" practical judgment call -- immunize.org leads here.
-    expect(menb(r).citations[0].url).toMatch(/immunize\.org/);
+    // Owner, 2026-11-22 ("Remove the buttons"): ACIP's own sentence is the
+    // source; immunize.org's topic-page button (C5, 2026-07-24) is gone.
+    expect(menb(r).citations.map((b) => b.url)).toEqual(['https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm']);
   });
 
   it('dose 2 given early, <4 months after dose 2 → rescue dose not yet due', () => {
