@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-c4-immunize-org.md`. #145 is merged and the immunize.org item is done (PR #146). Do not resume from this file.
+
 # MeningoVax — Handoff after C4 document 5: CDC Adult Notes (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
