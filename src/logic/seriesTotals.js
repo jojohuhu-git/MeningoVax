@@ -403,6 +403,45 @@ export function menbSeriesInfo({ highRisk, doses }) {
 }
 
 /**
+ * Item 6 (owner, 2026-11-22): a finished HIGH-RISK MenB series that is not the
+ * plain 0 / 1–2 / 6-month one, and the line it met. The first-booster card says
+ * why the series counts (`decisions-2026-11-22-item6-counted-menb-doses.md`).
+ *
+ *   'd2-6-months'   dose 2 ≥6 months after dose 1, no dose 3 (menbSeriesInfo)
+ *   'd3-from-d1'    dose 3 under 4 months after dose 2, but ≥6 months after
+ *                   dose 1 (ACIP's "unless"; menbHighRiskDose3Early)
+ *   'd3-from-d2'    dose 3 ≥4 months after dose 2, under 6 months after dose 1
+ *                   (owner C5: it counts)
+ *
+ * `grace`: the line was met only through the 4-day grace (C7, D3, D4), so the
+ * card says "within the 4-day grace period" rather than "at least" (owner,
+ * 2026-11-22, "Name the grace"). It reads the same lines with the same grace as
+ * the two functions above; it never decides whether a dose counts, only which
+ * line a dose that counted met. Null for any other series.
+ *
+ * @param {Array<{date?: string}>} doses — chronological KEPT MenB doses, the
+ *   primary series only (two or three)
+ */
+export function menbHighRiskSeriesShortcut(doses) {
+  const [d1, d2, d3] = (doses ?? []).map((d) => d?.date ?? null);
+  if (!d1 || !d2) return null;
+  const line = (since, months, ref) => ({
+    met: calendarIntervalMeetsMinimum(since, months, ref),
+    grace: !calendarIntervalElapsed(since, months, ref),
+  });
+  if (doses.length === MENB_HEALTHY_TOTAL) {
+    const l = line(d1, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d2);
+    return l.met ? { kind: 'd2-6-months', grace: l.grace } : null;
+  }
+  if (doses.length !== MENB_HIGHRISK_TOTAL || !d3) return null;
+  const fromD2 = line(d2, MENB_HIGHRISK_D3_MONTHS_FROM_D2, d3);
+  const fromD1 = line(d1, MENB_HIGHRISK_D3_MONTHS_FROM_D1, d3);
+  if (!fromD2.met && fromD1.met) return { kind: 'd3-from-d1', grace: fromD1.grace };
+  if (fromD2.met && !fromD1.met) return { kind: 'd3-from-d2', grace: fromD2.grace };
+  return null;
+}
+
+/**
  * M4: how many PRIMARY doses this patient's MenACWY series has, keyed to the
  * age at DOSE 1 — which is what decides it clinically.
  *

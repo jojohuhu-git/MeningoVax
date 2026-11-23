@@ -743,6 +743,17 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
   },
+  // Item 6 (owner, 2026-11-22, "Add line, cite ACIP"): the first-booster card
+  // of a high-risk series that ended at two doses says why. Read live
+  // 2026-11-22; the same paragraph as the sentence below, for "persons aged
+  // ≥10 years at increased risk" and both MenB-4C and MenB-FHbp.
+  menbHighRiskD2SixMonthsNoD3Acip2024: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'a third dose is not needed if the second dose was administered ≥6 months after the first dose',
+    label: 'ACIP Oct 2024 MMWR: no high-risk MenB dose 3 if dose 2 was 6 months after dose 1',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
   menbHighRiskEarlyD3Unless: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose',
