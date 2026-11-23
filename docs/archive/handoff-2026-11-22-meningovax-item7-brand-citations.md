@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-under10-licensure-cite.md`. #147 is merged and old item 2 is done (PR #148). Do not resume from this file.
+
 # MeningoVax — Handoff after item 7, each MenB brand cites its own sentence (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
