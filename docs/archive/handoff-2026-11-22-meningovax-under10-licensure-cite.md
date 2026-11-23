@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-item6-counted-menb-doses.md`. #148 is merged and item 6 is done (PR #149). Do not resume from this file.
+
 # MeningoVax — Handoff after the under-10 licensure citation (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
