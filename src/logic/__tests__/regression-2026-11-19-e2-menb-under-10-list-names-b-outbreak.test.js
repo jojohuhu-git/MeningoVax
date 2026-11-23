@@ -15,7 +15,9 @@ describe('E2: the MenB 10–15 list names a serogroup B outbreak', () => {
     const c = run({ dob: '2017-06-01' }).menb[0];
     expect(c.doseLabel).toBe('Not indicated');
     expect(c.note.detail).toContain('Between 10 and 15 years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, microbiologist exposure, or a serogroup B outbreak [c].');
-    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025', 'acip2020MenbRiskGroups']);
+    // 2026-11-22: the licensure line before it now cites ACIP 2024 and the
+    // 2025 Penmenvy report (regression-2026-11-22-under10-licensure-names-each-brand).
+    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', 'penmenvyLicensedAge1025', 'acip2020MenbRiskGroups']);
   });
 
   it('control: the same list holds for a 12-year-old in a serogroup B outbreak, who gets the high-risk series', () => {
