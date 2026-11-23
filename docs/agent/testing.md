@@ -173,8 +173,11 @@ the same answer, line for line, as the two files saved in
 
 | File | Patients | What they are |
 |---|---|---|
-| `saved-answers.tsv` | 18,780 | patients a clinician could really enter |
-| `saved-answers-record-problems.tsv` | 5,820 | records they could not: a dose before birth, after today, or one shot on two rows |
+| `saved-answers.tsv` | 23,788 | patients a clinician could really enter |
+| `saved-answers-record-problems.tsv` | 7,372 | records they could not: a dose before birth, after today, or one shot on two rows |
+
+(2026-11-22, owner Tier 1 Q4: four pregnancy pairs added, pregnancy with complement, asplenia,
+microbiologist and serogroup B outbreak; 5,008 + 1,552 patients added, 0 answers moved.)
 
 An answer is what the app **decides**: each card's status, due today or not,
 next date, dose number and totals, brands offered (as short codes), whether the

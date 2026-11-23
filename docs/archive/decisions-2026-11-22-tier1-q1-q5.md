@@ -33,7 +33,7 @@ Each answer is built as its own item; this table is updated as they land.
 | Q1 | built (commit 'Q1: …'); 0 saved answers moved |
 | Q2 | not started (picture first) |
 | Q3 | no change needed |
-| Q4 | not started |
+| Q4 | built (commit 'Q4: …'); 6,560 stored patients added (5,008 + 1,552), 0 answers moved |
 | Q5 | built (commit 'Q5: …'); 0 saved answers moved; wording on 200 of 24,600 stored patients (184 gain the public-health line, 16 outbreak boosters under 6 months now say "6 required" and quote Table 8's 6-month clause) |
 
 ## Correction to the packet (2026-11-22)
