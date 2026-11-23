@@ -112,7 +112,10 @@ describe('P0-4: high-risk MenB dose 3 on the calendar anniversary is valid', () 
   });
 
   it('≥4 months from D2: 2023-01-15 → 2023-05-15 counts', () => {
-    const doses = [{ date: '2022-06-15' }, { date: '2023-01-15' }, { date: '2023-05-15' }];
+    // Tier 1 Q1 (2026-11-22): dose 1 moved from 2022-06-15 to 2022-12-15. With
+    // dose 2 seven months after dose 1 the series was complete at 2 doses and
+    // this 3rd dose is an early first booster, now not counted.
+    const doses = [{ date: '2022-12-15' }, { date: '2023-01-15' }, { date: '2023-05-15' }];
     const perDose = analyzeHistory('MenB', doses, 300, ['asplenia'], '2026-09-15', allYes(3)).perDose;
     expect(perDose[2].status).toBe('valid');
   });

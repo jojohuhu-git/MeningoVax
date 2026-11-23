@@ -621,7 +621,9 @@ with an old dose "you're done" when they weren't.)
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2–3 years while the risk condition persists. The card says "every 2–3
   years"; its date is the 2-year mark, and a booster given sooner than 2 years
-  (beyond the 4-day grace) does not count.
+  (beyond the 4-day grace) does not count. A first booster sooner than 1 year
+  does not count either, also when it is the 3rd dose after a 2-dose series
+  (your Q1 answer, 2026-11-22).
   <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox -->
   > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   >

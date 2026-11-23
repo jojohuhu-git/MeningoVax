@@ -562,6 +562,13 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
     a dose that did not count. Jan 1, Feb 1, Feb 15 → due Jul 1, earliest valid Jun 15.
 - First booster: ≥1 year after the LAST PRIMARY dose (D3, or the repeat that counted, or D2
   when D2 was ≥6 months after D1). Read from `menbSeriesInfo()`, never a literal 3.
+  **A first booster given sooner (beyond the 4-day grace) is "Not counted — repeat"**, and
+  the repeat is due 1 year after it (owner C9 and Ruling D). **This holds when the booster
+  is the 3rd dose**, after a 2-dose series (owner Tier 1 Q1, 2026-11-22, "Not counted,
+  repeat"; until then the check looked only at a 4th or later dose, so Bexsero Aug 1 2025,
+  Feb 1 2026, Mar 1 2026 counted the Mar 1 dose as the booster). A serogroup B outbreak
+  patient with those dates is not "Complete": the booster is still owed.
+  `docs/archive/decisions-2026-11-22-tier1-q1-q5.md`.
 - Subsequent boosters: every 2–3 years (ACIP). The card says "2–3 years"
   (`MENB_HIGHRISK_BOOSTER_CADENCE_LABEL`); its date and the validator's floor are 2 years
   (`MENB_HIGHRISK_BOOSTER_CADENCE_YEARS`, row `MENB-HIGHRISK-BOOSTER-GAP` in `doseRules.js`),

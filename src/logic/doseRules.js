@@ -1693,7 +1693,11 @@ export const DOSE_RULES = [
     // Only too-soon is flagged; a late booster is ordinary catch-up.
     check: (ctx) => {
       const prev = prevDated(ctx);
-      if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx < 3 || !prev) return null;
+      // Tier 1 Q1 (owner, 2026-11-22): no fixed "4th dose" floor. A 2-dose
+      // series (dose 2 ≥6 months after dose 1) makes the 3rd dose the first
+      // booster, and it is judged here like any other; for a 3-dose series the
+      // hrTotal test below still leaves dose 3 to the dose-3 rows.
+      if (!hasMenbRisk(ctx.riskIds) || !prev) return null;
       const hrTotal = menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total;
       if (ctx.effectiveIdx < hrTotal) return null;
       const isFirstBooster = ctx.effectiveIdx === hrTotal;
