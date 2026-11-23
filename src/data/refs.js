@@ -299,6 +299,18 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-22',
   },
+  // C13 (2026-11-23): the "≥10 yrs" row of Tables 4 (complement) and 5
+  // (asplenia). Read live 2026-11-23 (rr6909a1.htm, each table's rows): both
+  // print this sentence, word for word, in their ≥10 row; their 2–9 rows hold
+  // the "Aged <7 / ≥7" pair instead. Cited for a series ended at 10 or older.
+  boosterFrom10: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    population: ['acwy-complement', 'acwy-asplenia'],
+    label: 'ACIP 2020 MMWR, Tables 4 and 5 (complement, asplenia; ≥10 yrs): booster 5 years after the series, then every 5 years',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-23',
+  },
   // C5 (2026-11-22): the 3–6 month start, in ACIP's footnote. Read live
   // 2026-11-22: printed word for word under Tables 4, 5, 6, 8 and 9. CDC's
   // child notes give the same doses (`cdcChildAcwyInfantSeries`) but only under
@@ -1308,7 +1320,17 @@ export function cite(key, { aboutAnotherGroup } = {}) {
 // asplenia (Table 5) and an outbreak (Table 8) word the same years in their own
 // rows. A patient in two groups cites the shared row if either group is one of
 // its three. Same years whichever row is cited: only the sentence differs.
-export function acwyBoosterRowKey(under7, riskIds = []) {
+//
+// C13 (2026-11-23): the row is also chosen by the patient's AGE. Tables 4
+// (complement) and 5 (asplenia) have a "2–9 yrs" row, holding the "Aged <7" and
+// "Aged ≥7" sentences, and a separate "≥10 yrs" row. A series that ends at 10 or
+// older is in the "≥10 yrs" row (`boosterFrom10`). Tables 6 (HIV) and 9
+// (travel) have one "≥2 yrs" row holding both sentences, so "Aged ≥7 yrs" is
+// their own row at every age. `from10`: the series ended (or will end) at 10 or
+// older, per `menacwyBoosterRowFrom10()` in ages.js; false when unknown (then
+// the 2–9 row, as before).
+export function acwyBoosterRowKey(under7, riskIds = [], from10 = false) {
+  if (!under7 && from10 && ['complement', 'asplenia'].some((id) => riskIds.includes(id))) return 'boosterFrom10';
   const shared = ['complement', 'hiv', 'travel'].some((id) => riskIds.includes(id));
   if (!shared && riskIds.includes('asplenia')) return under7 ? 'boosterBeforeAge7Asplenia' : 'boosterAtOrAfterAge7Asplenia';
   if (!shared && riskIds.includes('outbreak_acwy')) return under7 ? 'boosterBeforeAge7Outbreak' : 'boosterAtOrAfterAge7Outbreak';

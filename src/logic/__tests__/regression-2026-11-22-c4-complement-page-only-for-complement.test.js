@@ -51,7 +51,9 @@ describe('C4: on a complement patient\'s cards, the page backs the booster caden
   it('complement, 19 y, no doses: MenACWY and MenB booster lines cite the page last', () => {
     const r = run({ dob: '2007-06-01', riskIds: ['complement'] });
     const a = r.menacwy[0];
-    expect(a.boosterSummary).toBe('Boosters: 3 years after the series if it ends before 7 years [c], otherwise 5 [c], then every 5 years while at risk [c]');
+    // C13 (owner 2026-11-23, "Drop the under-7 clause"): a 19-year-old's series cannot end before 7.
+    expect(a.boosterSummary).toBe('Boosters: 5 years after the series [c], then every 5 years while at risk [c]');
+    expect(keys(a.boosterCites)).toEqual(['boosterFrom10', 'cdcComplementMenacwyBoosterEvery5']);
     expect(keys(a.boosterCites).at(-1)).toBe('cdcComplementMenacwyBoosterEvery5');
     expect(marksIn(a.boosterSummary)).toBe(a.boosterCites.length);
     const b = r.menb[0];

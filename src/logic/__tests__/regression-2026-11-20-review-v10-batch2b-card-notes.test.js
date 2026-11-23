@@ -65,7 +65,12 @@ describe('Review v10 Batch 2b: card leads and "Why this"', () => {
 
   it('P38: series ended at 7 or older', () => {
     const t = say(run({ dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: [MV('2024-01-10'), MV('2024-03-10')] }).menacwy[0]);
-    expect(t).toBe('Series complete. The first booster is 5 years later because the series ended at 7 years or older.');
+    // C13 (owner 2026-11-23, "Say '10 years or older'"): an asplenia series
+    // ended at 11 is in ACIP Table 5's "≥10 yrs" row, and the note says so.
+    expect(t).toBe('Series complete. The first booster is 5 years later because the series ended at 10 years or older.');
+    // Control: HIV's own ACIP row (Table 6, "≥2 yrs") says "Aged ≥7 yrs" at every age.
+    const hiv = say(run({ dob: '2012-06-01', riskIds: ['hiv'], menacwyDoses: [MV('2024-01-10'), MV('2024-03-10')] }).menacwy[0]);
+    expect(hiv).toBe('Series complete. The first booster is 5 years later because the series ended at 7 years or older.');
   });
 
   it('P41 and P46: the high-risk MenB series names products, not antigen families', () => {

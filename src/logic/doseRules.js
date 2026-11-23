@@ -127,7 +127,7 @@ import {
 import {
   MENACWY_INFANT_SERIES_MAX_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
   MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
-  MENB_HEALTHY_MIN_AGE_MONTHS,
+  MENB_HEALTHY_MIN_AGE_MONTHS, menacwyBoosterRowFrom10,
 } from './ages.js';
 import { fmtAgeMonths, fmtDate, stripAntigen } from './format.js';
 import { cite, acwyBoosterRowKey, acwyInfantSeriesKey } from '../data/refs.js';
@@ -496,13 +496,15 @@ function outbreakBOnly(riskIds) {
   return riskIds.includes('outbreak_b') && !hasMenbRisk(riskIds.filter((id) => id !== 'outbreak_b'));
 }
 
-function acwyBoosterGapCite(ctx, cadenceYears) {
+// C13 (2026-11-23): the medical-risk row is also the one for the age the
+// series ended at (`lastPrimaryAge`): ACIP's "≥10 yrs" row of Tables 4/5 from 10.
+function acwyBoosterGapCite(ctx, cadenceYears, lastPrimaryAge = null) {
   const a = acwy(ctx);
   if (a.militaryBoosterNow) return cite('acip2020MilitaryBooster5Years');
   if (cadenceYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7) return cite(acwyBoosterRowKey(true, ctx.riskIds));
   if (!a.isHighRiskNow && ctx.riskIds.includes('travel')) return cite('acip2020Table9TravelBooster');
   if (!a.isHighRiskNow && ctx.riskIds.includes('microbiologist')) return cite('acip2020Table7MicrobiologistBooster');
-  return cite(acwyBoosterRowKey(false, ctx.riskIds));
+  return cite(acwyBoosterRowKey(false, ctx.riskIds, menacwyBoosterRowFrom10(lastPrimaryAge)));
 }
 
 /** Adds " [c]" before a line's final full stop when there is a sentence to cite. */
@@ -642,10 +644,10 @@ function acwyBoosterTooSoon(ctx, who) {
   if (ctx.effectiveIdx < primaryTotal) return null;
   let cadenceYears;
   let cadenceLabel;
+  const kd = keptDated(ctx);
+  const lastPrimary = kd[primaryTotal - 1] || kd[kd.length - 1] || null;
+  const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ctx.ageMonths, ctx.today, ctx.dob);
   if (ctx.effectiveIdx === primaryTotal) {
-    const kd = keptDated(ctx);
-    const lastPrimary = kd[primaryTotal - 1] || kd[kd.length - 1] || null;
-    const lastPrimaryAge = ageAtDoseFromDate(lastPrimary, ctx.ageMonths, ctx.today, ctx.dob);
     // T2 (owner, 2026-11-19, "Keep as safety net"): one function for the 3-vs-5
     // answer, shared with recommend.js, so its unknown-age fallback ("before 7")
     // lives in one place and one test can show no patient reaches it.
@@ -662,7 +664,7 @@ function acwyBoosterTooSoon(ctx, who) {
   return tooSoonBooster(invalidResult(
     [`Booster ${gap.text} after the last dose, ${required(gap.text, cadenceLabel)} [c].`],   // P56 (review v10); C11
     `Interval: ${gap.text}. Required: ${cadenceLabel}.`,   // P66
-    [acwyBoosterGapCite(ctx, cadenceYears)],
+    [acwyBoosterGapCite(ctx, cadenceYears, lastPrimaryAge)],
   ));
 }
 
@@ -1108,7 +1110,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 Tables 4–6; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia'],
+      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterFrom10'],
       note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum; CDC\'s software (CDSI) treats 3 or 5 years less 4 days as a hard minimum. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Not counted — repeat',
