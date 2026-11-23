@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-tier1-packet.md` (#150 conflicts fixed; Tier 1 packet written). Do not resume from this file.
+
 # MeningoVax — Handoff after C5, every quote names its patients (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
