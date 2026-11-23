@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-22** by `handoff-2026-11-22-meningovax-c5-quote-population.md` (C5 built, PR #150). Do not resume from this file.
+
 # MeningoVax — Handoff after item 6, a short or early high-risk MenB series says why (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

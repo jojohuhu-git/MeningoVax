@@ -130,7 +130,7 @@ import {
   MENB_HEALTHY_MIN_AGE_MONTHS,
 } from './ages.js';
 import { fmtAgeMonths, fmtDate, stripAntigen } from './format.js';
-import { cite } from '../data/refs.js';
+import { cite, acwyBoosterRowKey, acwyInfantSeriesKey } from '../data/refs.js';
 
 // ── Min-age lookup from brands.js (TASK 1) ───────────────────────────────
 // ALL_BRANDS is the single source of truth for minAgeM per product.
@@ -490,13 +490,19 @@ function menbMinAgeCite(brand) {
 // travel table for travel, the microbiologist table for lab work, the military
 // row for a recruit, and the medical-risk row otherwise (it also covers an
 // A/C/W/Y outbreak, whose table gives the same timing).
+// C5 (2026-11-22): a serogroup B outbreak is the patient's only MenB high-risk
+// indication (which source sentence speaks for them; no answer depends on it).
+function outbreakBOnly(riskIds) {
+  return riskIds.includes('outbreak_b') && !hasMenbRisk(riskIds.filter((id) => id !== 'outbreak_b'));
+}
+
 function acwyBoosterGapCite(ctx, cadenceYears) {
   const a = acwy(ctx);
   if (a.militaryBoosterNow) return cite('acip2020MilitaryBooster5Years');
-  if (cadenceYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7) return cite('boosterBeforeAge7');
+  if (cadenceYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7) return cite(acwyBoosterRowKey(true, ctx.riskIds));
   if (!a.isHighRiskNow && ctx.riskIds.includes('travel')) return cite('acip2020Table9TravelBooster');
   if (!a.isHighRiskNow && ctx.riskIds.includes('microbiologist')) return cite('acip2020Table7MicrobiologistBooster');
-  return cite('boosterAtOrAfterAge7');
+  return cite(acwyBoosterRowKey(false, ctx.riskIds));
 }
 
 /** Adds " [c]" before a line's final full stop when there is a sentence to cite. */
@@ -1023,7 +1029,7 @@ export const DOSE_RULES = [
     authorityToday: 'CDC child schedule notes',
     sourcesSay: {
       verdict: 'stated',
-      refs: ['cdcChildAcwyInfantSeries', 'acwyInfantHighRisk7to23mo'],
+      refs: ['cdcChildAcwyInfantSeries', 'acip2020InfantSeriesStart3to6mo', 'acwyInfantHighRisk7to23mo'],
       note: 'CDC states the infant gaps as minimums in words ("at least 8 weeks", "at least 12 weeks later and after age 12 months"). The app voids a dose below them, which claims no more than the source.',
     },
     label: 'Not counted — repeat',
@@ -1053,9 +1059,9 @@ export const DOSE_RULES = [
       return {
         ...invalidResult(
           // C11: CDC's infant-series sentence states the 8 weeks, the 12 weeks and the 12 months.
-          [withMark(line, cite('cdcChildAcwyInfantSeries'))],
+          [withMark(line, cite(acwyInfantSeriesKey(ctx.riskIds)))],
           `Interval: ${fmtDays(interval)}. Minimum: ${fmtDays(gate.minIntervalDays)}${gate.minAgeMonths != null ? ' and after age 12 months' : ''}.`,
-          [cite('cdcChildAcwyInfantSeries')],
+          [cite(acwyInfantSeriesKey(ctx.riskIds))],
         ),
       };
     },
@@ -1102,7 +1108,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 Tables 4–6; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7'],
+      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia'],
       note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum; CDC\'s software (CDSI) treats 3 or 5 years less 4 days as a hard minimum. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Not counted — repeat',
@@ -1122,7 +1128,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 Tables 7, 8, 9, 10; owner, STOP C C10 (2026-11-15) and D6 (2026-11-17)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acip2020Table9TravelBooster', 'acip2020Table7MicrobiologistBooster', 'acip2020MilitaryBooster5Years'],
+      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Outbreak', 'boosterAtOrAfterAge7Outbreak', 'acip2020Table9TravelBooster', 'acip2020Table7MicrobiologistBooster', 'acip2020MilitaryBooster5Years'],
       note: 'ACIP\'s travel, microbiologist and outbreak tables give the same 3- and 5-year booster timing as for medical risk (read live 2026-11-16), and the card advises it. Before C10 the record checked no booster gap here at all. Owner answer C10: checked like a medical high-risk booster (a floor, less the 4-day grace, as CDC\'s software does), the same as C9. Owner answer D6 (2026-11-17): military recruits the same, from 16 (Table 10: "Every 5 yrs on basis of assignment"; CDC\'s software also floors it).',
     },
     label: 'Not counted — repeat',
@@ -1231,7 +1237,10 @@ export const DOSE_RULES = [
       return invalidResult(
         [`Minimum interval not met (${fmtDays(prev.interval)}, ${required(fmtDays(prev.interval), fmtDays(floor))}) [c].`],   // P53 sibling (review v10)
         `Interval: ${fmtDays(prev.interval)}. Minimum: ${fmtDays(floor)}.`,
-        [cite('acip2020Acwy8WeekMinimum')],
+        // C5 (2026-11-22): ACIP's 8-week sentence is about a 2-dose high-risk
+        // primary series; the owner made 8 weeks the floor between ANY two
+        // MenACWY doses (C11, 2026-11-15), so for anyone else it is declared.
+        [acwy(ctx).isHighRiskNow ? cite('acip2020Acwy8WeekMinimum') : cite('acip2020Acwy8WeekMinimum', { aboutAnotherGroup: 'ACIP states 8 weeks for the high-risk 2-dose series; owner C11 applies it between any two MenACWY doses' })],
       );
     },
   },
@@ -1677,7 +1686,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['acip2020MenbBoosterCadence'],
+      refs: ['acip2020MenbBoosterCadence', 'acip2020Table8MenbOutbreakBooster'],
       note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Not counted — repeat',
@@ -1696,7 +1705,10 @@ export const DOSE_RULES = [
       const r = invalidResult(
         [`Booster ${gap.text} after the ${isFirstBooster ? 'series' : 'last booster'}, ${required(gap.text, minLabel)} [c].`],   // P57 (review v10); C11
         `Interval: ${gap.text}. Minimum: ${gap.exact ? fmtMonths(minYears * 12) : fmtDays(minInterval)}.`,
-        [cite('acip2020MenbBoosterCadence')],
+        // C5 (2026-11-22): a serogroup B outbreak's own sentence is Table 8's
+        // (one booster, at least 1 year after the series); the box's "every
+        // 2-3 years" is for medical conditions and microbiologists.
+        [cite(outbreakBOnly(ctx.riskIds) ? 'acip2020Table8MenbOutbreakBooster' : 'acip2020MenbBoosterCadence')],
       );
       return tooSoonBooster(isFirstBooster ? r : { ...r, whys: [MENB_HR_BOOSTER_CADENCE_WHY] });
     },
