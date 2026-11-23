@@ -93,7 +93,9 @@ describe('C5 note-citation anchors', () => {
   // U2 (2026-09-17): both quotes moved to the booster line with the sentence
   // they support, which now names 3 years or 5 rather than "3-5 years".
   it('high-risk MenACWY dose-1 cites both age-7 booster-cadence branches on its booster line', () => {
-    const r = run({ ageMonths: 132, riskIds: ['asplenia'], menacwyDoses: [], menbDoses: [] });
+    // C5 (2026-11-22): HIV, whose Table 6 prints these two rows word for word;
+    // asplenia now quotes Table 5's own wording (c5-every-quote-names-its-patient).
+    const r = run({ ageMonths: 132, riskIds: ['hiv'], menacwyDoses: [], menbDoses: [] });
     const rec = acwy(r);
     expect(rec.boosterCites).toHaveLength(2);
     const urls = rec.boosterCites.map((c) => c.url);
@@ -111,7 +113,9 @@ describe('C5 note-citation anchors', () => {
   it('high-risk MenACWY first booster completed before age 7 cites the <7y anchor', () => {
     // D1 at ~4y, D2 at ~5y — both before age 7 → 3-year first-booster cadence.
     const r = run({
-      ageMonths: 120, riskIds: ['asplenia'],
+      // C5 (2026-11-22): complement (Table 4 prints the shared row); asplenia
+      // quotes Table 5's own row.
+      ageMonths: 120, riskIds: ['complement'],
       menacwyDoses: [
         { date: monthsBack(72) },
         { date: monthsBack(60) },

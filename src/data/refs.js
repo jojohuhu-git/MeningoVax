@@ -36,6 +36,58 @@
 // cited on its own, not paired with a redundant acip2020 mention.
 // ─────────────────────────────────────────────────────────────────────────
 
+// ── `population` — WHO THE SENTENCE IS ABOUT (C5, 2026-11-22) ─────────────
+//
+// Ported from PneumoVax's field of the same name (its owner decision of
+// 2026-10-17 carries over, Q12): every QUOTED entry names the patient group(s)
+// its sentence was written about, and
+// `regression-2026-11-22-c5-every-quote-names-its-patient.test.js` fails if a
+// card shows a quote to anyone else. Quote-free entries name none: they are
+// whole documents, and a document has no patient.
+//
+// It records who the sentence is ABOUT, not only where it was printed. ACIP
+// 2020 prints its schedule as one table per risk group (Tables 4-10, read live
+// 2026-11-22), and several rows are printed word for word in more than one
+// table; such a sentence is about every group whose table prints it. Where a
+// group's own table words the same timing differently (asplenia, Table 5; an
+// outbreak, Table 8), that group gets its own entry quoting its own table.
+//
+// The groups are the splits the engine already makes (riskFactors.js):
+//   MenACWY: 'acwy-routine' (no medical high-risk condition: the adolescent
+//            schedule applies), then one group per MenACWY indication.
+//   MenB:    'menb-healthy' (no MenB high-risk indication: shared clinical
+//            decision-making at 16-23), one group per MenB high-risk
+//            indication, and 'menb-pregnancy'.
+// `patientGroups()` in riskFactors.js says which groups a patient is in.
+//
+// A card that cites another group's sentence ON PURPOSE (to say what the
+// patient does not have, or where the owner extended a rule past its source)
+// marks it at the call site: cite(key, { aboutAnotherGroup: 'why' }). The
+// guard skips those and pins the exact set of keys allowed to do it.
+export const POPULATIONS = [
+  'acwy-routine', 'acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-microbiologist',
+  'acwy-travel', 'acwy-outbreak', 'acwy-college', 'acwy-military',
+  'menb-healthy', 'menb-complement', 'menb-asplenia', 'menb-microbiologist', 'menb-outbreak',
+  'menb-pregnancy',
+];
+const ACWY_ALL = POPULATIONS.filter((p) => p.startsWith('acwy-'));
+const MENB_ALL = POPULATIONS.filter((p) => p.startsWith('menb-'));
+const ALL_GROUPS = POPULATIONS;
+const ACWY_ROUTINE = ['acwy-routine'];
+const ACWY_HIGHRISK = ['acwy-complement', 'acwy-asplenia', 'acwy-hiv'];
+const ACWY_AT_RISK = ACWY_ALL.filter((p) => p !== 'acwy-routine');
+const MENB_HIGHRISK = ['menb-complement', 'menb-asplenia', 'menb-microbiologist', 'menb-outbreak'];
+// ACIP 2020's 2-23 month rows ("4 doses at 2, 4, 6, and 12 mos"; "7-23 mos: 2
+// doses ...") are printed in Tables 4, 5, 6, 8 and 9: complement, asplenia,
+// HIV, outbreak, travel. Table 7 (microbiologists) has only a >=10 row.
+const ACWY_INFANT_ROWS = ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-outbreak', 'acwy-travel'];
+// "Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs
+// thereafter" and its ">=7 yrs" twin, word for word, in Tables 4, 6 and 9 only.
+const ACWY_BOOSTER_ROWS_T4_T6_T9 = ['acwy-complement', 'acwy-hiv', 'acwy-travel'];
+// "Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter",
+// the >=10 row, word for word in Tables 4, 5, 6, 7 and 9.
+const ACWY_BOOSTER_ROWS_10_PLUS = ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-microbiologist', 'acwy-travel'];
+
 export const CITATIONS = {
   // CDC schedule notes — summaries of the ACIP 2020 MMWR.
   cdcChildMenACWY: {
@@ -133,6 +185,7 @@ export const CITATIONS = {
   acip2020College5Years: {
     url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('do not need another dose before college entry unless it has been more than 5 years since the dose')}`,
     quote: 'Adolescents who received a first dose after their 16th birthday do not need another dose before college entry unless it has been more than 5 years since the dose.',
+    population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: a dose at 16 or older covers college entry for 5 years',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-17',
@@ -143,6 +196,7 @@ export const CITATIONS = {
   acip2020MilitaryBooster5Years: {
     url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('Military recruits: Every 5 yrs on basis of assignment')}`,
     quote: 'Military recruits: Every 5 yrs on basis of assignment',
+    population: ['acwy-military'],
     label: 'ACIP 2020 MMWR, Table 10: military recruits, a booster every 5 years on the basis of assignment',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-16',
@@ -151,6 +205,7 @@ export const CITATIONS = {
   acwyRoutine1112and16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP recommends a single dose of MenACWY at age 11 or 12 years followed by a booster dose administered at age 16 years',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: routine 11–12y dose, 16y booster',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -159,6 +214,7 @@ export const CITATIONS = {
   acwyBooster8WeeksAfterDose1: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'the booster dose can be administered at any time, as long as a minimum interval of 8 weeks between doses is maintained',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: at least 8 weeks between dose 1 and the 16-year booster',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -166,6 +222,7 @@ export const CITATIONS = {
   acwyBeforeAge10: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Children who received MenACWY before age 10 years and with no ongoing risk for meningococcal disease for which boosters are recommended should still receive MenACWY according to the recommended adolescent schedule, with the first dose at age 11–12 years and a booster dose at age 16 years',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: doses before age 10 do not count toward the adolescent series',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -173,6 +230,7 @@ export const CITATIONS = {
   boosterBeforeAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
+    population: ACWY_BOOSTER_ROWS_T4_T6_T9,
     label: 'ACIP 2020 MMWR: booster cadence, primary completed before age 7',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -180,6 +238,7 @@ export const CITATIONS = {
   boosterAtOrAfterAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    population: ACWY_BOOSTER_ROWS_T4_T6_T9,
     label: 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -187,6 +246,7 @@ export const CITATIONS = {
   acwyInfantHighRisk2to6mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '4 doses at 2, 4, 6, and 12 mos',
+    population: ACWY_INFANT_ROWS,
     label: 'ACIP 2020 MMWR: high-risk infant MenACWY-CRM series starting at age 2 months — 4 doses at 2, 4, 6, and 12 months',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
@@ -194,9 +254,62 @@ export const CITATIONS = {
   acwyInfantHighRisk7to23mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)',
+    population: ACWY_INFANT_ROWS,
     label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
+  },
+  // C5 (2026-11-22): each group's OWN table for the MenACWY booster timing.
+  // Read live 2026-11-22 (rr6909a1.htm, every table's rows): the shared rows
+  // above (`boosterBeforeAge7`, `boosterAtOrAfterAge7`) are printed word for
+  // word only in Tables 4 (complement), 6 (HIV) and 9 (travel). Table 5
+  // (asplenia) and Table 8 (outbreak) give the same 3 and 5 years in their own
+  // words. Each of the four below appears in its own table only (Table 8's
+  // "<7" sentence twice, in its 2–9 and ≥10 rows; its "≥7" sentence with a
+  // capital S only in the ≥10 row).
+  boosterBeforeAge7Asplenia: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Aged <7 yrs: Single dose at 3 yrs after vaccination and every 5 yrs thereafter',
+    population: ['acwy-asplenia'],
+    label: 'ACIP 2020 MMWR, Table 5 (asplenia): booster cadence, primary completed before age 7',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  boosterAtOrAfterAge7Asplenia: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Aged ≥7 yrs: Single dose at 5 yrs and every 5 yrs thereafter',
+    population: ['acwy-asplenia'],
+    label: 'ACIP 2020 MMWR, Table 5 (asplenia): booster cadence, primary completed at/after age 7',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  boosterBeforeAge7Outbreak: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Aged <7 yrs: Single dose if ≥3 yrs since vaccination',
+    population: ['acwy-outbreak'],
+    label: 'ACIP 2020 MMWR, Table 8 (outbreak): a booster if 3 years since vaccination, before age 7',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  boosterAtOrAfterAge7Outbreak: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Aged ≥7 yrs: Single dose if ≥5 yrs since vaccination',
+    population: ['acwy-outbreak'],
+    label: 'ACIP 2020 MMWR, Table 8 (outbreak): a booster if 5 years since vaccination, from age 7',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
+  },
+  // C5 (2026-11-22): the 3–6 month start, in ACIP's footnote. Read live
+  // 2026-11-22: printed word for word under Tables 4, 5, 6, 8 and 9. CDC's
+  // child notes give the same doses (`cdcChildAcwyInfantSeries`) but only under
+  // the high-risk and travel headings, so an outbreak infant cites this one.
+  acip2020InfantSeriesStart3to6mo: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'If MenACWY-CRM is initiated at ages 3–6 months, catch-up vaccination includes doses at intervals of 8 weeks until the infant is aged ≥7 months, at which time an additional dose is administered at age ≥7 months, followed by a dose at least 12 weeks later and after the 1st birthday.',
+    population: ACWY_INFANT_ROWS,
+    label: 'ACIP 2020 MMWR, Tables 4–9 footnote: the MenACWY-CRM infant series begun at 3–6 months',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
   },
   // M4 (2026-09-23, MenQuadfi 6-week floor queue). The ONE source for a
   // LICENSED-age claim, not a schedule claim — the authority rule ranks FDA
@@ -213,6 +326,7 @@ export const CITATIONS = {
   menQuadfiPackageInsert: {
     url: 'https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=ab1c3318-578e-4d0c-a21e-fc6df07e9fb7',
     quote: 'MenQuadfi is approved for use in individuals 6 weeks of age and older.',
+    population: ACWY_ALL,
     label: 'MenQuadfi (MenACWY-TT) FDA prescribing information: approved for use from 6 weeks of age',
     short: 'MenQuadfi Package Insert',
     lastVerified: '2026-09-23',
@@ -228,6 +342,7 @@ export const CITATIONS = {
   waDohMenQuadfiAapAlignment: {
     url: 'https://doh.wa.gov/you-and-your-family/immunizations-and-vaccines',
     quote: 'Updated MenACWY recommendations to align with the American Academy of Pediatrics. The minimum age for the first MenQuadfi dose is now 6 weeks, instead of 2 years for children who meet the recommendation.',
+    population: ACWY_ALL,
     label: 'Washington State DOH: MenQuadfi’s 6-week minimum age aligns with AAP',
     short: 'WA DOH',
     lastVerified: '2026-09-22',
@@ -239,6 +354,7 @@ export const CITATIONS = {
   aap2026MenQuadfiFrom6Weeks: {
     url: 'https://downloads.aap.org/AAP/PDF/AAP-Immunization-Schedule.pdf',
     quote: 'Dose 1 at age 2 months: 4-dose series (additional 3 doses at age 4, 6, and 12 months). The first dose of MenQuadfi may be given as early as 6 weeks.',
+    population: ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-travel'],
     label: 'AAP 2026 schedule: the infant series starts at 2 months; MenQuadfi may be given from 6 weeks',
     short: 'AAP 2026 schedule',
     lastVerified: '2026-11-21',
@@ -252,6 +368,7 @@ export const CITATIONS = {
   menbHealthyPreferredAge1618: {
     url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('MenB series at age 16\u201323 yrs on basis of shared clinical decision-making (preferred age 16\u201318 yrs)')}`,
     quote: 'MenB series at age 16\u201323 yrs on basis of shared clinical decision-making (preferred age 16\u201318 yrs)',
+    population: ['menb-healthy'],
     label: 'ACIP 2020 MMWR Table 2: healthy MenB shared clinical decision-making, preferred age 16\u201318 years',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -259,6 +376,7 @@ export const CITATIONS = {
   menbPregnancyDeferral: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'vaccination with MenB should be deferred unless the woman is at increased risk and, after consultation with her health care provider, the benefits of vaccination are considered to outweigh the potential risks',
+    population: ['menb-pregnancy'],
     label: 'ACIP 2020 MMWR: MenB deferred during pregnancy absent an increased-risk indication',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
@@ -266,6 +384,7 @@ export const CITATIONS = {
   menbLicensedAge1025: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'MenB vaccines are licensed in the United States only for persons aged 10–25 years',
+    population: MENB_ALL,
     label: 'ACIP 2020 MMWR: MenB licensure (age 10–25 years)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -273,6 +392,7 @@ export const CITATIONS = {
   acwyCatchup1921: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Persons aged 19–21 years who have not received a dose after their 16th birthday can receive a single MenACWY dose as part of catch-up vaccination',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: 19–21y catch-up dose (no dose after the 16th birthday)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
@@ -280,6 +400,7 @@ export const CITATIONS = {
   acwyFirstDoseAfter16NoBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: a first dose given at ≥16y needs no booster',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-07-24',
@@ -289,6 +410,7 @@ export const CITATIONS = {
   acwyAge10CountsAsDose1: {
     url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
     quote: 'ACIP considers a dose of MenACWY given to a 10-year-old child to be valid for the first dose in the adolescent series.',
+    population: ACWY_ROUTINE,
     label: 'immunize.org Ask the Experts: a MenACWY dose at age 10 counts as adolescent dose 1',
     short: 'Ask the Experts: MenACWY',
     lastVerified: '2026-07-24',
@@ -311,6 +433,7 @@ export const CITATIONS = {
   menbBexseroOldCourseStands: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'There is no recommendation to administer additional doses to persons vaccinated with MenB-4C before October 24, 2024, using a 0- and 1-month dosing schedule.',
+    population: MENB_ALL,
     label: 'ACIP Oct 2024 MMWR: no extra doses for people who had Bexsero at 0 and 1 month before October 24, 2024',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
@@ -318,6 +441,7 @@ export const CITATIONS = {
   menbHighRisk3DoseSchedule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease',
+    population: MENB_HIGHRISK,
     label: 'ACIP Oct 2024 MMWR: MenB-4C high-risk 3-dose series, 0/1–2/6 months',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
@@ -325,6 +449,7 @@ export const CITATIONS = {
   menbHealthy2Dose0and6: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'ACIP recommends that MenB-4C be administered to healthy adolescents and young adults aged 16–23 years as a 2-dose series at 0 and 6 months for the prevention of serogroup B meningococcal disease, based on shared clinical decision-making',
+    population: ['menb-healthy'],
     label: 'ACIP Oct 2024 MMWR: MenB-4C healthy 2-dose series, 0/6 months',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
@@ -336,6 +461,7 @@ export const CITATIONS = {
   menbFhbpSchedules: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'ACIP recommends MenB-FHbp vaccine as a 2-dose series (at intervals of 0 and 6 months) for adolescents and young adults and a 3-dose series (at 0, 1–2, and 6 months) for those at increased risk',
+    population: MENB_ALL,
     label: 'ACIP Oct 2024 MMWR: MenB-FHbp (Trumenba) 2-dose series 0/6 months, high-risk 3-dose series 0/1–2/6 months',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -347,6 +473,7 @@ export const CITATIONS = {
   menbHighRiskEarlyD3ExtraDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3',
+    population: ['menb-complement', 'menb-asplenia'],
     // M1 (owner, 2026-11-20): the app no longer follows this wording. It follows
     // ACIP mm7349a3 and CDSI (the early dose 3 is repeated). Kept as the source
     // the MENB-HIGHRISK-EARLY-DOSE-3 row names as differing.
@@ -357,6 +484,7 @@ export const CITATIONS = {
   menbRescueDoseRule: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'the 2 doses should be separated by 6 months. If the second dose is administered <6 months after the first dose, a third dose should be administered ≥4 months after the second dose',
+    population: ['menb-healthy'],
     label: 'ACIP Oct 2024 MMWR: healthy 2-dose interval and the third dose after an early dose 2',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
@@ -364,6 +492,7 @@ export const CITATIONS = {
   menbAcceleratedRapidProtection: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'Persons receiving a MenB vaccine based on shared clinical decision-making who desire more rapid protection against serogroup B (e.g., students initiating vaccination <6 months before college entry) may receive the 3-dose series (0, 1–2, and 6 months) to optimize rapid protection. This guidance applies to both MenB-4C and MenB-FHbp.',
+    population: ['menb-healthy'],
     label: 'ACIP Oct 2024 MMWR: healthy accelerated 3-dose series for rapid protection',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-07-24',
@@ -379,6 +508,7 @@ export const CITATIONS = {
   menbScdm1623General: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'Vaccination against serogroup B meningococcal disease is recommended by the Advisory Committee on Immunization Practices (ACIP) for adolescents and young adults aged 16–23 years, based on shared clinical decision-making',
+    population: ['menb-healthy'],
     label: 'ACIP Oct 2024 MMWR: MenB for ages 16–23 years by shared clinical decision-making',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -386,6 +516,7 @@ export const CITATIONS = {
   menbBoosterSameManufacturer: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'Booster doses need to be from the same manufacturer used for doses in the primary series',
+    population: MENB_HIGHRISK,
     label: 'ACIP Oct 2024 MMWR: a MenB booster is the same manufacturer as the primary series',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -393,6 +524,7 @@ export const CITATIONS = {
   menbHealthy2DoseSeparated6Months: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'When administering the 2-dose series (e.g., for healthy adolescents) of MenB-4C (Bexsero) or MenB-FHbp (Trumenba), the 2 doses should be separated by 6 months',
+    population: ['menb-healthy'],
     label: 'ACIP Oct 2024 MMWR: the healthy 2-dose series, Bexsero or Trumenba, is 6 months apart',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -400,6 +532,7 @@ export const CITATIONS = {
   menbBoosterIfRemainOrBecomeAtRisk: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'Persons who have completed a MenB vaccine primary series and who remain or become at increased risk for invasive meningococcal disease are recommended to receive booster vaccination',
+    population: MENB_HIGHRISK,
     label: 'ACIP Oct 2024 MMWR: a MenB booster only for someone who remains or becomes at increased risk',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -407,6 +540,7 @@ export const CITATIONS = {
   menbLicensedAge1025Acip2024: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'Two serogroup B meningococcal vaccines (MenB-FHbp [Trumenba, Pfizer, Inc.] and MenB-4C [Bexsero, GSK]) and one serogroup ABCWY pentavalent meningococcal (MenABCWY) vaccine (MenACWY-TT/MenB-FHbp [Penbraya, Pfizer Inc.]) are currently licensed for use in persons aged 10–25 years in the United States',
+    population: MENB_ALL,
     label: 'ACIP Oct 2024 MMWR: MenB vaccines are licensed for ages 10–25 years',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -420,6 +554,7 @@ export const CITATIONS = {
   menbHighRiskBoosterCadenceBox: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains',
+    population: ['menb-complement', 'menb-asplenia', 'menb-microbiologist'],
     label: 'ACIP 2025 MMWR Box: MenB high-risk booster cadence',
     // C1 (2026-10-17): was 'ACIP 2025 MMWR'. This key and `pentavalentGSK2025`
     // store the IDENTICAL url with no anchor, so they are one document, and
@@ -472,6 +607,7 @@ export const CITATIONS = {
   pentavalentHighRiskNoUpperAge: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'persons aged ≥10 years who are at increased risk for meningococcal disease (e.g., because of persistent complement deficiencies, complement inhibitor use, or functional or anatomic asplenia)',
+    population: [...ACWY_AT_RISK, ...MENB_HIGHRISK],
     label: 'ACIP 2025 (Penmenvy): may be used when both are due, for persons aged ≥10 years at increased risk',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-15',
@@ -479,6 +615,7 @@ export const CITATIONS = {
   pentavalentLicensed10to25: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'licensed for use in persons aged 10–25 years',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: licensed for persons aged 10–25 years',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-15',
@@ -486,6 +623,7 @@ export const CITATIONS = {
   cdcAdultPenbrayaSameDay: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
     quote: 'Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day.',
+    population: ALL_GROUPS,
     label: 'CDC Adult Schedule notes (updated July 2, 2025): adults may receive Penbraya when both are given the same day',
     short: 'CDC Adult Notes',
     lastVerified: '2026-11-15',
@@ -527,6 +665,7 @@ export const CITATIONS = {
   cdcAdultMenbPregnancyDelay: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
     quote: 'Delay MenB until after pregnancy due to lack of safety data in pregnant women.',
+    population: ['menb-pregnancy'],
     label: 'CDC Adult Schedule notes: delay MenB until after pregnancy',
     short: 'CDC Adult Notes',
     lastVerified: '2026-11-22',
@@ -534,6 +673,7 @@ export const CITATIONS = {
   cdcAdultMenbPregnancyMayGive: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
     quote: 'May administer if at increased risk and vaccination benefits outweigh potential risks.',
+    population: ['menb-pregnancy'],
     label: 'CDC Adult Schedule notes: MenB in pregnancy if at increased risk',
     short: 'CDC Adult Notes',
     lastVerified: '2026-11-22',
@@ -541,6 +681,7 @@ export const CITATIONS = {
   cdcRecsMenbOutbreakBoosterYear: {
     url: 'https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html',
     quote: 'CDC recommends a booster dose for these individuals if a year or more has passed since the most recent MenB vaccine',
+    population: ['menb-outbreak'],
     label: 'CDC meningococcal recommendations: in a serogroup B outbreak, a MenB booster if a year or more has passed',
     short: 'CDC Meningococcal Recommendations',
     lastVerified: '2026-11-22',
@@ -558,6 +699,7 @@ export const CITATIONS = {
   cdcComplementMenacwyBoosterEvery5: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     quote: 'Administer a booster dose of MenACWY vaccine every 5 years, for the duration of complement inhibitor therapy',
+    population: ['acwy-complement'],
     label: 'CDC complement-inhibitor guidance: MenACWY booster every 5 years during therapy',
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-11-22',
@@ -565,6 +707,7 @@ export const CITATIONS = {
   cdcComplementMenbBoosterEvery2to3: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     quote: 'Every 2 to 3 years thereafter, for the duration of complement inhibitor therapy',
+    population: ['menb-complement'],
     label: 'CDC complement-inhibitor guidance: MenB booster every 2 to 3 years during therapy',
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-11-22',
@@ -572,6 +715,7 @@ export const CITATIONS = {
   cdcComplementMenb3Doses: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     quote: 'MenB vaccines need 3 doses',
+    population: ['menb-complement'],
     label: 'CDC complement-inhibitor guidance: MenB vaccines need 3 doses',
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-11-22',
@@ -609,6 +753,7 @@ export const CITATIONS = {
   gbpWrittenDatedRecords: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
     quote: 'With the exception of influenza vaccine and PPSV23, providers should only accept written, dated records as evidence of vaccination',
+    population: ALL_GROUPS,
     label: 'ACIP General Best Practice Guidelines: only written, dated records are evidence of vaccination (except influenza and PPSV23)',
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-15',
@@ -617,6 +762,7 @@ export const CITATIONS = {
   gbpRepeatSpacedFromInvalidDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
     quote: 'The repeat dose should be spaced after the invalid dose by the recommended minimum interval',
+    population: ALL_GROUPS,
     label: 'ACIP General Best Practice Guidelines: a repeat dose is spaced from the invalid dose',
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-20',
@@ -626,6 +772,7 @@ export const CITATIONS = {
   gbpTooYoungFirstDoseRepeat: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
     quote: 'If the first dose in a series is given ≥5 days before the recommended minimum age, the dose should be repeated on or after the date when the child reaches at least the minimum age',
+    population: ALL_GROUPS,
     label: 'ACIP General Best Practice Guidelines: a too-young first dose is repeated once the minimum age is reached',
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-15',
@@ -633,6 +780,7 @@ export const CITATIONS = {
   gbpRecordsNotFoundSusceptible: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
     quote: 'If records cannot be located within a reasonable time, these persons should be considered susceptible and started on the age-appropriate vaccination schedule.',
+    population: ALL_GROUPS,
     label: 'ACIP General Best Practice Guidelines: without records, treat as unvaccinated and start the age-appropriate schedule',
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-15',
@@ -652,6 +800,7 @@ export const CITATIONS = {
     // Lengthened 2026-11-21 (owner, C11 follow-up) to take in Penbraya. The
     // ")" after "MenQuadfi]" is on CDC's page as printed (read live 2026-11-21).
     quote: 'minimum age: 2 months [MenACWY-CRM, Menveo], 2 years [MenACWY-TT, MenQuadfi]), 10 years [MenACWY-TT/MenB-FHbp, Penbraya]',
+    population: ACWY_ALL,
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY minimum ages',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-21',
@@ -659,6 +808,7 @@ export const CITATIONS = {
   cdcChildMenveoLiquid10y: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'The liquid formulation should not be used before age 10 years.',
+    population: ACWY_ALL,
     label: 'CDC Child/Adolescent Schedule Notes: Menveo one-vial (liquid) not before age 10',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-15',
@@ -666,6 +816,7 @@ export const CITATIONS = {
   cdcChildAcwyInfantSeries: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months',
+    population: ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-travel'],
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY infant series minimum gaps',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-15',
@@ -673,6 +824,7 @@ export const CITATIONS = {
   cdcChildAcwyRisk2DoseFrom24m: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart',
+    population: ACWY_HIGHRISK,
     label: 'CDC Child/Adolescent Schedule Notes: high-risk MenACWY 2-dose series from 24 months',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-15',
@@ -680,6 +832,7 @@ export const CITATIONS = {
   cdcChildAcwyBefore10OngoingRisk: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'Children for whom boosters are recommended because of an ongoing increased risk of meningococcal disease (e.g., those with complement component deficiency, HIV, or asplenia): Follow the booster schedule for persons at increased risk.',
+    population: [...ACWY_HIGHRISK, 'acwy-microbiologist', 'acwy-travel', 'acwy-outbreak', 'acwy-military'],
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY before age 10 with an ongoing risk',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-15',
@@ -687,6 +840,7 @@ export const CITATIONS = {
   cdcCatchupAcwyBooster8Weeks: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)',
+    population: ACWY_ROUTINE,
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY catch-up, booster at least 8 weeks after dose 1',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-18',
@@ -694,6 +848,7 @@ export const CITATIONS = {
   cdcChildMenbMinAge: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'minimum age: 10 years [MenB-4C, Bexsero; MenB-FHbp, Trumenba; MenACWY-TT/MenB-FHbp, Penbraya]',
+    population: MENB_ALL,
     label: 'CDC Child/Adolescent Schedule Notes: MenB minimum age',
     short: 'CDC MenB Notes',
     lastVerified: '2026-11-15',
@@ -701,6 +856,7 @@ export const CITATIONS = {
   acip2020Acwy8WeekMinimum: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained',
+    population: ACWY_HIGHRISK,
     label: 'ACIP 2020 MMWR: 8-week minimum between the two MenACWY primary doses',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -710,6 +866,7 @@ export const CITATIONS = {
   acip2020MenbRepeat4Weeks: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses',
+    population: MENB_ALL,
     label: 'ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -718,6 +875,7 @@ export const CITATIONS = {
   acip2020Table8MenbOutbreakBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose if ≥1 yr after MenB primary series completion',
+    population: ['menb-outbreak'],
     label: 'ACIP 2020 MMWR Table 8: one MenB booster for a serogroup B outbreak',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -725,6 +883,7 @@ export const CITATIONS = {
   acip2020MenbMixedProductsSelectOne: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid',
+    population: MENB_ALL,
     label: 'ACIP 2020 MMWR: after two different MenB products, pick one to finish the series',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -732,6 +891,7 @@ export const CITATIONS = {
   acip2020MenbNotInterchangeable: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'MenB vaccines are not interchangeable, and the same vaccine product must be used for all doses',
+    population: MENB_ALL,
     label: 'ACIP 2020 MMWR: MenB products are not interchangeable',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
@@ -739,6 +899,7 @@ export const CITATIONS = {
   acip2020MenbBoosterCadence: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter',
+    population: ['menb-complement', 'menb-asplenia', 'menb-microbiologist'],
     label: 'ACIP 2020 MMWR: high-risk MenB booster schedule',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -750,6 +911,7 @@ export const CITATIONS = {
   menbHighRiskD2SixMonthsNoD3Acip2024: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'a third dose is not needed if the second dose was administered ≥6 months after the first dose',
+    population: MENB_HIGHRISK,
     label: 'ACIP Oct 2024 MMWR: no high-risk MenB dose 3 if dose 2 was 6 months after dose 1',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-22',
@@ -757,6 +919,7 @@ export const CITATIONS = {
   menbHighRiskEarlyD3Unless: {
     url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
     quote: 'If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose',
+    population: MENB_HIGHRISK,
     label: 'ACIP Oct 2024 MMWR: an early high-risk MenB dose 3 is repeated ≥4 months after it, unless it was 6 months after dose 1',
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-20',
@@ -772,6 +935,7 @@ export const CITATIONS = {
   acip2020AcwyRiskGroupsFrom2mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP also recommends routine vaccination with MenACWY for persons aged ≥2 months at increased risk for meningococcal disease caused by serogroups A, C, W, or Y, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor (e.g., eculizumab [Soliris] or ravulizumab [Ultomiris]); persons who have anatomic or functional asplenia; persons with human immunodeficiency virus infection; microbiologists routinely exposed to isolates of Neisseria meningitidis; persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y; persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic; unvaccinated or incompletely vaccinated first-year college students living in residence halls; and military recruits',
+    population: ACWY_AT_RISK,
     label: 'ACIP 2020 MMWR: who gets MenACWY from 2 months of age (HIV is on this list)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-19',
@@ -779,6 +943,7 @@ export const CITATIONS = {
   acip2020MenbRiskGroups: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'ACIP recommends routine use of MenB vaccine series among persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease, including persons who have persistent complement component deficiencies; persons receiving a complement inhibitor; persons who have anatomic or functional asplenia; microbiologists who are routinely exposed to isolates of N. meningitidis; and persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroup B',
+    population: MENB_HIGHRISK,
     label: 'ACIP 2020 MMWR: who gets MenB for risk (HIV is not on this list)',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -786,6 +951,7 @@ export const CITATIONS = {
   acip2020Table2CatchupOnly1921: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR, Table 2: routine MenACWY is for 11–18, catch-up for 19–21',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-19',
@@ -793,6 +959,7 @@ export const CITATIONS = {
   acip2020Table2Booster16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Booster: 1 dose at age 16 yrs if first dose administered before 16th birthday',
+    population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR, Table 2: the 16-year MenACWY dose',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -802,6 +969,7 @@ export const CITATIONS = {
   acip2020Table7MicrobiologistBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    population: ACWY_BOOSTER_ROWS_10_PLUS,
     label: 'ACIP 2020 MMWR, Table 7 (microbiologists, ≥10 yrs only): MenACWY booster every 5 years',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -813,6 +981,7 @@ export const CITATIONS = {
   acip2020Table9TravelBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    population: ACWY_BOOSTER_ROWS_10_PLUS,
     label: 'ACIP 2020 MMWR, Table 9 (travelers, ≥2 yrs): MenACWY booster every 5 years while at risk',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -822,6 +991,7 @@ export const CITATIONS = {
   acip2020IndicationMicrobiologist: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'microbiologists routinely exposed to isolates of Neisseria meningitidis',
+    population: ['acwy-microbiologist', 'menb-microbiologist'],
     label: 'ACIP 2020 MMWR: MenACWY for microbiologists routinely exposed to N. meningitidis',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -829,6 +999,7 @@ export const CITATIONS = {
   acip2020IndicationOutbreakACWY: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'persons identified to be at increased risk because of a meningococcal disease outbreak caused by serogroups A, C, W, or Y',
+    population: ['acwy-outbreak'],
     label: 'ACIP 2020 MMWR: MenACWY for persons at increased risk in a serogroup A, C, W or Y outbreak',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -836,6 +1007,7 @@ export const CITATIONS = {
   acip2020IndicationTravel: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'persons who travel to or live in areas in which meningococcal disease is hyperendemic or epidemic',
+    population: ['acwy-travel'],
     label: 'ACIP 2020 MMWR: MenACWY for travel to, or residence in, hyperendemic or epidemic areas',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -843,6 +1015,7 @@ export const CITATIONS = {
   acip2020IndicationMilitary: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'first-year college students living in residence halls; and military recruits',
+    population: ['acwy-college', 'acwy-military'],
     label: 'ACIP 2020 MMWR: MenACWY for military recruits',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -851,6 +1024,7 @@ export const CITATIONS = {
   acip2020College1DoseBeforeEntry: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry.',
+    population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: at least 1 MenACWY dose within 5 years before college entry',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -858,6 +1032,7 @@ export const CITATIONS = {
   acip2020CollegePreferredAfter16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'The preferred timing of the most recent dose is on or after their 16th birthday.',
+    population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: the most recent dose preferably on or after the 16th birthday',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -866,6 +1041,7 @@ export const CITATIONS = {
   acip2020CollegeBoosterBeforeEnrollment: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'If only 1 dose of vaccine was administered before the 16th birthday, a booster dose should be administered before enrollment.',
+    population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: a dose before 16 needs a booster before college enrollment',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -873,6 +1049,7 @@ export const CITATIONS = {
   acip2020MenbShortProtection: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'the estimated relatively short duration of MenB protection (antibody waning within 1–2 years postcompletion of the primary series)',
+    population: MENB_ALL,
     label: 'ACIP 2020 MMWR: MenB protection wanes within 1–2 years',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-19',
@@ -882,6 +1059,7 @@ export const CITATIONS = {
   cdcCatchupAcwy1618OneDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'Age 16–18 years: 1 dose',
+    population: ACWY_ROUTINE,
     label: 'CDC child schedule notes, MenACWY catch-up: one dose at 16–18',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-19',
@@ -889,6 +1067,7 @@ export const CITATIONS = {
   cdcChildAcwyTravelUnder24m: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
     quote: 'Children younger than age 24 months: Menveo* (age 2–23 months)',
+    population: ['acwy-travel'],
     label: 'CDC child schedule notes, travel: the infant Menveo series',
     short: 'CDC Child/Adolescent Notes',
     lastVerified: '2026-11-19',
@@ -896,6 +1075,7 @@ export const CITATIONS = {
   cdcChildMenbHighRiskD2SixMonthsNoD3: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'if dose 2 was administered at least 6 months after dose 1, dose 3 not needed',
+    population: ['menb-complement', 'menb-asplenia'],
     label: 'CDC child schedule notes, high-risk MenB: no dose 3 after a 6-month gap',
     short: 'CDC MenB Notes',
     lastVerified: '2026-11-19',
@@ -903,6 +1083,7 @@ export const CITATIONS = {
   cdcChildPenbrayaDose2Trumenba: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered for dose 2 MenB',
+    population: ALL_GROUPS,
     label: 'CDC child schedule notes: after Penbraya, MenB continues with Trumenba',
     short: 'CDC MenB Notes',
     lastVerified: '2026-11-19',
@@ -910,6 +1091,7 @@ export const CITATIONS = {
   cdcChildPenbraya6Months: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
     quote: 'Penbraya may be used for additional MenACWY and MenB doses (including booster doses) if both would be given on the same clinic day and at least 6 months have elapsed since most recent Penbraya dose',
+    population: ALL_GROUPS,
     label: 'CDC child schedule notes: another Penbraya only 6 months after the last',
     short: 'CDC MenB Notes',
     lastVerified: '2026-11-19',
@@ -919,6 +1101,7 @@ export const CITATIONS = {
   penmenvyIsCrm4C: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'A new pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) protects against N. meningitidis serogroups A, B, C, W, and Y',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy is MenACWY-CRM/MenB-4C',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -926,6 +1109,7 @@ export const CITATIONS = {
   penmenvyMenb4COtherDoses: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, when MenACWY-CRM/MenB-4C is used, MenB-4C should be used for the other MenB doses',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy belongs with Bexsero (MenB-4C)',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -933,6 +1117,7 @@ export const CITATIONS = {
   penbrayaMenbFhbpOtherDoses: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'Different manufacturers’ serogroup B–targeting vaccines are not interchangeable; therefore, persons who receive pentavalent MenACWY-TT/MenB-FHbp should have already received or should next receive MenB-FHbp for other MenB doses',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: Penbraya belongs with Trumenba (MenB-FHbp)',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -940,6 +1125,7 @@ export const CITATIONS = {
   pentavalentWhenBothIndicated: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'ACIP recommended that MenACWY-CRM/MenB-4C may be used when both MenACWY and MenB are indicated at the same visit',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: a pentavalent only when both vaccines are due at the same visit',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -951,6 +1137,7 @@ export const CITATIONS = {
   penmenvyAged10BothIndicated: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'Persons aged ≥10 years for whom MenACWY and MenB are both indicated',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: recommended for persons aged ≥10 years for whom MenACWY and MenB are both indicated',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-21',
@@ -961,6 +1148,7 @@ export const CITATIONS = {
   penmenvyLicensedAge1025: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'On February 14, 2025, a second pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) was licensed for use in persons aged 10–25 years',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy is licensed for ages 10–25 years',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-22',
@@ -968,6 +1156,7 @@ export const CITATIONS = {
   penmenvySeparateUnder6Months: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'Persons at increased risk for meningococcal disease who receive a dose of MenACWY-CRM/MenB-4C and who are recommended to receive additional doses of MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine should receive separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C, following recommended intervals',
+    population: [...ACWY_AT_RISK, ...MENB_HIGHRISK],
     label: 'ACIP 2025 (Penmenvy) MMWR: within 6 months of a pentavalent, give the two vaccines separately',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -975,6 +1164,7 @@ export const CITATIONS = {
   pentavalentValidPerComponent: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'MenACWY-CRM/MenB-4C doses deviating from the licensed 6-month interval can be considered valid for MenACWY or MenB if the timing would otherwise have been valid for that component',
+    population: ALL_GROUPS,
     label: 'ACIP 2025 (Penmenvy) MMWR: each half of a pentavalent dose is judged on its own',
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-19',
@@ -1034,7 +1224,7 @@ export function resolveRefs(keys = []) {
 //             is what citeTitle() keys on, instead of comparing `label`
 //             against CITATIONS[key].label to guess.
 // `label` keeps its existing meaning (the sentence, else the full title).
-export function cite(key) {
+export function cite(key, { aboutAnotherGroup } = {}) {
   const c = CITATIONS[key];
   return {
     key,
@@ -1043,6 +1233,9 @@ export function cite(key) {
     label: c?.quote ?? c?.label,
     doc: c?.short,
     quote: c?.quote,
+    // C5 (2026-11-22): set only where a card cites another patient group's
+    // sentence on purpose; the reason is written at the call site.
+    ...(aboutAnotherGroup ? { aboutAnotherGroup } : {}),
   };
 }
 
@@ -1071,6 +1264,26 @@ export function cite(key) {
 //
 // PneumoVax carries this function under the same name in the same file
 // (src/data/refs.js). Change it in both or neither.
+// C5 (2026-11-22): which ACIP 2020 row states this patient's MenACWY booster
+// timing. The shared rows are Tables 4, 6 and 9 (complement, HIV, travel);
+// asplenia (Table 5) and an outbreak (Table 8) word the same years in their own
+// rows. A patient in two groups cites the shared row if either group is one of
+// its three. Same years whichever row is cited: only the sentence differs.
+export function acwyBoosterRowKey(under7, riskIds = []) {
+  const shared = ['complement', 'hiv', 'travel'].some((id) => riskIds.includes(id));
+  if (!shared && riskIds.includes('asplenia')) return under7 ? 'boosterBeforeAge7Asplenia' : 'boosterAtOrAfterAge7Asplenia';
+  if (!shared && riskIds.includes('outbreak_acwy')) return under7 ? 'boosterBeforeAge7Outbreak' : 'boosterAtOrAfterAge7Outbreak';
+  return under7 ? 'boosterBeforeAge7' : 'boosterAtOrAfterAge7';
+}
+
+// C5 (2026-11-22): the infant series begun at 3–6 months. CDC first (C6),
+// where CDC's notes speak for the patient (high-risk or travel); otherwise
+// ACIP's footnote, printed under the outbreak table too.
+export function acwyInfantSeriesKey(riskIds = []) {
+  const cdcSpeaks = ['complement', 'asplenia', 'hiv', 'travel'].some((id) => riskIds.includes(id));
+  return cdcSpeaks ? 'cdcChildAcwyInfantSeries' : 'acip2020InfantSeriesStart3to6mo';
+}
+
 export function citeTitle(c) {
   if (!c) return undefined;
   if (c.quote && c.doc) return `${c.doc}\n\u201c${c.quote}\u201d`;

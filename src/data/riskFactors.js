@@ -284,3 +284,21 @@ export function shouldDeferMenB(riskIds = []) {
 export function hasExclusion(riskIds = []) {
   return riskIds.some((id) => RISK_BY_ID[id]?.exclude);
 }
+
+// C5 (2026-11-22): the patient groups a quoted sentence may be about
+// (`population` in refs.js). Both vaccine families at once, because a card
+// sometimes explains the other family (a MenB line on a MenACWY card). The
+// splits are the engine's own: 'acwy-routine' unless a medical high-risk
+// condition puts the patient on the 2-dose MenACWY series ('primary2');
+// 'menb-healthy' unless a MenB high-risk indication applies; then one group
+// per indication the patient has.
+const GROUP_NAME = { outbreak_acwy: 'outbreak', outbreak_b: 'outbreak', college_dorm: 'college' };
+export function patientGroups(riskIds = []) {
+  const groups = [];
+  if (menacwyRiskClass(riskIds) !== 'primary2') groups.push('acwy-routine');
+  for (const id of riskIds) if (RISK_BY_ID[id]?.menacwyClass) groups.push(`acwy-${GROUP_NAME[id] ?? id}`);
+  if (!hasMenbRisk(riskIds)) groups.push('menb-healthy');
+  for (const id of riskIds) if (RISK_BY_ID[id]?.menbClass === 'highrisk') groups.push(`menb-${GROUP_NAME[id] ?? id}`);
+  if (riskIds.includes('pregnancy')) groups.push('menb-pregnancy');
+  return groups;
+}

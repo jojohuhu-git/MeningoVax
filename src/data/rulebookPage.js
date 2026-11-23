@@ -345,7 +345,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'menbHealthy2DoseSeparated6Months', 'menbBoosterIfRemainOrBecomeAtRisk', 'menbLicensedAge1025Acip2024',
     'cdcComplementMenbBoosterEvery2to3', 'cdcComplementMenb3Doses', 'cdcAdultMenbPregnancyDelay', 'cdcAdultMenbPregnancyMayGive',
     'menbFhbpSchedules', 'menbHighRiskD2SixMonthsNoD3Acip2024']],
-  ['MenACWY', ['acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
+  ['MenACWY', ['boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterBeforeAge7Outbreak', 'boosterAtOrAfterAge7Outbreak', 'acip2020InfantSeriesStart3to6mo', 'acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
     'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
     'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acwyAge10CountsAsDose1',
     'cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'cdcChildAcwyInfantSeries', 'cdcChildAcwyRisk2DoseFrom24m', 'cdcChildAcwyBefore10OngoingRisk',

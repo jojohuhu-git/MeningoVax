@@ -16,7 +16,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { foldResult } from './noteFold.js';
-import { resolveRefs, cite } from '../data/refs.js';
+import { resolveRefs, cite, acwyBoosterRowKey, acwyInfantSeriesKey } from '../data/refs.js';
 import {
   menacwyRiskClass,
   menacwyInfantSeriesIndicated,
@@ -476,8 +476,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         // U2: the booster half of this sentence, and both of its sources, moved
         // up to the booster line, which was already saying the same thing.
         boosterCites: [
-          cite('boosterBeforeAge7'),
-          cite('boosterAtOrAfterAge7'),
+          cite(acwyBoosterRowKey(true, riskIds)),
+          cite(acwyBoosterRowKey(false, riskIds)),
         ],
         // C5/2026-07-24: the <7y/≥7y booster-cadence split is verbatim in
         // the 2020 MMWR tables (noteCites above) — cdcRecommendations
@@ -499,8 +499,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         // U2: the booster tail moved to the booster line above. It gains the
         // sources the dose-1 card always had and this one never did.
         boosterCites: [
-          cite('boosterBeforeAge7'),
-          cite('boosterAtOrAfterAge7'),
+          cite(acwyBoosterRowKey(true, riskIds)),
+          cite(acwyBoosterRowKey(false, riskIds)),
         ],
         refs: refsFor([]),
       })];
@@ -533,12 +533,12 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         : null,
       noteCites: isFirstBooster ? [
         boostYears === '3'
-          ? cite('boosterBeforeAge7')
-          : cite('boosterAtOrAfterAge7'),
+          ? cite(acwyBoosterRowKey(true, riskIds))
+          : cite(acwyBoosterRowKey(false, riskIds)),
       ] : [],
       // U2: a LATER booster now has no note at all, so without this the card
       // would state a cadence with nothing to click through to.
-      boosterCites: [boostYears === '3' ? cite('boosterBeforeAge7') : cite('boosterAtOrAfterAge7')],
+      boosterCites: [boostYears === '3' ? cite(acwyBoosterRowKey(true, riskIds)) : cite(acwyBoosterRowKey(false, riskIds))],
       // C5/2026-07-24: cdcRecommendations dropped — the <7y/≥7y split is a
       // verbatim MMWR quote already (citation audit finding).
       refs: refsFor([]),
@@ -731,8 +731,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           : null,
       noteCites: (isTravel && isFirstExposureBooster) ? [
         exposureBoostYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
-          ? cite('boosterBeforeAge7')
-          : cite('boosterAtOrAfterAge7'),
+          ? cite(acwyBoosterRowKey(true, riskIds))
+          : cite(acwyBoosterRowKey(false, riskIds)),
       ] : (isFirstExposureBooster && microCited) ? [cite('acip2020Table7MicrobiologistBooster')] : [],
       refs: refsExposure(),
     })];
@@ -756,7 +756,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         ? 'college-residence or military'
         : isCollege ? 'college-residence' : 'military';
       const line = ` The ${which} dose is given at 16 or older.`;
-      return menacwyRoutine(am, given, doses, last, today, dob, clockDate).map((r) => ({
+      return menacwyRoutine(am, given, doses, last, today, dob, clockDate, riskIds).map((r) => ({
         ...r,
         note: r.note && typeof r.note === 'object'
           ? { ...r.note, detail: `${r.note.detail ?? ''}${line}`.trim() }
@@ -1028,7 +1028,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
   }
 
   // ── No MenACWY risk → routine adolescent schedule ────────────────────────
-  return menacwyRoutine(am, given, doses, last, today, dob, clockDate);
+  return menacwyRoutine(am, given, doses, last, today, dob, clockDate, riskIds);
 }
 
 function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockDate = null, repeatFloorDate = null) {
@@ -1085,7 +1085,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // U2: the source for that line. Empty for outbreak, where there IS no line --
   // and where the notes used to promise the countdown anyway, two sentences
   // before saying no such countdown exists.
-  const infantBoosterCites = [cite('boosterBeforeAge7')];
+  const infantBoosterCites = [cite(acwyBoosterRowKey(true, riskIds))];
   // Was the "no standing booster schedule … only in a NEW outbreak" sentence;
   // retired by B-2. Kept as an empty string so the notes below read unchanged.
   const outbreakTopUp = '';
@@ -1300,7 +1300,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         lead: `Dose 2 is due at least ${weeksLabel(gate.minIntervalDays)} after dose 1 [c].`,
         detail: `Given at 7 months or older, it leaves one final dose, at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} later and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age. No fourth dose is needed.`,
       },
-      noteCites: [cite('cdcChildAcwyInfantSeries')],
+      noteCites: [cite(acwyInfantSeriesKey(riskIds))],
       boosterCites: infantBoosterCites,
       refs });
   }
@@ -1357,7 +1357,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       isFirstBooster: isFirstInfantBooster, primaryCompletionAgeMonths: infantCompletionAgeM,
     });
     const infantFirstBoost3 = menacwyFirstBoosterYears(infantCompletionAgeM) === 3;
-    const infantBoosterCite = infantFirstBoost3 ? cite('boosterBeforeAge7') : cite('boosterAtOrAfterAge7');
+    const infantBoosterCite = infantFirstBoost3 ? cite(acwyBoosterRowKey(true, riskIds)) : cite(acwyBoosterRowKey(false, riskIds));
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',
@@ -1478,7 +1478,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
 // analyzeHistory()-filtered "effective" list, which excludes those doses when
 // the patient has no current high-risk indication — see validate.js. This
 // function only needs the ordinary routine schedule logic.
-function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
+function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, riskIds = []) {
   // C5/2026-07-24: ACIP 2020 MMWR is the citation. cdcChildMenACWY dropped —
   // it just restates the same MMWR rule (2026-07-23 owner decision).
   // C2/2026-07-24: upgraded from the whole-document chip to the Table 2
@@ -1554,6 +1554,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
       // catch-up ("Age 13–15 years: 1 dose now and booster at age 16–18
       // years"). Wording only: same dose, status, badge and booster line.
       const catchup = am >= MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS;
+      const menbRiskNow = hasMenbRisk(riskIds);
       return [rec({ vaccine: 'MenACWY', status: 'due', doseLabel: catchup ? 'Dose 1 (catch-up, 13–15y)' : 'Dose 1 (routine, 11–12y)', doseNum: 1, seriesTotal: 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL,
         // W3 (owner, 2026-11-19): the 13–15 card's booster line gives CDC's
         // ages, "booster at age 16–18 years", as its "Why this" does; its
@@ -1564,12 +1565,18 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null) {
           lead: catchup
             ? 'A catch-up dose now, then the booster at 16–18 years [c].'
             : 'The routine adolescent dose, given at 11–12 years.',
-          detail: 'Without a MenB risk factor, MenB is offered from 16 through 23 years by shared clinical decision-making [c]. A pentavalent dose may be used only when MenACWY and MenB are due at the same visit [c].',
+          // C5 (2026-11-22): the shared-decision sentence is said only to a
+          // patient it is true of; a serogroup B outbreak contact has a MenB
+          // risk factor, and their MenB card gives the high-risk series.
+          detail: `${menbRiskNow ? '' : 'Without a MenB risk factor, MenB is offered from 16 through 23 years by shared clinical decision-making [c]. '}A pentavalent dose may be used only when MenACWY and MenB are due at the same visit [c].`,
         },
         // U2: "A booster follows at 16 years" was the booster line's sentence.
         boosterCites: [cite(catchup ? 'cdcCatchupAcwyBooster8Weeks' : 'acwyRoutine1112and16')],
-        noteCites: catchup ? [cite('cdcCatchupAcwyBooster8Weeks'), cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')] : [cite('menbHealthyPreferredAge1618'), cite('pentavalentWhenBothIndicated')],
-        refs })];
+        noteCites: [...(catchup ? [cite('cdcCatchupAcwyBooster8Weeks')] : []), ...(menbRiskNow ? [] : [cite('menbHealthyPreferredAge1618')]), cite('pentavalentWhenBothIndicated')],
+        // C5 (2026-11-22): on the 13–15 card, Table 2's only sentence was the
+        // shared-decision one; without it, nothing on the card cites Table 2.
+        // Its button is the document of the catch-up row it cites (CDC's notes).
+        refs: catchup && menbRiskNow ? ['cdcCatchupAcwyBooster8Weeks'] : refs })];
     }
     // already has dose 1 → booster due at 16y (future)
     // B6: this isn't a quiet "done" state — a booster is still coming. Compute
@@ -1805,7 +1812,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // Phase 8 (2026-11-22, citation only, Q12): ACIP 2020's licensure
       // sentence predates both pentavalents. The line now cites ACIP 2024's
       // (Trumenba, Bexsero, Penbraya) and ACIP 2025's (Penmenvy).
-      noteCites: [cite('menbLicensedAge1025Acip2024'), cite('penmenvyLicensedAge1025'), cite('acip2020MenbRiskGroups')],
+      noteCites: [cite('menbLicensedAge1025Acip2024'), cite('penmenvyLicensedAge1025'),
+        // C5 (2026-11-22): ACIP's high-risk list, cited to say which groups the
+        // patient is NOT in.
+        cite('acip2020MenbRiskGroups', { aboutAnotherGroup: 'the MenB high-risk list, quoted to a healthy child to name what they do not have' })],
       refs: refs([], ['acip2020']) })];
   }
 
@@ -2146,7 +2156,10 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // C4 mm7349a3 (2026-11-22): the 2024 report's 6-month sentence (it
         // names Bexsero and Trumenba) and its "remain or become at increased
         // risk ... booster vaccination" sentence.
-        noteCites: [cite('menbHealthy2DoseSeparated6Months'), cite('menbBoosterIfRemainOrBecomeAtRisk')],
+        noteCites: [cite('menbHealthy2DoseSeparated6Months'),
+          // C5 (2026-11-22): the booster sentence is about people at increased
+          // risk; it is quoted here for the "unless" (the patient is not).
+          cite('menbBoosterIfRemainOrBecomeAtRisk', { aboutAnotherGroup: 'the at-risk booster sentence, quoted to a healthy patient for its "unless a high-risk indication develops"' })],
         refs: refs([], ['mm7349a3']) })];
     }
     if (given >= 3) {
