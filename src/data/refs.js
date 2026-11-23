@@ -329,6 +329,17 @@ export const CITATIONS = {
     short: 'ACIP Oct 2024 MMWR',
     lastVerified: '2026-11-15',
   },
+  // Phase 8 item 7 (2026-11-22, citation only, owner Q12). The two sentences
+  // above are written for MenB-4C (Bexsero). The same report states the same
+  // two schedules for MenB-FHbp (Trumenba) in its Introduction (read live
+  // 2026-11-22, exact substring), so a Trumenba or Penbraya series cites this.
+  menbFhbpSchedules: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm',
+    quote: 'ACIP recommends MenB-FHbp vaccine as a 2-dose series (at intervals of 0 and 6 months) for adolescents and young adults and a 3-dose series (at 0, 1–2, and 6 months) for those at increased risk',
+    label: 'ACIP Oct 2024 MMWR: MenB-FHbp (Trumenba) 2-dose series 0/6 months, high-risk 3-dose series 0/1–2/6 months',
+    short: 'ACIP Oct 2024 MMWR',
+    lastVerified: '2026-11-22',
+  },
   // MenB dose-3 rescue (2026-09-17). The one sentence that says an early dose 3
   // is credited rather than repeated. It lives in the CDC schedule notes, not in
   // mm7349a3, so it needs its own anchor — the adult notes carry the identical

@@ -472,6 +472,19 @@ function acwyMinAgeCite(brand) {
   return null;
 }
 
+// Phase 8 item 7 (2026-11-22, citation only, owner Q12): the MenB side of a
+// pentavalent's minimum-age line cites the sentence the owner chose for the
+// same brand's MenACWY line (C11, 2026-11-21; `acwyMinAgeCite` above). ACIP
+// 2020's "MenB vaccines are licensed ... only for persons aged 10–25 years" was
+// written before either pentavalent existed, so it stays for Bexsero, Trumenba
+// and an unknown brand only. Penbraya: CDC's MenB minimum-age line names it.
+// Penmenvy: no page states its minimum age; ACIP's "Persons aged ≥10 years".
+function menbMinAgeCite(brand) {
+  if (brand?.startsWith('Penbraya')) return cite('cdcChildMenbMinAge');
+  if (brand?.startsWith('Penmenvy')) return cite('penmenvyAged10BothIndicated');
+  return cite('menbLicensedAge1025');
+}
+
 // A MenACWY booster too soon: the same table the patient's card cites for that
 // booster. 3 years (series ended before 7): ACIP's under-7 row. 5 years: the
 // travel table for travel, the microbiologist table for lab work, the military
@@ -1270,7 +1283,7 @@ export const DOSE_RULES = [
     authorityToday: 'CDC (menbLicensedAge1025)',
     sourcesSay: {
       verdict: 'stated',
-      refs: ['cdcChildMenbMinAge'],
+      refs: ['cdcChildMenbMinAge', 'menbLicensedAge1025', 'penmenvyAged10BothIndicated'],
       note: 'CDC states MenB\'s minimum age as 10 years; the app applies it to an undated dose by reasoning that the dose was given no later than today.',
     },
     label: 'Not counted — repeat',
@@ -1284,7 +1297,7 @@ export const DOSE_RULES = [
         ...invalidResult(
           [`Recorded without a date. The patient is ${aboutAgeAt(ageMonths)} today, below the ${fmtMinAgeAdj(minAgeM)} minimum age for ${label}, so the dose was given too young. [c]`],
           `Current age (upper bound on age at administration): ${aboutAgeAt(ageMonths)}. Minimum: ${fmtMinAge(minAgeM)}.`,
-          [cite('menbLicensedAge1025')]
+          [menbMinAgeCite(brand)]
         ),
       };
     },
@@ -1354,7 +1367,7 @@ export const DOSE_RULES = [
     authorityToday: 'CDC (menbLicensedAge1025)',
     sourcesSay: {
       verdict: 'stated',
-      refs: ['cdcChildMenbMinAge', 'menbLicensedAge1025'],
+      refs: ['cdcChildMenbMinAge', 'menbLicensedAge1025', 'penmenvyAged10BothIndicated'],
       note: 'CDC states MenB\'s minimum age as 10 years. The app voids a dose below it.',
     },
     label: 'Not counted — repeat',
@@ -1369,7 +1382,7 @@ export const DOSE_RULES = [
         ...invalidResult(
           [`Minimum age not met (${fmtMonths(minAgeM)} for ${brandLabelOf(ctx.brand, 'MenB')}). [c]`],   // P61 (review v10)
           `Age at administration: ${aboutAgeAt(ctx.ageAtDose)}. Minimum: ${fmtMinAge(minAgeM)}.`,
-          [cite('menbLicensedAge1025')]
+          [menbMinAgeCite(ctx.brand)]
         ),
       };
     },
