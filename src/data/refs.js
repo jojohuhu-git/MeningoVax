@@ -712,6 +712,34 @@ export const CITATIONS = {
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-11-22',
   },
+  // Tier 1 Q2 (owner, 2026-11-22 "Add the note"; 2026-11-23 placement). Read
+  // live 2026-11-22 and 2026-11-23; page dated Mar 6, 2026. The page is about
+  // complement-inhibitor recipients; the app's one checkbox also covers
+  // inherited deficiency, so the alert says "If on a complement inhibitor".
+  cdcComplementIncompleteProtection: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Vaccination is also recommended but offers incomplete protection.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: vaccination offers incomplete protection',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
+  cdcComplementConsiderProphylaxis: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'In addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for complement inhibitor recipients to potentially reduce meningococcal disease risk.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: antimicrobial prophylaxis could be considered',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
+  cdcComplementVaccinate2WeeksBefore: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Ideally, complete or update meningococcal vaccination at least 2 weeks prior to administering the first dose of the complement inhibitor.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: vaccinate at least 2 weeks before the first inhibitor dose',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
   cdcComplementMenb3Doses: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     quote: 'MenB vaccines need 3 doses',

@@ -734,3 +734,17 @@ susceptible and started on the age-appropriate vaccination schedule."*
 ## Complement — Single Merged Risk Factor
 
 `complement` covers both persistent complement deficiency AND complement-inhibitor therapy (eculizumab/ravulizumab) — they share the identical schedule class (`primary2` + high-risk MenB). Tests use id `'complement'`. Do not re-split without reason.
+
+**The complement alert** (owner Tier 1 Q2, 2026-11-22 "Add the note"; placement 2026-11-23,
+"put alert in the same place as CAR-T hard stop"). With the box checked, the engine returns
+`complementAlert` (text plus three citations) and `Results.jsx` draws it first on the page,
+in an amber version of the hard stop's banner (`ComplementAlert`, `.advisory-banner-caution`);
+the cards follow as usual. CDC, "Clinical Guidance for Managing Meningococcal Disease Risk in
+Patients Receiving Complement Inhibitor Therapy" (Mar 6, 2026; read live 2026-11-22 and
+2026-11-23): *"Vaccination is also recommended but offers incomplete protection."*; *"In
+addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for
+complement inhibitor recipients to potentially reduce meningococcal disease risk."*;
+*"Ideally, complete or update meningococcal vaccination at least 2 weeks prior to
+administering the first dose of the complement inhibitor."* The page is about inhibitor
+therapy only, so the alert begins "If on a complement inhibitor". Left out on purpose
+(owner did not ask): symptom teaching and "high index of suspicion".

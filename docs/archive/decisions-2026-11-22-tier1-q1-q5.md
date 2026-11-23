@@ -31,7 +31,7 @@ Each answer is built as its own item; this table is updated as they land.
 | Q | Status |
 |---|---|
 | Q1 | built (commit 'Q1: …'); 0 saved answers moved |
-| Q2 | not started (picture first) |
+| Q2 | built after the picture; owner placement 2026-11-23: "put alert in the same place as CAR-T hard stop" (top of the page, amber banner) |
 | Q3 | no change needed |
 | Q4 | built (commit 'Q4: …'); 6,560 stored patients added (5,008 + 1,552), 0 answers moved |
 | Q5 | built (commit 'Q5: …'); 0 saved answers moved; wording on 200 of 24,600 stored patients (184 gain the public-health line, 16 outbreak boosters under 6 months now say "6 required" and quote Table 8's 6-month clause) |
@@ -44,6 +44,9 @@ page text that could be read word for word (Box 1, Box 2 and Tables 1–3 were n
 word). The page's own words are in Table 8: "public health professionals". Q5 cites Table 8 only.
 
 ## Follow-on questions found while building (not answered)
+
+Answered 2026-11-23: **Q5a "Keep behind Why this"** (no change); **Q5b "Add it to both
+cells"** (built).
 
 - **Q5a — where the public-health line shows.** The card's fold (Q10) keeps only the owner's
   list in view, so the new line sits behind "Why this" with the booster sentence it belongs to.

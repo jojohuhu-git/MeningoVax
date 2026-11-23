@@ -2704,6 +2704,7 @@ function recommendOneReading(input) {
       // doubt" apart from "this branch forgot to say".
       riskAgeNote: null,
       riskAgeNoteCites: [],
+      complementAlert: null,
       history: EMPTY_HISTORY,
       meta: { ageMonths: am, today, riskIds },
     };
@@ -2886,6 +2887,13 @@ function recommendOneReading(input) {
     // one indication with no card of its own (pregnancy, which only defers
     // MenB) would otherwise have nowhere to be said.
     riskAgeNote, riskAgeNoteCites,
+    // Tier 1 Q2 (owner, 2026-11-22 "Add the note"; 2026-11-23 "put alert in
+    // the same place as CAR-T hard stop"): CDC's complement-inhibitor page says
+    // three things no card says. One clause per CDC sentence.
+    complementAlert: riskIds.includes('complement') ? {
+      text: 'If on a complement inhibitor: vaccination gives incomplete protection [c]. Consider antibiotic prophylaxis [c]. Ideally finish these vaccines at least 2 weeks before the first inhibitor dose [c].',
+      cites: [cite('cdcComplementIncompleteProtection'), cite('cdcComplementConsiderProphylaxis'), cite('cdcComplementVaccinate2WeeksBefore')],
+    } : null,
     history: {
       MenACWY: datedRepeatLines(notRepeatedWhenNothingAsked(menacwyHistory, menacwy), menacwy, today),
       MenB: datedRepeatLines(notRepeatedWhenNothingAsked(menbHistory, menb), menb, today),

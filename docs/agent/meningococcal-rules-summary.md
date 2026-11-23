@@ -168,6 +168,20 @@ purposes. This only applies to healthy patients; a high-risk infant series
   >
   > "a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   <!-- /SOURCES -->
+- **Complement box: an alert at the top of the page** (your Q2 answers, 2026-11-22
+  "Add the note" and 2026-11-23 "put alert in the same place as CAR-T hard stop"),
+  covering both vaccines: "If on a complement inhibitor: vaccination gives incomplete
+  protection. Consider antibiotic prophylaxis. Ideally finish these vaccines at least 2
+  weeks before the first inhibitor dose." Each clause cites CDC's complement-inhibitor
+  page. It begins "If on a complement inhibitor" because the page is about inhibitor
+  therapy and the one checkbox also covers inherited complement deficiency.
+  <!-- SOURCES: cdcComplementIncompleteProtection, cdcComplementConsiderProphylaxis, cdcComplementVaccinate2WeeksBefore -->
+  > "Vaccination is also recommended but offers incomplete protection." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  >
+  > "In addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for complement inhibitor recipients to potentially reduce meningococcal disease risk." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  >
+  > "Ideally, complete or update meningococcal vaccination at least 2 weeks prior to administering the first dose of the complement inhibitor." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  <!-- /SOURCES -->
 - **Infants.** MenACWY is not routinely given to healthy infants, but three
   indications put a baby on the infant series: medical high risk, **travel**, and an
   **A/C/W/Y outbreak**. A travelling or outbreak-exposed infant gets the *same infant

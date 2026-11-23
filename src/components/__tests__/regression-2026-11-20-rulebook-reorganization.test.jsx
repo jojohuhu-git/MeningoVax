@@ -190,7 +190,8 @@ describe('Item 6: every schedule is a Dose | Routine | Minimum interval table', 
       ['Dose 1', 'From 10 years', 'Minimum age 10 years'],
       ['Dose 2', '1 month after dose 1', '4 weeks after dose 1'],
       ['Dose 3', '6 months after dose 1 and 4 months after dose 2, whichever is later', '4 months after dose 2, or 6 months after dose 1'],
-      ['Booster', '1 year after the series, then every 2–3 years', '1 year after the series, then 2 years after the last booster'],
+      // Tier 1 Q5b (owner, 2026-11-23): the outbreak's 6 months in the minimum column.
+      ['Booster', '1 year after the series, then every 2–3 years', '1 year after the series (6 months for a serogroup B outbreak), then 2 years after the last booster'],
     ]);
     // Where a sooner dose still counts, one line under the table says so.
     expect(MENB_HEALTHY.note.text).toBe('Dose 2 given <6 months after dose 1 counts. Give dose 3 ≥4 months after dose 2.');

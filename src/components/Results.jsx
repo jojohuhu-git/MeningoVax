@@ -5,7 +5,7 @@ import { patientAgeMonths } from '../logic/patientAge.js';
 import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
-import RecCard, { RecNote, RiskAgeNote } from './RecCard.jsx';
+import RecCard, { RecNote, RiskAgeNote, ComplementAlert } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
@@ -48,7 +48,7 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
   });
 
   const { menacwy, menb, pentavalent, history, excluded, exclusionMessage, exclusionCitations,
-          riskAgeNote, riskAgeNoteCites, meta } = result;
+          riskAgeNote, riskAgeNoteCites, complementAlert, meta } = result;
   // calendar P2-1: recommend() is the one place that resolves "no today
   // passed" to the real clock (`meta.today`); everything below that draws a
   // "today" reads it from here, so the card text and the editors below agree
@@ -249,6 +249,8 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
 
   return (
     <div>
+      {/* Tier 1 Q2: first on the page, where the hard stop's banner sits. */}
+      <ComplementAlert alert={complementAlert} />
       {/* D1: answer-first verdict, before any detail. */}
       <div className="results-summary-line" data-testid="results-summary-line">
         {summaryLine}

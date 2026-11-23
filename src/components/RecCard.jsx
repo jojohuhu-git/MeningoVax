@@ -469,6 +469,17 @@ export function RecNote({ note, noteCites = [], numberFor: numberForProp, source
 // two short sentences, so there is nothing to hide behind a toggle.
 //
 // All copy comes from recommend.js. Nothing is authored here.
+// Tier 1 Q2 (owner, 2026-11-23): the complement-inhibitor alert, drawn where
+// the transplant hard stop's banner sits. Its sentence comes from the engine.
+export function ComplementAlert({ alert }) {
+  if (!alert) return null;
+  return (
+    <div className="advisory-banner advisory-banner-caution" data-testid="complement-alert">
+      <div className="advisory-note">{renderNoteWithCites(alert.text, alert.cites, makeCiteNumberer())}</div>
+    </div>
+  );
+}
+
 export function RiskAgeNote({ note, noteCites = [] }) {
   if (!note) return null;
   const numberFor = makeCiteNumberer();

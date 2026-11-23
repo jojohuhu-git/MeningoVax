@@ -1302,6 +1302,13 @@ body {
   border-left: 4px solid var(--r);
 }
 .advisory-banner-exclude .advisory-banner-title { color: var(--r); }
+/* Tier 1 Q2: the complement-inhibitor alert, the hard stop's banner in amber. */
+.advisory-banner-caution {
+  background: var(--alt);
+  border: 1.5px solid var(--amd);
+  border-left: 4px solid var(--a);
+}
+.advisory-banner-caution .advisory-note { color: var(--gy); margin-bottom: 0; }
 /* Dose history edit panel */
 .history-edit-summary {
   cursor: pointer;
