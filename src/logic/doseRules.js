@@ -118,7 +118,7 @@ import {
   menacwyInfantNextDoseGate, menacwyFirstBoosterYears, ageMeetsMinimum, ageMeetsMinimumDays, intervalMeetsMinimum,
   calendarIntervalMeetsMinimum, MENACWY_HIGHRISK_PRIMARY_GAP,
   MENACWY_BOOSTER_CADENCE_YEARS, MENACWY_FIRST_BOOSTER_YEARS_UNDER_7,
-  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
+  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS, MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_HIGHRISK_D2_GAP, MENB_REPEAT_MIN_INTERVAL,
   MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
@@ -1676,27 +1676,44 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-BOOSTER-GAP',
     inventory: 'B12',
-    what: 'A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days',
+    what: 'A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days; a serogroup B outbreak\'s one booster sooner than 6 months',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
     measuredFrom: 'last dose given',
     enforcement: 'floor',
     grace: true,
-    authorityToday: 'ACIP 2020; owner, STOP C C9 (2026-11-15)',
+    authorityToday: 'ACIP 2020; owner, STOP C C9 (2026-11-15); owner, Tier 1 Q1 and Q5 (2026-11-22)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['acip2020MenbBoosterCadence', 'acip2020Table8MenbOutbreakBooster'],
-      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
+      refs: ['acip2020MenbBoosterCadence', 'acip2020Table8MenbOutbreakBooster', 'acip2020Table8MenbOutbreakBoosterSixMonths'],
+      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D). Owner, Tier 1 Q1 (2026-11-22): this holds when the first booster is the 3rd dose, after a 2-dose series. Owner, Tier 1 Q5 (2026-11-22): a serogroup B outbreak\'s one booster counts from 6 months, as ACIP 2020 Table 8 allows ("≥6 mos interval might also be considered by public health professionals"); the other groups keep 1 year.',
     },
     label: 'Not counted — repeat',
     // Only too-soon is flagged; a late booster is ordinary catch-up.
     check: (ctx) => {
       const prev = prevDated(ctx);
-      if (!hasMenbRisk(ctx.riskIds) || ctx.effectiveIdx < 3 || !prev) return null;
+      // Tier 1 Q1 (owner, 2026-11-22): no fixed "4th dose" floor. A 2-dose
+      // series (dose 2 ≥6 months after dose 1) makes the 3rd dose the first
+      // booster, and it is judged here like any other; for a 3-dose series the
+      // hrTotal test below still leaves dose 3 to the dose-3 rows.
+      if (!hasMenbRisk(ctx.riskIds) || !prev) return null;
       const hrTotal = menbSeriesInfo({ highRisk: true, doses: ctx.kept }).total;
       if (ctx.effectiveIdx < hrTotal) return null;
       const isFirstBooster = ctx.effectiveIdx === hrTotal;
+      // Tier 1 Q5 (owner, 2026-11-22): a serogroup B outbreak's one booster
+      // counts from 6 months (ACIP 2020 Table 8's "≥6 mos interval might also
+      // be considered"), on the calendar with the 4-day grace. Outbreak only.
+      if (isFirstBooster && outbreakBOnly(ctx.riskIds)) {
+        if (calendarIntervalMeetsMinimum(prev.dose.date, MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS, ctx.dose.date)) return null;
+        const g6 = gapUnder(prev.dose.date, ctx.dose.date, MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS);
+        const min6 = fmtMonths(MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS);
+        return tooSoonBooster(invalidResult(
+          [`Booster ${g6.text} after the series, ${required(g6.text, min6)} [c].`],
+          `Interval: ${g6.text}. Minimum: ${min6}.`,
+          [cite('acip2020Table8MenbOutbreakBoosterSixMonths')],
+        ));
+      }
       const minInterval = isFirstBooster ? MENB_HR_FIRST_BOOSTER_MIN : MENB_HR_SUBSEQUENT_BOOSTER_MIN;
       const minLabel = fmtMonths((isFirstBooster ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS) * 12);
       if (intervalMeetsMinimum(prev.interval, minInterval)) return null;

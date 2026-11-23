@@ -349,14 +349,21 @@ export const SAVED_ANSWER_AGES_MONTHS = [
 
 /**
  * Risk profiles: none, every risk factor on its own (derived, so a new risk
- * factor widens the grid with no edit here), and three pairs that put two
- * different pathways on one patient.
+ * factor widens the grid with no edit here), three pairs that put two
+ * different pathways on one patient, and the four pairs where pregnancy
+ * changes the MenB card (owner, Tier 1 Q4, 2026-11-22, "Add all four"):
+ * alone, pregnancy defers MenB; with a MenB high-risk indication the series
+ * is given, with the pregnancy line.
  */
 export const SAVED_ANSWER_RISK_PROFILES = [
   ...SINGLE_RISK_PROFILES,
   ['asplenia', 'travel'],          // high-risk primary + travel booster rule
   ['college_dorm', 'outbreak_b'],  // the ≥16y rule + a MenB-only risk
   ['military', 'microbiologist'],  // single-dose + single-plus-booster
+  ['pregnancy', 'complement'],     // Q4: pregnancy + each MenB high-risk indication
+  ['pregnancy', 'asplenia'],
+  ['pregnancy', 'microbiologist'],
+  ['pregnancy', 'outbreak_b'],
 ];
 
 /**

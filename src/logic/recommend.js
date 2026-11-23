@@ -86,7 +86,7 @@ import {
   menacwyOutbreakTopUpYears,
   MENACWY_OUTBREAK_TOPUP_YEARS_UNDER_7, MENACWY_OUTBREAK_TOPUP_YEARS_FROM_7,
   MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_LABEL,
-  menbHighRiskBoosterYears,
+  menbHighRiskBoosterYears, MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS, calendarIntervalMeetsMinimum,
   MENB_HIGHRISK_D2_GAP, MENB_HIGHRISK_D3_MONTHS_FROM_D1,
   MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
@@ -1734,6 +1734,9 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
 // no dose or date depends on it.
 const ADULT_SCHEDULE_FROM_MONTHS = 19 * 12;
 const OUTBREAK_B_BOOSTER_CITES = () => [cite('acip2020Table8MenbOutbreakBooster'), cite('cdcRecsMenbOutbreakBoosterYear')];
+// Tier 1 Q5 (owner, 2026-11-22, "Count from 6 months"): the outbreak booster
+// card says it may come sooner, citing Table 8's 6-month clause.
+const OUTBREAK_B_SIX_MONTHS_LINE = `Public health may advise it from ${monthsLabel(MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS)} after the series [c].`;
 
 function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = null) {
   const given = doses.length;
@@ -2005,14 +2008,19 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     const firstBooster = given === hrSeries.total;
     // D10: the outbreak's one booster has been given — nothing more is owed.
     if (outbreakOnly && !firstBooster) {
+      // Q5: a booster counted before 1 year says why ("at least 1 year" alone
+      // would not be true of it).
+      const lastPrimary = doses[hrSeries.total - 1]?.date;
+      const boosterDate = doses[hrSeries.total]?.date;
+      const boosterBeforeYear = !!(lastPrimary && boosterDate && !calendarIntervalMeetsMinimum(lastPrimary, MENB_HIGHRISK_FIRST_BOOSTER_YEARS * 12, boosterDate));
       return [rec({ vaccine: 'MenB', status: 'complete', doseLabel: 'Complete (outbreak booster given)',
         doseNum: given, seriesTotal: hrSeries.total, dueToday: false, earliestNextDate: null,
         family, brands: [],
         note: {
-          lead: 'A serogroup B outbreak calls for one MenB booster, at least 1 year after the primary series, and it has been given [c][c].',
+          lead: `A serogroup B outbreak calls for one MenB booster, at least 1 year after the primary series, and it has been given [c][c].${boosterBeforeYear ? ` ${OUTBREAK_B_SIX_MONTHS_LINE}` : ''}`,
           detail: 'Repeat boosters every 2–3 years are for asplenia, complement deficiency, complement-inhibitor therapy and microbiologists, not for an outbreak.',
         },
-        noteCites: OUTBREAK_B_BOOSTER_CITES(),
+        noteCites: [...OUTBREAK_B_BOOSTER_CITES(), ...(boosterBeforeYear ? [cite('acip2020Table8MenbOutbreakBoosterSixMonths')] : [])],
         // C4 mm7349a3 (2026-11-22): both sentences are ACIP 2020's; the 2024
         // report leaves booster recommendations "unchanged" and says nothing
         // this card says, so its button is not on this card.
@@ -2048,7 +2056,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // E3 (2026-11-19): a later booster counts 2–3 years from the previous
         // booster, as its label and due date do; not "every" (U2).
         lead: firstBooster
-          ? `${shortcutLine}A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? '[c]' : ''}.`
+          ? `${shortcutLine}A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? `[c]. ${OUTBREAK_B_SIX_MONTHS_LINE}` : '.'}`
           : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
       },
@@ -2056,7 +2064,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // years" box, which would contradict the line above it.
       // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
       // "Booster doses need to be from the same manufacturer".
-      noteCites: [...(sl ? [cite(sl.key)] : []), ...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
+      noteCites: [...(sl ? [cite(sl.key)] : []), ...(outbreakOnly ? [...OUTBREAK_B_BOOSTER_CITES(), cite('acip2020Table8MenbOutbreakBoosterSixMonths')] : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
       refs: refs(['mm7349a3']) })];
   }
 
@@ -2696,6 +2704,7 @@ function recommendOneReading(input) {
       // doubt" apart from "this branch forgot to say".
       riskAgeNote: null,
       riskAgeNoteCites: [],
+      complementAlert: null,
       history: EMPTY_HISTORY,
       meta: { ageMonths: am, today, riskIds },
     };
@@ -2878,6 +2887,13 @@ function recommendOneReading(input) {
     // one indication with no card of its own (pregnancy, which only defers
     // MenB) would otherwise have nowhere to be said.
     riskAgeNote, riskAgeNoteCites,
+    // Tier 1 Q2 (owner, 2026-11-22 "Add the note"; 2026-11-23 "put alert in
+    // the same place as CAR-T hard stop"): CDC's complement-inhibitor page says
+    // three things no card says. One clause per CDC sentence.
+    complementAlert: riskIds.includes('complement') ? {
+      text: 'If on a complement inhibitor: vaccination gives incomplete protection [c]. Consider antibiotic prophylaxis [c]. Ideally finish these vaccines at least 2 weeks before the first inhibitor dose [c].',
+      cites: [cite('cdcComplementIncompleteProtection'), cite('cdcComplementConsiderProphylaxis'), cite('cdcComplementVaccinate2WeeksBefore')],
+    } : null,
     history: {
       MenACWY: datedRepeatLines(notRepeatedWhenNothingAsked(menacwyHistory, menacwy), menacwy, today),
       MenB: datedRepeatLines(notRepeatedWhenNothingAsked(menbHistory, menb), menb, today),

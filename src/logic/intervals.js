@@ -236,6 +236,15 @@ export function menacwyOutbreakTopUpYears(currentAgeMonths) {
 /** First MenB booster for a high-risk patient: 1 year after the primary series. */
 export const MENB_HIGHRISK_FIRST_BOOSTER_YEARS = 1;
 /**
+ * A serogroup B outbreak's one MenB booster COUNTS from 6 months after the
+ * series (owner, Tier 1 Q5, 2026-11-22, "Count from 6 months"); its due date
+ * stays MENB_HIGHRISK_FIRST_BOOSTER_YEARS. ACIP 2020 Table 8 (read live
+ * 2026-11-22): "Single dose if ≥1 yr after MenB primary series completion (≥6
+ * mos interval might also be considered by public health professionals)".
+ * Outbreak table only: Tables 4, 5 and 7 give 1 year. With the 4-day grace.
+ */
+export const MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS = 6;
+/**
  * Later MenB high-risk boosters. CDC says "every 2-3 years"; 2 is the FLOOR the
  * validator enforces and "2-3 years" is what the card says. The two live side
  * by side so nobody tidies the range in the prose down to the floor — they are

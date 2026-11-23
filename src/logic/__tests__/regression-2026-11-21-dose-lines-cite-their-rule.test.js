@@ -86,7 +86,9 @@ const CASES = [
   ['MenB high risk, dose 2 two weeks after dose 1', 'MenB', d16, [{ date: at(d16, 15 * Y), brand: BX }, { date: at(d16, 15 * Y, 14), brand: BX }], ['asplenia'], 'MENB-HIGHRISK-DOSE-2-GAP', 'acip2020MenbRepeat4Weeks'],
   ['MenB high risk, first booster 6 months after the series', 'MenB', d20, [{ date: at(d20, 17 * Y), brand: BX }, { date: at(d20, 17 * Y + 2), brand: BX }, { date: at(d20, 17 * Y + 6), brand: BX }, { date: at(d20, 18 * Y), brand: BX }], ['asplenia'], 'MENB-HIGHRISK-BOOSTER-GAP', 'acip2020MenbBoosterCadence'],
   // C5 (2026-11-22): a serogroup B outbreak's one booster is Table 8's sentence.
-  ['MenB serogroup B outbreak, booster 6 months after the series', 'MenB', d20, [{ date: at(d20, 17 * Y), brand: BX }, { date: at(d20, 17 * Y + 2), brand: BX }, { date: at(d20, 17 * Y + 6), brand: BX }, { date: at(d20, 18 * Y), brand: BX }], ['outbreak_b'], 'MENB-HIGHRISK-BOOSTER-GAP', 'acip2020Table8MenbOutbreakBooster'],
+  // Tier 1 Q5 (2026-11-22): it counts from 6 months, so the case is now a
+  // booster 4 months after the series, citing Table 8's 6-month clause.
+  ['MenB serogroup B outbreak, booster 4 months after the series', 'MenB', d20, [{ date: at(d20, 17 * Y), brand: BX }, { date: at(d20, 17 * Y + 2), brand: BX }, { date: at(d20, 17 * Y + 6), brand: BX }, { date: at(d20, 17 * Y + 10), brand: BX }], ['outbreak_b'], 'MENB-HIGHRISK-BOOSTER-GAP', 'acip2020Table8MenbOutbreakBoosterSixMonths'],
   ['MenB high risk, second booster 1 year after the first', 'MenB', d20, [{ date: at(d20, 16 * Y), brand: BX }, { date: at(d20, 16 * Y + 2), brand: BX }, { date: at(d20, 16 * Y + 6), brand: BX }, { date: at(d20, 17 * Y + 6), brand: BX }, { date: at(d20, 18 * Y + 6), brand: BX }], ['asplenia'], 'MENB-HIGHRISK-BOOSTER-GAP', 'acip2020MenbBoosterCadence'],
   ['Healthy MenB, rescue dose 3 two months after an early dose 2', 'MenB', d19, [{ date: at(d19, 17 * Y), brand: BX }, { date: at(d19, 17 * Y + 2), brand: BX }, { date: at(d19, 17 * Y + 4), brand: BX }], [], 'MENB-HEALTHY-RESCUE-DOSE-3-GAP', 'menbRescueDoseRule'],
 ];

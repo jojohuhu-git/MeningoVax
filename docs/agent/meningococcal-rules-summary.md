@@ -168,6 +168,20 @@ purposes. This only applies to healthy patients; a high-risk infant series
   >
   > "a second dose should be administered as soon as possible, provided that an 8-week minimum interval between doses is maintained" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
   <!-- /SOURCES -->
+- **Complement box: an alert at the top of the page** (your Q2 answers, 2026-11-22
+  "Add the note" and 2026-11-23 "put alert in the same place as CAR-T hard stop"),
+  covering both vaccines: "If on a complement inhibitor: vaccination gives incomplete
+  protection. Consider antibiotic prophylaxis. Ideally finish these vaccines at least 2
+  weeks before the first inhibitor dose." Each clause cites CDC's complement-inhibitor
+  page. It begins "If on a complement inhibitor" because the page is about inhibitor
+  therapy and the one checkbox also covers inherited complement deficiency.
+  <!-- SOURCES: cdcComplementIncompleteProtection, cdcComplementConsiderProphylaxis, cdcComplementVaccinate2WeeksBefore -->
+  > "Vaccination is also recommended but offers incomplete protection." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  >
+  > "In addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for complement inhibitor recipients to potentially reduce meningococcal disease risk." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  >
+  > "Ideally, complete or update meningococcal vaccination at least 2 weeks prior to administering the first dose of the complement inhibitor." — [CDC Complement-Inhibitor Guidance](https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html), read 2026-11-23.
+  <!-- /SOURCES -->
 - **Infants.** MenACWY is not routinely given to healthy infants, but three
   indications put a baby on the infant series: medical high risk, **travel**, and an
   **A/C/W/Y outbreak**. A travelling or outbreak-exposed infant gets the *same infant
@@ -621,11 +635,15 @@ with an old dose "you're done" when they weren't.)
 - **Boosters**: first booster 1 year after completing the primary series,
   then every 2–3 years while the risk condition persists. The card says "every 2–3
   years"; its date is the 2-year mark, and a booster given sooner than 2 years
-  (beyond the 4-day grace) does not count.
-  <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox -->
+  (beyond the 4-day grace) does not count. A first booster sooner than 1 year
+  does not count either, also when it is the 3rd dose after a 2-dose series
+  (your Q1 answer, 2026-11-22).
+  <!-- SOURCES: acip2020MenbBoosterCadence, menbHighRiskBoosterCadenceBox, owner:Tier1-Q1 -->
   > "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   >
   > "the first booster dose should be given 1 year after the primary series, with additional boosters every 2–3 years if the risk remains" — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-10-17.
+  >
+  > Owner decision Tier1-Q1, 2026-11-22 ([decisions-2026-11-22-tier1-q1-q5.md](../archive/decisions-2026-11-22-tier1-q1-q5.md)).
   <!-- /SOURCES -->
   - **Serogroup B outbreak alone: one booster only** (your D10 answer,
     2026-11-17), at least 1 year after the primary series; after it the card
@@ -637,6 +655,19 @@ with an old dose "you're done" when they weren't.)
     > "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
     >
     > Owner decision D10, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    <!-- /SOURCES -->
+  - **The outbreak booster counts from 6 months** (your Q5 answer, 2026-11-22,
+    "Count from 6 months"). The card still dates it 1 year after the series and
+    adds "Public health may advise it from 6 months after the series." A booster
+    under 6 months (beyond the 4-day grace) does not count. ACIP 2020 Table 8, the
+    whole cell: *"Single dose if ≥1 yr after MenB primary series completion (≥6
+    mos interval might also be considered by public health professionals)"*. The
+    6 months is in the outbreak table only; asplenia, complement and lab workers
+    keep 1 year.
+    <!-- SOURCES: acip2020Table8MenbOutbreakBoosterSixMonths, owner:Tier1-Q5 -->
+    > "Single dose if ≥1 yr after MenB primary series completion (≥6 mos interval might also be considered by public health professionals)" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-22.
+    >
+    > Owner decision Tier1-Q5, 2026-11-22 ([decisions-2026-11-22-tier1-q1-q5.md](../archive/decisions-2026-11-22-tier1-q1-q5.md)).
     <!-- /SOURCES -->
 - **Not** a MenB indication: HIV alone, immunocompromise generally, or HSCT
   alone — only the specific list above triggers high-risk MenB.
@@ -966,7 +997,7 @@ Written from the code; a test holds every cell to it.
 | MenB | Everyone | A MenB dose under 4 weeks after a MenB dose that did not count (too soon, too young, or the other antigen family) | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks, acip2020MenbMixedProductsSelectOne); owner STOP C C2 and E1/E2, 2026-11-15 | `MENB-REPEAT-GAP` |
 | MenB | high-risk | High-risk MenB dose 3 under 4 months after dose 2 and under 6 months after dose 1, or a repeat under 4 months after the dose 3 that did not count — not counted, repeat | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP mm7349a3 (with its "unless"); CDSI 4.65; owner M1, M1c (2026-11-20), M1d (2026-11-21), C7, D3 | `MENB-HIGHRISK-EARLY-DOSE-3` |
 | MenB | high-risk | High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2) | dose 1 | Never flagged | Dose N of M | — | Owner decision | Owner, STOP C C5 (no source voids it) | `MENB-HIGHRISK-DOSE-3-FROM-DOSE-1` |
-| MenB | high-risk | A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days | last dose given | Not counted | Not counted — repeat | Yes | Owner decision | ACIP 2020; owner, STOP C C9 (2026-11-15) | `MENB-HIGHRISK-BOOSTER-GAP` |
+| MenB | high-risk | A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days; a serogroup B outbreak's one booster sooner than 6 months | last dose given | Not counted | Not counted — repeat | Yes | Owner decision | ACIP 2020; owner, STOP C C9 (2026-11-15); owner, Tier 1 Q1 and Q5 (2026-11-22) | `MENB-HIGHRISK-BOOSTER-GAP` |
 | MenB | healthy (shared decision) | Healthy MenB dose 2 under 4 weeks after dose 1 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | ACIP 2020 (acip2020MenbRepeat4Weeks); CDSI; owner STOP C C12, 2026-11-15 | `MENB-HEALTHY-DOSE-2-GAP` |
 | MenB | healthy (shared decision) | Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed | dose 1 | Counts, with a note | Dose N of M | Yes | Owner decision | CDC notes; immunize.org; owner, STOP C C7 (the 4-day grace) | `MENB-HEALTHY-EARLY-DOSE-2` |
 | MenB | healthy (shared decision) | The healthy MenB rescue dose 3 under 4 months after the early dose 2 | last dose given | Not counted | Not counted — repeat | Yes | A source states it | CDC notes | `MENB-HEALTHY-RESCUE-DOSE-3-GAP` |
@@ -995,7 +1026,7 @@ own words. The note says what the sources say and where the app parts from them.
 15. **App decision 15** (`MENB-HIGHRISK-BEFORE-16-NO`): MenB before 16, patient high-risk now, answered "not high-risk then" or "unsure". Answered "not high-risk then" or "unsure": the dose is treated like a healthy patient's dose before 16 and set aside. The owner's design (2026-07-23).
 16. **App decision 16** (`MENB-HIGHRISK-BEFORE-16-YES`): MenB before 16, patient high-risk now, answered "high-risk then" — judged as a high-risk series dose. Answered "high-risk then": the dose is judged on the high-risk schedule. Asking the question at all is the owner's design (2026-07-23).
 17. **App decision 17** (`MENB-HIGHRISK-DOSE-3-FROM-DOSE-1`): High-risk MenB dose 3 under 6 months after dose 1 (but ≥4 months after dose 2). ACIP gives dose 3 "at … 6 months" as a schedule; no sentence read states 6 months from dose 1 as a minimum, and CDC's software sets no minimum from dose 1 (0 days). Owner, STOP C C5 (2026-11-15): a dose 3 already given ≥4 months after dose 2 counts, whatever the gap from dose 1. The FORECAST keeps both lines (recommend.js: ≥6 months from dose 1 and ≥4 from dose 2).
-18. **App decision 18** (`MENB-HIGHRISK-BOOSTER-GAP`): A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days. ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC's software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).
+18. **App decision 18** (`MENB-HIGHRISK-BOOSTER-GAP`): A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days; a serogroup B outbreak's one booster sooner than 6 months. ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC's software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D). Owner, Tier 1 Q1 (2026-11-22): this holds when the first booster is the 3rd dose, after a 2-dose series. Owner, Tier 1 Q5 (2026-11-22): a serogroup B outbreak's one booster counts from 6 months, as ACIP 2020 Table 8 allows ("≥6 mos interval might also be considered by public health professionals"); the other groups keep 1 year.
 19. **App decision 19** (`MENB-HEALTHY-EARLY-DOSE-2`): Healthy MenB dose 2 under 6 months after dose 1 — counts, and a dose 3 is owed. The rescue rule is stated and the app follows it: a dose 2 under 6 months counts and a dose 3 is owed at least 4 months later. The three differences found at port 2.3 are now owner-decided (STOP C, 2026-11-15): C12 a lower limit (dose 2 under 4 weeks does not count, row MENB-HEALTHY-DOSE-2-GAP); C7 the 4-day grace at the 6-month line, as CDC's software does; C3 a Bexsero 0 + 1 month course given before 24 October 2024 still gets the rescue dose 3 (current schedule for everyone), a deliberate difference from ACIP mm7349a3.
 20. **App decision 20** (`SERIES-CAP-EXTRA-DOSE`): A counted dose past the series total, on a schedule with no booster phase (routine MenACWY, single-dose indications, healthy MenB). The sources give each series' size; calling a dose past it "Extra" is the app's own rule. Owner, STOP C C18 (2026-11-15): keep the rule; its words are Phase 4's question Q8, and all wording is eventually to match PneumoVax.
 21. **App decision 21** (`NOT-ASKED-FOR-EXTRA-DOSE`): A dose given on a day when every card for that vaccine asked for nothing (complete, or not indicated), after an earlier counted dose. No source says when a dose nobody asked for counts. The owner chose PneumoVax's rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; college is left alone, because ACIP times the 5-year cover "since the dose".
@@ -1101,6 +1132,7 @@ sentence is about the record, not the vaccine.
 - `MENB-HIGHRISK-BOOSTER-GAP`:
   - "a MenB booster dose 1 year after primary series completion, then every 2–3 years thereafter" — [ACIP 2020 MMWR: high-risk MenB booster schedule](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
   - "Single dose if ≥1 yr after MenB primary series completion" — [ACIP 2020 MMWR Table 8: one MenB booster for a serogroup B outbreak](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-21.
+  - "Single dose if ≥1 yr after MenB primary series completion (≥6 mos interval might also be considered by public health professionals)" — [ACIP 2020 MMWR Table 8: an outbreak MenB booster from 6 months, if public health advises it](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-22.
 - `MENB-HEALTHY-DOSE-2-GAP`:
   - "For situations in which a dose or doses must be repeated, a minimum interval of 4 weeks should be used between any 2 doses" — [ACIP 2020 MMWR (MenB section): 4 weeks between doses when a MenB dose is repeated](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-15.
 - `MENB-HEALTHY-EARLY-DOSE-2`:

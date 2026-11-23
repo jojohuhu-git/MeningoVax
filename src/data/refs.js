@@ -712,6 +712,34 @@ export const CITATIONS = {
     short: 'CDC Complement-Inhibitor Guidance',
     lastVerified: '2026-11-22',
   },
+  // Tier 1 Q2 (owner, 2026-11-22 "Add the note"; 2026-11-23 placement). Read
+  // live 2026-11-22 and 2026-11-23; page dated Mar 6, 2026. The page is about
+  // complement-inhibitor recipients; the app's one checkbox also covers
+  // inherited deficiency, so the alert says "If on a complement inhibitor".
+  cdcComplementIncompleteProtection: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Vaccination is also recommended but offers incomplete protection.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: vaccination offers incomplete protection',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
+  cdcComplementConsiderProphylaxis: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'In addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for complement inhibitor recipients to potentially reduce meningococcal disease risk.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: antimicrobial prophylaxis could be considered',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
+  cdcComplementVaccinate2WeeksBefore: {
+    url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
+    quote: 'Ideally, complete or update meningococcal vaccination at least 2 weeks prior to administering the first dose of the complement inhibitor.',
+    population: ['acwy-complement', 'menb-complement'],
+    label: 'CDC complement-inhibitor guidance: vaccinate at least 2 weeks before the first inhibitor dose',
+    short: 'CDC Complement-Inhibitor Guidance',
+    lastVerified: '2026-11-23',
+  },
   cdcComplementMenb3Doses: {
     url: 'https://www.cdc.gov/meningococcal/hcp/clinical-guidance/complement-inhibitor.html',
     quote: 'MenB vaccines need 3 doses',
@@ -879,6 +907,17 @@ export const CITATIONS = {
     label: 'ACIP 2020 MMWR Table 8: one MenB booster for a serogroup B outbreak',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
+  },
+  // Tier 1 Q5 (owner, 2026-11-22, "Count from 6 months"). Read live
+  // 2026-11-22: Table 8's MenB booster cell, whole. The 6-month option is in
+  // the outbreak table only (Tables 4, 5 and 7 give 1 year).
+  acip2020Table8MenbOutbreakBoosterSixMonths: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose if ≥1 yr after MenB primary series completion (≥6 mos interval might also be considered by public health professionals)',
+    population: ['menb-outbreak'],
+    label: 'ACIP 2020 MMWR Table 8: an outbreak MenB booster from 6 months, if public health advises it',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
   },
   acip2020MenbMixedProductsSelectOne: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',

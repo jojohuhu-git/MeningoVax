@@ -147,7 +147,8 @@ describe('Review v10 Batch 5a — part 6, doses on the record (R74–R93)', () =
   it('R87–R89: the minimum intervals say what each number is', () => {
     expect(interval('MenACWY infant series, final dose').gap).toBe('≥12 weeks after the last dose, at age ≥12 months');
     expect(interval('MenACWY booster').gap).toBe('3 years after a series ending before 7 years, otherwise 5, then 5 years after the last booster');
-    expect(interval('High-risk MenB booster').gap).toBe('1 year after the series, then 2 years after the last booster');
+    // Tier 1 Q5b (owner, 2026-11-23, "Add it to both cells").
+    expect(interval('High-risk MenB booster').gap).toBe('1 year after the series (6 months for a serogroup B outbreak), then 2 years after the last booster');
   });
   it('R90: periods, not semicolons; the rows moved by the reorganization (item 9)', () => {
     // extinct: the "Sooner still counts" line in the table. Healthy MenB dose 2

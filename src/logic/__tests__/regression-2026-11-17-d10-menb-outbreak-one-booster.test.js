@@ -40,7 +40,9 @@ describe('D10: serogroup B outbreak — one booster', () => {
     // C4 mm7349a3 (2026-11-22): the same-family line after it cites the 2024
     // report's "Booster doses need to be from the same manufacturer".
     // C4 CDC recommendations page (2026-11-22): the CDC page's sentence follows Table 8's.
-    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear', 'menbBoosterSameManufacturer']);
+    // Tier 1 Q5 (2026-11-22): "Public health may advise it from 6 months after
+    // the series" cites Table 8's 6-month clause, after the CDC page.
+    expect(c.noteCites.map((x) => x.key)).toEqual(['acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear', 'acip2020Table8MenbOutbreakBoosterSixMonths', 'menbBoosterSameManufacturer']);
   });
 
   it('during the series: the booster line says one booster', () => {

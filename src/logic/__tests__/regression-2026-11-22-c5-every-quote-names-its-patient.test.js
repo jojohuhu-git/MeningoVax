@@ -111,8 +111,8 @@ describe('the guard, swept over every saved-answer patient', () => {
     expect(shown).toBeGreaterThan(50000);
   });
 
-  it('no card shows a quote to a patient it was not written about, except the one open owner question', () => {
-    expect([...offenders.entries()].map(([k, n]) => `${k} (${n})`).sort()).toEqual(OPEN_FOR_THE_OWNER);
+  it('no card shows a quote to a patient it was not written about, except the case the owner ruled impossible', () => {
+    expect([...offenders.entries()].map(([k, n]) => `${k} (${n})`).sort()).toEqual(IMPOSSIBLE_PER_OWNER);
   });
 
   it('every cross-reference is declared, with a reason, at exactly these keys', () => {
@@ -136,15 +136,20 @@ const DECLARED_KEYS = [
   'menbBoosterIfRemainOrBecomeAtRisk',
 ].sort();
 
-// NOT a citation choice, so not decided here (Q12 case c: a verdict would
-// move). A microbiologist whose series ended before 7: ACIP Table 7 has only a
+// A microbiologist whose series ended before 7: ACIP Table 7 has only a
 // ">=10 yrs" row, and the card follows owner E1 (2026-11-21, "Same as 10+": the
 // first booster 5 years after dose 1). The recorded-dose check still uses the
-// 3-year under-7 floor and quotes the under-7 row of Tables 4, 6 and 9, so a
-// booster at 3 years counts while the card says 5. Asked in the C5 PR; when
-// answered, this list empties and the test is updated with the answer.
-const OPEN_FOR_THE_OWNER = [
+// 3-year under-7 floor and quotes the under-7 row of Tables 4, 6 and 9.
+// ANSWERED 2026-11-22, owner: "a microbiologist who is 7 years is impossible".
+// No realistic patient reaches it, so nothing is changed; the cases stay
+// listed (with their counts) so a NEW one, or a realistic one, still fails.
+// Every saved patient here has MenACWY at about 4.5 years and is checked
+// "microbiologist" at 10 or 11, or younger (the age-implausible banner).
+// Tier 1 Q4 (2026-11-22) added the pregnancy + microbiologist pair: the same
+// case, a third row.
+const IMPOSSIBLE_PER_OWNER = [
   'boosterBeforeAge7 → acwy-routine+acwy-microbiologist+menb-microbiologist (67)',
+  'boosterBeforeAge7 → acwy-routine+acwy-microbiologist+menb-microbiologist+menb-pregnancy (67)',
   'boosterBeforeAge7 → acwy-routine+acwy-military+acwy-microbiologist+menb-microbiologist (67)',
 ];
 

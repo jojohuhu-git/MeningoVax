@@ -54,7 +54,10 @@ describe('C4: the CDC recommendations page backs a serogroup B outbreak\'s one M
       { date: '2024-11-01', brand: 'Bexsero' }, { date: '2024-12-15', brand: 'Bexsero' }, { date: '2025-05-15', brand: 'Bexsero' }] }).menb[0];
     expect(c.doseLabel).toMatch(/^First booster/);
     expect(`${c.note.lead} ${c.note.detail}`).toContain('A MenB booster, 1 year after the primary series was completed [c][c].');
-    expect(keys(c.noteCites)).toEqual(['acip2020Table8MenbOutbreakBooster', CDC_KEY, 'menbBoosterSameManufacturer']);
+    // Tier 1 Q5 (2026-11-22): then "Public health may advise it from 6 months
+    // after the series" cites Table 8's 6-month clause.
+    expect(`${c.note.lead} ${c.note.detail}`).toContain('Public health may advise it from 6 months after the series [c].');
+    expect(keys(c.noteCites)).toEqual(['acip2020Table8MenbOutbreakBooster', CDC_KEY, 'acip2020Table8MenbOutbreakBoosterSixMonths', 'menbBoosterSameManufacturer']);
     expect(marksIn(c.note.lead, c.note.detail)).toBe(c.noteCites.length);
     expect(pageCited(c)).toBe(true);
   });

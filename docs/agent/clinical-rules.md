@@ -562,6 +562,22 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
     a dose that did not count. Jan 1, Feb 1, Feb 15 → due Jul 1, earliest valid Jun 15.
 - First booster: ≥1 year after the LAST PRIMARY dose (D3, or the repeat that counted, or D2
   when D2 was ≥6 months after D1). Read from `menbSeriesInfo()`, never a literal 3.
+  **A first booster given sooner (beyond the 4-day grace) is "Not counted — repeat"**, and
+  the repeat is due 1 year after it (owner C9 and Ruling D). **This holds when the booster
+  is the 3rd dose**, after a 2-dose series (owner Tier 1 Q1, 2026-11-22, "Not counted,
+  repeat"; until then the check looked only at a 4th or later dose, so Bexsero Aug 1 2025,
+  Feb 1 2026, Mar 1 2026 counted the Mar 1 dose as the booster). A serogroup B outbreak
+  patient with those dates is not "Complete": the booster is still owed.
+  `docs/archive/decisions-2026-11-22-tier1-q1-q5.md`.
+- **Serogroup B outbreak (alone): the one booster counts from 6 months** after the series,
+  with the 4-day grace, on the calendar (owner Tier 1 Q5, 2026-11-22, "Count from 6
+  months"; `MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS`). The card's date stays 1 year, and its
+  "Why this" adds "Public health may advise it from 6 months after the series." A
+  "Complete (outbreak booster given)" card adds the same line only when the booster came
+  before 1 year. ACIP 2020 Table 8 (read live 2026-11-22): *"Single dose if ≥1 yr after
+  MenB primary series completion (≥6 mos interval might also be considered by public
+  health professionals)"*. Tables 4, 5 and 7 give 1 year, so with asplenia, complement or
+  lab work also checked the 1-year floor stands.
 - Subsequent boosters: every 2–3 years (ACIP). The card says "2–3 years"
   (`MENB_HIGHRISK_BOOSTER_CADENCE_LABEL`); its date and the validator's floor are 2 years
   (`MENB_HIGHRISK_BOOSTER_CADENCE_YEARS`, row `MENB-HIGHRISK-BOOSTER-GAP` in `doseRules.js`),
@@ -718,3 +734,17 @@ susceptible and started on the age-appropriate vaccination schedule."*
 ## Complement — Single Merged Risk Factor
 
 `complement` covers both persistent complement deficiency AND complement-inhibitor therapy (eculizumab/ravulizumab) — they share the identical schedule class (`primary2` + high-risk MenB). Tests use id `'complement'`. Do not re-split without reason.
+
+**The complement alert** (owner Tier 1 Q2, 2026-11-22 "Add the note"; placement 2026-11-23,
+"put alert in the same place as CAR-T hard stop"). With the box checked, the engine returns
+`complementAlert` (text plus three citations) and `Results.jsx` draws it first on the page,
+in an amber version of the hard stop's banner (`ComplementAlert`, `.advisory-banner-caution`);
+the cards follow as usual. CDC, "Clinical Guidance for Managing Meningococcal Disease Risk in
+Patients Receiving Complement Inhibitor Therapy" (Mar 6, 2026; read live 2026-11-22 and
+2026-11-23): *"Vaccination is also recommended but offers incomplete protection."*; *"In
+addition to vaccination, healthcare providers could consider antimicrobial prophylaxis for
+complement inhibitor recipients to potentially reduce meningococcal disease risk."*;
+*"Ideally, complete or update meningococcal vaccination at least 2 weeks prior to
+administering the first dose of the complement inhibitor."* The page is about inhibitor
+therapy only, so the alert begins "If on a complement inhibitor". Left out on purpose
+(owner did not ask): symptom teaching and "high index of suspicion".

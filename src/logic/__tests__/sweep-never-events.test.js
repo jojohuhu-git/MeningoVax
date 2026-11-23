@@ -60,6 +60,7 @@ import { doseChipLabel, RECORD_PROBLEM_LABELS, NEEDS_INPUT_LABEL } from '../../c
 import { statusPillLabel } from '../../components/RecCard.jsx';
 import { ALL_BRANDS, MENB_BRANDS, brandMinAge } from '../../data/brands.js';
 import { dobToAgeMonths } from '../format.js';
+import { menbSeriesInfo } from '../seriesTotals.js';
 import { TEST_TODAY } from '../../test-today.js';
 import {
   SWEEP_DOBS, SWEEP_DOBS_COARSE, SINGLE_RISK_PROFILES, PAIR_RISK_PROFILES,
@@ -131,6 +132,10 @@ const UNDATED_ROW = { date: '', brand: '', detailsUnknown: true };
 // it; dose 3 at 1–40 weeks after dose 2; judged on 2026-12-31. Two never-events:
 //   9a. a dose 3 given ≥4 months after dose 2 is never voided (C5);
 //   9b. a dose 3 given ≥6 months after dose 1 never leads to a 4th dose (C6).
+//   9c. (Tier 1 Q1, owner 2026-11-22) when dose 2 came ≥6 months after dose 1
+//       the series is complete at 2 doses, so the 3rd dose is the first
+//       booster: given under 1 year after dose 2 (every timing here is ≤40
+//       weeks), it is never counted. 9a covers only true 3-dose series.
 const p9 = [];
 let p9Rows = 0;
 // Property 10 (STOP C C11): no two COUNTED MenACWY doses are under 8 weeks less
@@ -333,7 +338,9 @@ let p14GapRows = 0;
       });
       p9Rows += 1;
       const dose3 = r.history.MenB.perDose[2];
-      if (d3 >= plusMonths(d2, 4) && dose3?.status === 'invalid') p9.push(`9a d1=${d1} d2=${d2} d3=${d3}: dose 3 voided`);
+      const twoDoseSeries = menbSeriesInfo({ highRisk: true, doses: [{ date: d1 }, { date: d2 }] }).total === 2;
+      if (twoDoseSeries && dose3?.status !== 'invalid') p9.push(`9c d1=${d1} d2=${d2} d3=${d3}: early first booster counted`);
+      if (!twoDoseSeries && d3 >= plusMonths(d2, 4) && dose3?.status === 'invalid') p9.push(`9a d1=${d1} d2=${d2} d3=${d3}: dose 3 voided`);
       if (d3 >= plusMonths(d1, 6) && /Dose 4/.test(r.menb[0]?.doseLabel ?? '')) p9.push(`9b d1=${d1} d2=${d2} d3=${d3}: asks "${r.menb[0].doseLabel}"`);
     }
   }
@@ -587,7 +594,7 @@ describe('B · never-events sweep (properties 1-5 enforced, 6 report-only — se
     expect(p8).toEqual([]);
   });
 
-  it('property 9 (STOP C C5, C6) — high-risk MenB dose 3: never voided ≥4 months after dose 2; no 4th dose ≥6 months after dose 1', () => {
+  it('property 9 (STOP C C5, C6) — high-risk MenB dose 3: never voided ≥4 months after dose 2; no 4th dose ≥6 months after dose 1; an early first booster after a 2-dose series never counted (Q1)', () => {
     report(`Property 9 (high-risk MenB dose 3, C5/C6; ${p9Rows} timings, not the grid rows)`, p9);
     expect(p9Rows).toBe(23 * 40);
     expect(p9).toEqual([]);
