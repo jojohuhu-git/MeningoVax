@@ -955,6 +955,16 @@ export const CITATIONS = {
     short: 'Penmenvy MMWR 2026;75(1)',
     lastVerified: '2026-11-21',
   },
+  // Under-10 "Not indicated" MenB card (2026-11-22): the licensure line names
+  // Penmenvy; this is the report's own licensure sentence for it. Read live
+  // 2026-11-22 as an exact substring of the page.
+  penmenvyLicensedAge1025: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'On February 14, 2025, a second pentavalent meningococcal vaccine (MenACWY-CRM/MenB-4C [Penmenvy, GSK]) was licensed for use in persons aged 10–25 years',
+    label: 'ACIP 2025 (Penmenvy) MMWR: Penmenvy is licensed for ages 10–25 years',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-22',
+  },
   penmenvySeparateUnder6Months: {
     url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
     quote: 'Persons at increased risk for meningococcal disease who receive a dose of MenACWY-CRM/MenB-4C and who are recommended to receive additional doses of MenACWY and MenB <6 months after a dose of pentavalent meningococcal vaccine should receive separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C, following recommended intervals',

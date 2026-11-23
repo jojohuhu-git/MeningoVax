@@ -1795,14 +1795,17 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     return [rec({ vaccine: 'MenB', status: 'not-indicated', doseLabel: 'Not indicated',
       note: {
         lead: 'MenB is not indicated at this age without a qualifying risk factor.',
-        detail: `MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c]. From ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)} through ${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years MenB may be given under shared clinical decision-making. Between ${ageYears(MENB_MIN_AGE_MONTHS)} and ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS) - 1} years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, microbiologist exposure, or a serogroup B outbreak [c].`,
+        detail: `MenB vaccines (Bexsero, Trumenba, Penmenvy, Penbraya) are FDA-licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c][c]. From ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS)} through ${ageYears(MENB_HEALTHY_MAX_AGE_MONTHS) - 1} years MenB may be given under shared clinical decision-making. Between ${ageYears(MENB_MIN_AGE_MONTHS)} and ${ageYears(MENB_HEALTHY_MIN_AGE_MONTHS) - 1} years it is indicated only for asplenia, complement deficiency, complement-inhibitor therapy, microbiologist exposure, or a serogroup B outbreak [c].`,
       },
       // C5/2026-07-24: consolidate — replace the lone "CDC MenB Notes"
       // whole-page chip with the exact 2020 MMWR licensure sentence
       // (citation audit finding).
       // E2 (2026-11-19): the 10–15 list names all five ACIP groups, a
       // serogroup B outbreak included, and cites ACIP's sentence.
-      noteCites: [cite('menbLicensedAge1025'), cite('acip2020MenbRiskGroups')],
+      // Phase 8 (2026-11-22, citation only, Q12): ACIP 2020's licensure
+      // sentence predates both pentavalents. The line now cites ACIP 2024's
+      // (Trumenba, Bexsero, Penbraya) and ACIP 2025's (Penmenvy).
+      noteCites: [cite('menbLicensedAge1025Acip2024'), cite('penmenvyLicensedAge1025'), cite('acip2020MenbRiskGroups')],
       refs: refs([], ['acip2020']) })];
   }
 
