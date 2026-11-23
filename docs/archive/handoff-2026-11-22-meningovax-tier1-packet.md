@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-23** by `handoff-2026-11-23-meningovax-tier1-built.md` (Q1–Q5 answered and built, PR #151). Do not resume from this file.
+
 # MeningoVax — Handoff after the Tier 1 question packet (2026-11-22, latest)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
