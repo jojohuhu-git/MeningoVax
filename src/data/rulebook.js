@@ -243,6 +243,8 @@ export const OWNER_ANSWERS = {
   M1d: { date: '2026-11-21', where: '../archive/decisions-2026-11-21-menb-repeat-dose3.md' },
   // A short or early high-risk MenB series says why on its first-booster card.
   item6: { date: '2026-11-22', where: '../archive/decisions-2026-11-22-item6-counted-menb-doses.md' },
+  'Tier1-Q1': { date: '2026-11-22', where: '../archive/decisions-2026-11-22-tier1-q1-q5.md' },
+  'Tier1-Q5': { date: '2026-11-22', where: '../archive/decisions-2026-11-22-tier1-q1-q5.md' },
   // MenQuadfi can be given from 6 weeks ("Can be given (Rec.)", "Yes, outbreak too").
   MQ6: { date: '2026-11-21', where: MQ6_Q },
   // After a 6-week MenQuadfi dose; the gap between a minimum and a routine date.

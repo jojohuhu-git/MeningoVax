@@ -569,6 +569,15 @@ One PRIMARY dose — not "never another dose". All three keep `hasBoosterPhase: 
   Feb 1 2026, Mar 1 2026 counted the Mar 1 dose as the booster). A serogroup B outbreak
   patient with those dates is not "Complete": the booster is still owed.
   `docs/archive/decisions-2026-11-22-tier1-q1-q5.md`.
+- **Serogroup B outbreak (alone): the one booster counts from 6 months** after the series,
+  with the 4-day grace, on the calendar (owner Tier 1 Q5, 2026-11-22, "Count from 6
+  months"; `MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS`). The card's date stays 1 year, and its
+  "Why this" adds "Public health may advise it from 6 months after the series." A
+  "Complete (outbreak booster given)" card adds the same line only when the booster came
+  before 1 year. ACIP 2020 Table 8 (read live 2026-11-22): *"Single dose if ≥1 yr after
+  MenB primary series completion (≥6 mos interval might also be considered by public
+  health professionals)"*. Tables 4, 5 and 7 give 1 year, so with asplenia, complement or
+  lab work also checked the 1-year floor stands.
 - Subsequent boosters: every 2–3 years (ACIP). The card says "2–3 years"
   (`MENB_HIGHRISK_BOOSTER_CADENCE_LABEL`); its date and the validator's floor are 2 years
   (`MENB_HIGHRISK_BOOSTER_CADENCE_YEARS`, row `MENB-HIGHRISK-BOOSTER-GAP` in `doseRules.js`),

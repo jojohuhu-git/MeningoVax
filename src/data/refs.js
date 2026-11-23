@@ -880,6 +880,17 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
   },
+  // Tier 1 Q5 (owner, 2026-11-22, "Count from 6 months"). Read live
+  // 2026-11-22: Table 8's MenB booster cell, whole. The 6-month option is in
+  // the outbreak table only (Tables 4, 5 and 7 give 1 year).
+  acip2020Table8MenbOutbreakBoosterSixMonths: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose if ≥1 yr after MenB primary series completion (≥6 mos interval might also be considered by public health professionals)',
+    population: ['menb-outbreak'],
+    label: 'ACIP 2020 MMWR Table 8: an outbreak MenB booster from 6 months, if public health advises it',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-22',
+  },
   acip2020MenbMixedProductsSelectOne: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'If 2 doses were administered using different MenB products, one product should be selected for administration of an additional dose at an appropriate interval to ensure valid completion of a MenB series; the dose from the product not selected for series completion should be considered invalid',

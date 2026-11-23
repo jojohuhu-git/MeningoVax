@@ -48,7 +48,7 @@ import {
   MENACWY_HIGHRISK_PRIMARY_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP, MENACWY_ANY_TWO_DOSES_MIN_GAP,
   MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, MENACWY_FIRST_BOOSTER_YEARS_FROM_7,
   MENACWY_BOOSTER_CADENCE_YEARS, MENACWY_COLLEGE_COVER_YEARS,
-  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS,
+  MENB_HIGHRISK_FIRST_BOOSTER_YEARS, MENB_HIGHRISK_BOOSTER_CADENCE_YEARS, MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS,
   MENB_HIGHRISK_BOOSTER_CADENCE_LABEL, MENB_REPEAT_MIN_INTERVAL, MENB_HIGHRISK_D2_GAP,
   MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENB_HIGHRISK_D3_MONTHS_FROM_D1, MENB_HIGHRISK_D3_MONTHS_FROM_D2,
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS,
@@ -339,7 +339,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent', 'penmenvyAged10BothIndicated', 'penmenvyLicensedAge1025']],
   ['MenB', ['menbHealthyPreferredAge1618', 'menbPregnancyDeferral', 'menbLicensedAge1025', 'menbBexseroOldCourseStands', 'menbHighRisk3DoseSchedule',
     'menbHealthy2Dose0and6', 'menbHighRiskEarlyD3ExtraDose', 'menbRescueDoseRule', 'menbAcceleratedRapidProtection', 'menbHighRiskBoosterCadenceBox',
-    'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'cdcRecsMenbOutbreakBoosterYear', 'acip2020MenbMixedProductsSelectOne',
+    'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'acip2020Table8MenbOutbreakBoosterSixMonths', 'cdcRecsMenbOutbreakBoosterYear', 'acip2020MenbMixedProductsSelectOne',
     'acip2020MenbNotInterchangeable', 'acip2020MenbBoosterCadence', 'menbHighRiskEarlyD3Unless', 'acip2020MenbRiskGroups',
     'acip2020MenbShortProtection', 'cdcChildMenbHighRiskD2SixMonthsNoD3', 'menbScdm1623General', 'menbBoosterSameManufacturer',
     'menbHealthy2DoseSeparated6Months', 'menbBoosterIfRemainOrBecomeAtRisk', 'menbLicensedAge1025Acip2024',
@@ -706,6 +706,8 @@ export const MENB_GROUPS = {
       details: [
         `The series is ${word(MENB_HIGHRISK_TOTAL)} doses: the second ${mo(MENB_HIGHRISK_D2_ROUTINE_MONTHS)} after the first (ACIP allows ${MENB_D2_ACIP_RANGE}), the third ${mo(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after the first.`,
         `One booster is given ${yr(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the last series dose, if the outbreak is still going on. No further boosters follow.`,
+        // Tier 1 Q5 (owner, 2026-11-22): ACIP 2020 Table 8's "≥6 mos interval might also be considered".
+        `Public health may advise it from ${mo(MENB_OUTBREAK_B_BOOSTER_MIN_MONTHS)} after the series. A booster given from then counts.`,
       ],
       ex: [P.outbreakB12, P.menbOutbreakDone] },
     { key: 'preg', ids: ['pregnancy'], group: 'Pregnancy', doses: 'Wait until after pregnancy', tone: 'wait',
