@@ -70,7 +70,7 @@ const EMPTY_HISTORY = Object.freeze({
 });
 import {
   menacwySeriesInfo, menbSeriesInfo, menacwyInfantHighRiskTotal, menacwyOn3DoseShortcut, menacwyInfantD2AgeForSeries,
-  menbHealthyDose2Early,
+  menbHealthyDose2Early, menbHighRiskSeriesShortcut,
   MENACWY_HIGHRISK_PRIMARY_TOTAL, MENACWY_SINGLE_TOTAL, MENB_HIGHRISK_TOTAL,
   MENACWY_ROUTINE_PRIMARY_TOTAL,
 } from './seriesTotals.js';
@@ -92,7 +92,7 @@ import {
   MENB_HEALTHY_D2_MONTHS, MENB_HEALTHY_RESCUE_MONTHS, monthsLabel,
   MENACWY_INFANT_FINAL_GAP, MENACWY_ROUTINE_BOOSTER_MIN_GAP,
   MENACWY_ANY_TWO_DOSES_MIN_GAP, MENB_REPEAT_MIN_INTERVAL,
-  MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine,
+  MENB_HIGHRISK_D2_ROUTINE_MONTHS, MENACWY_INFANT_ROUTINE_AGE_MONTHS, minimumBesideRoutine, GRACE_DAYS,
 } from './intervals.js';
 import { MENACWY_COLLEGE_COVER_YEARS, PENTAVALENT_REPEAT_MONTHS, menacwyGraceLine } from './intervals.js';
 import { MENACWY_INFANT_FINAL_MIN_AGE_MONTHS, MENACWY_ROUTINE_CATCHUP_MIN_AGE_MONTHS } from './ages.js';
@@ -2007,6 +2007,22 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     }
     const boosterYears = menbHighRiskBoosterYears(firstBooster);
     const intervalDays = DAYS.years(boosterYears);
+    // Item 6 (owner, 2026-11-22, "Add line, cite ACIP" for all three cases;
+    // "Name the grace"): a series that ended at two doses, or whose dose 3
+    // counted early, says why on its first-booster card, before the booster
+    // sentence. Which line was met comes from the one helper that reads it.
+    const shortcut = firstBooster ? menbHighRiskSeriesShortcut(doses) : null;
+    const SHORTCUT_LINES = {
+      'd2-6-months': { start: 'Dose 3 is not needed: dose 2 was given', months: MENB_HIGHRISK_D3_MONTHS_FROM_D1, after: 'dose 1', key: 'menbHighRiskD2SixMonthsNoD3Acip2024' },
+      // ACIP's "unless the third dose was administered ≥6 months after the first dose".
+      'd3-from-d1': { start: 'Dose 3 counts: it was given', months: MENB_HIGHRISK_D3_MONTHS_FROM_D1, after: 'dose 1', key: 'menbHighRiskEarlyD3Unless' },
+      // Owner C5; the same ACIP sentence, read from its "<4 months … repeated".
+      'd3-from-d2': { start: 'Dose 3 counts: it was given', months: MENB_HIGHRISK_D3_MONTHS_FROM_D2, after: 'dose 2', key: 'menbHighRiskEarlyD3Unless' },
+    };
+    const sl = shortcut && SHORTCUT_LINES[shortcut.kind];
+    const shortcutLine = sl
+      ? `${sl.start} ${shortcut.grace ? '' : 'at least '}${monthsLabel(sl.months)} after ${sl.after}${shortcut.grace ? `, within the ${GRACE_DAYS}-day grace period` : ''} [c]. `
+      : '';
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
       doseLabel: firstBooster ? `First booster (dose ${given + 1}), ${yearsLabel(boosterYears)} after the series` : `Booster (dose ${given + 1}), ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the last`,   // P20 (review v10)
@@ -2019,7 +2035,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // E3 (2026-11-19): a later booster counts 2–3 years from the previous
         // booster, as its label and due date do; not "every" (U2).
         lead: firstBooster
-          ? `A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? '[c]' : ''}.`
+          ? `${shortcutLine}A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? '[c]' : ''}.`
           : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
         detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
       },
@@ -2027,7 +2043,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // years" box, which would contradict the line above it.
       // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
       // "Booster doses need to be from the same manufacturer".
-      noteCites: [...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
+      noteCites: [...(sl ? [cite(sl.key)] : []), ...(outbreakOnly ? OUTBREAK_B_BOOSTER_CITES() : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
       refs: refs(['mm7349a3']) })];
   }
 

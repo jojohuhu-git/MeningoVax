@@ -531,11 +531,16 @@ with an old dose "you're done" when they weren't.)
     after dose 2 (both must be satisfied — whichever is later wins). A dose 3
     **already given** ≥4 months after dose 2 counts, even if it came before 6
     months from dose 1 (your C5 answer, 2026-11-15: no source says not to count
-    it, and CDC's software counts it).
-    <!-- SOURCES: menbHighRisk3DoseSchedule, owner:C5 -->
+    it, and CDC's software counts it). The first-booster card then opens "Why
+    this" with "Dose 3 counts: it was given at least 4 months after dose 2",
+    citing ACIP's "<4 months … repeated" sentence (your item 6 answer,
+    2026-11-22).
+    <!-- SOURCES: menbHighRisk3DoseSchedule, owner:C5, owner:item6 -->
     > "ACIP recommends that MenB-4C be administered as a 3-dose series at 0, 1–2, and 6 months to persons aged ≥10 years who are at increased risk for serogroup B meningococcal disease" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-15.
     >
     > Owner decision C5, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
+    >
+    > Owner decision item6, 2026-11-22 ([decisions-2026-11-22-item6-counted-menb-doses.md](../archive/decisions-2026-11-22-item6-counted-menb-doses.md)).
     <!-- /SOURCES -->
   - **If dose 2 was already given 6 months or more after dose 1, dose 3 is not
     needed** (corrected 2026-09-17). Those two doses are the 0-and-6-month
@@ -545,11 +550,19 @@ with an old dose "you're done" when they weren't.)
     advising an injection some patients did not need. It is the same six-month
     test as the healthy rule above, read in the opposite direction, and it is
     compared on the calendar rather than as a fixed number of days, **with the
-    4-day grace** (your D4 answer, 2026-11-17).
-    <!-- SOURCES: owner:D4, cdcChildMenbHighRiskD2SixMonthsNoD3 -->
+    4-day grace** (your D4 answer, 2026-11-17). ACIP's 2024 MMWR says the same
+    for every age from 10, and the first-booster card opens "Why this" with
+    "Dose 3 is not needed: dose 2 was given at least 6 months after dose 1",
+    citing it ("within the 4-day grace period" when the grace was needed; your
+    item 6 answers, 2026-11-22).
+    <!-- SOURCES: owner:D4, menbHighRiskD2SixMonthsNoD3Acip2024, cdcChildMenbHighRiskD2SixMonthsNoD3, owner:item6 -->
     > Owner decision D4, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
     >
+    > "a third dose is not needed if the second dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-22.
+    >
     > "if dose 2 was administered at least 6 months after dose 1, dose 3 not needed" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
+    >
+    > Owner decision item6, 2026-11-22 ([decisions-2026-11-22-item6-counted-menb-doses.md](../archive/decisions-2026-11-22-item6-counted-menb-doses.md)).
     <!-- /SOURCES -->
   - **If dose 3 was given under 4 months after dose 2 and under 6 months after
     dose 1, it is not counted: it is repeated at least 4 months after that dose**
@@ -572,13 +585,18 @@ with an old dose "you're done" when they weren't.)
     the series is complete, even if dose 3 came under 4 months after dose 2
     (your C6 answer: follow ACIP's 2024 MMWR, *"…unless the third dose was
     administered ≥6 months after the first dose"*). **With the 4-day grace**
-    (your D3 answer, 2026-11-17): 1–4 days short of 6 months also counts.
-    <!-- SOURCES: menbHighRiskEarlyD3Unless, owner:C6, owner:D3 -->
+    (your D3 answer, 2026-11-17): 1–4 days short of 6 months also counts. The
+    first-booster card opens "Why this" with "Dose 3 counts: it was given at
+    least 6 months after dose 1", citing ACIP's sentence (your item 6 answer,
+    2026-11-22).
+    <!-- SOURCES: menbHighRiskEarlyD3Unless, owner:C6, owner:D3, owner:item6 -->
     > "If the third dose is administered <4 months after the second dose, the dose should be repeated ≥4 months after the last dose, unless the third dose was administered ≥6 months after the first dose" — [ACIP Oct 2024 MMWR](https://www.cdc.gov/mmwr/volumes/73/wr/mm7349a3.htm), read 2026-11-20.
     >
     > Owner decision C6, 2026-11-15 ([stop-c-packet-2026-11-15.md](../archive/stop-c-packet-2026-11-15.md)).
     >
     > Owner decision D3, 2026-11-17 ([decisions-2026-11-17-open-questions.md](../archive/decisions-2026-11-17-open-questions.md)).
+    >
+    > Owner decision item6, 2026-11-22 ([decisions-2026-11-22-item6-counted-menb-doses.md](../archive/decisions-2026-11-22-item6-counted-menb-doses.md)).
     <!-- /SOURCES -->
   - **The repeat.** The card's date is the latest of: 4 months after the dose
     that did not count, 4 months after dose 2, and 6 months after dose 1. When
