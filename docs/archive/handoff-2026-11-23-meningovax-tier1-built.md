@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-23** by `handoff-2026-11-23-meningovax-tier2-c13-c10.md` (Tier 1 merged #151, live-checked; C13 merged #152; C13 part 2 and C10 built). Do not resume from this file.
+
 # MeningoVax — Handoff after building Tier 1 Q1–Q5 (2026-11-23)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
