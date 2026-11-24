@@ -5,8 +5,8 @@ that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys 
 is a clinician: plain English, short questions with a worked patient; ask, don't default.
 **Supersedes** `handoff-2026-11-23-meningovax-tier1-built.md`.
 
-Branch: `tier2/c13b-c10`, off `main` at `6d3abcc` (#152 merged). Pushed; PR against `main` (number
-in the PR list; the owner merges). Baseline was 2,601 passing (222 files); now **2,621 passing,
+Branch: `tier2/c13b-c10`, off `main` at `6d3abcc` (#152 merged). Pushed; **PR #153** against `main`
+(https://github.com/jojohuhu-git/MeningoVax/pull/153); the owner merges. Baseline was 2,601 passing (222 files); now **2,621 passing,
 0 failing (225 files)**.
 
 "Tier 2" is the citation queue the owner prioritized on 2026-11-22 (session "Meningovax work
