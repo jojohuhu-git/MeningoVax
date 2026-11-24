@@ -202,6 +202,8 @@ export const MENACWY_BOOSTER_AGE_SPLIT_MONTHS = years(7);
  * depends on it. Takes the age at the last primary dose, given or projected.
  */
 export const MENACWY_BOOSTER_TABLE_10_ROW_MONTHS = years(10);
+/** C13 (2026-11-23): ACIP 2020 Table 2's last row, "≥24 yrs" (read live). */
+export const ACIP_TABLE2_ADULT_ROW_MONTHS = years(24);
 export const menacwyBoosterRowFrom10 = (completionAgeMonths) => completionAgeMonths != null
   && completionAgeMonths >= MENACWY_BOOSTER_TABLE_10_ROW_MONTHS;
 

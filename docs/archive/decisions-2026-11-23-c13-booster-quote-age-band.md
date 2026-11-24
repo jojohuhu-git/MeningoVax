@@ -39,4 +39,13 @@ the card's own age band"). Ported from PneumoVax FINDING N.
   row for the age the series ended at: under 7, 7–9, or 10+ (complement, asplenia). A later
   booster used to quote the "Aged ≥7" row whatever that age was.
 
+- **The "opposite of its card" half.** Every quote cited on a card with no dose due today was
+  listed (54 card-status/quote pairs) and read. One offered a dose on a no-dose card: the
+  healthy-adult card "MenACWY is not routinely recommended for a healthy adult of 22 or older"
+  quoted ACIP's "Persons aged 19–21 years … can receive a single MenACWY dose" (1,184 saved
+  patients). It now quotes ACIP Table 2's own row (read live 2026-11-23): "≥24 yrs" → "Not
+  routinely recommended See Table 3 for persons at increased risk"; 22–23 (the 11–23 row) →
+  "Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be
+  administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday".
+
 No dose, date, status or brand moved.

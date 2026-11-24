@@ -47,7 +47,7 @@ import {
   MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
-  MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears, menacwyBoosterRowFrom10,
+  MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears, menacwyBoosterRowFrom10, ACIP_TABLE2_ADULT_ROW_MONTHS,
 } from './ages.js';
 // impossible P1-2: the note prints the patient's age in the same words the
 // results header uses, so the two cannot disagree. format.js imports only
@@ -1731,7 +1731,9 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
       lead: 'MenACWY is not routinely recommended for a healthy adult of 22 or older [c].',
       detail: 'Vaccinate only if a risk indication applies: asplenia, complement deficiency, complement-inhibitor therapy, HIV, microbiologist exposure, travel, military service, or an outbreak.',
     },
-    noteCites: [cite('acwyCatchup1921')],
+    // C13 (2026-11-23): the patient's own row of ACIP Table 2, never the
+    // 19-21 catch-up sentence, which offers a dose (PneumoVax FINDING C).
+    noteCites: [cite(am >= ACIP_TABLE2_ADULT_ROW_MONTHS ? 'acip2020Table2NotRoutine24Plus' : 'acip2020Table2CatchupOnly1921')],
     refs })];
 }
 

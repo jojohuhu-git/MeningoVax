@@ -27,7 +27,8 @@ describe('C4: no card carries an immunize.org topic-page button (owner 2026-11-2
     const c = run({ dob: '1996-06-01' }).menacwy[0];
     expect(c.status).toBe('not-indicated');
     expect(c.note.lead).toBe('MenACWY is not routinely recommended for a healthy adult of 22 or older [c].');
-    expect(keys(c.noteCites)).toEqual(['acwyCatchup1921']);
+    // C13 (2026-11-23): ACIP Table 2's ≥24 row, not the 19–21 catch-up sentence.
+    expect(keys(c.noteCites)).toEqual(['acip2020Table2NotRoutine24Plus']);
     expect(onCard(c)).toBe(false);
     expect(shorts(c)).toEqual(['ACIP 2020 MMWR']);
   });
