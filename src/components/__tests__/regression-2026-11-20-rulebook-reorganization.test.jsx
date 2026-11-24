@@ -252,7 +252,7 @@ describe('Item 10: Sources grouped, with no count or read date', () => {
     fireEvent.click(fold('Sources'));
     const body = document.querySelector('#rb-sources-body');
     expect(within(body).getAllByRole('heading', { level: 4 }).map((h) => h.textContent))
-      .toEqual(['ACIP recommendations', 'CDC schedule notes', 'Other CDC and ACIP guidance', 'immunize.org', 'Other']);
+      .toEqual(['ACIP recommendations', 'CDC schedule notes', 'Other CDC and ACIP guidance', 'Other']);   // C6 2026-11-23: no immunize.org source left
     // extinct: the count and the read date (both stay in refs.js and the rulebook document).
     expect(body.textContent).not.toMatch(/sentences? quoted|Listed, not quoted|read \d{4}-\d{2}-\d{2}/);
   });

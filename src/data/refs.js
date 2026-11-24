@@ -227,6 +227,17 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-15',
   },
+  // C6 (2026-11-23, owner "Cite CDC only"): CDC's own report states the
+  // age-10 rule, so it replaces immunize.org's Ask the Experts answer on the
+  // age-10 card. Read live 2026-11-23 (section "MenACWY Vaccines").
+  acip2020Age10NoAdditionalDose: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Children who received MenACWY at age 10 years do not need an additional dose at age 11–12 years',
+    population: ACWY_ROUTINE,
+    label: 'ACIP 2020 MMWR: a MenACWY dose at age 10 means no additional dose at 11–12',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-23',
+  },
   boosterBeforeAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
@@ -427,16 +438,6 @@ export const CITATIONS = {
     population: ACWY_ROUTINE,
     label: 'ACIP 2020 MMWR: a first dose given at ≥16y needs no booster',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-07-24',
-  },
-  // Change 2 (2026-07-24): a dose given at exactly age 10 is valid for the
-  // adolescent series — no repeat is needed at 11–12. Verified live.
-  acwyAge10CountsAsDose1: {
-    url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
-    quote: 'ACIP considers a dose of MenACWY given to a 10-year-old child to be valid for the first dose in the adolescent series.',
-    population: ACWY_ROUTINE,
-    label: 'immunize.org Ask the Experts: a MenACWY dose at age 10 counts as adolescent dose 1',
-    short: 'Ask the Experts: MenACWY',
     lastVerified: '2026-07-24',
   },
 
@@ -773,22 +774,11 @@ export const CITATIONS = {
     lastVerified: '2026-11-22',
   },
 
-  // immunize.org's "Ask the Experts" topic pages (immMenACWY, immMenB) were
-  // whole-page buttons until 2026-11-22. Owner, 2026-11-22: "Remove the
-  // buttons" -- each card that listed one already cited ACIP's own sentence
-  // for the same point. Where an immunize.org answer is the source, quote it
-  // (as acwyAge10CountsAsDose1 does); each answer has its own "Last reviewed"
-  // date. docs/archive/decisions-2026-11-22-c4-immunize-org.md.
-  //
-  // immMenACWY stays only as the MenACWY page's title: RecCard.jsx's
-  // documentTitle() names a numbered quote's button (acwyAge10CountsAsDose1)
-  // after the page's whole-document entry. No card lists it as a button.
-  immMenACWY: {
-    url: 'https://www.immunize.org/ask-experts/topic/menacwy/',
-    label: 'immunize.org: Ask the Experts — Meningococcal ACWY',
-    short: 'Ask the Experts: MenACWY',
-    lastVerified: '2026-11-22',
-  },
+  // immunize.org's "Ask the Experts" topic pages were whole-page buttons
+  // until 2026-11-22 (owner: "Remove the buttons",
+  // docs/archive/decisions-2026-11-22-c4-immunize-org.md). The last quoted
+  // answer, a MenACWY dose at age 10, gave way to CDC's own sentence on
+  // 2026-11-23 (C6, owner "Cite CDC only": acip2020Age10NoAdditionalDose).
 
   // CAR-T / B-cell malignancy / B-cell-depleting therapy hard stop --------
   cdcAlteredImmunocompetence: {

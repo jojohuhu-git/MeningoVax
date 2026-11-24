@@ -347,7 +347,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'menbFhbpSchedules', 'menbHighRiskD2SixMonthsNoD3Acip2024']],
   ['MenACWY', ['boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterBeforeAge7Outbreak', 'boosterAtOrAfterAge7Outbreak', 'acip2020InfantSeriesStart3to6mo', 'acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
     'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterFrom10', 'acip2020Table2NotRoutine24Plus', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
-    'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acwyAge10CountsAsDose1',
+    'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acip2020Age10NoAdditionalDose',
     'cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'cdcChildAcwyInfantSeries', 'cdcChildAcwyRisk2DoseFrom24m', 'cdcChildAcwyBefore10OngoingRisk',
     'cdcCatchupAcwyBooster8Weeks', 'acip2020Acwy8WeekMinimum', 'acip2020AcwyRiskGroupsFrom2mo', 'acip2020Table2CatchupOnly1921',
     'acip2020Table2Booster16', 'acip2020Table7MicrobiologistBooster', 'acip2020Table9TravelBooster', 'acip2020IndicationMicrobiologist',

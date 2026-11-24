@@ -51,22 +51,23 @@ describe('C4: no card carries an immunize.org topic-page button (owner 2026-11-2
     expect(shorts(c)).toEqual(['ACIP 2020 MMWR']);
   });
 
-  it('control: the quoted immunize.org sentence about a dose at age 10 is a different source and stays', () => {
-    // refs.js acwyAge10CountsAsDose1 quotes one answer on the MenACWY page; the
-    // owner's answer was about the two whole-page buttons only.
+  it('the age-10 card quotes CDC\'s own sentence (C6, owner 2026-11-23 "Cite CDC only")', () => {
+    // Until C6 this quoted immunize.org's answer; ACIP 2020 states the same rule.
     const r = run({
       dob: '2016-01-01',
       menacwyDoses: [{ brand: 'Menveo (MenACWY)', date: '2026-06-01' }],
     });
     const cites = [...r.menacwy.flatMap((c) => c.noteCites ?? []), ...(r.history?.MenACWY?.perDose ?? []).flatMap((v) => v?.reasonCites ?? [])];
-    expect(keys(cites)).toContain('acwyAge10CountsAsDose1');
+    expect(keys(cites)).toContain('acip2020Age10NoAdditionalDose');
+    // extinct: the immunize.org age-10 entry was removed by C6, 2026-11-23
+    expect(keys(cites)).not.toContain('acwyAge10CountsAsDose1');
   });
 });
 
-describe('C4: the numbered age-10 quote keeps the page\'s full title', () => {
-  it('CITATIONS still has the MenACWY page\'s whole-document entry (RecCard documentTitle)', async () => {
+describe('C6: no immunize.org MenACWY entry is left', () => {
+  it('CITATIONS holds nothing from the immunize.org MenACWY page', async () => {
     const { CITATIONS } = await import('../../data/refs.js');
-    const whole = Object.values(CITATIONS).filter((e) => !e.quote && String(e.url).split('#')[0] === 'https://www.immunize.org/ask-experts/topic/menacwy/');
-    expect(whole.map((e) => e.label)).toEqual(['immunize.org: Ask the Experts — Meningococcal ACWY']);
+    const left = Object.keys(CITATIONS).filter((k) => String(CITATIONS[k].url).startsWith('https://www.immunize.org/ask-experts/topic/menacwy/'));
+    expect(left).toEqual([]);
   });
 });
