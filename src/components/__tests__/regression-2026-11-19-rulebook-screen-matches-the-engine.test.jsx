@@ -193,7 +193,9 @@ describe('Rulebook screen — every list is the app\'s own list', () => {
     expect(SOURCE_GROUPS.flatMap((g) => g.docs).map((d) => d.url).sort()).toEqual(SOURCE_DOCS.map((d) => d.url).sort());
     const group = (name) => SOURCE_GROUPS.find((g) => g.name === name).docs.map((d) => d.url);
     for (const u of group('ACIP recommendations')) expect(u).toMatch(/cdc\.gov\/mmwr\//);
-    for (const u of group('immunize.org')) expect(u).toMatch(/immunize\.org/);
+    // C6 (2026-11-23, owner "Cite CDC only"): no immunize.org source is left, so the
+    // group is empty and the screen does not draw it.
+    expect(group('immunize.org')).toEqual([]);
   });
 });
 

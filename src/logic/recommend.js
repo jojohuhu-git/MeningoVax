@@ -1547,7 +1547,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
         lead: 'The dose given at age 10 counts as the first dose of the adolescent series [c] — no repeat is needed now.',
         detail: 'ACIP counts a dose given at age 10 as dose 1 of the routine adolescent series, so it is not given again at 11–12 years.',
       },
-      noteCites: [cite('acwyAge10CountsAsDose1')], refs })];
+      noteCites: [cite('acip2020Age10NoAdditionalDose')], refs })];
   }
   if (am < MENACWY_ROUTINE_DOSE1_AGE_MONTHS) {
     return [rec({ vaccine: 'MenACWY', status: 'not-indicated', asksLater: true, doseLabel: 'Not yet due',
@@ -1618,7 +1618,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
           lead: `Routine dose 1 is recorded.${waitSentence}`,
           detail: 'Dose 1 of the routine adolescent series is on record, so only the booster remains outstanding.',
         },
-      noteCites: [...(doseAtAge10 ? [cite('acwyAge10CountsAsDose1')] : []), ...waitCites], refs })];
+      noteCites: [...(doseAtAge10 ? [cite('acip2020Age10NoAdditionalDose')] : []), ...waitCites], refs })];
   }
   // 16–18y
   if (am < MENACWY_CATCHUP_MIN_AGE_MONTHS) {

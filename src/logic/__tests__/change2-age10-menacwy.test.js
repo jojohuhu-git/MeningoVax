@@ -59,7 +59,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     const rec = acwy(r);
     expect(noteText(rec)).toContain('[c]');
     expect(rec.noteCites).toHaveLength(1);
-    expect(rec.noteCites[0].key).toBe('acwyAge10CountsAsDose1');
+    expect(rec.noteCites[0].key).toBe('acip2020Age10NoAdditionalDose');
   });
 
   it('11-15y patient whose only dose was given at age 10 also gets the age-10 footnote, not the generic one', () => {
@@ -72,7 +72,7 @@ describe('Change 2: MenACWY dose given at age 10 counts as adolescent dose 1', (
     const rec = acwy(r);
     expect(rec.status).toBe('due') // owner rule 2026-11-01: not 'complete' while the 16y booster is coming;
     expect(rec.doseLabel).toBe('Booster (16y)');
-    expect(rec.noteCites[0].key).toBe('acwyAge10CountsAsDose1');
+    expect(rec.noteCites[0].key).toBe('acip2020Age10NoAdditionalDose');
   });
 
   it('11-15y patient whose only dose was given at the routine 11-12y age keeps the generic routine citation (no age-10 footnote)', () => {

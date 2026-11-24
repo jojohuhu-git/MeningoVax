@@ -31,10 +31,6 @@ const KNOWN_UNCITED = {
     'Kept as the CDC schedule-note landing page. Dropped from the MenACWY recs '
     + '2026-07-24 because it just restates the ACIP 2020 MMWR rule (owner decision '
     + '2026-07-23: do not cite two sources for one rule).',
-  immMenACWY:
-    'Kept only as the immunize.org MenACWY page\'s title: RecCard.jsx documentTitle() '
-    + 'names the numbered acwyAge10CountsAsDose1 button after it. Owner 2026-11-22, '
-    + '"Remove the buttons": no card lists the whole page as a button.',
   // pentavalentHighRiskNoUpperAge, pentavalentLicensed10to25 and
   // cdcAdultPenbrayaSameDay were held here for STOP C N1; since 2026-11-19 the
   // rulebook's SOURCES tags cite them, so they left this list.
