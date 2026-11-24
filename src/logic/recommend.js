@@ -47,7 +47,7 @@ import {
   MENACWY_ROUTINE_DOSE1_AGE_MONTHS, MENACWY_ROUTINE_BOOSTER_AGE_MONTHS,
   MENACWY_CATCHUP_MIN_AGE_MONTHS, MENACWY_CATCHUP_MAX_AGE_MONTHS,
   MENACWY_BOOSTER_AGE_SPLIT_MONTHS, MENACWY_SCHEDULE_MIN_AGE_MONTHS, MENACWY_ROUTINE_COUNTS_MIN_AGE_MONTHS,
-  MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears,
+  MENB_HEALTHY_MIN_AGE_MONTHS, MENB_HEALTHY_MAX_AGE_MONTHS, ageYears, menacwyBoosterRowFrom10,
 } from './ages.js';
 // impossible P1-2: the note prints the patient's age in the same words the
 // results header uses, so the two cannot disagree. format.js imports only
@@ -464,10 +464,23 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
   // ── Medical high risk: 2-dose primary + lifelong boosters ────────────────
   if (riskClass === 'primary2') {
     // ≥2y: 2-dose primary ≥8 weeks apart, then boosters.
+    // C13 (owner, 2026-11-23, "Drop the under-7 clause"): from 7 years the
+    // series cannot end before 7, so the booster line names only the 5 years
+    // and quotes the ACIP row for the age the series will end at (the "≥10 yrs"
+    // row of Tables 4/5 from 10). Under 7 the line keeps both halves.
+    const primaryEndISO = given === 0 ? addDays(today, MENACWY_HIGHRISK_PRIMARY_GAP)
+      : (given === 1 && lastDate ? [today, addDays(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP)].sort()[1] : today);
+    const primaryEndFrom10 = menacwyBoosterRowFrom10(ageAtDose({ date: primaryEndISO }, am, today, dob));
+    const primaryBoosterLine = am >= MENACWY_BOOSTER_AGE_SPLIT_MONTHS
+      ? `Boosters: ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after the series [c], then every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while at risk`
+      : MENACWY_HIGHRISK_BOOSTER_LINE;
+    const primaryBoosterCites = am >= MENACWY_BOOSTER_AGE_SPLIT_MONTHS
+      ? [cite(acwyBoosterRowKey(false, riskIds, primaryEndFrom10))]
+      : [cite(acwyBoosterRowKey(true, riskIds)), cite(acwyBoosterRowKey(false, riskIds))];
     if (given === 0) {
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
-        doseNum: 1, seriesTotal: 2, boosterSummary: MENACWY_HIGHRISK_BOOSTER_LINE, dueToday: true, brands: menacwyBrands(am),
+        doseNum: 1, seriesTotal: 2, boosterSummary: primaryBoosterLine, dueToday: true, brands: menacwyBrands(am),
         note: {
           // P43 (review v10): one sentence; it folds whole behind "Why this" (owner 2026-11-20).
           lead: `Two MenACWY doses, at least ${weeksLabel(MENACWY_HIGHRISK_PRIMARY_GAP)} apart, for this high-risk condition.`,
@@ -475,10 +488,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         },
         // U2: the booster half of this sentence, and both of its sources, moved
         // up to the booster line, which was already saying the same thing.
-        boosterCites: [
-          cite(acwyBoosterRowKey(true, riskIds)),
-          cite(acwyBoosterRowKey(false, riskIds)),
-        ],
+        boosterCites: primaryBoosterCites,
         // C5/2026-07-24: the <7y/≥7y booster-cadence split is verbatim in
         // the 2020 MMWR tables (noteCites above) — cdcRecommendations
         // dropped as redundant (citation audit finding).
@@ -489,7 +499,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       const elapsed = intervalElapsed(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP, today);
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 2 of 2 (high-risk primary series)',
-        doseNum: 2, seriesTotal: 2, boosterSummary: MENACWY_HIGHRISK_BOOSTER_LINE, dueToday: elapsed,
+        doseNum: 2, seriesTotal: 2, boosterSummary: primaryBoosterLine, dueToday: elapsed,
         earliestNextDate: elapsed ? null : addDays(lastDate, MENACWY_HIGHRISK_PRIMARY_GAP),
         minIntervalDays: MENACWY_HIGHRISK_PRIMARY_GAP, brands: menacwyBrands(am),
         note: {
@@ -498,16 +508,22 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         },
         // U2: the booster tail moved to the booster line above. It gains the
         // sources the dose-1 card always had and this one never did.
-        boosterCites: [
-          cite(acwyBoosterRowKey(true, riskIds)),
-          cite(acwyBoosterRowKey(false, riskIds)),
-        ],
+        boosterCites: primaryBoosterCites,
         refs: refsFor([]),
       })];
     }
     // given >= 2: primary complete → ongoing boosters
     // First booster (given===2): 3y if D2 <7y, else 5y. Subsequent (given>=3): always 5y.
     const boostYears = String(boostYearsCount);
+    // C13 (2026-11-23): every booster on this card quotes the ACIP row for the
+    // age the series ENDED at: under 7, 7-9, or (complement, asplenia) 10+. A
+    // later booster used to quote the "Aged >=7" row whatever that age was.
+    // Owner C13 part 2 ("Say '10 years or older'"): the note names the 10+ row's
+    // age when it quotes that row.
+    const completionRowKey = acwyBoosterRowKey(
+      menacwyFirstBoosterYears(primaryCompletionAge) === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7,
+      riskIds, menacwyBoosterRowFrom10(primaryCompletionAge),
+    );
     // P17/P19 (review v10): the title reads in order and says from when.
     const boostTitle = isFirstBooster
       ? `First booster (dose ${given + 1}), ${boostYears} years after the series`
@@ -528,17 +544,13 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           lead: 'Series complete.',
           detail: boostYears === '3'
             ? 'The first booster is 3 years later because the series ended before 7 years [c].'
-            : 'The first booster is 5 years later because the series ended at 7 years or older [c].',
+            : `The first booster is 5 years later because the series ended at ${completionRowKey === 'boosterFrom10' ? 10 : 7} years or older [c].`,
         }
         : null,
-      noteCites: isFirstBooster ? [
-        boostYears === '3'
-          ? cite(acwyBoosterRowKey(true, riskIds))
-          : cite(acwyBoosterRowKey(false, riskIds)),
-      ] : [],
+      noteCites: isFirstBooster ? [cite(completionRowKey)] : [],
       // U2: a LATER booster now has no note at all, so without this the card
       // would state a cadence with nothing to click through to.
-      boosterCites: [boostYears === '3' ? cite(acwyBoosterRowKey(true, riskIds)) : cite(acwyBoosterRowKey(false, riskIds))],
+      boosterCites: [cite(completionRowKey)],
       // C5/2026-07-24: cdcRecommendations dropped — the <7y/≥7y split is a
       // verbatim MMWR quote already (citation audit finding).
       refs: refsFor([]),
@@ -1357,7 +1369,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       isFirstBooster: isFirstInfantBooster, primaryCompletionAgeMonths: infantCompletionAgeM,
     });
     const infantFirstBoost3 = menacwyFirstBoosterYears(infantCompletionAgeM) === 3;
-    const infantBoosterCite = infantFirstBoost3 ? cite(acwyBoosterRowKey(true, riskIds)) : cite(acwyBoosterRowKey(false, riskIds));
+    const infantBoosterCite = cite(acwyBoosterRowKey(infantFirstBoost3, riskIds, menacwyBoosterRowFrom10(infantCompletionAgeM)));   // C13
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',

@@ -195,6 +195,16 @@ export const MENACWY_CATCHUP_MAX_AGE_MONTHS = years(22);
  */
 export const MENACWY_BOOSTER_AGE_SPLIT_MONTHS = years(7);
 
+/**
+ * C13 (2026-11-23): ACIP 2020 Tables 4 (complement) and 5 (asplenia) give the
+ * booster timing in a "2–9 yrs" row and a separate "≥10 yrs" row (read live
+ * 2026-11-23). Same 5 years either way; only which sentence the card quotes
+ * depends on it. Takes the age at the last primary dose, given or projected.
+ */
+export const MENACWY_BOOSTER_TABLE_10_ROW_MONTHS = years(10);
+export const menacwyBoosterRowFrom10 = (completionAgeMonths) => completionAgeMonths != null
+  && completionAgeMonths >= MENACWY_BOOSTER_TABLE_10_ROW_MONTHS;
+
 // ── MenB · the healthy shared-clinical-decision-making series ────────────
 //
 // CDC child & adolescent immunization schedule notes, "Meningococcal serogroup

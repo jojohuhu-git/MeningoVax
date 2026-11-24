@@ -95,12 +95,19 @@ describe('C5 note-citation anchors', () => {
   it('high-risk MenACWY dose-1 cites both age-7 booster-cadence branches on its booster line', () => {
     // C5 (2026-11-22): HIV, whose Table 6 prints these two rows word for word;
     // asplenia now quotes Table 5's own wording (c5-every-quote-names-its-patient).
-    const r = run({ ageMonths: 132, riskIds: ['hiv'], menacwyDoses: [], menbDoses: [] });
+    // C13 (owner 2026-11-23, "Drop the under-7 clause"): only a child under 7,
+    // whose series can end on either side of 7, gets both halves.
+    const r = run({ ageMonths: 60, riskIds: ['hiv'], menacwyDoses: [], menbDoses: [] });
     const rec = acwy(r);
     expect(rec.boosterCites).toHaveLength(2);
     const urls = rec.boosterCites.map((c) => c.url);
     expect(urls).toContain(ACIP_ANCHORS.boosterBeforeAge7);
     expect(urls).toContain(ACIP_ANCHORS.boosterAtOrAfterAge7);
+    // From 7 the line has one half and one quote: HIV's own "≥2 yrs" row
+    // (Table 6) prints "Aged ≥7 yrs" at every age.
+    const older = acwy(run({ ageMonths: 132, riskIds: ['hiv'], menacwyDoses: [], menbDoses: [] }));
+    expect(older.boosterSummary).toBe('Boosters: 5 years after the series [c], then every 5 years while at risk');
+    expect(older.boosterCites.map((c) => c.key)).toEqual(['boosterAtOrAfterAge7']);
   });
 
   function addDays(iso, n) {
@@ -128,8 +135,25 @@ describe('C5 note-citation anchors', () => {
     expect(rec.noteCites[0]).toMatchObject({ key: 'boosterBeforeAge7', url: ACIP_ANCHORS.boosterBeforeAge7 });
   });
 
-  it('high-risk MenACWY first booster completed at/after age 7 cites the >=7y anchor', () => {
-    // D1 at ~20y, D2 at ~21y — both at/after age 7 → 5-year first-booster cadence.
+  it('high-risk MenACWY first booster completed at 7-9 cites the >=7y anchor', () => {
+    // D1 at ~7y, D2 at ~8y → 5-year first-booster cadence, ACIP's 2-9 row.
+    const r = run({
+      ageMonths: 120, riskIds: ['complement'],
+      menacwyDoses: [
+        { date: monthsBack(36) },
+        { date: monthsBack(24) },
+      ],
+      riskAtDoseAnswers: { MenACWY: { 0: 'yes', 1: 'yes' } },
+    });
+    const rec = acwy(r);
+    expect(rec.doseLabel).toMatch(/First booster/);
+    expect(noteText(rec)).toContain('ended at 7 years or older [c]');
+    expect(rec.noteCites[0]).toMatchObject({ key: 'boosterAtOrAfterAge7', url: ACIP_ANCHORS.boosterAtOrAfterAge7 });
+  });
+
+  it('C13: a complement series completed at 10 or older cites ACIP\'s >=10 row and says so', () => {
+    // D1 at ~20y, D2 at ~21y. Table 4's "≥10 yrs" row (read live 2026-11-23).
+    // Owner C13 part 2 (2026-11-23, "Say '10 years or older'").
     const r = run({
       ageMonths: 300, riskIds: ['complement'],
       menacwyDoses: [
@@ -139,8 +163,9 @@ describe('C5 note-citation anchors', () => {
     });
     const rec = acwy(r);
     expect(rec.doseLabel).toMatch(/First booster/);
-    expect(noteText(rec)).toContain('[c]');
-    expect(rec.noteCites[0]).toMatchObject({ key: 'boosterAtOrAfterAge7', url: ACIP_ANCHORS.boosterAtOrAfterAge7 });
+    expect(noteText(rec)).toContain('ended at 10 years or older [c]');
+    expect(rec.noteCites.map((c) => c.key)).toEqual(['boosterFrom10']);
+    expect(rec.boosterCites[0].key).toBe('boosterFrom10');
   });
 });
 

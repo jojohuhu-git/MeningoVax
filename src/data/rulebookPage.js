@@ -159,7 +159,7 @@ const P = {
   hiv14: ex('14-year-old with HIV, no doses', { dob: '2012-06-01', riskIds: ['hiv'] }, { acwy: [/^Dose 1 of 2 \(high-risk primary series\)$/], menb: [/^Not routinely indicated$/] }),
   complement12: ex('12-year-old on eculizumab, no doses', { dob: '2014-06-01', riskIds: ['complement'] },
     { acwy: [/^Dose 1 of 2 \(high-risk primary series\)$/], menb: [/^Dose 1 of 3 \(high-risk series\)$/],
-      booster: [['MenACWY', /3 years after the series if it ends before 7 years.*otherwise 5.*then every 5 years/], ['MenB', /1 year after the series, then every 2–3 years/]] }),
+      booster: [['MenACWY', /^Boosters: 5 years after the series \[c\], then every 5 years while at risk( \[c\])?$/], ['MenB', /1 year after the series, then every 2–3 years/]] }),   // C13 (owner 2026-11-23): no under-7 clause from 7
   fellBehind: ex('6-year-old with asplenia, one Menveo at 2 months', { dob: '2020-11-19', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2021-01-19'), riskAtDoseAnswers: { MenACWY: yes(1) } },
     { acwy: [/^Dose 2 of 3 \(infant high-risk, dose 2 at ≥7 months\)$/], chip: ['MenACWY', 0, 'Dose 1 of 3'] }),
   aspDoneBefore7: ex('5-year-old with asplenia, primary series finished at 2', { dob: '2021-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2023-06-10', '2023-08-15'), riskAtDoseAnswers: { MenACWY: yes(2) } },
@@ -346,7 +346,7 @@ export const SENTENCE_VACCINE = Object.fromEntries([
     'cdcComplementMenbBoosterEvery2to3', 'cdcComplementMenb3Doses', 'cdcAdultMenbPregnancyDelay', 'cdcAdultMenbPregnancyMayGive',
     'menbFhbpSchedules', 'menbHighRiskD2SixMonthsNoD3Acip2024']],
   ['MenACWY', ['boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterBeforeAge7Outbreak', 'boosterAtOrAfterAge7Outbreak', 'acip2020InfantSeriesStart3to6mo', 'acip2020College5Years', 'acip2020MilitaryBooster5Years', 'acwyRoutine1112and16', 'acwyBooster8WeeksAfterDose1', 'acwyBeforeAge10',
-    'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
+    'boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterFrom10', 'acwyInfantHighRisk2to6mo', 'acwyInfantHighRisk7to23mo', 'menQuadfiPackageInsert',
     'waDohMenQuadfiAapAlignment', 'aap2026MenQuadfiFrom6Weeks', 'acwyCatchup1921', 'acwyFirstDoseAfter16NoBooster', 'acwyAge10CountsAsDose1',
     'cdcChildAcwyMinAge', 'cdcChildMenveoLiquid10y', 'cdcChildAcwyInfantSeries', 'cdcChildAcwyRisk2DoseFrom24m', 'cdcChildAcwyBefore10OngoingRisk',
     'cdcCatchupAcwyBooster8Weeks', 'acip2020Acwy8WeekMinimum', 'acip2020AcwyRiskGroupsFrom2mo', 'acip2020Table2CatchupOnly1921',
