@@ -230,10 +230,10 @@ column says which step below carries it. (Since the 2026-11-08 review, "step N" 
 | C7 | One source per claim, one number per sentence a document states; never the same sentence twice | FINDING N, 2026-10-23 | Not done | 8 |
 | C8 | Sources row sits inside "Why this" | §WORD-1 decision, 2026-11-06 | **Done** by Q10 (2026-11-19) | 8 |
 | C9 | A CDC link opens the closed section that holds the quoted sentence | #141, 2026-11-07 | Uses `#:~:text=` links; to measure | 8 |
-| C10 | A source button comes off a card when its row does not fit the patient (all columns must fit) | §B-JOBAID-NOROW, 2026-10-18 / 11-07 | Not done | 8 |
+| C10 | A source button comes off a card when its row does not fit the patient (all columns must fit) | §B-JOBAID-NOROW, 2026-10-18 / 11-07 | **Done 2026-11-23** (measured: every ACIP table button fits a realistic patient; implausible under-10s on Tables 7/10 pinned under E1; guard `regression-2026-11-23-c10-table-link-has-a-row-that-fits`; 0 cards changed) | 8 |
 | C11 | Each number sits on the exact claim its document states (e.g. the word "complete" cites the sentence that says "complete"; a dose TOTAL cites the row that states that total) | P2-7 (2026-11-06); C10-1 (PR #81) | Not done | 8 |
 | C12 | Clicking or hovering a number shows the quoted sentence itself, in a pop-up over the number | PRs #114, #141 | Hover names the document (C1); the quote pop-up is to measure | 8 |
-| C13 | A quote never says the opposite of its card (e.g. a "no dose now" card quoting "give 1 dose"), and is written about the card's own age band | FINDING C (PR #64), FINDING N (PR #75) | Not done | 8 |
+| C13 | A quote never says the opposite of its card (e.g. a "no dose now" card quoting "give 1 dose"), and is written about the card's own age band | FINDING C (PR #64), FINDING N (PR #75) | **Age band done 2026-11-23** (PR #152; owner "Drop the under-7 clause", "Say '10 years or older'"; `decisions-2026-11-23-c13-booster-quote-age-band.md`). **Opposite-of-card half done 2026-11-23**: 54 no-dose card/quote pairs read; one offered a dose (healthy adult 22+, 1,184 patients), now ACIP Table 2's own row (citation only) | 8 |
 
 ### D. The Rulebook page
 
