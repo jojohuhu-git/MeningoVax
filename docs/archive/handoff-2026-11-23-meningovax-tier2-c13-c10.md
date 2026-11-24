@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-23** by `handoff-2026-11-23-meningovax-tier2-c7-c6.md`. C7 (merged in #153) and C6 (PR #154) are done; do not resume from this file.
+
 # MeningoVax — Handoff after Tier 2 items C13 and C10 (2026-11-23)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
