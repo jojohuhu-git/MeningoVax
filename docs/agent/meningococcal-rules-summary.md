@@ -140,7 +140,7 @@ Two deliberate limits:
   <!-- /SOURCES -->
 - **≥22 years, healthy, no risk factor:** not indicated.
   <!-- SOURCES: acip2020Table2CatchupOnly1921 -->
-  > "Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-19.
+  > "Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday" — [ACIP 2020 MMWR](https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm), read 2026-11-23.
   <!-- /SOURCES -->
 - **Golden rule that cuts across all the bands above:** *any* dose given at
   age ≥16 satisfies the adolescent schedule — no further routine doses,

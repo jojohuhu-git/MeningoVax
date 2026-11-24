@@ -421,14 +421,6 @@ export const CITATIONS = {
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-23',
   },
-  acip2020Table2RoutineOnly11to18: {
-    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
-    quote: 'Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday',
-    population: ACWY_ROUTINE,
-    label: 'ACIP 2020 MMWR, Table 2 (11–23 yrs): routine MenACWY 11–18, catch-up only to 21',
-    short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-23',
-  },
   acwyFirstDoseAfter16NoBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Adolescents who receive a first dose after their 16th birthday do not need a booster dose unless they become at increased risk for meningococcal disease',
@@ -1023,9 +1015,9 @@ export const CITATIONS = {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Although routine vaccination is only recommended for adolescents aged 11–18 yrs, MenACWY may be administered to persons aged 19–21 yrs who have not received a dose after their 16th birthday',
     population: ACWY_ROUTINE,
-    label: 'ACIP 2020 MMWR, Table 2: routine MenACWY is for 11–18, catch-up for 19–21',
+    label: 'ACIP 2020 MMWR, Table 2 (11–23 yrs): routine MenACWY is for 11–18, catch-up for 19–21',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-19',
+    lastVerified: '2026-11-23',
   },
   acip2020Table2Booster16: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',

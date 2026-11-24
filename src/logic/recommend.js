@@ -1733,7 +1733,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
     },
     // C13 (2026-11-23): the patient's own row of ACIP Table 2, never the
     // 19-21 catch-up sentence, which offers a dose (PneumoVax FINDING C).
-    noteCites: [cite(am >= ACIP_TABLE2_ADULT_ROW_MONTHS ? 'acip2020Table2NotRoutine24Plus' : 'acip2020Table2RoutineOnly11to18')],
+    noteCites: [cite(am >= ACIP_TABLE2_ADULT_ROW_MONTHS ? 'acip2020Table2NotRoutine24Plus' : 'acip2020Table2CatchupOnly1921')],
     refs })];
 }
 

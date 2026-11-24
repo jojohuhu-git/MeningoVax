@@ -37,8 +37,8 @@ describe('C13: the healthy-adult "not routinely recommended" card quotes its own
   it('22 years: Table 2\'s 11–23 row, the catch-up limit', () => {
     const a = run('2004-06-01').menacwy[0];
     expect(a.status).toBe('not-indicated');
-    expect(a.noteCites.map((c) => c.key)).toEqual(['acip2020Table2RoutineOnly11to18']);
-    expect(CITATIONS.acip2020Table2RoutineOnly11to18.quote).toMatch(/^Although routine vaccination is only recommended for adolescents aged 11–18 yrs/);
+    expect(a.noteCites.map((c) => c.key)).toEqual(['acip2020Table2CatchupOnly1921']);
+    expect(CITATIONS.acip2020Table2CatchupOnly1921.quote).toMatch(/^Although routine vaccination is only recommended for adolescents aged 11–18 yrs/);
   });
 
   it('no "not routinely recommended" card cites a sentence that offers a dose', () => {
