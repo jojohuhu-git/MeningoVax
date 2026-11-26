@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-tier2-c9-part1.md`. C9 part 1 has been built since (PR #155); resume from that file.
+
 # MeningoVax — Handoff after measuring Tier 2 item C9 (2026-11-23)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
