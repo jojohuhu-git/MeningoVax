@@ -8,7 +8,7 @@ import { describe, it, expect } from 'vitest';
 import { CITATIONS, cite } from '../refs.js';
 
 describe('citation highlight links carry exactly one URL fragment', () => {
-  it('every quoted citation builds a single-fragment #:~:text= link', () => {
+  it('every quoted citation builds a single-fragment link (#:~:text=, or #section for a closed CDC section, C9)', () => {
     const broken = Object.keys(CITATIONS)
       .filter((k) => CITATIONS[k].quote)
       .map((k) => ({ k, url: cite(k).url }))
@@ -20,9 +20,13 @@ describe('citation highlight links carry exactly one URL fragment', () => {
   });
 
   it('the section anchor survives on the chip URL even though the quote link drops it', () => {
+    // C9 (2026-11-26): this quote sits in CDC's closed MenB "Special
+    // situations" section, so its number now opens that section rather than
+    // a text link the browser cannot reach (guard:
+    // regression-2026-11-26-c9-cdc-notes-links-open-their-section).
     const c = cite('menbHighRiskEarlyD3ExtraDose');
     expect(c.page).toMatch(/#note-mening-b$/);
-    expect(c.url).toMatch(/child-adolescent-notes\.html#:~:text=/);
-    expect(c.url).not.toMatch(/note-mening-b/);
+    expect(c.url).toBe('https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#accordion-panel-mening-b-situations');
+    expect(c.url).not.toMatch(/note-mening-b$/);
   });
 });
