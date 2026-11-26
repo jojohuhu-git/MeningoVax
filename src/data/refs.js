@@ -497,6 +497,7 @@ export const CITATIONS = {
   // sentence for people at increased risk.
   menbHighRiskEarlyD3ExtraDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    section: 'accordion-panel-mening-b-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'if dose 3 is administered earlier than 4 months after dose 2, a 4th dose should be administered at least 4 months after dose 3',
     population: ['menb-complement', 'menb-asplenia'],
     // M1 (owner, 2026-11-20): the app no longer follows this wording. It follows
@@ -647,6 +648,7 @@ export const CITATIONS = {
   },
   cdcAdultPenbrayaSameDay: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Adults may receive a single dose of Penbraya (MenACWY–TT/MenB–FHbp) as an alternative to separate administration of MenACWY and MenB when both vaccines would be given on the same clinic day.',
     population: ALL_GROUPS,
     label: 'CDC Adult Schedule notes (updated July 2, 2025): adults may receive Penbraya when both are given the same day',
@@ -689,6 +691,7 @@ export const CITATIONS = {
   // (`menbPregnancyDeferral`) covers every age.
   cdcAdultMenbPregnancyDelay: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Delay MenB until after pregnancy due to lack of safety data in pregnant women.',
     population: ['menb-pregnancy'],
     label: 'CDC Adult Schedule notes: delay MenB until after pregnancy',
@@ -697,6 +700,7 @@ export const CITATIONS = {
   },
   cdcAdultMenbPregnancyMayGive: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/adult-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'May administer if at increased risk and vaccination benefits outweigh potential risks.',
     population: ['menb-pregnancy'],
     label: 'CDC Adult Schedule notes: MenB in pregnancy if at increased risk',
@@ -849,6 +853,7 @@ export const CITATIONS = {
   },
   cdcChildMenveoLiquid10y: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'The liquid formulation should not be used before age 10 years.',
     population: ACWY_ALL,
     label: 'CDC Child/Adolescent Schedule Notes: Menveo one-vial (liquid) not before age 10',
@@ -857,6 +862,7 @@ export const CITATIONS = {
   },
   cdcChildAcwyInfantSeries: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'dose 2 [and dose 3 if applicable] at least 8 weeks after previous dose until a dose is received at age 7 months or older, followed by an additional dose at least 12 weeks later and after age 12 months',
     population: ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-travel'],
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY infant series minimum gaps',
@@ -865,6 +871,7 @@ export const CITATIONS = {
   },
   cdcChildAcwyRisk2DoseFrom24m: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Dose 1 at age 24 months or older: 2-dose series at least 8 weeks apart',
     population: ACWY_HIGHRISK,
     label: 'CDC Child/Adolescent Schedule Notes: high-risk MenACWY 2-dose series from 24 months',
@@ -873,6 +880,7 @@ export const CITATIONS = {
   },
   cdcChildAcwyBefore10OngoingRisk: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Children for whom boosters are recommended because of an ongoing increased risk of meningococcal disease (e.g., those with complement component deficiency, HIV, or asplenia): Follow the booster schedule for persons at increased risk.',
     population: [...ACWY_HIGHRISK, 'acwy-microbiologist', 'acwy-travel', 'acwy-outbreak', 'acwy-military'],
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY before age 10 with an ongoing risk',
@@ -881,6 +889,7 @@ export const CITATIONS = {
   },
   cdcCatchupAcwyBooster8Weeks: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-catchup', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Age 13–15 years: 1 dose now and booster at age 16–18 years (minimum interval: 8 weeks)',
     population: ACWY_ROUTINE,
     label: 'CDC Child/Adolescent Schedule Notes: MenACWY catch-up, booster at least 8 weeks after dose 1',
@@ -1111,6 +1120,7 @@ export const CITATIONS = {
   // CDC child and adolescent schedule notes.
   cdcCatchupAcwy1618OneDose: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-catchup', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Age 16–18 years: 1 dose',
     population: ACWY_ROUTINE,
     label: 'CDC child schedule notes, MenACWY catch-up: one dose at 16–18',
@@ -1119,6 +1129,7 @@ export const CITATIONS = {
   },
   cdcChildAcwyTravelUnder24m: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening',
+    section: 'accordion-panel-mening-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Children younger than age 24 months: Menveo* (age 2–23 months)',
     population: ['acwy-travel'],
     label: 'CDC child schedule notes, travel: the infant Menveo series',
@@ -1127,6 +1138,7 @@ export const CITATIONS = {
   },
   cdcChildMenbHighRiskD2SixMonthsNoD3: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    section: 'accordion-panel-mening-b-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'if dose 2 was administered at least 6 months after dose 1, dose 3 not needed',
     population: ['menb-complement', 'menb-asplenia'],
     label: 'CDC child schedule notes, high-risk MenB: no dose 3 after a 6-month gap',
@@ -1135,6 +1147,7 @@ export const CITATIONS = {
   },
   cdcChildPenbrayaDose2Trumenba: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    section: 'accordion-panel-mening-b-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered for dose 2 MenB',
     population: ALL_GROUPS,
     label: 'CDC child schedule notes: after Penbraya, MenB continues with Trumenba',
@@ -1143,6 +1156,7 @@ export const CITATIONS = {
   },
   cdcChildPenbraya6Months: {
     url: 'https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b',
+    section: 'accordion-panel-mening-b-situations', // the closed CDC section this quote is printed in (measured live 2026-11-26, C9)
     quote: 'Penbraya may be used for additional MenACWY and MenB doses (including booster doses) if both would be given on the same clinic day and at least 6 months have elapsed since most recent Penbraya dose',
     population: ALL_GROUPS,
     label: 'CDC child schedule notes: another Penbraya only 6 months after the last',
@@ -1235,11 +1249,24 @@ export const CITATIONS = {
 // honours, so the link silently stopped scrolling to the sentence. The section
 // anchor is kept on the citation itself, because the bottom-of-card chips use
 // it and it lands the reader in the right section.
+//
+// ⚠ The SECTION rule (C9, 2026-11-26; port of PneumoVax #141). CDC's child and
+// adult schedule-notes pages print the meningococcal text inside CLOSED
+// sections, and a browser will not open one to find a text link's words: the
+// reader landed at the top of the page with every section closed. CDC's own
+// page code opens the section named after the `#` and scrolls to it, so an
+// entry printed inside one declares `section` and links there instead.
+// PneumoVax's owner clicked both forms on 2026-11-07: `#section` and
+// `#section:~:text=…` each opened the section, and neither highlighted the
+// sentence. So the section ALONE, not a text link that looks as if it works.
+// The quote still shows in the hover text over the number.
+// Guard: regression-2026-11-26-c9-cdc-notes-links-open-their-section.
 function highlightUrl(key) {
   const c = CITATIONS[key];
   if (!c) return undefined;
   if (!c.quote) return c.url;
   const page = c.url.split('#')[0];
+  if (c.section) return `${page}#${c.section}`;
   return `${page}#:~:text=${encodeURIComponent(c.quote)}`;
 }
 
