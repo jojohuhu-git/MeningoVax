@@ -214,7 +214,7 @@ export default function DoseEditor({
             {dose.date && dose.date > today && (
               <div className="dose-row-problem" data-testid="dose-date-in-future">
                 This date is in the future, so this dose is not counted. Check the
-                date — if the patient has not had this dose yet, leave it out.
+                date. If the patient has not had this dose yet, leave it out.
               </div>
             )}
 
@@ -234,7 +234,7 @@ export default function DoseEditor({
       {pentavalentHere && (
         <div className="family-note" data-testid="pentavalent-covers-both">
           Penbraya and Penmenvy are a single shot that covers both MenACWY and MenB.
-          This one entry counts as a {otherVaccine} dose as well — do not record it
+          This one entry counts as a {otherVaccine} dose as well. Do not record it
           again on the {otherVaccine} step.
         </div>
       )}

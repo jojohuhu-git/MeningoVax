@@ -337,7 +337,7 @@ function routineBoosterStillOwedNote(indicationLabel, waiting = false) {
     // C4 part 2 (2026-11-21): the first sentence is ACIP 2020 Table 2's
     // "Booster: 1 dose at age 16 yrs if first dose administered before 16th
     // birthday" (read live); routineBoosterStillOwedCites() gives its source.
-    lead: 'The routine MenACWY booster at 16 is still owed — the recorded dose was given before then [c].'
+    lead: 'The routine MenACWY booster at 16 is still owed, because the recorded dose was given before then [c].'
       + (waiting ? ROUTINE_BOOSTER_WAIT_SENTENCE : ''),
     detail: `The ${indicationLabel} requirement is already met by that dose, but ACIP's routine age-16 `
       + 'booster is a separate rule that applies regardless of other indications. The next dose given '
@@ -865,7 +865,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
               detail: 'ACIP prefers the most recent dose on or after the 16th birthday [c]. A single dose before 16 needs a booster before enrollment [c].',
             }
             : {
-              lead: 'The age at the recorded dose cannot be confirmed — check its date in the record.',
+              lead: 'The age at the recorded dose cannot be confirmed. Check its date in the record.',
               detail: 'If that dose was given on or after the 16th birthday, no further dose is needed. If it was earlier, or the date cannot be established, give one dose now.',
             },
           // Owner, 2026-11-22 ("Remove the buttons"): no immunize.org
@@ -1241,7 +1241,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${why} 7–11mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
         brands: MENACWY_INFANT_SERIES_BRANDS, minIntervalDays: MENACWY_INFANT_FINAL_GAP,
         note: {
-          lead: `Start the 2-dose infant MenACWY series — dose 2 at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 1, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
+          lead: `Start the 2-dose infant MenACWY series: dose 2 at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 1, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
           detail: `${whoAged('7–11 months')} need two doses, not the four a younger infant needs.${outbreakTopUp}`,
         },
         noteCites: [cite('acwyInfantHighRisk7to23mo', { riskIds })],
@@ -1256,7 +1256,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose 1 of ${infantStartTotal} (${whyShort} 12–23mo)`, doseNum: 1, seriesTotal: infantStartTotal, boosterSummary: boosterSummaryText, dueToday: true,
       brands: menacwyBrands(am), minIntervalDays: MENACWY_INFANT_FINAL_GAP,
       note: {
-        lead: `Start the 2-dose primary series — the two doses at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} apart [c].`,
+        lead: `Start the 2-dose primary series: the two doses at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} apart [c].`,
         detail: `${whoKidsAged('12–23 months')} who are unvaccinated need two doses. Both fall after the first birthday, so the 12-month age floor that gates a younger infant's final dose is already met.${outbreakTopUp}`,
       },
       noteCites: [cite('acwyInfantHighRisk7to23mo', { riskIds })],
@@ -1436,7 +1436,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       minIntervalDays: nextIntervalDays,
       brands: MENACWY_INFANT_SERIES_BRANDS,
       note: {
-        lead: `Continue the ${why} series — doses at 2, 4, 6 and 12 months [c].${infantMinClause}`,
+        lead: `Continue the ${why} series: doses at 2, 4, 6 and 12 months [c].${infantMinClause}`,
         detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
       },
       noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
@@ -1475,17 +1475,17 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     note: d1WasInfant7to11
       ? {
         lead: `Dose 2 is due at least ${weeksLabel(nextIntervalDays)} after dose 1, and not before 12 months of age [c].`,
-        detail: `This is the 2-dose ${why} series. Both conditions have to be met, so the dose falls on whichever comes later — the interval since dose 1, or the first birthday.`,
+        detail: `This is the 2-dose ${why} series. Both conditions have to be met, so the dose falls on whichever comes later: the interval since dose 1, or the first birthday.`,
       }
       : nextGate.isFinalPrimary
         ? {
           lead: `The final dose is due at least ${weeksLabel(nextIntervalDays)} after the previous dose, and not before 12 months of age [c].`,
-          detail: `This completes the ${why} series. Both conditions have to be met, so the dose falls on whichever comes later — the interval since the last dose, or the first birthday.${outbreakTopUp}`,
+          detail: `This completes the ${why} series. Both conditions have to be met, so the dose falls on whichever comes later: the interval since the last dose, or the first birthday.${outbreakTopUp}`,
         }
         : {
           lead: cdcInfantGaps
-            ? `Continue the ${why} series [c] — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`
-            : `Continue the ${why} series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
+            ? `Continue the ${why} series [c], with at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`
+            : `Continue the ${why} series, with at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
           detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
         },
     noteCites: d1WasInfant7to11
@@ -1559,7 +1559,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
       // date, the line carries the fact; the note keeps only what is unique to
       // it, that the age-10 dose counts.
       note: {
-        lead: 'The dose given at age 10 counts as the first dose of the adolescent series [c] — no repeat is needed now.',
+        lead: 'The dose given at age 10 counts as the first dose of the adolescent series [c]. No repeat is needed now.',
         detail: 'ACIP counts a dose given at age 10 as dose 1 of the routine adolescent series, so it is not given again at 11–12 years.',
       },
       noteCites: [cite('acip2020Age10NoAdditionalDose')], refs })];
@@ -1626,7 +1626,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
       // U2: same three-way repeat as the under-11 card above.
       note: doseAtAge10
         ? {
-          lead: `Routine dose 1 is recorded, given at age 10 — it counts as the first dose of the series [c].${waitSentence}`,
+          lead: `Routine dose 1 is recorded, given at age 10. It counts as the first dose of the series [c].${waitSentence}`,
           detail: 'ACIP counts a dose given at age 10 as dose 1 of the routine adolescent series, so it is not given again at 11–12 years.',
         }
         : {
@@ -1704,7 +1704,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
         // P2-2 (2026-09-15): same omission as the >=16y branch above.
         doseNum: given + 1, seriesTotal: given === 0 ? 1 : 2, primaryTotal: MENACWY_ROUTINE_PRIMARY_TOTAL, dueToday: true, brands: menacwyBrands(am),
         note: {
-          lead: 'A single catch-up dose — no MenACWY is confirmed on or after the 16th birthday [c].',
+          lead: 'A single catch-up dose, because no MenACWY is confirmed on or after the 16th birthday [c].',
           detail: `Given at 16 years or older it needs no booster. It is especially recommended for first-year college students living in residence halls.`,
         },
         noteCites: [cite('acwyCatchup1921')], refs })];
@@ -2097,7 +2097,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         lead: firstBooster
           ? `${shortcutLine}A MenB booster, ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the primary series was completed [c]${outbreakOnly ? `[c]. ${OUTBREAK_B_SIX_MONTHS_LINE}` : '.'}`
           : `A MenB booster, ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} after the previous booster [c].`,
-        detail: `Stay in the same antigen family as the primary series — MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
+        detail: `Stay in the same antigen family as the primary series. MenB-4C (Bexsero, Penmenvy) and MenB-FHbp (Trumenba, Penbraya) are not interchangeable [c].${menbPregnancyCaveat}`,
       },
       // D10: an outbreak's one booster cites Table 8, not the "every 2–3
       // years" box, which would contradict the line above it.
