@@ -16,7 +16,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import { foldResult } from './noteFold.js';
-import { resolveRefs, cite, acwyBoosterRowKey, acwyInfantSeriesKey } from '../data/refs.js';
+import { resolveRefs, cite, acwyBoosterRowKey, acwyInfantSeriesKey, BOOSTER_FROM_10_KEYS } from '../data/refs.js';
 import {
   menacwyRiskClass,
   menacwyInfantSeriesIndicated,
@@ -544,7 +544,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           lead: 'Series complete.',
           detail: boostYears === '3'
             ? 'The first booster is 3 years later because the series ended before 7 years [c].'
-            : `The first booster is 5 years later because the series ended at ${completionRowKey === 'boosterFrom10' ? 10 : 7} years or older [c].`,
+            : `The first booster is 5 years later because the series ended at ${BOOSTER_FROM_10_KEYS.includes(completionRowKey) ? 10 : 7} years or older [c].`,
         }
         : null,
       noteCites: isFirstBooster ? [cite(completionRowKey)] : [],

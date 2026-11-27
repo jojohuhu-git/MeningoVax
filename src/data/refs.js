@@ -185,6 +185,10 @@ export const CITATIONS = {
   acip2020College5Years: {
     url: `https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=${encodeURIComponent('do not need another dose before college entry unless it has been more than 5 years since the dose')}`,
     quote: 'Adolescents who received a first dose after their 16th birthday do not need another dose before college entry unless it has been more than 5 years since the dose.',
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    // Table 2's footnote prints the same paragraph first; only the "*" that opens
+    // Table 10's copy tells them apart, so the prefix runs back to it.
+    prefix: '* College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry. The preferred timing of the most recent dose is on or after their 16th birthday. If only 1 dose of vaccine was administered before the 16th birthday, a booster dose should be administered before enrollment.',
     population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: a dose at 16 or older covers college entry for 5 years',
     short: 'ACIP 2020 MMWR',
@@ -314,13 +318,30 @@ export const CITATIONS = {
   // (asplenia). Read live 2026-11-23 (rr6909a1.htm, each table's rows): both
   // print this sentence, word for word, in their ≥10 row; their 2–9 rows hold
   // the "Aged <7 / ≥7" pair instead. Cited for a series ended at 10 or older.
+  // C9 part 2 (2026-11-26): split in two, one entry per table, because a link
+  // can land on only one copy (FINDING N in PneumoVax: the same sentence in
+  // two groups' tables is two sentences). This one is Table 4's copy.
   boosterFrom10: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
-    population: ['acwy-complement', 'acwy-asplenia'],
-    label: 'ACIP 2020 MMWR, Tables 4 and 5 (complement, asplenia; ≥10 yrs): booster 5 years after the series, then every 5 years',
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    prefix: 'risk)†††:',
+    population: ['acwy-complement'],
+    label: 'ACIP 2020 MMWR, Table 4 (complement; ≥10 yrs): booster 5 years after the series, then every 5 years',
     short: 'ACIP 2020 MMWR',
-    lastVerified: '2026-11-23',
+    lastVerified: '2026-11-26',
+  },
+  // The same words in Table 5's ≥10 row (asplenia). Split from `boosterFrom10`
+  // 2026-11-26 so an asplenia patient's link opens Table 5.
+  boosterFrom10Asplenia: {
+    url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
+    quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    prefix: 'risk)***:',
+    population: ['acwy-asplenia'],
+    label: 'ACIP 2020 MMWR, Table 5 (asplenia; ≥10 yrs): booster 5 years after the series, then every 5 years',
+    short: 'ACIP 2020 MMWR',
+    lastVerified: '2026-11-26',
   },
   // C5 (2026-11-22): the 3–6 month start, in ACIP's footnote. Read live
   // 2026-11-22: printed word for word under Tables 4, 5, 6, 8 and 9. CDC's
@@ -329,7 +350,10 @@ export const CITATIONS = {
   acip2020InfantSeriesStart3to6mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'If MenACWY-CRM is initiated at ages 3–6 months, catch-up vaccination includes doses at intervals of 8 weeks until the infant is aged ≥7 months, at which time an additional dose is administered at age ≥7 months, followed by a dose at least 12 weeks later and after the 1st birthday.',
-    population: ACWY_INFANT_ROWS,
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    // Table 8's footnote (outbreak): the only patients shown it (`acwyInfantSeriesKey`).
+    prefix: '††',
+    population: ['acwy-outbreak'],
     label: 'ACIP 2020 MMWR, Tables 4–9 footnote: the MenACWY-CRM infant series begun at 3–6 months',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-22',
@@ -1031,7 +1055,11 @@ export const CITATIONS = {
   acip2020Table7MicrobiologistBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
-    population: ACWY_BOOSTER_ROWS_10_PLUS,
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    // Narrowed 2026-11-26 to the patients shown it (recommend.js: a microbiologist
+    // without travel), so the link's table is held to the patient.
+    prefix: 'risk)**:',
+    population: ['acwy-microbiologist'],
     label: 'ACIP 2020 MMWR, Table 7 (microbiologists, ≥10 yrs only): MenACWY booster every 5 years',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -1086,6 +1114,9 @@ export const CITATIONS = {
   acip2020College1DoseBeforeEntry: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'College freshmen living in residence halls should receive at least 1 dose of MenACWY within 5 years before college entry.',
+    // C9 part 2 (2026-11-26): `prefix` is the words just before this copy on the page, so the link lands in this table, not the first copy (tested live).
+    // Table 2's footnote opens the same paragraph with "†"; Table 10's with "*".
+    prefix: '*',
     population: ['acwy-college'],
     label: 'ACIP 2020 MMWR, Table 10 footnote: at least 1 MenACWY dose within 5 years before college entry',
     short: 'ACIP 2020 MMWR',
@@ -1267,6 +1298,14 @@ function highlightUrl(key) {
   if (!c.quote) return c.url;
   const page = c.url.split('#')[0];
   if (c.section) return `${page}#${c.section}`;
+  // C9 part 2 (2026-11-26): a sentence ACIP prints in several tables names the
+  // words just before the copy that fits (`prefix`), as `prefix-,sentence`.
+  // A "-" inside either part is written %2D so the browser cannot read it as
+  // the separator. Guard: regression-2026-11-26-c9-acip-link-lands-in-the-patients-table.
+  if (c.prefix) {
+    const enc = (s) => encodeURIComponent(s).replace(/-/g, '%2D');
+    return `${page}#:~:text=${enc(c.prefix)}-,${enc(c.quote)}`;
+  }
   return `${page}#:~:text=${encodeURIComponent(c.quote)}`;
 }
 
@@ -1358,8 +1397,13 @@ export function cite(key, { aboutAnotherGroup } = {}) {
 // their own row at every age. `from10`: the series ended (or will end) at 10 or
 // older, per `menacwyBoosterRowFrom10()` in ages.js; false when unknown (then
 // the 2–9 row, as before).
+// The entries that quote ACIP's ≥10 booster row, one per table (C9 part 2).
+export const BOOSTER_FROM_10_KEYS = ['boosterFrom10', 'boosterFrom10Asplenia'];
 export function acwyBoosterRowKey(under7, riskIds = [], from10 = false) {
-  if (!under7 && from10 && ['complement', 'asplenia'].some((id) => riskIds.includes(id))) return 'boosterFrom10';
+  // C9 part 2 (2026-11-26): Table 4 (complement) and Table 5 (asplenia) each print
+  // the ≥10 row; the patient's own table is cited, Table 4 when they have both.
+  if (!under7 && from10 && riskIds.includes('complement')) return 'boosterFrom10';
+  if (!under7 && from10 && riskIds.includes('asplenia')) return 'boosterFrom10Asplenia';
   const shared = ['complement', 'hiv', 'travel'].some((id) => riskIds.includes(id));
   if (!shared && riskIds.includes('asplenia')) return under7 ? 'boosterBeforeAge7Asplenia' : 'boosterAtOrAfterAge7Asplenia';
   if (!shared && riskIds.includes('outbreak_acwy')) return under7 ? 'boosterBeforeAge7Outbreak' : 'boosterAtOrAfterAge7Outbreak';
