@@ -251,7 +251,8 @@ Owner answers: `docs/archive/decisions-2026-11-17-open-questions.md`.
   day" = `recommend()` run with `today` = the dose date, the doses before it,
   and today's risks (`cardsOnTheDay` in `recommendOneReading`, cached per date
   in `cardsSeen`). Limits: no first-dose exception (Q11, unlike PneumoVax's
-  Priya); `college_dorm` exempt (Q8 follow-up); a card with `asksLater`
+  Priya); `college_dorm` exempt for MenACWY only (Q8 follow-up; owner 2026-11-26,
+  "Extra like A": a dorm student's unasked MenB dose is Extra like anyone's); a card with `asksLater`
   ("Not yet due", "Not yet age-eligible", "Dose 1 given; next dose not yet due",
   MenB "Not routinely indicated" under 16) asks, so it does not make a dose
   Extra. Why `asksLater`: without it a healthy child's MenACWY at 10 (ACIP:

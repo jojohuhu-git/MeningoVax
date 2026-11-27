@@ -1872,7 +1872,7 @@ export const DOSE_RULES = [
     inventory: 'W3b',
     what: 'A dose given on a day when every card for that vaccine asked for nothing (complete, or not indicated), after an earlier counted dose',
     vaccine: 'any',
-    schedule: 'any, except college residence (owner Q8 follow-up)',
+    schedule: 'any, except a MenACWY dose in college residence (owner Q8 follow-up; MenACWY only, 2026-11-26)',
     measuredFrom: 'the cards on the day of the dose',
     enforcement: 'extra',
     grace: null,
@@ -1880,7 +1880,7 @@ export const DOSE_RULES = [
     sourcesSay: {
       verdict: 'owner-decided',
       refs: [],
-      note: 'No source says when a dose nobody asked for counts. The owner chose PneumoVax\'s rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; college is left alone, because ACIP times the 5-year cover "since the dose".',
+      note: 'No source says when a dose nobody asked for counts. The owner chose PneumoVax\'s rule (2026-11-17): Extra when no card that day asked for it; a first dose stays counted; a MenACWY dose in college residence is left alone, because ACIP times the 5-year cover "since the dose". Owner, 2026-11-26 ("Extra like A"): the college exception is MenACWY\'s only; a dorm student\'s MenB dose that no card asked for is Extra like anyone\'s.',
     },
     label: 'Not counted — Extra. Do not repeat.',
     // runWalk applies this (validate.js `notAskedFor`), because it needs the

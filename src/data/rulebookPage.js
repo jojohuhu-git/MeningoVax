@@ -546,7 +546,7 @@ export const DECISIONS = [
     short: 'A dose given when none was due',
     problem: 'A dose was given when no dose was recommended: the series was complete, or the vaccine was not indicated.',
     cdc: 'Each series has a set number of doses. They do not say whether a dose beyond that counts.',
-    does: 'Labels it "Not counted — Extra. Do not repeat.", including a first dose given when nothing was recommended. A dose within the college residence cover still counts.',
+    does: 'Labels it "Not counted — Extra. Do not repeat.", including a first dose given when nothing was recommended. A MenACWY dose within the college residence cover still counts.',
     ex: [P.extraAcwy, P.extraMenb],
   },
 ];

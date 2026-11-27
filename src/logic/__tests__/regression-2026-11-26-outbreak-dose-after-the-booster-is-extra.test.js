@@ -9,6 +9,14 @@
 // 2+ years after the booster already read "Not counted — Extra. Do not repeat."
 // / "The series was already complete on that day." (owner Q8, 2026-11-17).
 // Now the 5-month dose reads the same. The card is unchanged.
+//
+// Owner, 2026-11-26 ("Extra like A"), the consequence for a dorm student: the
+// Q8 follow-up's college exception (a dose inside the 5-year college cover
+// still counts) is MenACWY's only. A first-year student in a residence hall
+// during a campus serogroup B outbreak gets the same "Extra" as screen A, not
+// a green "Booster"; a healthy dorm resident's MenB dose that no card asked
+// for is Extra as anyone's is. 133 saved patients moved: the 12 outbreak
+// patients and 121 healthy 50-year-olds checked as dorm residents.
 import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { doseChipLabel } from '../../components/doseChipLabel.js';
@@ -50,6 +58,31 @@ describe('Outbreak only: a MenB dose after the one booster is Extra, as Q8', () 
     const r = run({ riskIds: ['complement'], menbDoses: [...SERIES, { date: '2026-04-18', brand: 'Bexsero' }] });
     expect(chip(r)).toBe('Not counted — repeat');
     expect(last(r).reasons[0]).toBe('Booster about 5 months after the last booster, 2 years required [c].');
+  });
+
+  it('dorm student in a serogroup B outbreak, Penmenvy 5 months after the booster: Extra, as without the dorm', () => {
+    const r = run({ today: '2026-09-15', riskIds: ['college_dorm', 'outbreak_b'], menacwyDoses: [{ date: '2026-04-18', brand: 'Penmenvy' }] });
+    expect(r.menb[0].doseLabel).toBe('Complete (outbreak booster given)');
+    expect(chip(r)).toBe('Not counted — Extra. Do not repeat.');
+    expect(last(r).reasons).toEqual(['The series was already complete on that day.']);
+  });
+
+  it('healthy 50-year-old dorm resident, Bexsero a year ago: Extra, as for a non-dorm 50-year-old', () => {
+    const input = (riskIds) => recommend({ today: '2026-09-15', dob: '1976-09-15', riskIds, menacwyDoses: [], menbDoses: [{ date: '2025-09-15', brand: 'Bexsero' }] });
+    for (const riskIds of [['college_dorm'], []]) {
+      const r = input(riskIds);
+      expect(r.menb[0].doseLabel).toBe('Not routinely indicated');
+      expect(chip(r)).toBe('Not counted — Extra. Do not repeat.');
+      expect(last(r).reasons).toEqual(['No dose was recommended for this patient on that day.']);
+    }
+  });
+
+  it('control: a dorm student\'s second MenACWY dose inside the college cover still counts (Q8 follow-up, MenACWY)', () => {
+    const r = recommend({ today: '2026-11-26', dob: '2007-09-15', riskIds: ['college_dorm'], menbDoses: [],
+      menacwyDoses: [{ date: '2024-10-01', brand: 'MenQuadfi' }, { date: '2025-10-01', brand: 'MenQuadfi' }] });
+    const v = r.history.MenACWY.perDose.at(-1);
+    expect(v.extraDose).toBeFalsy();
+    expect(doseChipLabel(v, r.menacwy[0].seriesTotal)).toBe('Booster');
   });
 
   it('control: the outbreak booster itself under 6 months after the series is still not counted (owner Q5)', () => {

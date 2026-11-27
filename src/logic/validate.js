@@ -111,9 +111,14 @@ const NOT_ASKED_FOR_SENTENCE = {
   'not-indicated': 'No dose was recommended for this patient on that day.',
 };
 
-function notAskedFor(dose, { riskIds, cardsOnTheDayOf }) {
+function notAskedFor(dose, { vaccine, riskIds, cardsOnTheDayOf }) {
   if (!cardsOnTheDayOf || !dose.date) return null;
-  if (riskIds.includes('college_dorm')) return null;
+  // Q8 follow-up: a MenACWY dose inside the 5-year college cover still counts.
+  // Owner, 2026-11-26 ("Extra like A"): MenACWY only. College residence is a
+  // MenACWY indication; a dorm student's MenB dose that no card asked for (an
+  // outbreak's second booster; a healthy dorm resident of 24+) is Extra, as it
+  // is for anyone else.
+  if (vaccine === 'MenACWY' && riskIds.includes('college_dorm')) return null;
   const cards = cardsOnTheDayOf(dose);
   if (!cards || cards.length === 0) return null;
   if (!cards.every(asksNothing)) return null;
@@ -223,7 +228,7 @@ function runWalk(vaccine, rawDoses, ageMonths, riskIds, today, riskAtDoseAnswers
         && seriesInfo.total != null
         && candidateKept.length > seriesInfo.total;
 
-      const unasked = isExtra ? null : notAskedFor(dose, { riskIds, cardsOnTheDayOf });
+      const unasked = isExtra ? null : notAskedFor(dose, { vaccine, riskIds, cardsOnTheDayOf });
       if (unasked) {
         // Q8 (above). Like a dose past the series total: not kept, not
         // numbered, and it starts no clock (no card was waiting on it).
