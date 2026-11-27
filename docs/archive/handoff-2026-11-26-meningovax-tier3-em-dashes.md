@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-pregnancy-combined-shot.md`. PneumoVax #164 is merged and the pregnant + asplenia/complement combined-shot item was answered and built (PR #162); resume from that file.
+
 # MeningoVax — Handoff after Tier 3 em dashes (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
