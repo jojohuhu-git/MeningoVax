@@ -188,43 +188,36 @@ describe('K1: the "Recorded doses" counter counts doses, not empty rows', () => 
   });
 });
 
-// ── the way the clinician says "a dose was given, I have no details" ──────
-const unknownTicks = () =>
-  screen.getAllByRole('checkbox', { name: /if a dose was given but its date and brand are unknown/i });   // P3 wording, 2026-11-20
-const unknownTick = () => unknownTicks()[0];
+// ── the way the clinician keeps a dose with no date ──────────────────────
+// K1 added a tick, "a dose was given, but its date and brand are unknown".
+// OWNER DECISION 2026-11-27 removed it from both apps: a dose with no date is
+// kept on the record by choosing its brand, and a row with neither a date nor
+// a brand is empty.
+const brandSelects = () => Array.from(document.querySelectorAll('.dose-row select'));
 
-describe('K1: an empty row can be kept on purpose', () => {
-  it('offers the tick only while the row has neither a date nor a brand', () => {
+describe('K1: a dose with no date is kept by choosing its brand (owner, 2026-11-27)', () => {
+  it('no row offers a details-unknown tick', () => {
     toMenacwyHistory();
     addRows(1);
-    expect(unknownTick()).toBeTruthy();
-
-    fireEvent.change(dateInputs()[0], { target: { value: '2024-01-10' } });
-    expect(screen.queryByRole('checkbox', { name: /date and brand are unknown/i })).toBeNull();
+    expect(screen.queryAllByRole('checkbox', { name: /date and brand are unknown/i })).toHaveLength(0);
+    expect(document.querySelector('.dose-row input[type="checkbox"]')).toBeNull();
   });
 
-  it('starts unticked — the app never assumes a dose was given', () => {
-    toMenacwyHistory();
-    addRows(1);
-    expect(unknownTick().checked).toBe(false);
-  });
-
-  it('a ticked row survives leaving the step, and an untouched one does not', () => {
+  it('a row with only a brand survives leaving the step, and an untouched one does not', () => {
     toMenacwyHistory();
     addRows(2);
-    expect(unknownTicks()).toHaveLength(2);
-    fireEvent.click(unknownTicks()[0]);   // tick the FIRST row only
+    fireEvent.change(brandSelects()[0], { target: { value: 'MenQuadfi' } });   // brand on the FIRST row only
+    expect(screen.getByTestId('dose-date-missing').textContent).toMatch(/With no date, this dose is not counted/);
 
     fireEvent.click(nextBtn());
     fireEvent.click(backBtn());
 
     expect(dateInputs()).toHaveLength(1);
-    expect(unknownTick().checked).toBe(true);
+    expect(brandSelects()[0].value).toBe('MenQuadfi');
   });
 
-  it('a ticked row counts as a recorded dose on the results', () => {
-    renderResults([{ id: 'k1t', date: '', brand: '', detailsUnknown: true }]);
+  it('a row with only a brand is a recorded dose on the results, not counted', () => {
+    renderResults([{ id: 'k1b', date: '', brand: 'MenQuadfi' }]);
     expect(recordedDosesBtn().textContent).toMatch(/\(1\)/);
-    expect(acwyCard().textContent).toMatch(/date unknown/);
   });
 });

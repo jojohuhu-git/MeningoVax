@@ -229,6 +229,8 @@ describe('Items 8–9: doses on the record', () => {
     expect(NOT_COUNTED.general.map((r) => r.text)).toEqual([
       'Repeat that dose only. Do not restart the series.',
       'The repeat is given at least the minimum interval after the invalid dose.',
+      // Owner, 2026-11-27 (with PneumoVax): every dose with no date.
+      'A dose with no date stays on the record but does not count. Only written, dated records are accepted.',
     ]);
     expect(NOT_COUNTED.special.map((r) => r.decision)).toEqual(['repeatAfterTooYoung', 'setAsideClock']);
   });

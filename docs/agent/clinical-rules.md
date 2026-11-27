@@ -698,12 +698,13 @@ empty row moved a healthy 16-year-old's MenACWY card from catch-up to
 booster-due, and the Results "Recorded doses" panel recalculates live, so the
 answer on screen changed the moment "+ Add dose" was clicked.
 
-The clinician now says which one they mean. An otherwise-empty row shows a tick,
-"A dose was given, but the date and brand are unknown", which sets
-`detailsUnknown: true` on the row. With the tick the row is a dose of unknown
-date — since STOP C C1 shown but not counted (see "A Dose With No Date Does Not
-Count"). Without it the row is one
-nobody filled in, and:
+From K1 until 2026-11-27 the clinician said which one they meant with a tick,
+"A dose was given, but the date and brand are unknown" (`detailsUnknown`).
+**OWNER DECISION 2026-11-27 removed the tick from both apps.** A dose with no
+date is kept on the record by **choosing its brand** — shown but not counted
+since STOP C C1 (see "A Dose With No Date Does Not Count"), and the Rulebook
+says so as a general rule under "A dose that does not count". A row with
+neither a date nor a brand is one nobody filled in, and:
 
 - `isBlankDoseRow()` (`doseIdentity.js`) calls it blank — meaning it carries no
   information at all, not merely no date and no brand. Anything present and
