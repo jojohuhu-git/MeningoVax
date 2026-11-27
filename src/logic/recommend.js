@@ -1105,6 +1105,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // Was the "no standing booster schedule … only in a NEW outbreak" sentence;
   // retired by B-2. Kept as an empty string so the notes below read unchanged.
   const outbreakTopUp = '';
+  // C11 (2026-11-26) / INFANT-MIN-CITE (owner, 2026-11-27, "CDC Notes
+  // sentence"): CDC's notes state the infant gaps (8 weeks between the early
+  // doses; the final dose 12 weeks later and after 12 months) for these groups,
+  // so those sentences cite `cdcChildAcwyInfantSeries`. An outbreak-only infant
+  // keeps ACIP's row alone (C11).
+  const cdcInfantGaps = ['complement', 'asplenia', 'hiv', 'travel'].some((r) => riskIds.includes(r));
+  const cdcMark = cdcInfantGaps ? ' [c]' : '';
+  const cdcGapCites = (n) => (cdcInfantGaps ? Array.from({ length: n }, () => cite('cdcChildAcwyInfantSeries')) : []);
   // Nothing can be due before any MenACWY product is licensed. Found 2026-09-17
   // during the calendar P1-1 sweep: an at-risk NEWBORN was told "Dose 1 (infant
   // high-risk series)", due today, with a Menveo chip to pick. The minimum age
@@ -1217,9 +1225,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         brands: MENACWY_INFANT_SERIES_BRANDS, minIntervalDays: startGate.minIntervalDays,
         note: {
           lead: 'Start the four-dose infant series at 2, 4, 6 and 12 months [c].',
-          detail: `Early doses are ≥${weeksLabel(startGate.minIntervalDays)} apart. The final dose is at ≥${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} and ≥${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before.${outbreakTopUp}`,
+          detail: `Early doses are ≥${weeksLabel(startGate.minIntervalDays)} apart${cdcMark}. The final dose is at ≥${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} and ≥${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before${cdcMark}.${outbreakTopUp}`,
         },
-        noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
+        noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds }), ...cdcGapCites(2)],
         boosterCites: infantBoosterCites, refs });
     }
     // B1 (2026-09-17): was `am <= 11`, same mistake at the next band edge —
@@ -1430,7 +1438,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       : earliestGatedDate(lastDate, { minIntervalDays: 0, minAgeMonths: routineAgeM }, today, am);
   const infantAdvised = infantRoutineDate && infantRoutineDate > infantMinByInterval ? infantRoutineDate : null;
   const infantMinClause = infantAdvised
-    ? minimumBesideRoutine({ minDate: infantMinDate, advisedDate: infantAdvised, today, minWords: weeksLabel(nextIntervalDays), fmt: fmtDate })
+    ? minimumBesideRoutine({ minDate: infantMinDate, advisedDate: infantAdvised, today, minWords: weeksLabel(nextIntervalDays), fmt: fmtDate, mark: cdcInfantGaps })
     : '';
   if (infantAdvised) {
     const due = infantAdvised <= today;
@@ -1441,9 +1449,9 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       brands: MENACWY_INFANT_SERIES_BRANDS,
       note: {
         lead: `Continue the ${why} series: doses at 2, 4, 6 and 12 months [c].${infantMinClause}`,
-        detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
+        detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it${cdcMark}.${outbreakTopUp}`,
       },
-      noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
+      noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds }), ...cdcGapCites((infantMinClause ? 1 : 0) + 1)],
       boosterCites: infantBoosterCites,
       refs });
   }
@@ -1461,7 +1469,6 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // weeks (`acip2020InfantSeriesStart3to6mo`) is about MenACWY-CRM started at
   // 3–6 months, and this line also serves a 2-month start that fell off the
   // routine ages (1 card in the saved grid).
-  const cdcInfantGaps = ['complement', 'asplenia', 'hiv', 'travel'].some((r) => riskIds.includes(r));
   return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
     // P0-1: the LATER of the interval and the age floor. This printed the
@@ -1490,11 +1497,11 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           lead: cdcInfantGaps
             ? `Continue the ${why} series [c], with at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`
             : `Continue the ${why} series, with at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
-          detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
+          detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it${cdcMark}.${outbreakTopUp}`,
         },
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo', { riskIds })]
-      : [cite('acwyInfantHighRisk2to6mo', { riskIds }), ...(cdcInfantGaps && !nextGate.isFinalPrimary ? [cite('cdcChildAcwyInfantSeries')] : [])],
+      : [cite('acwyInfantHighRisk2to6mo', { riskIds }), ...(nextGate.isFinalPrimary ? [] : cdcGapCites(2))],
     boosterCites: infantBoosterCites,
     refs });
 }

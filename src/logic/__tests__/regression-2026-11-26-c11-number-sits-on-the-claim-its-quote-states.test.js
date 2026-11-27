@@ -129,7 +129,8 @@ describe('C11: a number sits on a claim its quote states', () => {
   it('6. travel infant, 7 months, started at 3 months: the 8 weeks opens CDC\'s notes, the series ACIP\'s row', () => {
     const c = infant(['travel']);
     expect(text(c)).toContain('Continue the infant travel series [c], with at least 8 weeks between the early doses [c].');
-    expect(keys(c)).toEqual(['acwyInfantHighRisk2to6mo', 'cdcChildAcwyInfantSeries']);
+    // INFANT-MIN-CITE (owner, 2026-11-27): the final-dose sentence after it opens CDC's notes too.
+    expect(keys(c)).toEqual(['acwyInfantHighRisk2to6mo', 'cdcChildAcwyInfantSeries', 'cdcChildAcwyInfantSeries']);
     expect(c.noteCites[1].quote).toMatch(/at least 8 weeks after previous dose/);
   });
 

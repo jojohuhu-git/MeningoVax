@@ -48,7 +48,7 @@ describe('MenQuadfi at 6 weeks, seen at 7 weeks (Nov 21, 2026)', () => {
   }
 
   it('states the earliest valid date, 8 weeks after dose 1 (Jan 9, 2027)', () => {
-    expect(card('2026-11-21').note.lead).toBe('Earliest valid date: Jan 9, 2027 (minimum interval 8 weeks).');
+    expect(card('2026-11-21').note.lead).toBe('Earliest valid date: Jan 9, 2027 (minimum interval 8 weeks) [c].');   // INFANT-MIN-CITE (owner, 2026-11-27): CDC's notes
   });
 
   it('reads the same as the card the same baby gets at 2 months (control)', () => {

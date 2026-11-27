@@ -242,7 +242,9 @@ describe('M3 — no card names one brand while offering two chips', () => {
       riskAtDoseAnswers: { MenACWY: { 0: 'yes' } },
     });
     const card = r.menacwy[0];
-    expect(card.noteCites.map((c) => c.key)).toEqual(['acwyInfantHighRisk2to6mo']);
+    // INFANT-MIN-CITE (owner, 2026-11-27): the 8-week minimum and the final-dose
+    // sentence cite CDC's notes, in the order the card is read (the minimum stays in view).
+    expect(card.noteCites.map((c) => c.key)).toEqual(['cdcChildAcwyInfantSeries', 'acwyInfantHighRisk2to6mo', 'cdcChildAcwyInfantSeries']);
     // WA DOH (the 6-week dose counts) stays with the dose's own rule in
     // doseRules.js, which judges the recorded dose.
     expect(card.citations.map((c) => c.short)).toContain('ACIP 2020 MMWR');
