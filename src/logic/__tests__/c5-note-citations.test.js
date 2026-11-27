@@ -21,6 +21,9 @@ const ACIP_ANCHORS = {
   menbHealthy2Dose0and6: cite('menbHealthy2Dose0and6').url,
   boosterBeforeAge7: cite('boosterBeforeAge7').url,
   boosterAtOrAfterAge7: cite('boosterAtOrAfterAge7').url,
+  // C9 part 3 (owner, 2026-11-26): an HIV patient links to Table 6's copy.
+  boosterBeforeAge7Hiv: cite('boosterBeforeAge7', { riskIds: ['hiv'] }).url,
+  boosterAtOrAfterAge7Hiv: cite('boosterAtOrAfterAge7', { riskIds: ['hiv'] }).url,
 };
 
 const TODAY = '2026-06-03';
@@ -101,8 +104,8 @@ describe('C5 note-citation anchors', () => {
     const rec = acwy(r);
     expect(rec.boosterCites).toHaveLength(2);
     const urls = rec.boosterCites.map((c) => c.url);
-    expect(urls).toContain(ACIP_ANCHORS.boosterBeforeAge7);
-    expect(urls).toContain(ACIP_ANCHORS.boosterAtOrAfterAge7);
+    expect(urls).toContain(ACIP_ANCHORS.boosterBeforeAge7Hiv);
+    expect(urls).toContain(ACIP_ANCHORS.boosterAtOrAfterAge7Hiv);
     // From 7 the line has one half and one quote: HIV's own "≥2 yrs" row
     // (Table 6) prints "Aged ≥7 yrs" at every age.
     const older = acwy(run({ ageMonths: 132, riskIds: ['hiv'], menacwyDoses: [], menbDoses: [] }));

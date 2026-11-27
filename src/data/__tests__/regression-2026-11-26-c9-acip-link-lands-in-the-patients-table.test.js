@@ -19,7 +19,8 @@
 // so every prefix below sits on the sentence's own line.
 //
 // NOT covered: the copies no prefix can reach (Tables 6 and 9's bulleted
-// "Aged <7 / ≥7 yrs" lines, the infant rows). Those are an owner question.
+// "Aged <7 / ≥7 yrs" lines, the infant rows). Those link as a range instead
+// (owner, C9 part 3): regression-2026-11-26-c9-part3-range-link-opens-the-patients-table.
 //
 // The map is written out, not imported, so a moved copy fails here.
 import { describe, it, expect } from 'vitest';
