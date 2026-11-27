@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-27** by `handoff-2026-11-27-meningovax-table8-quote-menb-min-cite.md`. PR #164 merged; the Table 8 quote (#165) and the MenB minimum line (#166) are built; vaxapp is retired. Do not resume from this file.
+
 # MeningoVax — Handoff after Q5c and the pregnant F2a case (2026-11-27)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
