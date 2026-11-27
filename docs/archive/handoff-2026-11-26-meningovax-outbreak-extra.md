@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-tier3-em-dashes.md`. The em dash item was answered and built; resume from that file.
+
 # MeningoVax — Handoff after the outbreak extra-dose answers (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
