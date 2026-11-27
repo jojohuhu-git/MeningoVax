@@ -93,10 +93,12 @@ describe('6 — age lines are clean', () => {
 });
 
 describe('7 — stable over time (every 20th patient)', () => {
-  it('looking at the same record later never changes whether a recorded dose counted', () => {
+  it('looking at the same record later never changes whether a recorded dose counted, or the date a card names', () => {
     const rows = flagged((tally) => {
       for (const p of sample) { tally.setPatient(p); stableOverTime(tally, p); }
     });
-    expect(only(rows, ['7'], ['recorded-dose-verdict-changed', 'due-today-stopped-being-due', 'status-changed-with-no-age-line'])).toEqual([]);
+    // advised-date-moved joined 2026-11-27 (PHASE9-D: the infant first-birthday
+    // date no longer drifts a day with the visit date).
+    expect(only(rows, ['7'], ['recorded-dose-verdict-changed', 'due-today-stopped-being-due', 'status-changed-with-no-age-line', 'advised-date-moved'])).toEqual([]);
   });
 });

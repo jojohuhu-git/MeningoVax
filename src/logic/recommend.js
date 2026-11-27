@@ -1317,7 +1317,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       doseLabel: `Dose 2 of 3 (${why}, dose 2 at ≥${monthsLabel(MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS)})`,   // P14 (review v10)
       doseNum: 2, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed,
-      earliestNextDate: elapsed ? null : earliestGatedDate(lastDate, gate, today, am),
+      earliestNextDate: elapsed ? null : earliestGatedDate(lastDate, gate, today, am, dob),
       minIntervalDays: gate.minIntervalDays,
       brands: MENACWY_INFANT_SERIES_BRANDS,
       note: {
@@ -1342,7 +1342,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       doseLabel: `Dose 3 of 3 (${why}, dose 2 at ≥${monthsLabel(MENACWY_INFANT_LATE_START_MIN_AGE_MONTHS)})`,
       doseNum: 3, seriesTotal: 3, boosterSummary: boosterSummaryText,
       dueToday: elapsed && ageFloor,
-      earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am),
+      earliestNextDate: (elapsed && ageFloor) ? null : earliestGatedDate(lastDate, shortcutGate, today, am, dob),
       minIntervalDays: shortcutGate.minIntervalDays,
       brands: MENACWY_INFANT_SERIES_BRANDS,
       note: {
@@ -1474,7 +1474,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
     // P0-1: the LATER of the interval and the age floor. This printed the
     // interval alone, so a card that said "not before 12 months of age" still
     // advertised a date months before the first birthday.
-    earliestNextDate: (elapsed && ageFloorMetActual) ? null : earliestGatedDate(lastDate, nextGate, today, am),
+    earliestNextDate: (elapsed && ageFloorMetActual) ? null : earliestGatedDate(lastDate, nextGate, today, am, dob),
     minIntervalDays: nextIntervalDays,
     brands: MENACWY_INFANT_SERIES_BRANDS,
     // P0-1: the number is interpolated from the gate the engine just used, so

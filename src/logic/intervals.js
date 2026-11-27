@@ -377,12 +377,23 @@ export function weeksLabel(days) {
  * @param {object}  gate       from menacwyInfantNextDoseGate()
  * @param {string}  today      ISO date
  * @param {?number} ageMonths  the patient's age in months today
+ * @param {?string} dob        ISO date of birth, when known
  */
-export function earliestGatedDate(lastDate, gate, today, ageMonths) {
+export function earliestGatedDate(lastDate, gate, today, ageMonths, dob = null) {
   const byInterval = addDays(lastDate, gate.minIntervalDays);
   if (gate.minAgeMonths == null || ageMonths == null) return byInterval;
   const monthsToGo = gate.minAgeMonths - ageMonths;
   if (monthsToGo <= 0) return byInterval;
+
+  // PHASE9-D (2026-11-27): with the date of birth known, the age floor is the
+  // birthday at that age, the day the engine's own "due" test turns true. The
+  // estimate below, from today's fractional age rounded up, printed the first
+  // birthday one day late on every visit but the one exactly a whole number of
+  // months before it (whole-app finding D, 2026-11-15).
+  if (dob) {
+    const byBirthday = addCalendarMonths(dob, gate.minAgeMonths);
+    return byBirthday > byInterval ? byBirthday : byInterval;
+  }
 
   // P0-1a (2026-09-17): `monthsToGo` is almost never a whole number — ageMonths
   // comes from calendarMonthsBetween(dob, today), which carries a day
