@@ -140,7 +140,7 @@ export default function StepAge({ ageMonths, error, onChange, today: todayProp }
             />
           </div>
           <div className="age-field">
-            <label htmlFor="age-months">Months (optional)</label>
+            <label htmlFor="age-months">Months</label>
             <input
               id="age-months"
               type="number"

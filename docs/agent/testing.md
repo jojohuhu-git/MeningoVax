@@ -21,18 +21,18 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 239 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| Test files, total | 240 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
 | — in `src/logic/__tests__/` (engine, `node` env) | 160 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
-| — in `src/components/__tests__/` (screen) | 72 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 73 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 7 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
-| — of the components ones, opted into `happy-dom` | 71 (the 72nd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 72 (the 73rd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
 
 **Not guarded by a test** — re-run the command if you need a current number,
 rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,761 | `npm test`, 2026-11-27, INFANT-MIN-CITE |
+| Individual `it()` tests, total | 2,773 | `npm test`, 2026-11-27, no "(optional)" field labels |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
