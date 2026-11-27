@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-27** by `handoff-2026-11-27-meningovax-phase9-close.md`. INFANT-MIN-CITE merged (#167) and Phase 9 is done; resume from that file.
+
 # MeningoVax — Handoff after the Table 8 quote and the MenB minimum line (2026-11-27)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

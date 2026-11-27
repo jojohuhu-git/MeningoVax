@@ -1,5 +1,10 @@
 # Plan — bringing PneumoVax's way of working to MeningoVax (REVIEWED DRAFT, 2026-11-08)
 
+> **FINISHED 2026-11-27.** Phase 9 (close) is done: every whole-app check re-run, one fault fixed
+> (PHASE9-D, #168), 93 of 93 ordinary patients near an age line agree with CDC's sentences read
+> live, shared rules named in the parity skill and CLAUDE.md. Report:
+> `report-2026-11-27-phase9-close.md`. Work after this plan is in the newest handoff.
+
 > **MOVED HERE FROM PNEUMOVAX, 2026-11-17 (owner decision).** This plan lived in PneumoVax under
 > the 2026-10-16 rule "a plan covering both apps lives once, in PneumoVax". The port is all
 > MeningoVax work, and every MeningoVax session was opening a docs-only PR in PneumoVax
@@ -626,6 +631,10 @@ cases). Same-dose questions she has delegated (memory `owner-decides-alone-when-
     CDC's sentences (E6).
 9.2 Check the `vaccine-parity` skill and both `CLAUDE.md` files name the shared rules.
 9.3 Handoff; mark this plan finished.
+**DONE 2026-11-27** (`report-2026-11-27-phase9-close.md`): 9.1 whole-app checks re-run (one fault,
+finding D, fixed in #168; the rest owner-decided), CDSI 0 new disagreements, 93 of 93 patients near
+an age line agree with CDC's notes read live, all 16 CDC quotes found word for word; 9.2 `ageEntry.js`
+named as shared (skill, MeningoVax CLAUDE.md; PneumoVax's line and guard left for a PneumoVax session).
 
 ### Totals
 
