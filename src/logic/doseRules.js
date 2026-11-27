@@ -1678,7 +1678,7 @@ export const DOSE_RULES = [
   {
     id: 'MENB-HIGHRISK-BOOSTER-GAP',
     inventory: 'B12',
-    what: 'A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days; a serogroup B outbreak\'s one booster sooner than 6 months',
+    what: 'A high-risk MenB booster sooner than 1 year (first) or 2 years (later), counted in days; a serogroup B outbreak\'s one booster sooner than 6 months (an outbreak has no later booster to judge)',
     vaccine: 'MenB',
     dated: true,
     schedule: 'high-risk',
@@ -1689,7 +1689,7 @@ export const DOSE_RULES = [
     sourcesSay: {
       verdict: 'owner-decided',
       refs: ['acip2020MenbBoosterCadence', 'acip2020Table8MenbOutbreakBooster', 'acip2020Table8MenbOutbreakBoosterSixMonths'],
-      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D). Owner, Tier 1 Q1 (2026-11-22): this holds when the first booster is the 3rd dose, after a 2-dose series. Owner, Tier 1 Q5 (2026-11-22): a serogroup B outbreak\'s one booster counts from 6 months, as ACIP 2020 Table 8 allows ("≥6 mos interval might also be considered by public health professionals"); the other groups keep 1 year.',
+      note: 'ACIP gives boosters "1 year after primary series completion, then every 2–3 years" as a schedule, not as a minimum; CDC\'s software treats 1 and 2 years less 4 days as minimums. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D). Owner, Tier 1 Q1 (2026-11-22): this holds when the first booster is the 3rd dose, after a 2-dose series. Owner, Tier 1 Q5 (2026-11-22): a serogroup B outbreak\'s one booster counts from 6 months, as ACIP 2020 Table 8 allows ("≥6 mos interval might also be considered by public health professionals"); the other groups keep 1 year. Owner, 2026-11-26 ("Extra, as Q8"): an outbreak calls for one booster (D10; Table 8: "Single dose"), so a MenB dose after it is not held to the 2-year line; the Extra rule (Q8) judges it, as it already did a dose 2+ years later.',
     },
     label: 'Not counted — repeat',
     // Only too-soon is flagged; a late booster is ordinary catch-up.
@@ -1716,6 +1716,14 @@ export const DOSE_RULES = [
           [cite('acip2020Table8MenbOutbreakBoosterSixMonths')],
         ));
       }
+      // Owner, 2026-11-26 ("Extra, as Q8"): an outbreak alone calls for ONE
+      // booster (D10), so there is no later booster to time. A dose after it is
+      // left to the Extra rule (validate.js notAskedFor): "The series was
+      // already complete on that day.", as a dose 2+ years later already read.
+      // Before, the 2-year line said "2 years required", which no source states
+      // for an outbreak. With asplenia, complement or microbiologist also
+      // ticked, their every-2–3-years boosters win (D10) and this does not apply.
+      if (!isFirstBooster && outbreakBOnly(ctx.riskIds)) return null;
       const minInterval = isFirstBooster ? MENB_HR_FIRST_BOOSTER_MIN : MENB_HR_SUBSEQUENT_BOOSTER_MIN;
       const minLabel = fmtMonths((isFirstBooster ? MENB_HIGHRISK_FIRST_BOOSTER_YEARS : MENB_HIGHRISK_BOOSTER_CADENCE_YEARS) * 12);
       if (intervalMeetsMinimum(prev.interval, minInterval)) return null;
