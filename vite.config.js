@@ -1,5 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { execSync } from 'node:child_process';
+
+// "Last updated" on the Rulebook footer (owner, 2026-11-27: "make sure to add
+// when this app was last updated"): the date of the latest commit, read when
+// the app is built, so it is never typed and never goes stale. Falls back to
+// today if git is unavailable. Vite hands VITE_* variables to the app as
+// import.meta.env.VITE_LAST_UPDATED.
+try {
+  process.env.VITE_LAST_UPDATED = execSync('git log -1 --format=%cs', { encoding: 'utf8' }).trim();
+} catch {
+  process.env.VITE_LAST_UPDATED = new Date().toISOString().slice(0, 10);
+}
 
 // base is set for GitHub Pages deployment under /MeningoVax/ (must match the
 // GitHub repo name exactly — Pages paths are case-sensitive).

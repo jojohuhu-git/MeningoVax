@@ -1560,6 +1560,8 @@ body {
 .rb-doc a { color: var(--c); }
 
 .rb-foot { font-size: var(--fs-xs); color: var(--gy3); line-height: 1.6; }
+.rb-foot a { color: inherit; }
+.rb-updated { display: block; margin-top: var(--sp-4); }
 
 @media (max-width: 720px) {
   .rb-card { padding: var(--sp-16); }

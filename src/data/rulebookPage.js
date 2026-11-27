@@ -431,7 +431,9 @@ export const HEADINGS = {
   record: 'Read the record',
   acwy: 'MenACWY schedule',
   menb: 'MenB schedule',
-  dates: 'Set the dates',
+  // Renamed 2026-11-27 (PneumoVax owner review, L5: she did not understand
+  // "Set the dates"; MeningoVax takes the same name: "yes").
+  dates: 'Time between doses',
   penta: 'Combined shot (MenABCWY)',
   decisions: 'MeningoVax decisions',
   sources: 'Sources',
