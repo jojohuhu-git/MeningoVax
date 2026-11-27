@@ -333,7 +333,7 @@ export function sourcesFor(examples = [], keys = null, vaccine = null) {
  * (regression-2026-11-21-rulebook-sources-per-vaccine.test.jsx).
  */
 export const SENTENCE_VACCINE = Object.fromEntries([
-  ['general', ['cdcComplementIncompleteProtection', 'cdcComplementConsiderProphylaxis', 'cdcComplementVaccinate2WeeksBefore', 'gbpWrittenDatedRecords', 'gbpRepeatSpacedFromInvalidDose', 'gbpTooYoungFirstDoseRepeat', 'gbpRecordsNotFoundSusceptible']],
+  ['general', ['cdcComplementIncompleteProtection', 'cdcComplementConsiderProphylaxis', 'cdcComplementVaccinate2WeeksBefore', 'gbpWrittenDatedRecords', 'gbpRepeatSpacedFromInvalidDose', 'gbpGraceFourDays', 'gbpTooYoungFirstDoseRepeat', 'gbpRecordsNotFoundSusceptible']],
   ['MenABCWY', ['pentavalentHighRiskNoUpperAge', 'pentavalentLicensed10to25', 'cdcAdultPenbrayaSameDay', 'cdcChildPenbrayaDose2Trumenba',
     'cdcChildPenbraya6Months', 'penmenvyIsCrm4C', 'penmenvyMenb4COtherDoses', 'penbrayaMenbFhbpOtherDoses', 'pentavalentWhenBothIndicated',
     'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent', 'penmenvyAged10BothIndicated', 'penmenvyLicensedAge1025']],

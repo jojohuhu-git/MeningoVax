@@ -1450,6 +1450,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // being asked for it because the `given >= 4` default guard above didn't
   // consider them complete at 3, so the total shown here must be 4 too, or
   // this dose's own doseNum would exceed it.
+  // C11 (2026-11-26): "at least 8 weeks between the early doses" cites CDC's
+  // notes, which state the 8 weeks, for the groups they speak for; ACIP's row
+  // ("4 doses at 2, 4, 6, and 12 mos") stays on "the series". An outbreak
+  // infant keeps ACIP's row alone: the one outbreak sentence that states 8
+  // weeks (`acip2020InfantSeriesStart3to6mo`) is about MenACWY-CRM started at
+  // 3–6 months, and this line also serves a 2-month start that fell off the
+  // routine ages (1 card in the saved grid).
+  const cdcInfantGaps = ['complement', 'asplenia', 'hiv', 'travel'].some((r) => riskIds.includes(r));
   return rec({ vaccine: 'MenACWY', status: 'risk-based', doseLabel: `Dose ${given + 1} (${why} series)`, doseNum: given + 1, seriesTotal: menacwyInfantHighRiskTotal({ d1AgeM, d2AgeM }), boosterSummary: boosterSummaryText,
     dueToday: elapsed && ageFloorMetActual,
     // P0-1: the LATER of the interval and the age floor. This printed the
@@ -1475,12 +1483,14 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           detail: `This completes the ${why} series. Both conditions have to be met, so the dose falls on whichever comes later — the interval since the last dose, or the first birthday.${outbreakTopUp}`,
         }
         : {
-          lead: `Continue the ${why} series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
+          lead: cdcInfantGaps
+            ? `Continue the ${why} series [c] — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`
+            : `Continue the ${why} series — at least ${weeksLabel(nextIntervalDays)} between the early doses [c].`,
           detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
         },
     noteCites: d1WasInfant7to11
       ? [cite('acwyInfantHighRisk7to23mo', { riskIds })]
-      : [cite('acwyInfantHighRisk2to6mo', { riskIds })],
+      : [cite('acwyInfantHighRisk2to6mo', { riskIds }), ...(cdcInfantGaps && !nextGate.isFinalPrimary ? [cite('cdcChildAcwyInfantSeries')] : [])],
     boosterCites: infantBoosterCites,
     refs });
 }
@@ -1497,6 +1507,11 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
   // (routine schedule) anchor -- a precision upgrade, not a Penmenvy fix.
   const refs = ['acip2020Table2'];
   const routineCite = [cite('acwyRoutine1112and16')];
+  // C11 (2026-11-26, citation only, Q12): "completes the adolescent schedule"
+  // for a patient whose first dose came at 16 or older cites the sentence that
+  // says so ("do not need a booster dose"); with a dose before 16 as well, the
+  // 11–12 + 16 schedule sentence states the two doses the patient has.
+  const sixteenOnlyCite = [cite('acwyFirstDoseAfter16NoBooster')];
   // Ruling D: see menacwyRec.
   const lastDate = clockDate || last?.date || null;
   // P1-1 (2026-09-17): a dose up to 4 days before the 16th birthday satisfies
@@ -1700,7 +1715,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
         lead: 'A MenACWY dose at age 16 years or older completes the adolescent schedule [c].',
         detail: 'No further routine doses are needed. A new risk indication would start a schedule of its own: asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak.',
       },
-      noteCites: routineCite, refs })];
+      noteCites: hasDoseBefore16 ? routineCite : sixteenOnlyCite, refs })];
   }
   // ≥22y healthy, no risk
   // A1: a dose given at ≥16y completes the adolescent schedule regardless of
@@ -1718,7 +1733,7 @@ function menacwyRoutine(am, given, doses, last, today, dob, clockDate = null, ri
         lead: 'A MenACWY dose at age 16 years or older completed the adolescent schedule [c].',
         detail: 'No further routine doses are needed. A new risk indication would start a schedule of its own: asplenia, complement deficiency, complement-inhibitor therapy, HIV, travel, or an outbreak.',
       },
-      noteCites: routineCite, refs })];
+      noteCites: hasDoseBefore16 ? routineCite : sixteenOnlyCite, refs })];
   }
   // Beyond 21 (≥22y), a healthy person with no risk gets neither a routine
   // nor a catch-up dose: ACIP 2020's catch-up sentence covers 19–21 only.
@@ -1800,7 +1815,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           lead: `MenB is licensed from age ${ageYears(MENB_MIN_AGE_MONTHS)} years [c], so nothing is due yet.`,
           detail: riskIds.includes('complement')
             ? `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series [c] once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`
-            : `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
+            : `This patient has a high-risk indication, so track them for the ${MENB_HIGHRISK_TOTAL}-dose high-risk MenB series ${scheduleMarks('menbHighRisk3DoseSchedule')} once they reach age ${ageYears(MENB_MIN_AGE_MONTHS)} [c].`,
         },
         // C4 (2026-11-21): ACIP 2020's "persons aged ≥10 years who are at
         // increased risk" sentence, so the ACIP 2020 button here is cited.
@@ -1808,8 +1823,11 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // "currently licensed for use in persons aged 10–25 years".
         // C4 complement page (owner, 2026-11-22): a complement patient's
         // "3-dose" also cites CDC's "MenB vaccines need 3 doses".
+        // C11 (2026-11-26, citation only, Q12): the "3-dose" of every other
+        // high-risk group cites ACIP Oct 2024's 3-dose schedule sentence(s);
+        // before, it sat on no number and only the age-10 sentence was cited.
         noteCites: [cite('menbLicensedAge1025Acip2024'),
-          ...(riskIds.includes('complement') ? [cite('cdcComplementMenb3Doses')] : []),
+          ...(riskIds.includes('complement') ? [cite('cdcComplementMenb3Doses')] : scheduleCites('menbHighRisk3DoseSchedule')),
           cite('acip2020MenbRiskGroups')],
         // C4 CDC recommendations page (2026-11-22): a serogroup B outbreak
         // lists the page for its booster; nothing on this card is a booster,
@@ -1934,12 +1952,15 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           // one, stays on the card (Q10 list).
           lead: minClause
             ? `Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}.${minClause}`
-            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)}), with the same MenB product, and dose 3 about 6 months after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
+            : `Give dose 2 1–2 months after dose 1 (minimum ${weeksLabel(MENB_HIGHRISK_D2_GAP)} [c]), with the same MenB product, and dose 3 about 6 months after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
           detail: menbPregnancyCaveat.trim(),
         },
         // C4 mm7349a3 (2026-11-22): the 0 / 1–2 / 6-month schedule, as the dose
         // 1 and dose 3 cards already cite it.
-        noteCites: [...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
+        // C11 (2026-11-26): "(minimum 4 weeks)" cites ACIP 2020's own 4 weeks,
+        // the sentence the dose-2 rule row rests on (owner C8); the schedule
+        // sentence states 0 / 1–2 / 6 months and no minimum.
+        noteCites: [...(minClause ? [] : [cite('acip2020MenbRepeat4Weeks')]), ...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // Only reachable while the series really is three doses long; a 2-dose
@@ -2005,12 +2026,16 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
           detail: menbPregnancyCaveat.trim(),
         }
         : {
-          lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 ${scheduleMarks('menbHighRisk3DoseSchedule')}.`,
+          lead: `Dose 3 is due at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D1)} after dose 1 ${scheduleMarks('menbHighRisk3DoseSchedule')}, and at least ${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after dose 2 [c].`,
           detail: `That is the 0 / 1–2 / 6-month schedule ACIP gives a high-risk MenB series. Both intervals have to be met, so the dose falls on whichever comes later.${menbPregnancyCaveat}`,
         },
         // The repeat's sentence (`menbHighRiskEarlyD3Unless`) is from the paragraph
         // that names both MenB-4C and MenB-FHbp, so it serves either family.
-        noteCites: [...(invalidD3Date ? [cite('menbHighRiskEarlyD3Unless')] : scheduleCites('menbHighRisk3DoseSchedule')), ...pregCites],
+        // C11 (2026-11-26): the schedule sentence states 6 months from dose 1
+        // and no 4 months from dose 2; ACIP Oct 2024's "If the third dose is
+        // administered <4 months after the second dose, the dose should be
+        // repeated" states that one.
+        noteCites: [...(invalidD3Date ? [cite('menbHighRiskEarlyD3Unless')] : [...scheduleCites('menbHighRisk3DoseSchedule'), cite('menbHighRiskEarlyD3Unless')]), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // M1 (owner, 2026-11-20): there is no "Dose 4 of 4" card any more. An
@@ -2056,7 +2081,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
     };
     const sl = shortcut && SHORTCUT_LINES[shortcut.kind];
     const shortcutLine = sl
-      ? `${sl.start} ${shortcut.grace ? '' : 'at least '}${monthsLabel(sl.months)} after ${sl.after}${shortcut.grace ? `, within the ${GRACE_DAYS}-day grace period` : ''} [c]. `
+      ? `${sl.start} ${shortcut.grace ? '' : 'at least '}${monthsLabel(sl.months)} after ${sl.after} [c]${shortcut.grace ? `, within the ${GRACE_DAYS}-day grace period [c]` : ''}. `
       : '';
     const elapsed = calendarIntervalElapsed(lastDate, boosterYears * 12, today);
     return [rec({ vaccine: 'MenB', status: 'risk-based',
@@ -2078,7 +2103,9 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // years" box, which would contradict the line above it.
       // C4 mm7349a3 (2026-11-22): the same-family line cites the 2024 report's
       // "Booster doses need to be from the same manufacturer".
-      noteCites: [...(sl ? [cite(sl.key)] : []), ...(outbreakOnly ? [...OUTBREAK_B_BOOSTER_CITES(), cite('acip2020Table8MenbOutbreakBoosterSixMonths')] : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
+      // C11 (2026-11-26): "within the 4-day grace period" cites CDC's grace
+      // sentence; ACIP's sentence speaks for the 6 or 4 months only.
+      noteCites: [...(sl ? [cite(sl.key), ...(shortcut.grace ? [cite('gbpGraceFourDays')] : [])] : []), ...(outbreakOnly ? [...OUTBREAK_B_BOOSTER_CITES(), cite('acip2020Table8MenbOutbreakBoosterSixMonths')] : [cite('menbHighRiskBoosterCadenceBox')]), cite('menbBoosterSameManufacturer'), ...pregCites],
       refs: refs(['mm7349a3']) })];
   }
 
