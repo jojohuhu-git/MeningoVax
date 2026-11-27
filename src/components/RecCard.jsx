@@ -128,7 +128,7 @@ function describeDose(dose, idx, ageMonths, today, dob) {
   );
   parts.push(dose?.brand ? stripAntigen(dose.brand) : 'brand unknown');
   if (dose?.creditedFrom) {
-    parts.push(`one shot covering both — recorded under ${dose.creditedFrom}`);
+    parts.push(`one shot covering both (recorded under ${dose.creditedFrom})`);
   }
   return parts.join(' · ');
 }

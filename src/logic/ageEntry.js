@@ -64,14 +64,14 @@ export function ageEntryProblem({ mode, dob, years, months, today }) {
   if (mode === 'dob') {
     if (!dob) return null;
     if (dob > ref) {
-      return 'That date of birth is in the future. Check the year — if it is a typo, correct it.';
+      return 'That date of birth is in the future. Check the year. If it is a typo, correct it.';
     }
     const am = dobToAgeMonths(dob, ref);
     if (am == null || !Number.isFinite(am)) {
       return 'That date of birth cannot be read. Check the year, month and day.';
     }
     if (am >= MAX_PLAUSIBLE_AGE_MONTHS) {
-      return `That date of birth would make the patient over ${MAX_PLAUSIBLE_AGE_YEARS} years old. Check the year — a two-digit year such as 26 is read as the year 26, not 2026.`;
+      return `That date of birth would make the patient over ${MAX_PLAUSIBLE_AGE_YEARS} years old. Check the year: a two-digit year such as 26 is read as the year 26, not 2026.`;
     }
     return null;
   }

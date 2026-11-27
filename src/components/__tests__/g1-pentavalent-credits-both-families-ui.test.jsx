@@ -45,7 +45,7 @@ describe('G1 (UI): a Penbraya recorded under MenACWY shows up in the MenB card',
   it('the MenB card lists the shared dose and says where it was recorded', () => {
     const card = menbCard(show().container);
     expect(card.textContent).toMatch(/Penbraya/);
-    expect(card.textContent).toMatch(/one shot covering both — recorded under MenACWY/);
+    expect(card.textContent).toMatch(/one shot covering both \(recorded under MenACWY\)/);
   });
 
   it('the shared dose is graded as MenB dose 1 of 2, not ignored', () => {
@@ -108,8 +108,10 @@ describe('G1 (UI): the whole wizard, a 17-year-old with one Penbraya', () => {
 
   it('warns on the MenACWY step that this one entry covers both vaccines', () => {
     driveToMenbStep();
-    expect(screen.getByTestId('pentavalent-covers-both').textContent)
-      .toMatch(/do not record it\s+again on the MenB step/);
+    const note = screen.getByTestId('pentavalent-covers-both').textContent;
+    // Tier 3 (owner 2026-11-26): a period, not an em dash.
+    expect(note).toMatch(/as well\. Do not record it\s+again on the MenB step/);
+    expect(note).not.toMatch(/—/);
   });
 
   it('carries the credit to the MenB step and on to the results', () => {
@@ -121,7 +123,7 @@ describe('G1 (UI): the whole wizard, a 17-year-old with one Penbraya', () => {
     fireEvent.click(screen.getByRole('button', { name: /view results/i }));
 
     const card = menbCard(document.body);
-    expect(card.textContent).toMatch(/one shot covering both — recorded under MenACWY/);
+    expect(card.textContent).toMatch(/one shot covering both \(recorded under MenACWY\)/);
     expect(card.textContent).toMatch(/Dose 1 of 2/);
   });
 });
