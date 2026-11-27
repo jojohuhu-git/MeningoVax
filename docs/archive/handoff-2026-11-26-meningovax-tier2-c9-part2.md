@@ -5,12 +5,12 @@ that "disappears"). Live at https://jojohuhu-git.github.io/MeningoVax/ (deploys 
 is a clinician: plain English, short questions with a worked patient; ask, don't default.
 **Supersedes** `handoff-2026-11-26-meningovax-tier2-c9-part1.md`.
 
-Two open PRs, both against `main`; the owner merges (squash):
-- **#155** `tier2/c9-cdc-sections` (C9 part 1, plus the part-1 handoff).
-- **#156** `tier2/c9-acip-copies`, cut from #155's branch, so it contains #155's commits. **Merge
-  #155 first.** Head `d55f9b0` plus this handoff commit.
+- **#155** (C9 part 1) was **merged** into `main` on 2026-11-26 (`208eccd`).
+- **#156** `tier2/c9-acip-copies` (C9 part 2) is **open** against `main`; the owner merges (squash).
+  `main` was merged into it after #155 landed (a force-push was refused), so its diff holds only
+  part 2 and this handoff.
 
-Baseline on `main` was **2,628 passing (227 files)**. On `tier2/c9-acip-copies`: **2,675 passing,
+Baseline on `main` before #155 was **2,628 passing (227 files)**. On `tier2/c9-acip-copies`: **2,675 passing,
 0 failing (229 files)**, run this session.
 
 ## What's done
@@ -53,7 +53,7 @@ else depends on it.
 ## Resuming
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git fetch && git status`.
-2. If #155 and #156 are merged: `git checkout main && git pull`, run `npx vitest run`, and confirm
+2. If #156 is merged: `git checkout main && git pull`, run `npx vitest run`, and confirm
    **2,675 passing (229 files)**.
 3. Start `MeningoVax dev server` (`.claude/launch.json`) and check usage (`get_usage`). Extra usage
    was at $38.16 of the $50 cap at the start of 2026-11-26.
