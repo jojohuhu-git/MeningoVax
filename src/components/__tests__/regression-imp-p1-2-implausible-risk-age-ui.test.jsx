@@ -81,7 +81,7 @@ describe('imp P1-2 UI: the note a clinician actually sees', () => {
     const link = note().querySelector('a.note-cite');
     expect(link).toBeTruthy();
     expect(link.getAttribute('href')).toContain('rr6909a1');
-    expect(link.getAttribute('title')).toContain('Table 7');
+    expect(link.getAttribute('data-title')).toContain('Table 7');
   });
 
   it('shows pregnancy\'s note with no citation, because none exists', () => {

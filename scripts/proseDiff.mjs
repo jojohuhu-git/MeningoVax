@@ -32,7 +32,8 @@
 //
 // Plus the hover text on each source number and chip (the `title`), written
 // as {hover: …}, because that is where a clinician learns which document a
-// number came from.
+// number came from. Since C12 (2026-11-26) a source number keeps its words in
+// `data-title` and shows them in a pop-up; the same words are read from there.
 //
 // It is a TOOL, not a gate. Nothing fails when wording changes. The smoke test
 // (`prose-diff-tool.test.js`) only checks the tool still reads what it should.
@@ -62,7 +63,7 @@ const decode = (s) => s.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, e) => {
 export function textOf(html) {
   return decode(
     html
-      .replace(/<[^>]*\btitle="([^"]*)"[^>]*>/g, (_, t) => ` {hover: ${t}} `)
+      .replace(/<[^>]*\b(?:data-)?title="([^"]*)"[^>]*>/g, (_, t) => ` {hover: ${t}} `)
       .replace(/<[^>]+>/g, ' '),
   ).replace(/\s+/g, ' ').trim();
 }

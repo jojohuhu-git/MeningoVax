@@ -21,11 +21,11 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 229 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| Test files, total | 230 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
 | — in `src/logic/__tests__/` (engine, `node` env) | 154 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
-| — in `src/components/__tests__/` (screen) | 69 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
+| — in `src/components/__tests__/` (screen) | 70 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 6 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
-| — of the components ones, opted into `happy-dom` | 68 (the 69th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
+| — of the components ones, opted into `happy-dom` | 69 (the 70th, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
 
 **Not guarded by a test** — re-run the command if you need a current number,
 rather than trusting this document:
@@ -102,6 +102,7 @@ for finding the right one:
 | [`regression-2026-11-23-c13-booster-quote-fits-age-band.test.js`](../../src/logic/__tests__/regression-2026-11-23-c13-booster-quote-fits-age-band.test.js) | C13 (2026-11-23): a MenACWY booster quote from another age band. 6,550 cards for patients 7 or older read "3 years after the series if it ends before 7 years", quoting ACIP's "Aged <7 yrs" row; complement/asplenia series ended at 10+ quoted the 2–9 row. Owner: from 7 the line is "Boosters: 5 years after the series [c], then every 5 years while at risk"; a complement/asplenia series ended at 10+ says "10 years or older" and quotes Tables 4/5's "≥10 yrs" row (`boosterFrom10`). Swept over every saved patient; controls: under 7 keeps both halves, HIV keeps "Aged ≥7" (Table 6's one row). Fails with the fix reverted (3 of 6). |
 | [`regression-2026-11-23-c6-cite-cdc-first.test.js`](../../src/logic/__tests__/regression-2026-11-23-c6-cite-cdc-first.test.js) | C6 (2026-11-23): cite CDC first; immunize.org only where CDC is silent. The last immunize.org source (the age-10 MenACWY answer, 658 cards) gave way to ACIP 2020's own sentence, owner "Cite CDC only". No saved card cites immunize.org; control: a dose before age 10 never gets the age-10 sentence. |
 | [`regression-2026-11-21-summary-line-no-can-be-given-sentence.test.jsx`](../../src/components/__tests__/regression-2026-11-21-summary-line-no-can-be-given-sentence.test.jsx) | A high-risk MenB dose 2 past its 4-week minimum, before its routine date. The summary line said "MenB dose 2 can be given today." (owner, morning of 2026-11-21); owner MQ6-f the same day (follow the standard schedule): it says only "No MenACWY or MenB doses due today.", the badge "Next dose not yet due", the note still "It can be given today if needed". Controls: before the minimum, and dose 2 due. |
+| [`regression-2026-11-26-c12-number-opens-the-quote.test.jsx`](../../src/components/__tests__/regression-2026-11-26-c12-number-opens-the-quote.test.jsx) | C12 (2026-11-26, owner "Build as shown"): a card's raised number shows its quote only in the browser's slow built-in hover text (nothing on a phone or tablet). PneumoVax's pop-up (#114) is copied: hover, keyboard focus or a first tap opens the document's name, the quoted sentence and "Open the document"; moving or tapping away, Escape and scrolling close it; a mouse click still opens the page at the sentence. The words sit in `data-title`, which `npm run prose` reads. 0 answers and 0 sentences moved. |
 
 ## The sweep pattern
 

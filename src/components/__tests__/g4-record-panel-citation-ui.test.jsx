@@ -39,7 +39,7 @@ describe('G4: record-panel verdicts render their citation', () => {
     expect(link.tagName).toBe('A');
     expect(link.getAttribute('href')).toContain('cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm');
     // The hover text is the quoted ACIP sentence itself, same as the cards.
-    expect(link.getAttribute('title')).toContain('before age 10 years');
+    expect(link.getAttribute('data-title')).toContain('before age 10 years');
     expect(link.className).toContain('note-cite');
   });
 

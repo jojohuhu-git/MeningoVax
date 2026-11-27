@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 import { fmtDate, fmtAgeMonths, stripAntigen } from '../logic/format.js';
 import { ageAtDoseFromDate } from '../logic/validate.js';
 import { isFutureDated } from '../logic/doseRules.js';
@@ -364,13 +364,100 @@ function renderNoteWithCites(note, noteCites, numberFor = makeCiteNumberer()) {
     if (i === parts.length - 1) return [part];
     const c = noteCites[i];
     if (!c) return [part];
-    const marker = `[${numberFor(c.page ?? c.key)}]`;
-    return [part, (
-      <a key={i} href={c.url} target="_blank" rel="noopener noreferrer" className="note-cite" title={citeTitle(c)}>
-        {marker}
-      </a>
-    )];
+    return [part, <CiteMark key={i} c={c} n={numberFor(c.page ?? c.key)} />];
   });
+}
+
+// ── C12 (port plan, Phase 8; owner "Build as shown", 2026-11-26) ─────────
+//
+// PneumoVax's citation pop-up (its PR #114, `CiteMark` in
+// src/components/citations.jsx), copied so the two apps behave the same.
+// Before this the quote lived in the browser's own `title` hover text: about a
+// second's wait, and nothing at all on a touch screen, where a tap went
+// straight to CDC's page. Now the same words (`citeTitle`, unchanged) open at
+// once on hover or keyboard focus, and on a phone or tablet the first tap opens
+// the pop-up instead of leaving the page; the pop-up carries the link. Ways
+// out: moving or tapping away, Escape, scrolling.
+//
+// The text moved from `title` to `data-title` so the browser's own hover text
+// does not appear on top of this one a second later. Tests read `data-title`.
+// On the server (the prose tool renders the screen without a browser) a layout
+// effect does nothing and React warns once per number; there is nothing to
+// place there, so the plain effect stands in. In a browser it is the same.
+const useClientLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+function CiteMark({ c, n }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef(null);
+  const pop = useRef(null);
+  const lastPointer = useRef('mouse');
+  const text = citeTitle(c) ?? '';
+  const [head, ...rest] = text.split('\n');
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
+    const onScroll = () => setOpen(false);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onDown);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  }, [open]);
+  // Placed against the WINDOW, not the card: a result card clips what
+  // overflows it, so a number near the card's right edge would lose half its
+  // pop-up. Fixed position, kept inside the window, closed on scroll (above).
+  // Set through the element, not a `style` prop (no inline styles).
+  useClientLayoutEffect(() => {
+    const el = pop.current;
+    const anchor = wrap.current;
+    if (!open || !el || !anchor || typeof window === 'undefined') return;
+    const a = anchor.getBoundingClientRect();
+    const gap = 8;
+    const w = el.offsetWidth;
+    el.style.left = `${Math.max(gap, Math.min(a.left, window.innerWidth - w - gap))}px`;
+    // Flush against the number: a gap would fire mouseleave on the way to the
+    // "Open the document" link and shut the pop-up under the pointer.
+    const below = a.bottom;
+    el.style.top = `${below + el.offsetHeight > window.innerHeight - gap ? Math.max(gap, a.top - el.offsetHeight) : below}px`;
+  }, [open]);
+  return (
+    <span
+      className="cite-wrap"
+      ref={wrap}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <a
+        href={c.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="note-cite"
+        data-title={text}
+        aria-expanded={open}
+        onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+        onFocus={() => setOpen(true)}
+        onBlur={(e) => { if (!wrap.current?.contains(e.relatedTarget)) setOpen(false); }}
+        onClick={(e) => {
+          // A touch has no hover: its first tap opens the pop-up; the link
+          // inside it opens the document.
+          if (lastPointer.current === 'touch' && !open) { e.preventDefault(); setOpen(true); }
+        }}
+      >
+        {`[${n}]`}
+      </a>
+      {open && (
+        <span className="cite-pop" role="tooltip" ref={pop}>
+          <span className="cite-pop-head">[{n}] {head}</span>
+          {rest.length > 0 && <span className="cite-pop-quote">{rest.join(' ')}</span>}
+          <a href={c.url} target="_blank" rel="noopener noreferrer" className="cite-pop-link">Open the document</a>
+        </span>
+      )}
+    </span>
+  );
 }
 
 // U1 (2026-09-17): the card shows the note's `lead` — what to do for this
