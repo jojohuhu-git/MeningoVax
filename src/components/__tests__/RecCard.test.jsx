@@ -305,7 +305,7 @@ describe('RecCard note-citation hover quote', () => {
       />
     );
     const link = screen.getByText('[1]');
-    expect(link.getAttribute('title')).toBe(quote);
+    expect(link.getAttribute('data-title')).toBe(quote);
     expect(link.getAttribute('href')).toContain('#:~:text=');
   });
 

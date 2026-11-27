@@ -52,7 +52,7 @@ describe('C1 — the hover text on a raised number names its document', () => {
     }} />);
 
     const link = screen.getByText('[1]');
-    const title = link.getAttribute('title') ?? '';
+    const title = link.getAttribute('data-title') ?? ''; // C12: the words moved from `title` to the pop-up's `data-title`
     const [first, ...rest] = title.split('\n');
 
     expect(first, 'the hover text does not lead with the document name')

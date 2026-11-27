@@ -74,8 +74,8 @@ describe('RecCard note-citation links (C5/Change 4)', () => {
     expect(screen.queryByText('[2]')).toBeNull();
     expect(links[0].getAttribute('href')).toBe('https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=before');
     expect(links[1].getAttribute('href')).toBe('https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm#:~:text=after');
-    expect(links[0].getAttribute('title')).toBe('Aged <7 yrs: 3 years after primary');
-    expect(links[1].getAttribute('title')).toBe('Aged ≥7 yrs: 5 years after primary');
+    expect(links[0].getAttribute('data-title')).toBe('Aged <7 yrs: 3 years after primary');
+    expect(links[1].getAttribute('data-title')).toBe('Aged ≥7 yrs: 5 years after primary');
   });
 
   it('a note with no noteCites renders as plain text, no stray links', () => {
@@ -105,7 +105,7 @@ describe('RecCard note-citation links (C5/Change 4)', () => {
     fireEvent.click(screen.getByTestId('rec-note-toggle'));
     expect(marks().map((a) => a.textContent)).toEqual(['[1]', '[2]']);
     expect(marks()[0].getAttribute('href')).toBe('https://example.com/detail#y');
-    expect(marks()[0].getAttribute('title')).toBe('Detail source');
+    expect(marks()[0].getAttribute('data-title')).toBe('Detail source');
   });
 
   it('a lead with no marker leaves the whole list to the detail', () => {
