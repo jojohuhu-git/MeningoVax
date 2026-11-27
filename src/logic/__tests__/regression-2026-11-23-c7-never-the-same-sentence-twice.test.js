@@ -29,7 +29,8 @@ import { buildSavedAnswerCases } from '../../test-grid.js';
 
 // Entries allowed to share words, because each names a different table/group.
 const SAME_WORDS_DIFFERENT_TABLES = [
-  ['acip2020Table7MicrobiologistBooster', 'acip2020Table9TravelBooster', 'boosterFrom10'],
+  // boosterFrom10Asplenia: Table 5's copy of Table 4's ≥10 row, split 2026-11-26 (C9 part 2).
+  ['acip2020Table7MicrobiologistBooster', 'acip2020Table9TravelBooster', 'boosterFrom10', 'boosterFrom10Asplenia'],
 ];
 
 const quoteOf = (m) => m.quote ?? CITATIONS[m.key]?.quote;
@@ -47,11 +48,12 @@ describe('C7: never the same sentence twice', () => {
     expect(shared).toEqual(SAME_WORDS_DIFFERENT_TABLES);
   });
 
-  it('the allowed group really is three different tables about three groups', () => {
-    const [micro, travel, from10] = SAME_WORDS_DIFFERENT_TABLES[0].map((k) => CITATIONS[k]);
+  it('the allowed group really is four different tables about four groups', () => {
+    const [micro, travel, from10, from10Asplenia] = SAME_WORDS_DIFFERENT_TABLES[0].map((k) => CITATIONS[k]);
     expect(micro.label).toMatch(/Table 7 \(microbiologists/);
     expect(travel.label).toMatch(/Table 9 \(travelers/);
-    expect(from10.label).toMatch(/Tables 4 and 5 \(complement, asplenia/);
+    expect(from10.label).toMatch(/Table 4 \(complement;/);
+    expect(from10Asplenia.label).toMatch(/Table 5 \(asplenia;/);
   });
 
   it('the Table 2 sentence is one entry (the C13 adult card uses it)', () => {

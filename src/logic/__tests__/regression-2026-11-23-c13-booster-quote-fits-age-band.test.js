@@ -28,6 +28,8 @@ import { describe, it, expect } from 'vitest';
 import { recommend } from '../recommend.js';
 import { buildSavedAnswerCases } from '../../test-grid.js';
 
+// C9 part 2 (2026-11-26): the ≥10 row, one entry per table (Table 4, Table 5).
+const FROM_10 = ['boosterFrom10', 'boosterFrom10Asplenia'];
 const TWO_TO_NINE_ROW = ['boosterAtOrAfterAge7', 'boosterAtOrAfterAge7Asplenia', 'boosterBeforeAge7', 'boosterBeforeAge7Asplenia'];
 const keysOf = (list) => (list ?? []).map((c) => c.key);
 
@@ -65,14 +67,16 @@ describe('C13: a MenACWY booster quote fits the patient\'s age band', () => {
       && /high-risk primary series/.test(card.doseLabel ?? ''));
     expect(hit.length).toBeGreaterThan(400);
     for (const { c, card } of hit) {
-      expect(keysOf(card.boosterCites), c.key).toContain('boosterFrom10');
+      // C9 part 2 (2026-11-26): each condition's own table (Table 4 complement, Table 5 asplenia).
+      const own = c.input.riskIds.includes('complement') ? 'boosterFrom10' : 'boosterFrom10Asplenia';
+      expect(keysOf(card.boosterCites), c.key).toContain(own);
       for (const k of TWO_TO_NINE_ROW) expect(keysOf(card.boosterCites), c.key).not.toContain(k);
     }
   });
 
   it('the ≥10 row is never quoted to a child whose series cannot reach 10', () => {
     const bad = cards.filter(({ c, card }) => c.input.ageMonths < 118
-      && [...keysOf(card.boosterCites), ...keysOf(card.noteCites)].includes('boosterFrom10'));
+      && [...keysOf(card.boosterCites), ...keysOf(card.noteCites)].some((k) => FROM_10.includes(k)));
     expect(bad.map(({ c }) => c.key)).toEqual([]);
   });
 
@@ -81,8 +85,8 @@ describe('C13: a MenACWY booster quote fits the patient\'s age band', () => {
     for (const { c, card } of cards) {
       const d = card.note?.detail ?? '';
       const k = keysOf(card.noteCites);
-      if (/ended at 10 years or older/.test(d)) { ten++; expect(k, c.key).toEqual(['boosterFrom10']); }
-      if (/ended at 7 years or older/.test(d)) expect(k, c.key).not.toContain('boosterFrom10');
+      if (/ended at 10 years or older/.test(d)) { ten++; expect(k.length, c.key).toBe(1); expect(FROM_10, c.key).toContain(k[0]); }
+      if (/ended at 7 years or older/.test(d)) expect(k.filter((x) => FROM_10.includes(x)), c.key).toEqual([]);
     }
     expect(ten).toBeGreaterThan(100);
   });

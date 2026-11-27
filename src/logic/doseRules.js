@@ -1110,7 +1110,7 @@ export const DOSE_RULES = [
     authorityToday: 'ACIP 2020 Tables 4–6; owner, STOP C C9 (2026-11-15)',
     sourcesSay: {
       verdict: 'owner-decided',
-      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterFrom10'],
+      refs: ['boosterBeforeAge7', 'boosterAtOrAfterAge7', 'boosterBeforeAge7Asplenia', 'boosterAtOrAfterAge7Asplenia', 'boosterFrom10', 'boosterFrom10Asplenia'],
       note: 'ACIP gives booster timing as a schedule ("at 3 yrs … every 5 yrs"), not as a minimum; CDC\'s software (CDSI) treats 3 or 5 years less 4 days as a hard minimum. Owner, STOP C C9 (2026-11-15): keep the minimums (an earlier booster does not count), and time the repeat from the early booster (Ruling D).',
     },
     label: 'Not counted — repeat',
