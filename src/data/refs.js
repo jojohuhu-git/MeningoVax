@@ -671,6 +671,43 @@ export const CITATIONS = {
     short: 'Penbraya MMWR 2024;73(15)',
     lastVerified: '2026-06-03',
   },
+  // PREG-PENTA (owner, 2026-11-26, "Separate shots"): no combined shot in
+  // pregnancy. Each pentavalent MMWR's "Pregnancy and breastfeeding" paragraph
+  // (Contraindications and Precautions), read live 2026-11-26 in a real
+  // browser; all four are exact substrings of the page text. Cited on the
+  // "Not an option today" line a pregnant patient sees instead of the offer.
+  pentavalentGskNoPregnancyData: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'No high-quality data have been published on use of MenACWY-CRM/MenB-4C during pregnancy or while breastfeeding.',
+    population: ['menb-pregnancy'],
+    label: 'ACIP Penmenvy MMWR: no high-quality data on the combined shot in pregnancy',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-26',
+  },
+  pentavalentPfizerNoPregnancyData: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm',
+    quote: 'No data exist on use of MenACWY-TT/MenB-FHbp during pregnancy or while breastfeeding.',
+    population: ['menb-pregnancy'],
+    label: 'ACIP Penbraya MMWR: no data on the combined shot in pregnancy',
+    short: 'Penbraya MMWR 2024;73(15)',
+    lastVerified: '2026-11-26',
+  },
+  pentavalentGskPregnancySeparateAcwy: {
+    url: 'https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm',
+    quote: 'When MenACWY is indicated while pregnant or breastfeeding, MenACWY-CRM or MenACWY-TT may be administered.',
+    population: ['menb-pregnancy'],
+    label: 'ACIP Penmenvy MMWR: in pregnancy, a separate MenACWY (Menveo or MenQuadfi)',
+    short: 'Penmenvy MMWR 2026;75(1)',
+    lastVerified: '2026-11-26',
+  },
+  pentavalentPfizerPregnancySeparateAcwy: {
+    url: 'https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm',
+    quote: 'When MenACWY is indicated, persons who are pregnant or breastfeeding should receive MenACWY-CRM or MenACWY-TT (MenQuadfi, Sanofi Pasteur).',
+    population: ['menb-pregnancy'],
+    label: 'ACIP Penbraya MMWR: in pregnancy, a separate MenACWY (Menveo or MenQuadfi)',
+    short: 'Penbraya MMWR 2024;73(15)',
+    lastVerified: '2026-11-26',
+  },
   // Read live 2026-11-15 in a real browser (STOP C read N1). Both ACIP
   // statements set a lower age for the increased-risk group and no upper
   // age; both MMWRs state the licence as 10–25 years. CDSI's "to 26 years"

@@ -256,6 +256,8 @@ export const OWNER_ANSWERS = {
   'MQ6-i': { date: '2026-11-21', where: MQ6_GAP },
   'MQ6-j': { date: '2026-11-21', where: MQ6_GAP },
   'MQ6-k': { date: '2026-11-21', where: MQ6_GAP },
+  // No combined shot in pregnancy ("Separate shots").
+  'PREG-PENTA': { date: '2026-11-26', where: '../archive/decisions-2026-11-26-pregnancy-combined-shot.md' },
 };
 
 /** The lines a SOURCES tag's tokens stand for, without indent. */

@@ -567,6 +567,17 @@ export function ComplementAlert({ alert }) {
   );
 }
 
+// Why the combined shot is not offered today (6-month rule; PREG-PENTA,
+// pregnancy). Its own numbering, like ComplementAlert: it sits outside the cards.
+export function PentavalentUnavailableReason({ text, cites = [] }) {
+  if (!text) return null;
+  return (
+    <div data-testid="pentavalent-unavailable-reason">
+      {renderNoteWithCites(text, cites, makeCiteNumberer())}
+    </div>
+  );
+}
+
 export function RiskAgeNote({ note, noteCites = [] }) {
   if (!note) return null;
   const numberFor = makeCiteNumberer();

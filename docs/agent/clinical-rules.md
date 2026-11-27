@@ -643,6 +643,18 @@ separate MenACWY and MenB-4C vaccines, rather than MenACWY-CRM/MenB-4C."* Each b
 from its own last dose; the antigen-family lock already prevents switching brands. Test:
 `regression-2026-11-15-n1-penmenvy-six-months.test.js`.
 
+**No combined shot in pregnancy** (PREG-PENTA, owner "Separate shots", 2026-11-26;
+`docs/archive/decisions-2026-11-26-pregnancy-combined-shot.md`). Only a pregnant patient with
+a MenB high-risk reason reaches it (otherwise pregnancy defers MenB). Both pentavalent MMWRs,
+"Pregnancy and breastfeeding", read live 2026-11-26: Penmenvy *"No high-quality data have been
+published on use of MenACWY-CRM/MenB-4C during pregnancy or while breastfeeding."*; Penbraya
+*"No data exist on use of MenACWY-TT/MenB-FHbp during pregnancy or while breastfeeding."* and
+*"When MenACWY is indicated, persons who are pregnant or breastfeeding should receive
+MenACWY-CRM or MenACWY-TT (MenQuadfi, Sanofi Pasteur)."* `pentavalent.eligible` goes false,
+`unavailableReason` says why and `unavailableCites` carries one quote per `[c]`; pregnancy is
+said instead of the 6-month rule when both apply. The MenACWY and MenB cards are unchanged.
+Test: `regression-2026-11-26-preg-penta-separate-shots-in-pregnancy.test.jsx`.
+
 **"Use Trumenba for MenB dose 2 after a Penbraya" needs no code** (P1-4, checked not
 assumed). CDC: *"if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be
 administered for dose 2 MenB."* The antigen-family lock already produces exactly that, and

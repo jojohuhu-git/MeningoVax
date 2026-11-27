@@ -230,6 +230,8 @@ const P = {
   // The combined shot
   pentaRecent: ex('17-year-old with asplenia, Penmenvy 11 weeks ago', { dob: '2009-06-01', riskIds: ['asplenia'], menbDoses: doses(PMV, '2026-09-01') },
     { acwy: [/^Dose 2 of 2/], menb: [/^Dose 2 of 3/], penta: false, pentaWhy: /within 6 months of the last Penmenvy dose/ }),
+  pentaPregnant: ex('Pregnant 20-year-old with asplenia, no doses', { dob: '2006-06-01', riskIds: ['pregnancy', 'asplenia'] },
+    { menb: [/^Dose 1 of 3 \(high-risk series\)$/], penta: false, pentaWhy: /no high-quality data on the combined shot in pregnancy/ }),
   pentaFamily: ex('14-year-old with asplenia, Bexsero dose 1 in October, MenACWY dose 2 due', { dob: '2012-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2024-06-10'), menbDoses: doses(BX, '2026-10-01'), riskAtDoseAnswers: { MenB: yes(1) } },
     { penta: true, pentaBrands: [PMV] }),
   pentaWaits: ex('13-year-old with asplenia, one MenACWY at 8 not yet answered', { dob: '2013-06-01', riskIds: ['asplenia'], menacwyDoses: doses(MV, '2021-07-01') },
@@ -312,6 +314,7 @@ export function sourcesFor(examples = [], keys = null, vaccine = null) {
     const cites = [
       ...vaccines.flatMap((v) => out[STREAM[v]] ?? []).flatMap((r) => [...(r.noteCites ?? []), ...(r.boosterCites ?? [])]),
       ...(vaccine ? [] : out.pentavalent?.noteCites ?? []),
+      ...(vaccine ? [] : out.pentavalent?.unavailableCites ?? []),
       ...vaccines.flatMap((v) => (out.history?.[v]?.perDose ?? []).flatMap((d) => d.reasonCites ?? [])),
     ];
     for (const c of cites) {
@@ -336,7 +339,8 @@ export const SENTENCE_VACCINE = Object.fromEntries([
   ['general', ['cdcComplementIncompleteProtection', 'cdcComplementConsiderProphylaxis', 'cdcComplementVaccinate2WeeksBefore', 'gbpWrittenDatedRecords', 'gbpRepeatSpacedFromInvalidDose', 'gbpGraceFourDays', 'gbpTooYoungFirstDoseRepeat', 'gbpRecordsNotFoundSusceptible']],
   ['MenABCWY', ['pentavalentHighRiskNoUpperAge', 'pentavalentLicensed10to25', 'cdcAdultPenbrayaSameDay', 'cdcChildPenbrayaDose2Trumenba',
     'cdcChildPenbraya6Months', 'penmenvyIsCrm4C', 'penmenvyMenb4COtherDoses', 'penbrayaMenbFhbpOtherDoses', 'pentavalentWhenBothIndicated',
-    'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent', 'penmenvyAged10BothIndicated', 'penmenvyLicensedAge1025']],
+    'penmenvySeparateUnder6Months', 'pentavalentValidPerComponent', 'penmenvyAged10BothIndicated', 'penmenvyLicensedAge1025',
+    'pentavalentGskNoPregnancyData', 'pentavalentPfizerNoPregnancyData', 'pentavalentGskPregnancySeparateAcwy', 'pentavalentPfizerPregnancySeparateAcwy']],
   ['MenB', ['menbHealthyPreferredAge1618', 'menbPregnancyDeferral', 'menbLicensedAge1025', 'menbBexseroOldCourseStands', 'menbHighRisk3DoseSchedule',
     'menbHealthy2Dose0and6', 'menbHighRiskEarlyD3ExtraDose', 'menbRescueDoseRule', 'menbAcceleratedRapidProtection', 'menbHighRiskBoosterCadenceBox',
     'cdcChildMenbMinAge', 'acip2020MenbRepeat4Weeks', 'acip2020Table8MenbOutbreakBooster', 'acip2020Table8MenbOutbreakBoosterSixMonths', 'cdcRecsMenbOutbreakBoosterYear', 'acip2020MenbMixedProductsSelectOne',
@@ -872,6 +876,7 @@ export const PENTA_ROWS = [
   { text: `Offered when MenACWY is due today, MenB is due or dose 2 can be given today, and the patient is ${age(PENTAVALENT_MIN_AGE_MONTHS)} or older.`, ex: [P.healthy16, P.menbAsp9] },
   { text: `The product must match the earlier MenB doses: ${PENMENVY} after ${BEXSERO}, ${PENBRAYA} after ${TRUMENBA}.`, ex: [P.pentaFamily] },
   { text: `Not within ${mo(PENTAVALENT_REPEAT_MONTHS)} of the last dose of the same product: give the two vaccines separately.`, ex: [P.pentaRecent] },
+  { text: 'Not in pregnancy: no high-quality data on it. Give the two vaccines separately.', ex: [P.pentaPregnant] },
   { text: 'Not offered while a dose on the record reads Needs input.', ex: [P.pentaWaits] },
   { text: 'A combined shot on the record counts as a MenACWY dose and a MenB dose, whichever list it is entered in.', ex: [P.pentaInRecord] },
 ];
