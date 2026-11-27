@@ -229,6 +229,8 @@ describe('Items 8–9: doses on the record', () => {
     expect(NOT_COUNTED.general.map((r) => r.text)).toEqual([
       'Repeat that dose only. Do not restart the series.',
       'The repeat is given at least the minimum interval after the invalid dose.',
+      // Owner, 2026-11-27 (with PneumoVax): every dose with no date.
+      'A dose with no date stays on the record but does not count. Only written, dated records are accepted.',
     ]);
     expect(NOT_COUNTED.special.map((r) => r.decision)).toEqual(['repeatAfterTooYoung', 'setAsideClock']);
   });
@@ -241,7 +243,7 @@ describe('Items 8–9: doses on the record', () => {
     expect(SOONER_ADDS.title).toBe('Sooner counts, but a dose is added');
     expect(SOONER_ADDS.rows.map((r) => r.text)).toEqual(['Healthy MenB dose 2 <6 months after dose 1 counts. Dose 3 is added.']);
     render(<Rulebook />);
-    openStep('Set the dates');
+    openStep('Time between doses');
     expect(screen.getByRole('heading', { name: 'Sooner counts, but a dose is added' })).toBeTruthy();
   });
 });

@@ -431,7 +431,9 @@ export const HEADINGS = {
   record: 'Read the record',
   acwy: 'MenACWY schedule',
   menb: 'MenB schedule',
-  dates: 'Set the dates',
+  // Renamed 2026-11-27 (PneumoVax owner review, L5: she did not understand
+  // "Set the dates"; MeningoVax takes the same name: "yes").
+  dates: 'Time between doses',
   penta: 'Combined shot (MenABCWY)',
   decisions: 'MeningoVax decisions',
   sources: 'Sources',
@@ -931,6 +933,9 @@ export const NOT_COUNTED = {
     { text: 'Repeat that dose only. Do not restart the series.', ex: [P.acwyTooSoon] },
     // R91 (owner, 2026-11-20): "at least". menbHealthy3wk's repeat is due 6 months after dose 1.
     { text: 'The repeat is given at least the minimum interval after the invalid dose.', ex: [P.acwyTooSoon, P.menbHealthy3wk] },
+    // OWNER DECISION 2026-11-27 (with PneumoVax, where PPSV23 is the
+    // exception): every dose with no date, in both apps.
+    { text: 'A dose with no date stays on the record but does not count. Only written, dated records are accepted.', keys: ['gbpWrittenDatedRecords'], ex: [P.undated] },
   ],
   special: [
     { text: `A too-young first dose: the repeat waits ${W8} (MenACWY) or ${W4} (MenB) after it.`, decision: 'repeatAfterTooYoung', ex: [P.unknown6wk] },

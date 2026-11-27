@@ -29,6 +29,7 @@ import {
   MENB_PREGNANCY, RISK_RANKING, PENTA_ROWS, CHIP_LEGEND, GRACE, INTERVALS, SOONER_ADDS, NOT_COUNTED,
   SOURCE_GROUPS, PATH_STEPS, riskRankingFor,
 } from '../data/rulebookPage.js';
+import { FOOTER_TEXT, FOOTER_EMAIL, lastUpdatedWords } from '../data/rulebookFooter.js';
 
 /** Every fold on the page, in order: the path, its six steps, the Reference folds. */
 const ALL_FOLDS = ['path', ...PATH_STEPS.map((s) => s.key), 'decisions', 'sources'];
@@ -402,7 +403,7 @@ function Record() {
   );
 }
 
-/** Step 5, Set the dates: minimum intervals and the grace period. */
+/** Step 5, Time between doses: minimum intervals and the grace period. */
 function Dates() {
   return (
     <Card id="rb-intervals" title="Minimum intervals: a dose given sooner does not count">
@@ -569,9 +570,10 @@ export default function Rulebook() {
           <Sources />
         </Fold>
 
+        {/* The same footer as PneumoVax's (owner, 2026-11-27: "both should have the same footer"). */}
         <p className="rb-foot">
-          This page is a guide to the app&rsquo;s reasoning, not a clinical reference. Where it and a
-          CDC or ACIP document disagree, the document is right and this is a bug. Please report it.
+          {FOOTER_TEXT} <a href={`mailto:${FOOTER_EMAIL}`}>{FOOTER_EMAIL}</a>.
+          {lastUpdatedWords() && <span className="rb-updated">{lastUpdatedWords()}</span>}
         </p>
       </div>
     </ShowAll.Provider>

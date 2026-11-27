@@ -45,7 +45,7 @@ describe('Six steps, each its own fold (answers 1 and 5)', () => {
     fireEvent.click(fold('How MeningoVax decides'));
     expect(screen.getByText('Six steps, always in this order.')).toBeTruthy();
     expect(PATH_STEPS.map((s) => s.title)).toEqual([
-      'Stop check', 'Read the record', 'MenACWY schedule', 'MenB schedule', 'Set the dates', 'Combined shot (MenABCWY)',
+      'Stop check', 'Read the record', 'MenACWY schedule', 'MenB schedule', 'Time between doses', 'Combined shot (MenABCWY)',
     ]);
     const steps = PATH_STEPS.map((s) => fold(s.title));
     for (const b of steps) expect(b.getAttribute('aria-expanded')).toBe('false');
@@ -124,8 +124,8 @@ describe('Each section sits under its step (answers 2 and 6)', () => {
     for (const s of split) expect(s.ex.length).toBeGreaterThan(0);
   });
 
-  it('5 Set the dates: minimum intervals and the grace period', () => {
-    const body = openStep('Set the dates');
+  it('5 Time between doses: minimum intervals and the grace period', () => {
+    const body = openStep('Time between doses');
     expect(cardTitles(body)[0]).toBe('Minimum intervals: a dose given sooner does not count');
     expect(body.querySelector('.rb-band-green')).toBeTruthy();
   });
@@ -171,5 +171,20 @@ describe('Show all / Hide all (answer 5)', () => {
     expect(showAll().textContent).toBe('Show all');
     fireEvent.click(showAll());
     for (const b of folds()) expect(b.getAttribute('aria-expanded')).toBe('true');
+  });
+});
+
+describe('The footer is the same in both apps (owner, 2026-11-27)', () => {
+  it('reads her wording, with her address as a mail link and the date of the last update', () => {
+    // "both should have the same footer" — PneumoVax's Rulebook carries the
+    // same src/data/rulebookFooter.js, and its test compares the two files.
+    const { container } = render(<Rulebook />);
+    const foot = container.querySelector('.rb-foot');
+    const words = 'This clinical decision support tool is based on CDC and/or ACIP recommendations. It will also provide '
+      + 'suggested guidance for situations not addressed by these organizations. The information contained in this tool '
+      + 'should not replace clinical judgement. For questions or issues with this app, reach out to jojohuhu@gmail.com.';
+    expect(foot.textContent.startsWith(words)).toBe(true);
+    expect(foot.querySelector('a').getAttribute('href')).toBe('mailto:jojohuhu@gmail.com');
+    expect(foot.textContent.slice(words.length)).toMatch(/^Last updated [A-Z][a-z]+ \d{1,2}, \d{4}\.$/);
   });
 });

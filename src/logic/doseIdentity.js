@@ -46,10 +46,11 @@ export function newDoseRow(fields = {}) {
  * An empty row used to mean two different things, and the app could not tell
  * them apart: "I haven't typed yet" and "this patient definitely had a dose,
  * but I have no card, so I don't know when or which". The second is a real
- * clinical entry this app supports (see the undated-dose rules G6 and G8), so
- * the row now carries `detailsUnknown` when the clinician ticks "A dose was
- * given, but the date and brand are unknown". A row with that tick is a dose;
- * a row without it, and with nothing typed in, is not.
+ * clinical entry this app supports (see the undated-dose rules G6 and G8).
+ * From K1 until 2026-11-27 the clinician said which by ticking "A dose was
+ * given, but the date and brand are unknown" (`detailsUnknown`). OWNER
+ * DECISION 2026-11-27 removed that tick from both apps: a dose is kept on
+ * the record by CHOOSING ITS BRAND, and a row with nothing in it is not a dose.
  *
  * A row with only ONE of the two fields is deliberately NOT blank either: a
  * brand with no date is a real injection whose date the clinician does not

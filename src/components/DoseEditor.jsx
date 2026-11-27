@@ -183,30 +183,11 @@ export default function DoseEditor({
             >
               ×
             </button>
-            {/* K1 (2026-09-24): an empty row means two things — "I haven't
-                typed yet" and "a dose was given, but I have no card". The app
-                cannot tell them apart, and it used to guess the second, so a
-                row nobody had touched was graded as a dose of unknown date.
-                The clinician now says which it is. The tick appears only while
-                the row is otherwise empty, because that is the only case where
-                the two readings differ. */}
-            {!dose.date && !dose.brand && (
-              <label className="dose-row-unknown">
-                <input
-                  type="checkbox"
-                  className="risk-checkbox"
-                  checked={!!dose.detailsUnknown}
-                  onChange={e => updateDose(idx, 'detailsUnknown', e.target.checked)}
-                />
-                <span>
-                  Check this if a dose was given but its date and brand are unknown.
-                  <span className="dose-row-unknown-hint">
-                    It stays on the record, not counted. Empty rows are removed
-                    when you continue.
-                  </span>
-                </span>
-              </label>
-            )}
+            {/* K1 (2026-09-24) asked the clinician to tick "a dose was given,
+                but its date and brand are unknown" to tell such a row from an
+                untouched one. OWNER DECISION 2026-11-27 removed the tick from
+                both apps: a dose is kept on the record by choosing its brand,
+                and a row with neither a date nor a brand is empty. */}
 
             {/* G3: the `max` above stops the date PICKER offering a future day,
                 but a typed or pasted date walks straight past it. Say so where
@@ -220,7 +201,7 @@ export default function DoseEditor({
 
             {/* STOP C C1 (owner, 2026-11-15): a dose with no date does not
                 count. Said where the date is missing, not only on the card. */}
-            {!dose.date && (dose.brand || dose.detailsUnknown) && (
+            {!dose.date && dose.brand && (
               <div className="dose-row-problem" data-testid="dose-date-missing">
                 With no date, this dose is not counted: only written, dated
                 records count as evidence of vaccination. Add the date if a

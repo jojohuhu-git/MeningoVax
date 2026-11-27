@@ -62,18 +62,14 @@ describe('Review v10 Batch 1: entry-screen wording, and no "tick"', () => {
     expect(screen.queryByTestId('dose-date-missing')).toBeNull();
   });
 
-  it('P3: the details-unknown checkbox says "Check this", and what happens to the dose', () => {
+  it('P3, superseded 2026-11-27: there is no details-unknown checkbox to word', () => {
+    // P3 worded the checkbox; the owner then removed it from both apps
+    // (2026-11-27). A dose with no date is kept by choosing its brand, and the
+    // row says what that means.
     const { container } = editor([{ date: '', brand: '' }]);
-    const box = container.querySelector('.dose-row-unknown');
-    const squash = (s) => s.replace(/\s+/g, ' ').trim();
-    // The hint is its own line on screen (`display: block`), so read the two lines apart.
-    const hint = squash(box.querySelector('.dose-row-unknown-hint').textContent);
-    const lead = squash(box.textContent.replace(box.querySelector('.dose-row-unknown-hint').textContent, ''));
-    expect(lead).toBe('Check this if a dose was given but its date and brand are unknown.');
-    expect(hint).toBe('It stays on the record, not counted. Empty rows are removed when you continue.');
-    const text = `${lead} ${hint}`;
-    // extinct: "Tick this to keep the dose on the record", retired by P3.
-    expect(text).not.toMatch(/\btick/i);
+    expect(container.querySelector('.dose-row-unknown')).toBeNull();
+    expect(container.querySelector('input[type="checkbox"]')).toBeNull();
+    expect(container.textContent).not.toMatch(/\btick/i);
   });
 
   it('P73: the outbreak card says "uncheck the outbreak box"', () => {
