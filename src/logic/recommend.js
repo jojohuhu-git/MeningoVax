@@ -1946,7 +1946,7 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // that did not count (a wrong-family dose, E2): the grace decides what is
       // accepted, never what is advised (A13).
       const statedMin = repeatFloorDate && repeatFloorDate > minDate ? repeatFloorDate : minDate;
-      const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate });
+      const minClause = minimumBesideRoutine({ minDate: statedMin, advisedDate, today, minWords: weeksLabel(MENB_HIGHRISK_D2_GAP), fmt: fmtDate, mark: true });
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 2 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 2, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: due, earliestNextDate: due ? null : advisedDate, minIntervalDays: MENB_HIGHRISK_D2_GAP,
         canGiveToday: !due && statedMin <= today,
@@ -1964,7 +1964,11 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // C11 (2026-11-26): "(minimum 4 weeks)" cites ACIP 2020's own 4 weeks,
         // the sentence the dose-2 rule row rests on (owner C8); the schedule
         // sentence states 0 / 1–2 / 6 months and no minimum.
-        noteCites: [...(minClause ? [] : [cite('acip2020MenbRepeat4Weeks')]), ...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
+        // MENB-MIN-CITE (2026-11-27): the same 4 weeks, when stated beside the
+        // routine date, cites the same sentence (it had no number).
+        noteCites: minClause
+          ? [...scheduleCites('menbHighRisk3DoseSchedule'), cite('acip2020MenbRepeat4Weeks'), ...pregCites]
+          : [cite('acip2020MenbRepeat4Weeks'), ...scheduleCites('menbHighRisk3DoseSchedule'), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // Only reachable while the series really is three doses long; a 2-dose
@@ -2002,14 +2006,17 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
       // what is accepted, never what is advised (A13).
       let repeatClause = '';
       let repeatMin = null;
+      // MENB-MIN-CITE (2026-11-27): the sentence that states the minimum.
+      let repeatClauseKey = 'menbHighRiskEarlyD3Unless';
       if (invalidD3Date) {
         repeatMin = e3;
         let minWords = `${monthsLabel(MENB_HIGHRISK_D3_MONTHS_FROM_D2)} after the invalid dose`;
         if (repeatFloorDate && repeatFloorDate > repeatMin) {
           repeatMin = repeatFloorDate;
           minWords = `${weeksLabel(MENB_REPEAT_MIN_INTERVAL)} after the invalid dose`;
+          repeatClauseKey = 'acip2020MenbRepeat4Weeks';
         }
-        repeatClause = minimumBesideRoutine({ minDate: repeatMin, advisedDate: routineDate, today, minWords, fmt: fmtDate });
+        repeatClause = minimumBesideRoutine({ minDate: repeatMin, advisedDate: routineDate, today, minWords, fmt: fmtDate, mark: true });
       }
       return [rec({ vaccine: 'MenB', status: 'risk-based', doseLabel: `Dose 3 of 3 (high-risk${family ? `, ${MENB_PRODUCT_BY_FAMILY[family]}` : ''})`, doseNum: 3, seriesTotal: 3, ...seriesBooster(`Boosters: ${yearsLabel(MENB_HIGHRISK_FIRST_BOOSTER_YEARS)} after the series, then every ${MENB_HIGHRISK_BOOSTER_CADENCE_LABEL} while at risk`),
         dueToday: elapsed, earliestNextDate,
@@ -2039,7 +2046,9 @@ function menbRec(am, riskIds, doses, today, clockDate = null, repeatFloorDate = 
         // and no 4 months from dose 2; ACIP Oct 2024's "If the third dose is
         // administered <4 months after the second dose, the dose should be
         // repeated" states that one.
-        noteCites: [...(invalidD3Date ? [cite('menbHighRiskEarlyD3Unless')] : [...scheduleCites('menbHighRisk3DoseSchedule'), cite('menbHighRiskEarlyD3Unless')]), ...pregCites],
+        // MENB-MIN-CITE (2026-11-27): the minimum stated beside the repeat's
+        // routine date cites the sentence that states it (it had no number).
+        noteCites: [...(invalidD3Date ? [cite('menbHighRiskEarlyD3Unless'), ...(repeatClause ? [cite(repeatClauseKey)] : [])] : [...scheduleCites('menbHighRisk3DoseSchedule'), cite('menbHighRiskEarlyD3Unless')]), ...pregCites],
         refs: refs(['mm7349a3']) })];
     }
     // M1 (owner, 2026-11-20): there is no "Dose 4 of 4" card any more. An

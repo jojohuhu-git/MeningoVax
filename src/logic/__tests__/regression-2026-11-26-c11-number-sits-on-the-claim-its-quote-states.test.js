@@ -86,10 +86,16 @@ describe('C11: a number sits on a claim its quote states', () => {
     expect(c.noteCites[0].quote).toMatch(/minimum interval of 4 weeks/);
   });
 
-  it('3, control: dose 2 not yet due says the minimum in its own clause, with no 4-week number', () => {
+  // MENB-MIN-CITE (2026-11-27): this control said "no 4-week number" when the
+  // minimum's own sentence carried no number at all. That sentence states the
+  // 4 weeks, so ACIP 2020's 4 weeks now sits on it, and still not on the
+  // schedule sentence (which states no minimum).
+  it('3, control: dose 2 not yet due says the minimum in its own sentence, and the 4-week number sits there', () => {
     const c = run({ dob: '2007-06-01', riskIds: ['complement'], menbDoses: [{ date: '2026-11-08', brand: 'Bexsero' }] }).menb[0];
     expect(c.dueToday).toBe(false);
-    expect(keys(c)).not.toContain('acip2020MenbRepeat4Weeks');
+    expect(c.note.lead).toMatch(/^Earliest valid date: .* \(minimum interval 4 weeks\) \[c\]\.$/);
+    expect(c.note.detail).toMatch(/^Give dose 2 1–2 months after dose 1, with the same MenB product, and dose 3 about 6 months after dose 1 \[c\]\.$/);
+    expect(keys(c)).toEqual(['acip2020MenbRepeat4Weeks', 'menbHighRisk3DoseSchedule']);
   });
 
   it('4. asplenia, 17, Bexsero 1 Mar and 1 Apr 2026: "4 months after dose 2" opens ACIP\'s "<4 months … repeated"', () => {
