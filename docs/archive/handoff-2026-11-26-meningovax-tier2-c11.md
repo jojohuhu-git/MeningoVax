@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-outbreak-extra.md`. The outbreak question was answered and built; resume from that file.
+
 # MeningoVax — Handoff after building Tier 2 item C11 (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
