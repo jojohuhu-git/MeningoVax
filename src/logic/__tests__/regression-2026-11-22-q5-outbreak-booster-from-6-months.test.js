@@ -33,6 +33,9 @@ describe('serogroup B outbreak, 20y, Trumenba series ended Jan 15, 2026', () => 
     expect(card(r).earliestNextDate).toBe('2027-01-15');
     expect(`${card(r).note.lead} ${card(r).note.detail}`).toContain(SIX);
     expect(card(r).noteCites.map((c) => c.key)).toContain('acip2020Table8MenbOutbreakBoosterSixMonths');
+    // Owner Q5a (2026-11-23, "Keep behind Why this").
+    expect(card(r).note.lead).not.toContain(SIX);
+    expect(card(r).note.detail).toContain(SIX);
   });
 
   it('a booster on Sep 15, 2026 (8 months) counts; the card is "Complete" and says why it counted', () => {
@@ -40,6 +43,10 @@ describe('serogroup B outbreak, 20y, Trumenba series ended Jan 15, 2026', () => 
     expect(statuses(r)).toEqual(['valid', 'valid', 'valid', 'valid']);
     expect(card(r).status).toBe('complete');
     expect(`${card(r).note.lead} ${card(r).note.detail}`).toContain(SIX);
+    // Owner, 2026-11-26 ("Keep in view"): on the closed "Complete" card the
+    // line stays in view once opened, right after "at least 1 year … has been
+    // given", so a booster dated under 1 year is explained without a click.
+    expect(card(r).note.lead).toContain(`has been given [c][c]. ${SIX}`);
   });
 
   it('the 6-month line takes the 4-day grace: Jul 11 counts, Jul 10 does not', () => {

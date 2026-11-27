@@ -56,3 +56,14 @@ cells"** (built).
   wording was approved cell by cell, so they are unchanged; the outbreak group's details now say
   "Public health may advise it from 6 months after the series. A booster given from then counts."
   Should the two table cells add "(6 months for a serogroup B outbreak)"?
+- **Q5c — the same line on the "Complete" card** (asked and answered 2026-11-26: **"Keep in
+  view"**, no change). Q5a covered the booster-due card, where the line folds behind "Why this"
+  (300 of 23,788 saved patients). The "Complete (outbreak booster given)" card is closed by
+  default, and a closed card keeps its whole note together (PneumoVax's rule, `noteFold.js`), so
+  once opened it shows "… at least 1 year after the primary series, and it has been given [1][2].
+  Public health may advise it from 6 months after the series [1]." That card appears only when the
+  booster came 6–12 months after the series (0 saved patients; reproduced live with a 22-year-old,
+  Bexsero Jan 6 and Jul 15, 2025, booster Mar 1, 2026). Kept in view because, folded, the line
+  left in view says "at least 1 year" above a dose list showing 7.5 months. Guard: the "Complete"
+  case in `regression-2026-11-22-q5-outbreak-booster-from-6-months.test.js` (fails if the card
+  folds); the due-card case there now also checks Q5a's placement.
