@@ -160,7 +160,7 @@ export default function DoseEditor({
               />
             </div>
             <div className="dose-field">
-              <label>Brand (optional)</label>
+              <label>Brand</label>
               <select
                 value={dose.brand || ''}
                 onChange={e => updateDose(idx, 'brand', e.target.value)}
