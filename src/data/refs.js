@@ -88,6 +88,23 @@ const ACWY_BOOSTER_ROWS_T4_T6_T9 = ['acwy-complement', 'acwy-hiv', 'acwy-travel'
 // the >=10 row, word for word in Tables 4, 5, 6, 7 and 9.
 const ACWY_BOOSTER_ROWS_10_PLUS = ['acwy-complement', 'acwy-asplenia', 'acwy-hiv', 'acwy-microbiologist', 'acwy-travel'];
 
+// C9 part 3 (owner, 2026-11-26, "highlight in own table"): where each table's
+// copy of a repeated sentence STARTS, for a range link (`#:~:text=start,sentence`).
+// A range may cross line breaks; a prefix may not (C9 part 2). Each start was
+// read live 2026-11-26 (rr6909a1.htm): it appears once on the page, and the
+// first copy of each sentence after it is in that same table. Table 4 needs no
+// start: its copy is the first on the page.
+const ACIP_T6_BOOSTERS = 'Boosters (if person remains at increased risk)¶¶:';
+const ACIP_T9_BOOSTERS = 'Boosters (if person remains at increased risk)¶¶,***';
+const ACIP_T5_TITLE = 'Recommended vaccination schedule and intervals for persons with anatomic and functional asplenia';
+const ACIP_T6_TITLE = 'Recommended vaccination schedule and intervals for persons with human immunodeficiency virus infection';
+const ACIP_T8_TITLE = 'Recommended vaccination schedule and intervals for persons who are at risk during an outbreak';
+const ACIP_T9_TITLE = 'Recommended vaccination schedule and intervals for persons who travel to or are residents of countries where meningococcal disease is hyperendemic or epidemic';
+// In table order. The patient's first group in this list picks the copy; a
+// `null` start is Table 4's copy, the first on the page (a plain link).
+const ACWY_BOOSTER_COPIES = [['complement', null], ['hiv', ACIP_T6_BOOSTERS], ['travel', ACIP_T9_BOOSTERS]];
+const ACWY_INFANT_COPIES = [['complement', null], ['asplenia', ACIP_T5_TITLE], ['hiv', ACIP_T6_TITLE], ['outbreak_acwy', ACIP_T8_TITLE], ['travel', ACIP_T9_TITLE]];
+
 export const CITATIONS = {
   // CDC schedule notes — summaries of the ACIP 2020 MMWR.
   cdcChildMenACWY: {
@@ -245,6 +262,7 @@ export const CITATIONS = {
   boosterBeforeAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged <7 yrs: Single dose at 3 yrs after primary vaccination and every 5 yrs thereafter',
+    copies: ACWY_BOOSTER_COPIES,
     population: ACWY_BOOSTER_ROWS_T4_T6_T9,
     label: 'ACIP 2020 MMWR: booster cadence, primary completed before age 7',
     short: 'ACIP 2020 MMWR',
@@ -253,6 +271,7 @@ export const CITATIONS = {
   boosterAtOrAfterAge7: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Aged ≥7 yrs: Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
+    copies: ACWY_BOOSTER_COPIES,
     population: ACWY_BOOSTER_ROWS_T4_T6_T9,
     label: 'ACIP 2020 MMWR: booster cadence, primary completed at/after age 7',
     short: 'ACIP 2020 MMWR',
@@ -261,6 +280,7 @@ export const CITATIONS = {
   acwyInfantHighRisk2to6mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '4 doses at 2, 4, 6, and 12 mos',
+    copies: ACWY_INFANT_COPIES,
     population: ACWY_INFANT_ROWS,
     label: 'ACIP 2020 MMWR: high-risk infant MenACWY-CRM series starting at age 2 months — 4 doses at 2, 4, 6, and 12 months',
     short: 'ACIP 2020 MMWR',
@@ -269,6 +289,7 @@ export const CITATIONS = {
   acwyInfantHighRisk7to23mo: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: '2 doses (second dose ≥12 wks after the first dose and after the 1st birthday)',
+    copies: ACWY_INFANT_COPIES,
     population: ACWY_INFANT_ROWS,
     label: 'ACIP 2020 MMWR: high-risk infant/toddler MenACWY-CRM series starting at age 7–23 months — 2-dose primary, dose 2 ≥12 weeks after dose 1 and after the 1st birthday',
     short: 'ACIP 2020 MMWR',
@@ -1071,7 +1092,10 @@ export const CITATIONS = {
   acip2020Table9TravelBooster: {
     url: 'https://www.cdc.gov/mmwr/volumes/69/rr/rr6909a1.htm',
     quote: 'Single dose at 5 yrs after primary vaccination and every 5 yrs thereafter',
-    population: ACWY_BOOSTER_ROWS_10_PLUS,
+    // C9 part 3 (2026-11-26): only a traveler's card cites this entry (recommend.js,
+    // `hasTravel`), so its link always opens Table 9's copy.
+    rangeStart: ACIP_T9_BOOSTERS,
+    population: ['acwy-travel'],
     label: 'ACIP 2020 MMWR, Table 9 (travelers, ≥2 yrs): MenACWY booster every 5 years while at risk',
     short: 'ACIP 2020 MMWR',
     lastVerified: '2026-11-21',
@@ -1292,12 +1316,23 @@ export const CITATIONS = {
 // sentence. So the section ALONE, not a text link that looks as if it works.
 // The quote still shows in the hover text over the number.
 // Guard: regression-2026-11-26-c9-cdc-notes-links-open-their-section.
-function highlightUrl(key) {
+function highlightUrl(key, riskIds = []) {
   const c = CITATIONS[key];
   if (!c) return undefined;
   if (!c.quote) return c.url;
   const page = c.url.split('#')[0];
   if (c.section) return `${page}#${c.section}`;
+  // C9 part 3 (owner, 2026-11-26, "highlight in own table"): a sentence whose
+  // table-telling words sit on a line above it links as a RANGE, from the
+  // patient's own table's heading (or title) down to the sentence,
+  // `start,sentence`. A "," or "-" inside either part is percent-written so
+  // the browser cannot read it as a separator.
+  // Guard: regression-2026-11-26-c9-part3-range-link-opens-the-patients-table.
+  const start = c.rangeStart ?? c.copies?.find(([id]) => riskIds.includes(id))?.[1];
+  if (start) {
+    const enc = (s) => encodeURIComponent(s).replace(/-/g, '%2D');
+    return `${page}#:~:text=${enc(start)},${enc(c.quote)}`;
+  }
   // C9 part 2 (2026-11-26): a sentence ACIP prints in several tables names the
   // words just before the copy that fits (`prefix`), as `prefix-,sentence`.
   // A "-" inside either part is written %2D so the browser cannot read it as
@@ -1343,12 +1378,14 @@ export function resolveRefs(keys = []) {
 //             is what citeTitle() keys on, instead of comparing `label`
 //             against CITATIONS[key].label to guess.
 // `label` keeps its existing meaning (the sentence, else the full title).
-export function cite(key, { aboutAnotherGroup } = {}) {
+// `riskIds`: the patient's groups, for an entry printed in several tables
+// (`copies`, C9 part 3): the link opens the patient's own table's copy.
+export function cite(key, { aboutAnotherGroup, riskIds } = {}) {
   const c = CITATIONS[key];
   return {
     key,
     page: c?.url,
-    url: highlightUrl(key),
+    url: highlightUrl(key, riskIds),
     label: c?.quote ?? c?.label,
     doc: c?.short,
     quote: c?.quote,
