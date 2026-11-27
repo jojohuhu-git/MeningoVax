@@ -955,7 +955,11 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
             ? `ACIP gives a booster ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_UNDER_7)} after the last dose if the series finished before age ${ageYears(MENACWY_BOOSTER_AGE_SPLIT_MONTHS)} years, otherwise ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)}.`
             : `ACIP gives each later booster ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} after the last dose.`} If the patient is no longer at risk, uncheck the outbreak box.`,
         },
-        noteCites: [cite('acip2020Table8')],
+        // OUTBREAK-T8-QUOTE (2026-11-27): Table 8's own booster sentence, the
+        // 3-year or 5-year one the lead states, read live 2026-11-27; the same
+        // pick as the dose checker's (doseRules.js acwyBoosterGapCite). Was the
+        // bare table link, with no quote.
+        noteCites: [cite(acwyBoosterRowKey(boosterYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7, riskIds), { riskIds })],
         refs: refsExposure(),
       })];
     }

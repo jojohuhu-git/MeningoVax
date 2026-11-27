@@ -21,8 +21,8 @@ the repo and this table disagree, that test fails and names the mismatch.
 
 | What | Count | Re-derive with |
 |---|---|---|
-| Test files, total | 235 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
-| — in `src/logic/__tests__/` (engine, `node` env) | 156 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
+| Test files, total | 236 | `find src -path "*__tests__*" -name "*.test.js*" \| wc -l` |
+| — in `src/logic/__tests__/` (engine, `node` env) | 157 | `find src/logic/__tests__ -name "*.test.js" \| wc -l` |
 | — in `src/components/__tests__/` (screen) | 72 | `find src/components/__tests__ -name "*.test.js*" \| wc -l` |
 | — in `src/data/__tests__/` (data/citation tripwires) | 7 | `find src/data/__tests__ -name "*.test.js" \| wc -l` |
 | — of the components ones, opted into `happy-dom` | 71 (the 72nd, `regression-chip-label-one-copy.test.js`, is a pure-logic tripwire that happens to live in that folder) | `grep -rlE "@vitest-environment[[:space:]]+happy-dom" src \| wc -l` |
@@ -32,7 +32,7 @@ rather than trusting this document:
 
 | What | Count | Measured |
 |---|---|---|
-| Individual `it()` tests, total | 2,739 | `npm test`, 2026-11-27, PREG-PENTA F2a (owner: no reason line) |
+| Individual `it()` tests, total | 2,743 | `npm test`, 2026-11-27, OUTBREAK-T8-QUOTE |
 | Test suites (`describe` blocks, files counted as one if they have none), total | 552 (not re-derived since K1 — only `it()` count re-measured; re-run the command above if this row matters to you) | `npx vitest run --reporter=json`, 2026-09-24, K1 blank dose rows |
 | Failing | 0 | same run |
 
@@ -108,6 +108,7 @@ for finding the right one:
 | [`regression-2026-11-26-c12-number-opens-the-quote.test.jsx`](../../src/components/__tests__/regression-2026-11-26-c12-number-opens-the-quote.test.jsx) | C12 (2026-11-26, owner "Build as shown"): a card's raised number shows its quote only in the browser's slow built-in hover text (nothing on a phone or tablet). PneumoVax's pop-up (#114) is copied: hover, keyboard focus or a first tap opens the document's name, the quoted sentence and "Open the document"; moving or tapping away, Escape and scrolling close it; a mouse click still opens the page at the sentence. The words sit in `data-title`, which `npm run prose` reads. 0 answers and 0 sentences moved. |
 | [`regression-2026-11-26-c11-number-sits-on-the-claim-its-quote-states.test.js`](../../src/logic/__tests__/regression-2026-11-26-c11-number-sits-on-the-claim-its-quote-states.test.js) | C11 (2026-11-26, citation only under Q12): a source number sat on a claim its sentence does not state, on 6 kinds of card (measured with `scripts/claimMatchesQuote.mjs`): the under-10 high-risk "3-dose" (no number), "completes the adolescent schedule" after a first dose at 16+, a high-risk MenB dose 2's "(minimum 4 weeks)", dose 3's "4 months after dose 2", "within the 4-day grace period" (CDC's grace sentence, read live 2026-11-26), and an infant series' "8 weeks between the early doses". Each now opens the sentence that states it; controls: complement under 10, a dose before 16 as well, dose 2 not yet due, an outbreak infant. 0 answers and 0 sentences moved. Fails with the fix reverted (7 of 13). |
 | [`regression-2026-11-26-outbreak-dose-after-the-booster-is-extra.test.js`](../../src/logic/__tests__/regression-2026-11-26-outbreak-dose-after-the-booster-is-extra.test.js) | Owner 2026-11-26 ("Extra, as Q8"; "Extra like A"): a serogroup B outbreak calls for one booster (D10), but a MenB dose after it read "Booster about 5 months after the last booster, 2 years required", a claim no source makes for an outbreak. Now Extra ("The series was already complete on that day."), as a dose 2+ years later already was; the Q8 college exception is MenACWY's only, so a dorm student reads the same, and a healthy dorm resident's unasked MenB dose is Extra. Controls: outbreak + asplenia/complement/microbiologist keep the 2-year floor; the outbreak booster under 6 months; a dorm student's MenACWY dose still counts. 133 saved patients moved. Fails with the fix reverted (4 of 11). |
+| [`regression-2026-11-27-outbreak-acwy-booster-quotes-table-8.test.js`](../../src/logic/__tests__/regression-2026-11-27-outbreak-acwy-booster-quotes-table-8.test.js) | OUTBREAK-T8-QUOTE (2026-11-27, citation only under Q12): the serogroup A/C/W/Y outbreak booster card's number linked to ACIP Table 8 as a whole, with no quoted sentence (the 740 unquoted numbers found during C12). It now quotes Table 8's own booster sentence, the 3-year or 5-year one the card states, read live 2026-11-27, the same pick as the dose checker. Hover text on 817 patients (740 real); 0 answers and 0 visible words moved. Fails with the fix reverted (2 of 4). |
 
 ## The sweep pattern
 
