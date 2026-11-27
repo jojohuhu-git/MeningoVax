@@ -8,7 +8,7 @@ is a clinician: plain English, short questions with a worked patient; ask, don't
 
 Branch `tier3/menb-min-cite` (PR #166), off `main` at `9e70130`, pushed with this handoff.
 Claude squash-merges MeningoVax PRs after the `test` check passes (owner, 2026-11-26). Baseline was
-**2,739 passing (235 files)**; now **2,749 passing, 0 failing (237 files)** (measured with
+**2,739 passing (235 files)**; now **2,749 passing, 0 failing (237 files)**; after INFANT-MIN-CITE **2,761 passing (238 files)** (measured with
 `vitest run --reporter=json`).
 
 **Dev server:** 5 Vite servers from other chats already serve this folder (ports 5175–5179), so
@@ -38,7 +38,8 @@ Claude squash-merges MeningoVax PRs after the `test` check passes (owner, 2026-1
 
 ## What's NOT done: the remaining queue
 
-- **Owner question, INFANT-MIN-CITE (asked 2026-11-27, not answered):** infant MenACWY sentences
+- **INFANT-MIN-CITE: ANSWERED 2026-11-27 ("CDC Notes sentence") and built the same day (PR after #166, `decisions-2026-11-27-infant-minimum-cite.md`). Kept below for the record.**
+  Was: infant MenACWY sentences
   stating 8 weeks carry no number: the dose 2/3 card's "It can be given today if needed, as the
   minimum interval of 8 weeks has passed." / "Earliest valid date: … (minimum interval 8 weeks)."
   (only a series begun at 2 months), and the dose-1 card's "Early doses are ≥8 weeks apart. The
@@ -69,8 +70,8 @@ answer because no sentence read so far is about a 2-month start.
 ## Resuming
 
 1. `cd /Users/joannehuang/Downloads/MeningoVax-main && git fetch && git checkout main && git pull`.
-2. If PR #166 is still open and `test` passed, squash-merge it. Run `npx vitest run`; expect
-   **2,749 passing (237 files)** unless `main` moved.
+2. #166 is merged. If the INFANT-MIN-CITE PR (`tier3/infant-min-cite`) is still open and `test` passed, squash-merge it. Run `npx vitest run`; expect
+   **2,761 passing (238 files)** unless `main` moved.
 3. Open the app at an already-running server (`lsof -iTCP -sTCP:LISTEN`), e.g. port 5178.
 4. Apply the owner's INFANT-MIN-CITE answer if given. Per item: failing test → fix → full suite →
    live check → commit named by ID; `npm run sweep:update` and `npm run prose -- dump/diff` counts

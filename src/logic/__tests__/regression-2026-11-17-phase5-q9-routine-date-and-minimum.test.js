@@ -76,21 +76,21 @@ describe('Q9b — infant MenACWY doses 2 and 3: due at 4 and 6 months; the 8-wee
     expect(c.doseLabel).toMatch(/^Dose 2/);
     expect(c.dueToday).toBe(false);
     expect(c.earliestNextDate).toBe('2026-05-01');
-    expect(lead(c)).toContain('Earliest valid date: Apr 26, 2026 (minimum interval 8 weeks).');
+    expect(lead(c)).toContain('Earliest valid date: Apr 26, 2026 (minimum interval 8 weeks) [c].');   // INFANT-MIN-CITE (owner, 2026-11-27): CDC's notes
   });
 
   it('dose 3: Menveo 3/1 and 5/1, seen 6/1 — due Jul 1 (6 months), can be given from Jun 26', () => {
     const c = run({ ...INF, today: '2026-06-01', menacwyDoses: [M('2026-03-01'), M('2026-05-01')], riskAtDoseAnswers: yes(2) }).menacwy[0];
     expect(c.doseLabel).toMatch(/^Dose 3/);
     expect(c.earliestNextDate).toBe('2026-07-01');
-    expect(lead(c)).toContain('Earliest valid date: Jun 26, 2026 (minimum interval 8 weeks).');
+    expect(lead(c)).toContain('Earliest valid date: Jun 26, 2026 (minimum interval 8 weeks) [c].');   // INFANT-MIN-CITE (owner, 2026-11-27): CDC's notes
   });
 
   it('between the minimum and the routine age: not due, but can be given today', () => {
     const c = run({ ...INF, today: '2026-04-28', menacwyDoses: [M('2026-03-01')], riskAtDoseAnswers: yes(1) }).menacwy[0];
     expect(c.dueToday).toBe(false);
     expect(c.earliestNextDate).toBe('2026-05-01');
-    expect(lead(c)).toContain('It can be given today if needed, as the minimum interval of 8 weeks has passed.');
+    expect(lead(c)).toContain('It can be given today if needed, as the minimum interval of 8 weeks has passed [c].');   // INFANT-MIN-CITE (owner, 2026-11-27): CDC's notes
   });
 
   it('control, started late (dose 1 at 3 months, 4/1): the 8-week minimum is the date, unchanged', () => {
