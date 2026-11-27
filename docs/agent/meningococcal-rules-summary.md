@@ -770,6 +770,23 @@ chosen difference (`PENTAVALENT-UPPER-AGE`).
   >
   > "if Penbraya is used for dose 1 MenB, MenB-FHbp (Trumenba) should be administered for dose 2 MenB" — [CDC MenB Notes](https://www.cdc.gov/vaccines/hcp/imz-schedules/child-adolescent-notes.html#note-mening-b), read 2026-11-19.
   <!-- /SOURCES -->
+- **Not in pregnancy** (your PREG-PENTA answer, 2026-11-26, "Separate shots"). A
+  pregnant patient at increased risk gets MenACWY and MenB as two separate shots. The
+  banner says: *"Not an option today: no high-quality data on the combined shot in
+  pregnancy. Give MenACWY and MenB separately."* Both reports' pregnancy paragraphs say
+  there are no (good) data, and Penbraya's says a pregnant patient "should receive"
+  MenACWY-CRM or MenACWY-TT. Pregnancy is said instead of the 6-month rule when both apply.
+  <!-- SOURCES: pentavalentGskNoPregnancyData, pentavalentPfizerNoPregnancyData, pentavalentGskPregnancySeparateAcwy, pentavalentPfizerPregnancySeparateAcwy, owner:PREG-PENTA -->
+  > "No high-quality data have been published on use of MenACWY-CRM/MenB-4C during pregnancy or while breastfeeding." — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-26.
+  >
+  > "No data exist on use of MenACWY-TT/MenB-FHbp during pregnancy or while breastfeeding." — [Penbraya MMWR 2024;73(15)](https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm), read 2026-11-26.
+  >
+  > "When MenACWY is indicated while pregnant or breastfeeding, MenACWY-CRM or MenACWY-TT may be administered." — [Penmenvy MMWR 2026;75(1)](https://www.cdc.gov/mmwr/volumes/75/wr/mm7501a2.htm), read 2026-11-26.
+  >
+  > "When MenACWY is indicated, persons who are pregnant or breastfeeding should receive MenACWY-CRM or MenACWY-TT (MenQuadfi, Sanofi Pasteur)." — [Penbraya MMWR 2024;73(15)](https://www.cdc.gov/mmwr/volumes/73/wr/mm7315a4.htm), read 2026-11-26.
+  >
+  > Owner decision PREG-PENTA, 2026-11-26 ([decisions-2026-11-26-pregnancy-combined-shot.md](../archive/decisions-2026-11-26-pregnancy-combined-shot.md)).
+  <!-- /SOURCES -->
 - The pentavalent never appears as an option in the plain MenB dose list —
   only in its own dedicated recommendation.
   <!-- SOURCES: pentavalentWhenBothIndicated, cdcAdultPenbrayaSameDay -->

@@ -5,7 +5,7 @@ import { patientAgeMonths } from '../logic/patientAge.js';
 import { todayISO, daysBetween } from '../logic/dateUtils.js';
 import { RISK_FACTORS } from '../data/riskFactors.js';
 import { MENACWY_BRANDS, MENB_BRANDS, PENTAVALENT_BRANDS } from '../data/brands.js';
-import RecCard, { RecNote, RiskAgeNote, ComplementAlert } from './RecCard.jsx';
+import RecCard, { RecNote, RiskAgeNote, ComplementAlert, PentavalentUnavailableReason } from './RecCard.jsx';
 import Disclaimer from './Disclaimer.jsx';
 import DoseEditor, { PentavalentCreditNote } from './DoseEditor.jsx';
 import { Chevron } from './icons.jsx';
@@ -398,11 +398,10 @@ export default function Results({ state, onReset, onChange, onBack, today }) {
             {/* P1-4: say WHY the combined shot is missing when the 6-month
                 Penbraya rule is what removed it, rather than dropping the
                 option with no explanation. */}
-            {pentavalent.unavailableReason && (
-              <div data-testid="pentavalent-unavailable-reason">
-                {pentavalent.unavailableReason}
-              </div>
-            )}
+            <PentavalentUnavailableReason
+              text={pentavalent.unavailableReason}
+              cites={pentavalent.unavailableCites}
+            />
           </div>
         )}
 

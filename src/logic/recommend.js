@@ -2884,8 +2884,17 @@ function recommendOneReading(input) {
   // their verdict ("Answers needed"), so the combined shot cannot be offered
   // on the strength of a "due today" that may not survive the answer.
   const answersPending = [...menacwyHistory.perDose, ...menbHistory.perDose].some((d) => d?.status === 'pending');
-  const pentavalentEligible = !answersPending
-    && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday && pentavalentBrands.length > 0;
+  // PREG-PENTA (owner, 2026-11-26, "Separate shots"): no combined shot in
+  // pregnancy. Both pentavalent MMWRs, "Pregnancy and breastfeeding" (read
+  // live 2026-11-26): Penbraya's "No data exist on use of MenACWY-TT/MenB-FHbp
+  // during pregnancy", and pregnant persons "should receive MenACWY-CRM or
+  // MenACWY-TT"; Penmenvy's "No high-quality data have been published", and
+  // MenACWY-CRM or MenACWY-TT "may be administered". Only a pregnant patient
+  // at increased risk reaches this: without one, pregnancy defers MenB.
+  const pregnant = riskIds.includes('pregnancy');
+  const pentavalentOpen = !answersPending
+    && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday;
+  const pentavalentEligible = pentavalentOpen && !pregnant && pentavalentBrands.length > 0;
   const pentavalent = pentavalentEligible
     ? {
         eligible: true,
@@ -2914,9 +2923,18 @@ function recommendOneReading(input) {
         eligible: false,
         // Only set when the 6-month rule is what removed the option, so the
         // card can say why instead of silently dropping it.
-        unavailableReason: (!answersPending && am >= PENTAVALENT_MIN_AGE_MONTHS && acwyDueToday && bAvailableToday && (penbrayaTooRecent || penmenvyTooRecent))
+        // Pregnancy is said first: it rules out both brands, whatever the
+        // 6-month rule says about one of them.
+        unavailableReason: (pentavalentOpen && pregnant)
+          ? 'Not an option today: no high-quality data on the combined shot in pregnancy [c][c]. Give MenACWY and MenB separately [c][c].'
+          : (pentavalentOpen && (penbrayaTooRecent || penmenvyTooRecent))
           ? `Not an option today: ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} cannot be repeated within 6 months of the last ${penbrayaTooRecent ? 'Penbraya' : 'Penmenvy'} dose.`   // P69 (review v10)
           : null,
+        // One cite per [c], in reading order (C11: each number on its own claim).
+        unavailableCites: (pentavalentOpen && pregnant)
+          ? [cite('pentavalentGskNoPregnancyData'), cite('pentavalentPfizerNoPregnancyData'),
+            cite('pentavalentGskPregnancySeparateAcwy'), cite('pentavalentPfizerPregnancySeparateAcwy')]
+          : [],
       };
 
   const { note: riskAgeNote, cites: riskAgeNoteCites } = riskAgeCheck(riskIds, am);
