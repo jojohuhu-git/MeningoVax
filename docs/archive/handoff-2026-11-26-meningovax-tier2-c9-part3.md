@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-tier2-c12.md` (on the `tier2/c12-quote-popup` branch, PR #158). C12 was built; resume from that file.
+
 # MeningoVax — Handoff after building Tier 2 item C9 part 3 (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
