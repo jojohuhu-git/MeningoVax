@@ -121,9 +121,11 @@ describe('C4 ACIP 2020: a high-risk child under 10 is told, with ACIP\'s sentenc
     // C4 complement page (owner, 2026-11-22): a complement patient's "3-dose"
     // also cites CDC's "MenB vaccines need 3 doses".
     const comp = risk === 'complement';
-    expect(c.note.detail).toBe(`This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series${comp ? ' [c]' : ''} once they reach age 10 [c].`);
+    // C11 (2026-11-26): every other group's "3-dose" cites ACIP Oct 2024's
+    // 3-dose schedule sentences (no product yet, so both families).
+    expect(c.note.detail).toBe(`This patient has a high-risk indication, so track them for the 3-dose high-risk MenB series ${comp ? '[c]' : '[c][c]'} once they reach age 10 [c].`);
     // C4 mm7349a3 (2026-11-22): the lead's "licensed from age 10 years" now
     // cites the 2024 report first; the detail's last mark still cites ACIP 2020.
-    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', ...(comp ? ['cdcComplementMenb3Doses'] : []), 'acip2020MenbRiskGroups']);
+    expect(c.noteCites.map((x) => x.key)).toEqual(['menbLicensedAge1025Acip2024', ...(comp ? ['cdcComplementMenb3Doses'] : ['menbHighRisk3DoseSchedule', 'menbFhbpSchedules']), 'acip2020MenbRiskGroups']);
   });
 });

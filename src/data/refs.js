@@ -858,6 +858,20 @@ export const CITATIONS = {
     short: 'ACIP Best Practice',
     lastVerified: '2026-11-20',
   },
+  // C11 (2026-11-26): the 4-day grace, read live 2026-11-26 under "Spacing of
+  // multiple doses of the same antigen" (page dated July 24, 2024). The full
+  // sentence opens 'Known as the "grace period", ' and ends '; however, local
+  // or state mandates might supersede this 4-day guideline.' The rulebook's
+  // section 0 quotes the same words. Cited where a card says a line was met
+  // "within the 4-day grace period".
+  gbpGraceFourDays: {
+    url: 'https://www.cdc.gov/vaccines/hcp/imz-best-practices/timing-spacing-immunobiologics.html',
+    quote: 'vaccine doses administered ≤4 days before the minimum interval or age are considered valid',
+    population: ALL_GROUPS,
+    label: 'ACIP General Best Practice Guidelines: the 4-day grace period',
+    short: 'ACIP Best Practice',
+    lastVerified: '2026-11-26',
+  },
   // The sentence the owner's E1 answer deliberately differs from (2026-11-15):
   // for an inactivated vaccine CDC sets no wait after a too-young first dose.
   gbpTooYoungFirstDoseRepeat: {

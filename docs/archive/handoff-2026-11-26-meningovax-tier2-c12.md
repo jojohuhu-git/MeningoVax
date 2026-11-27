@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-11-26** by `handoff-2026-11-26-meningovax-after-merges.md`. #157 and #158 are merged; resume from that file.
+
 # MeningoVax — Handoff after building Tier 2 item C12 (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit

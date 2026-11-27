@@ -38,15 +38,15 @@ const CASES = [
   { name: 'A: dose 2 six months after dose 1', doses: ['2026-01-01', '2026-07-05'], key: NO_D3,
     line: 'Dose 3 is not needed: dose 2 was given at least 6 months after dose 1 [c].' },
   { name: 'A, grace: dose 2 two days short of 6 months', doses: ['2026-01-03', '2026-07-01'], key: NO_D3,
-    line: 'Dose 3 is not needed: dose 2 was given 6 months after dose 1, within the 4-day grace period [c].' },
+    line: 'Dose 3 is not needed: dose 2 was given 6 months after dose 1 [c], within the 4-day grace period [c].' },
   { name: "B: dose 3 two months after dose 2, six after dose 1 (ACIP's \"unless\")", doses: ['2026-01-01', '2026-05-01', '2026-07-05'], key: UNLESS,
     line: 'Dose 3 counts: it was given at least 6 months after dose 1 [c].' },
   { name: 'B, grace', doses: ['2026-01-03', '2026-04-01', '2026-07-01'], key: UNLESS,
-    line: 'Dose 3 counts: it was given 6 months after dose 1, within the 4-day grace period [c].' },
+    line: 'Dose 3 counts: it was given 6 months after dose 1 [c], within the 4-day grace period [c].' },
   { name: 'C: dose 3 four months after dose 2, five after dose 1 (owner C5)', doses: ['2026-01-01', '2026-01-29', '2026-05-30'], key: UNLESS,
     line: 'Dose 3 counts: it was given at least 4 months after dose 2 [c].' },
   { name: 'C, grace', doses: ['2026-01-01', '2026-01-29', '2026-05-27'], key: UNLESS,
-    line: 'Dose 3 counts: it was given 4 months after dose 2, within the 4-day grace period [c].' },
+    line: 'Dose 3 counts: it was given 4 months after dose 2 [c], within the 4-day grace period [c].' },
 ];
 
 describe('Item 6: a short or early high-risk MenB series says why it counts', () => {
@@ -65,7 +65,9 @@ describe('Item 6: a short or early high-risk MenB series says why it counts', ()
       expect(r.noteCites[0].quote).toBe(REFS[c.key].quote);
       // The booster sentence and its sources follow, unchanged.
       expect(noteText(r)).toContain('A MenB booster, 1 year after the primary series was completed [c].');
-      expect(r.noteCites.map((x) => x.key).slice(1)).toEqual(['menbHighRiskBoosterCadenceBox', 'menbBoosterSameManufacturer']);
+      // C11 (2026-11-26): a line met through the grace also cites CDC's grace sentence.
+      const grace = c.line.includes('grace');
+      expect(r.noteCites.map((x) => x.key).slice(1)).toEqual([...(grace ? ['gbpGraceFourDays'] : []), 'menbHighRiskBoosterCadenceBox', 'menbBoosterSameManufacturer']);
     });
   }
 

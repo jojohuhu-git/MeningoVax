@@ -87,7 +87,8 @@ describe('C4 mm7349a3: the 2024 report is cited on the card line it backs', () =
     const r = run({ dob: '2007-06-01', riskIds: ['complement'], menbDoses: [{ date: '2025-11-22', brand }] });
     const c = r.menb[0];
     expect(c.doseNum).toBe(2);
-    expect(keys(c.noteCites)).toEqual([key]);
+    // C11 (2026-11-26): "(minimum 4 weeks)" cites ACIP 2020's 4 weeks first.
+    expect(keys(c.noteCites)).toEqual(['acip2020MenbRepeat4Weeks', key]);
     marksMatch(c);
     expect(mmUncited(r, c, 'MenB')).toBe(false);
   });
@@ -106,11 +107,12 @@ describe('C4 mm7349a3: the 2024 report is cited on the card line it backs', () =
     const r = run({ dob: '2007-06-01', riskIds: ['complement'], menbDoses: [{ date: '2025-11-22', brand: 'Bexsero' }, { date: '2025-12-27', brand: 'Trumenba' }] });
     const c = r.menb[0];
     expect(noteText(c)).toMatch(/Or complete the series with Trumenba/);
-    expect([...keys(c.noteCites)].sort()).toEqual(['acip2020MenbMixedProductsSelectOne', 'menbHighRisk3DoseSchedule']);
+    expect([...keys(c.noteCites)].sort()).toEqual(['acip2020MenbMixedProductsSelectOne', 'acip2020MenbRepeat4Weeks', 'menbHighRisk3DoseSchedule']);
     // Order follows the text: the mark after "no longer counts" is the
-    // mixed-products sentence, the one after "6 months after dose 1" the schedule.
+    // mixed-products sentence, the one after "6 months after dose 1" the schedule,
+    // and (C11) the one after "minimum 4 weeks" ACIP 2020's 4 weeks.
     const text = noteText(c);
-    const order = [...text.matchAll(/no longer counts \[c\]|after dose 1 \[c\]/g)].map((m) => (m[0].startsWith('no') ? 'acip2020MenbMixedProductsSelectOne' : 'menbHighRisk3DoseSchedule'));
+    const order = [...text.matchAll(/no longer counts \[c\]|after dose 1 \[c\]|4 weeks \[c\]/g)].map((m) => (m[0].startsWith('no') ? 'acip2020MenbMixedProductsSelectOne' : m[0].startsWith('4') ? 'acip2020MenbRepeat4Weeks' : 'menbHighRisk3DoseSchedule'));
     expect(keys(c.noteCites)).toEqual(order);
     expect(mmUncited(r, c, 'MenB')).toBe(false);
   });
@@ -138,7 +140,8 @@ describe('C4 mm7349a3: the 2024 report is cited on the card line it backs', () =
     const r = run({ dob: '2021-06-01', riskIds: ['outbreak_b'] });
     const c = r.menb[0];
     expect(c.doseLabel).toBe('Not yet due (from 10 years)');
-    expect(keys(c.noteCites)).toEqual(['menbLicensedAge1025Acip2024', 'acip2020MenbRiskGroups']);
+    // C11 (2026-11-26): "3-dose" cites both families' schedule sentences.
+    expect(keys(c.noteCites)).toEqual(['menbLicensedAge1025Acip2024', 'menbHighRisk3DoseSchedule', 'menbFhbpSchedules', 'acip2020MenbRiskGroups']);
     marksMatch(c);
     expect(mmUncited(r, c, 'MenB')).toBe(false);
   });

@@ -43,34 +43,37 @@ describe('Item 7: a MenB schedule line cites the sentence for the patient\'s own
   it('asplenia, 17, Trumenba 1 Oct 2026: dose 2 cites the MenB-FHbp sentence', () => {
     const c = run({ ...asplenia17, menbDoses: [{ brand: 'Trumenba (MenB)', date: '2026-10-01' }] }).menb[0];
     expect(c.doseLabel).toBe('Dose 2 of 3 (high-risk, Trumenba)');
-    expect(keys(c.noteCites)).toEqual(['menbFhbpSchedules']);
-    expect(marks(c)).toBe(1);
+    // C11 (2026-11-26): "(minimum 4 weeks)" cites ACIP 2020's 4 weeks first.
+    expect(keys(c.noteCites)).toEqual(['acip2020MenbRepeat4Weeks', 'menbFhbpSchedules']);
+    expect(marks(c)).toBe(2);
   });
 
   it('asplenia, 17, Penbraya 1 Oct 2026 (a MenB-FHbp vaccine): dose 2 cites the MenB-FHbp sentence', () => {
     const c = run({ ...asplenia17, menbDoses: [{ brand: 'Penbraya', date: '2026-10-01' }] }).menb[0];
     expect(c.doseLabel).toBe('Dose 2 of 3 (high-risk, Trumenba)');
-    expect(keys(c.noteCites)).toEqual(['menbFhbpSchedules']);
+    expect(keys(c.noteCites)).toEqual(['acip2020MenbRepeat4Weeks', 'menbFhbpSchedules']);
   });
 
   it('asplenia, 17, Trumenba 1 Mar and 1 Apr 2026: dose 3 cites the MenB-FHbp sentence', () => {
     const c = run({ ...asplenia17, menbDoses: [
       { brand: 'Trumenba (MenB)', date: '2026-03-01' }, { brand: 'Trumenba (MenB)', date: '2026-04-01' }] }).menb[0];
     expect(c.doseLabel).toBe('Dose 3 of 3 (high-risk, Trumenba)');
-    expect(keys(c.noteCites)).toEqual(['menbFhbpSchedules']);
-    expect(marks(c)).toBe(1);
+    // C11 (2026-11-26): "at least 4 months after dose 2" cites ACIP Oct 2024's
+    // "<4 months … repeated" sentence; the schedule keeps "6 months after dose 1".
+    expect(keys(c.noteCites)).toEqual(['menbFhbpSchedules', 'menbHighRiskEarlyD3Unless']);
+    expect(marks(c)).toBe(2);
   });
 
   it('control: asplenia, 17, Bexsero 1 Oct 2026: dose 2 still cites the MenB-4C sentence', () => {
     const c = run({ ...asplenia17, menbDoses: [{ brand: 'Bexsero (MenB)', date: '2026-10-01' }] }).menb[0];
     expect(c.doseLabel).toBe('Dose 2 of 3 (high-risk, Bexsero)');
-    expect(keys(c.noteCites)).toEqual(['menbHighRisk3DoseSchedule']);
+    expect(keys(c.noteCites)).toEqual(['acip2020MenbRepeat4Weeks', 'menbHighRisk3DoseSchedule']);
   });
 
   it('control: asplenia, 17, Bexsero 1 Mar and 1 Apr 2026: dose 3 still cites the MenB-4C sentence', () => {
     const c = run({ ...asplenia17, menbDoses: [
       { brand: 'Bexsero (MenB)', date: '2026-03-01' }, { brand: 'Bexsero (MenB)', date: '2026-04-01' }] }).menb[0];
-    expect(keys(c.noteCites)).toEqual(['menbHighRisk3DoseSchedule']);
+    expect(keys(c.noteCites)).toEqual(['menbHighRisk3DoseSchedule', 'menbHighRiskEarlyD3Unless']);
   });
 
   it('healthy 17, no MenB yet: dose 1 cites both 0-and-6-month sentences, then the preferred age', () => {
