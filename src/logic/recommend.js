@@ -475,8 +475,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
       ? `Boosters: ${yearsLabel(MENACWY_FIRST_BOOSTER_YEARS_FROM_7)} after the series [c], then every ${yearsLabel(MENACWY_BOOSTER_CADENCE_YEARS)} while at risk`
       : MENACWY_HIGHRISK_BOOSTER_LINE;
     const primaryBoosterCites = am >= MENACWY_BOOSTER_AGE_SPLIT_MONTHS
-      ? [cite(acwyBoosterRowKey(false, riskIds, primaryEndFrom10))]
-      : [cite(acwyBoosterRowKey(true, riskIds)), cite(acwyBoosterRowKey(false, riskIds))];
+      ? [cite(acwyBoosterRowKey(false, riskIds, primaryEndFrom10), { riskIds })]
+      : [cite(acwyBoosterRowKey(true, riskIds), { riskIds }), cite(acwyBoosterRowKey(false, riskIds), { riskIds })];
     if (given === 0) {
       return [rec({
         vaccine: 'MenACWY', status: 'risk-based', doseLabel: 'Dose 1 of 2 (high-risk primary series)',
@@ -547,10 +547,10 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
             : `The first booster is 5 years later because the series ended at ${BOOSTER_FROM_10_KEYS.includes(completionRowKey) ? 10 : 7} years or older [c].`,
         }
         : null,
-      noteCites: isFirstBooster ? [cite(completionRowKey)] : [],
+      noteCites: isFirstBooster ? [cite(completionRowKey, { riskIds })] : [],
       // U2: a LATER booster now has no note at all, so without this the card
       // would state a cadence with nothing to click through to.
-      boosterCites: [cite(completionRowKey)],
+      boosterCites: [cite(completionRowKey, { riskIds })],
       // C5/2026-07-24: cdcRecommendations dropped — the <7y/≥7y split is a
       // verbatim MMWR quote already (citation audit finding).
       refs: refsFor([]),
@@ -588,7 +588,7 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
         lead: `MenACWY starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, so nothing is due yet [c].`,
         detail: 'This patient has an occupational or exposure-based indication for a single MenACWY dose, but that does not lower the vaccine\'s own minimum age. Track this patient and give the dose once they reach that age.',
       },
-      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
       refs: refsExposure(),
     })];
   }
@@ -743,8 +743,8 @@ function menacwyRec(am, riskIds, doses, today, dob, clockDate = null, repeatFloo
           : null,
       noteCites: (isTravel && isFirstExposureBooster) ? [
         exposureBoostYears === MENACWY_FIRST_BOOSTER_YEARS_UNDER_7
-          ? cite(acwyBoosterRowKey(true, riskIds))
-          : cite(acwyBoosterRowKey(false, riskIds)),
+          ? cite(acwyBoosterRowKey(true, riskIds), { riskIds })
+          : cite(acwyBoosterRowKey(false, riskIds), { riskIds }),
       ] : (isFirstExposureBooster && microCited) ? [cite('acip2020Table7MicrobiologistBooster')] : [],
       refs: refsExposure(),
     })];
@@ -1097,7 +1097,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
   // U2: the source for that line. Empty for outbreak, where there IS no line --
   // and where the notes used to promise the countdown anyway, two sentences
   // before saying no such countdown exists.
-  const infantBoosterCites = [cite(acwyBoosterRowKey(true, riskIds))];
+  const infantBoosterCites = [cite(acwyBoosterRowKey(true, riskIds), { riskIds })];
   // Was the "no standing booster schedule … only in a NEW outbreak" sentence;
   // retired by B-2. Kept as an empty string so the notes below read unchanged.
   const outbreakTopUp = '';
@@ -1157,7 +1157,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           lead: `The infant series starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}; MenQuadfi may be given from ${weeksLabel(MENACWY_LICENCE_MIN_AGE_DAYS)} [c].`,
           detail: 'Start the four-dose infant series at 2, 4, 6 and 12 months [c].',
         },
-        noteCites: [cite('aap2026MenQuadfiFrom6Weeks'), cite('acwyInfantHighRisk2to6mo')],
+        noteCites: [cite('aap2026MenQuadfiFrom6Weeks'), cite('acwyInfantHighRisk2to6mo', { riskIds })],
         boosterCites: infantBoosterCites,
         refs: [...refs, 'aap2026MenQuadfiFrom6Weeks'] });
     }
@@ -1169,7 +1169,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           lead: `The infant series starts at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}, so nothing is due yet [c].`,
           detail: `This patient has an indication that calls for the ${why} series, so track them and start it at ${monthsLabel(MENACWY_SCHEDULE_MIN_AGE_MONTHS)}.`,
         },
-        noteCites: [cite('acwyInfantHighRisk2to6mo')],
+        noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
         refs });
     }
     // MQ6-e (owner, 2026-11-21, "Same as at 2 months"): a dose already given
@@ -1215,7 +1215,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           lead: 'Start the four-dose infant series at 2, 4, 6 and 12 months [c].',
           detail: `Early doses are ≥${weeksLabel(startGate.minIntervalDays)} apart. The final dose is at ≥${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} and ≥${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before.${outbreakTopUp}`,
         },
-        noteCites: [cite('acwyInfantHighRisk2to6mo')],
+        noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
         boosterCites: infantBoosterCites, refs });
     }
     // B1 (2026-09-17): was `am <= 11`, same mistake at the next band edge —
@@ -1244,7 +1244,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           lead: `Start the 2-dose infant MenACWY series — dose 2 at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 1, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
           detail: `${whoAged('7–11 months')} need two doses, not the four a younger infant needs.${outbreakTopUp}`,
         },
-        noteCites: [cite('acwyInfantHighRisk7to23mo')],
+        noteCites: [cite('acwyInfantHighRisk7to23mo', { riskIds })],
         boosterCites: infantBoosterCites, refs });
     }
     // 12-23m unvaccinated. D5: D2 ≥12 weeks after D1 (≥12m age floor already satisfied in this band).
@@ -1259,7 +1259,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         lead: `Start the 2-dose primary series — the two doses at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} apart [c].`,
         detail: `${whoKidsAged('12–23 months')} who are unvaccinated need two doses. Both fall after the first birthday, so the 12-month age floor that gates a younger infant's final dose is already met.${outbreakTopUp}`,
       },
-      noteCites: [cite('acwyInfantHighRisk7to23mo')],
+      noteCites: [cite('acwyInfantHighRisk7to23mo', { riskIds })],
       boosterCites: infantBoosterCites, refs });
   }
 
@@ -1337,7 +1337,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         lead: `This final dose is due at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after dose 2, and not before ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} of age [c].`,
         detail: 'Dose 2 was given at 7 months or older, so this series completes in three doses rather than four. No fourth dose is needed.',
       },
-      noteCites: [cite('acwyInfantHighRisk7to23mo')],
+      noteCites: [cite('acwyInfantHighRisk7to23mo', { riskIds })],
       boosterCites: infantBoosterCites,
       refs });
   }
@@ -1369,7 +1369,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
       isFirstBooster: isFirstInfantBooster, primaryCompletionAgeMonths: infantCompletionAgeM,
     });
     const infantFirstBoost3 = menacwyFirstBoosterYears(infantCompletionAgeM) === 3;
-    const infantBoosterCite = cite(acwyBoosterRowKey(infantFirstBoost3, riskIds, menacwyBoosterRowFrom10(infantCompletionAgeM)));   // C13
+    const infantBoosterCite = cite(acwyBoosterRowKey(infantFirstBoost3, riskIds, menacwyBoosterRowFrom10(infantCompletionAgeM)), { riskIds });   // C13
     const boostDays = DAYS.years(infantBoostYears);
     const elapsedBoost = calendarIntervalElapsed(lastDate, infantBoostYears * 12, today);
     return rec({ vaccine: 'MenACWY', status: infantOutbreak ? 'exposure' : 'risk-based',
@@ -1439,7 +1439,7 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
         lead: `Continue the ${why} series — doses at 2, 4, 6 and 12 months [c].${infantMinClause}`,
         detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
       },
-      noteCites: [cite('acwyInfantHighRisk2to6mo')],
+      noteCites: [cite('acwyInfantHighRisk2to6mo', { riskIds })],
       boosterCites: infantBoosterCites,
       refs });
   }
@@ -1479,8 +1479,8 @@ function menacwyInfantSeries(am, given, doses, last, today, riskIds, dob, clockD
           detail: `The final dose of the series comes at ${monthsLabel(MENACWY_INFANT_FINAL_MIN_AGE_MONTHS)} or older, and at least ${weeksLabel(MENACWY_INFANT_FINAL_GAP)} after the one before it.${outbreakTopUp}`,
         },
     noteCites: d1WasInfant7to11
-      ? [cite('acwyInfantHighRisk7to23mo')]
-      : [cite('acwyInfantHighRisk2to6mo')],
+      ? [cite('acwyInfantHighRisk7to23mo', { riskIds })]
+      : [cite('acwyInfantHighRisk2to6mo', { riskIds })],
     boosterCites: infantBoosterCites,
     refs });
 }
