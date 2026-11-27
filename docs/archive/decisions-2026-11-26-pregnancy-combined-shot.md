@@ -50,3 +50,14 @@ Both pentavalent MMWRs, "Contraindications and Precautions", "Pregnancy and brea
   only, every one pregnant. Wording: 1,127 real patients (the 1,111, plus 16 already blocked by
   the 6-month Penmenvy rule who now read the pregnancy reason) and 314 impossible entries.
 - Guard: `regression-2026-11-26-preg-penta-separate-shots-in-pregnancy.test.jsx`.
+
+## Follow-on, answered 2026-11-27: MenB dose 2 can be given but is not due: "No change"
+
+A pregnant 19-year-old with asplenia, no MenACWY, Trumenba dose 1 on Oct 29, 2026, seen Nov 27:
+MenACWY is due; MenB dose 2 is due Nov 29 but past its 4-week minimum ("can be given today if
+needed", owner F2a). Not pregnant, the combined shot is offered. Pregnant, it is not, and the
+reason line does not show: it lives in the two-vaccines box, which appears only when both are due
+(`Results.jsx`). Reached only in the days between 4 weeks and 1 month after a high-risk MenB dose 1;
+0 of 23,788 saved patients. Checked live. **Owner: "No change"**: the screen says "Due today:
+MenACWY" and "Next dose not yet due", so nothing suggests combining. Guard: the last `describe` in
+`regression-2026-11-26-preg-penta-separate-shots-in-pregnancy.test.jsx`.

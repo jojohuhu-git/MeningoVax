@@ -100,3 +100,46 @@ describe('PREG-PENTA (UI): the banner says why, with source numbers', () => {
     expect(show(['asplenia']).querySelector('[data-testid="option-separate-label"]')).toBeTruthy();
   });
 });
+
+// Owner, 2026-11-27 ("No change"): MenACWY due today, MenB dose 2 not due but
+// past its 4-week minimum (F2a's "can be given today"). Not pregnant, the
+// combined shot is offered; pregnant, it is not, and NO reason line shows,
+// because the two-vaccines box appears only when both are due. Kept on
+// purpose: the screen says "Due today: MenACWY" and "Next dose not yet due",
+// so nothing suggests combining. Only the days between 4 weeks and 1 month
+// after a high-risk MenB dose 1 reach it (0 saved patients).
+describe('PREG-PENTA, MenB dose 2 can be given but is not due (owner: no reason line)', () => {
+  // Trumenba dose 1 on Aug 17: 4 weeks have passed by Sep 15, 1 month has not.
+  const menbDoses = [{ date: '2026-08-17', brand: 'Trumenba (MenB)' }];
+  const run = (riskIds) => recommend({ today: TODAY, ageMonths: 228, riskIds, menacwyDoses: [], menbDoses });
+  const page = (riskIds) => render(
+    <Results
+      state={{
+        step: 4, ageMonths: 228, ageGroup: 'adult', riskIds,
+        menacwyDoses: [], menbDoses,
+        riskAtDoseAnswers: { MenACWY: {}, MenB: {} },
+      }}
+      today={TODAY}
+      onReset={() => {}} onChange={() => {}} onBack={() => {}}
+    />,
+  ).container;
+
+  it('the case is real: MenACWY due, MenB dose 2 not due', () => {
+    const r = run(['pregnancy', 'asplenia']);
+    expect(r.menacwy.some((c) => c.dueToday)).toBe(true);
+    expect(r.menb[0].dueToday).toBe(false);
+    expect(r.menb[0].doseLabel).toMatch(/^Dose 2 of 3/);
+  });
+
+  it('control: not pregnant, the combined shot is offered', () => {
+    expect(run(['asplenia']).pentavalent.eligible).toBe(true);
+    expect(page(['asplenia']).querySelector('[data-testid="option-separate-label"]')).toBeTruthy();
+  });
+
+  it('pregnant: no combined shot, and no reason line on the screen', () => {
+    expect(run(['pregnancy', 'asplenia']).pentavalent.eligible).toBe(false);
+    const c = page(['pregnancy', 'asplenia']);
+    expect(c.querySelector('[data-testid="option-separate-label"]')).toBeNull();
+    expect(c.querySelector('[data-testid="pentavalent-unavailable-reason"]')).toBeNull();
+  });
+});
