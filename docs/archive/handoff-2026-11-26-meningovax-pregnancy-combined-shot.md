@@ -1,3 +1,6 @@
+> **SUPERSEDED 2026-11-27** by `handoff-2026-11-27-meningovax-q5c-preg-f2a.md`. #162 is merged; the outbreak "Complete" line (Q5c) and the pregnant F2a case are answered; resume from that file.
+
+
 # MeningoVax — Handoff after PREG-PENTA, the combined shot in pregnancy (2026-11-26)
 
 Repo: `/Users/joannehuang/Downloads/MeningoVax-main` (iCloud-synced: commit early; re-apply an edit
