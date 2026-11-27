@@ -91,12 +91,16 @@ export const MENACWY_INFANT_ROUTINE_AGE_MONTHS = { 2: 4, 3: 6 };
  * The sentence that states the minimum beside a routine date (PneumoVax C10-2).
  * Empty when there is no earlier date to offer: no date, already due, or the
  * minimum is not earlier than the routine date.
+ *
+ * `mark`: end the sentence with a source number " [c]" (MENB-MIN-CITE,
+ * 2026-11-27); the caller adds the matching cite where the sentence sits.
  */
-export function minimumBesideRoutine({ minDate, advisedDate, today, minWords, fmt }) {
+export function minimumBesideRoutine({ minDate, advisedDate, today, minWords, fmt, mark = false }) {
   if (!minDate || !advisedDate || advisedDate <= today || advisedDate <= minDate) return '';
+  const end = mark ? ' [c].' : '.';
   return minDate <= today
-    ? ` It can be given today if needed, as the minimum interval of ${minWords} has passed.`
-    : ` Earliest valid date: ${fmt(minDate)} (minimum interval ${minWords}).`;   // P34 (review v10)
+    ? ` It can be given today if needed, as the minimum interval of ${minWords} has passed${end}`
+    : ` Earliest valid date: ${fmt(minDate)} (minimum interval ${minWords})${end}`;   // P34 (review v10)
 }
 
 /**

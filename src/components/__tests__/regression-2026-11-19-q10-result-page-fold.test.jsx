@@ -54,7 +54,7 @@ describe('Q10 stay-in-view list: each line the owner kept stays in view', () => 
       dob: '2006-01-01', riskIds: ['asplenia'], today: '2026-11-17',
       menacwyDoses: [], menbDoses: [{ date: '2026-11-03', brand: 'Bexsero (MenB)' }],
     }).menb[0];
-    expect(c.note.lead).toBe('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks).');
+    expect(c.note.lead).toBe('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks) [c].');   // MENB-MIN-CITE (2026-11-27)
     expect(c.note.detail.startsWith('Give dose 2 1–2 months after dose 1, with the same MenB product')).toBe(true);
   });
   it('"once 8 weeks have passed since that dose"', () => {

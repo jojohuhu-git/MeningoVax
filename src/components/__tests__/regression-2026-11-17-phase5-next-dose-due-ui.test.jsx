@@ -21,7 +21,8 @@ describe('Phase 5 B1: "Next dose due <date>"', () => {
     const rec = menbCard({ dob: '2006-01-01', today: '2026-11-17', riskIds: ['asplenia'], menbDoses: [B('2026-11-03')] });
     const { container } = render(<RecCard rec={rec} />);
     expect(container.querySelector('.next-date').textContent).toBe('Next dose due Dec 3, 2026');
-    expect(container.textContent).toContain('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks).');
+    // MENB-MIN-CITE (2026-11-27): the sentence carries its source number.
+    expect(container.textContent).toMatch(/Earliest valid date: Dec 1, 2026 \(minimum interval 4 weeks\) ?\[\d\]\./);
     expect(container.textContent).not.toMatch(/eligible/i);
   });
 

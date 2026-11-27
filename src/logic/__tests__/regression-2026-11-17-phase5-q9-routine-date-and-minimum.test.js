@@ -33,14 +33,14 @@ describe('Q9a — MenB high-risk dose 2: due 1 month after dose 1; the 4-week mi
     expect(c.doseLabel).toMatch(/^Dose 2 of 3/);
     expect(c.dueToday).toBe(false);
     expect(c.earliestNextDate).toBe('2026-12-03');
-    expect(lead(c)).toContain('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks).');
+    expect(lead(c)).toContain('Earliest valid date: Dec 1, 2026 (minimum interval 4 weeks) [c].');   // MENB-MIN-CITE (2026-11-27)
   });
 
   it('between the minimum and the routine date: not due, but can be given today', () => {
     const c = run({ ...HR, today: '2026-12-01', menbDoses: [B('2026-11-03')] }).menb[0];
     expect(c.dueToday).toBe(false);
     expect(c.earliestNextDate).toBe('2026-12-03');
-    expect(lead(c)).toContain('It can be given today if needed, as the minimum interval of 4 weeks has passed.');
+    expect(lead(c)).toContain('It can be given today if needed, as the minimum interval of 4 weeks has passed [c].');   // MENB-MIN-CITE (2026-11-27)
   });
 
   it('on the routine date: due today, and no minimum sentence', () => {
