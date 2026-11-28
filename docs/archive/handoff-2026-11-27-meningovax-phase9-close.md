@@ -43,12 +43,12 @@ Full detail: `docs/archive/report-2026-11-27-phase9-close.md`.
 All of it is PneumoVax work or optional. **The owner asked for the em-dash item last**, and will
 propose other PneumoVax work in a new conversation first.
 
-- **PNEUMO-AGEENTRY-GUARD (PneumoVax, from 9.2):** add a line to PneumoVax's `CLAUDE.md` beside
+- **DONE 2026-11-27, PneumoVax #168.** **PNEUMO-AGEENTRY-GUARD (PneumoVax, from 9.2):** add a line to PneumoVax's `CLAUDE.md` beside
   "dateUtils.js Is Mirror-Synced", plus a guard test beside `regression-s6-4-…` comparing the two
   `ageEntry.js` copies, comments aside. **First switch the PneumoVax folder to `main` and pull:**
   it is on `chore/2026-11-17-remove-dead-undated-code`, 2 behind, and its `ageEntry.js` still shows
   the em dashes `main` removed (#164). A guard written on that folder would fail.
-- **PNEUMO-EM-DASH (last, owner):** MeningoVax's copy-style rules apply to PneumoVax too; em
+- **DONE 2026-11-27, PneumoVax #168** (owner: sentences like MeningoVax, headers in brackets, dose labels keep their dash). **PNEUMO-EM-DASH (last, owner):** MeningoVax's copy-style rules apply to PneumoVax too; em
   dashes in PneumoVax card sentences have not been measured. Measure first (`npm run prose` there,
   on `main`), then ask with screens. Chip labels keep their dash in MeningoVax (E1); ask whether
   the same holds there. See `decisions-2026-11-26-em-dashes.md`.
