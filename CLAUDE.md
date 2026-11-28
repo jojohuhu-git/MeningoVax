@@ -126,8 +126,11 @@ made here fails there — apply the same change to both.
 ### ageEntry.js Matches PneumoVax's
 `src/logic/ageEntry.js` (the date-of-birth checks and their messages) is the same code as
 PneumoVax's copy, comments aside (measured 2026-11-27 against PneumoVax `main`; owner E2,
-2026-11-26: "Both apps"). Change its wording in both repos or neither. No test guards it
-yet; the guard belongs in PneumoVax beside the `dateUtils.js` one.
+2026-11-26: "Both apps"). Change its wording in both repos or neither. Guarded from
+PneumoVax (PNEUMO-AGEENTRY-GUARD, PneumoVax #168):
+`regression-2026-11-27-ageentry-mirrors-meningovax.test.js` compares the two files with comments
+removed, beside the `dateUtils.js` guard. It is skipped when this folder is absent, so a local
+PneumoVax run is what catches drift.
 
 ### college_dorm vs military vs acwy_outbreak
 The ≥16y-dose-satisfies rule applies ONLY to `college_dorm`, and only for 5 years after that dose (owner D1, 2026-11-17, reversing M17's "permanently"). Do not apply it to `military` or `acwy_outbreak`.
